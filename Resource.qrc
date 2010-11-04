@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/root">
+        <file>Resources/images/Button Pause_32.png</file>
+        <file>Resources/images/Button Play_32.png</file>
+        <file>Resources/images/Button Stop_32.png</file>
+        <file>Resources/lang/linguist_ja.qm</file>
+    </qresource>
+</RCC>
