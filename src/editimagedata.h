@@ -39,6 +39,14 @@ public:
 	}
 	int getImageDataSize( void ) { return m_ImageData.size() ; }
 
+	void removeImageData( int index )
+	{
+		if ( index < 0 || index >= m_ImageData.size() ) {
+			return ;
+		}
+		m_ImageData.removeAt(index);
+	}
+
 	void	setTexObj( int index, GLuint texObj )
 	{
 		if ( index < 0 || index >= m_ImageData.size() ) {

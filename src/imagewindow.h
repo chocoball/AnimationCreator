@@ -28,10 +28,15 @@ protected:
 
 	void addTab(int imageIndex) ;
 
+	void contextMenuEvent(QContextMenuEvent *event) ;
+
 signals:
 	void sig_addImage(int imageNo) ;
+	void sig_delImage(int imageNo) ;
 
 public slots:
+
+	void slot_delImage( void ) ;
 
 private:
 	CSettings		*m_pSetting ;
@@ -41,6 +46,8 @@ private:
 
 	QTabWidget		*m_pTabWidget ;
 	AnimationForm	*m_pAnimationForm ;
+
+	QAction			*m_pActDelImage ;
 };
 
 #endif // IMAGEWINDOW_H

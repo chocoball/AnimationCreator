@@ -871,6 +871,8 @@ void AnimationForm::slot_delImage( int imageNo )
 	for ( int i = 0 ; i < ui->comboBox_image_no->count() ; i ++ ) {
 		ui->comboBox_image_no->setItemText(i, tr("%1").arg(i));
 	}
+
+	m_pEditImageData->removeImageData(imageNo) ;
 }
 
 // イメージ番号変更
