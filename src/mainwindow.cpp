@@ -324,6 +324,9 @@ void MainWindow::resizeImage( QImage &imageData )
 
 	if ( fixW == origW && fixH == origH ) { return ; }
 
+	if ( origW > 1024 ) { origW = 1024 ; }
+	if ( origH > 1024 ) { origH = 1024 ; }
+
 	QImage tmp = QImage(fixW, fixH, imageData.format()) ;
 	for ( int y = 0 ; y < fixH ; y ++ ) {
 		for ( int x = 0 ; x < fixW ; x ++ ) {
