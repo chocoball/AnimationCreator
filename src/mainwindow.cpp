@@ -28,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 	connect(m_pMdiArea, SIGNAL(dropFiles(QString)), this, SLOT(slot_dropFiles(QString))) ;
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(slot_checkFileModified())) ;
+	QUndoStack *pUndoStack = m_EditImageData.getUndoStack() ;
+	connect(pUndoStack, SIGNAL(indexChanged(int)), this, SLOT(slot_checkDataModified(int))) ;
 
 	m_UndoIndex = 0 ;
 }
@@ -41,6 +43,11 @@ MainWindow::~MainWindow()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
 	printf( "closeEvent\n" ) ;
+	if ( !checkChangedFileSave() ) {
+		event->ignore();
+		return ;
+	}
+
 	m_pMdiArea->closeAllSubWindows();
 	if ( m_pMdiArea->currentSubWindow() ) {
 		event->ignore() ;
@@ -133,6 +140,17 @@ void MainWindow::slot_checkFileModified( void )
 		}
 		m_EditImageData.setImage(i, image) ;
 		emit sig_modifiedImageFile(i) ;
+	}
+}
+
+// データを編集したか
+void MainWindow::slot_checkDataModified(int index)
+{
+	if ( m_UndoIndex == index ) {
+		setWindowTitle(tr("Animation Creator[%1]").arg(m_StrSaveFileName));
+	}
+	else {	// 編集してる
+		setWindowTitle(tr("Animation Creator[%1]*").arg(m_StrSaveFileName));
 	}
 }
 
@@ -358,7 +376,6 @@ bool MainWindow::fileOpen( QString fileName )
 			return false ;
 		}
 		m_StrSaveFileName = fileName ;
-		setWindowTitle(tr("Animation Creator %1").arg(fileName));
 	}
 	// 画像ファイル
 	else {
@@ -378,6 +395,8 @@ bool MainWindow::fileOpen( QString fileName )
 
 		m_StrSaveFileName = QString() ;
 	}
+
+	setWindowTitle(tr("Animation Creator[%1]").arg(m_StrSaveFileName));
 
 	createWindows() ;
 
@@ -409,7 +428,7 @@ bool MainWindow::saveFile( QString fileName )
 		QApplication::restoreOverrideCursor();
 
 		m_UndoIndex = m_EditImageData.getUndoStack()->index() ;
-		setWindowTitle(tr("Animation Creator %1").arg(fileName));
+		setWindowTitle(tr("Animation Creator[%1]").arg(fileName));
 		return true ;
 	}
 	else if ( fileName.indexOf(".png") ) {

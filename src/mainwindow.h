@@ -30,6 +30,7 @@ private slots:
 	void slot_saveAs( void ) ;
 	void slot_dropFiles(QString fileName) ;
 	void slot_checkFileModified( void ) ;
+	void slot_checkDataModified(int index) ;
 
 #ifndef QT_NO_DEBUG
 	void slot_dbgObjectDump( void ) ;
