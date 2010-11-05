@@ -861,7 +861,6 @@ void AnimationForm::slot_addImage( int imageNo )
 		GLuint obj = m_pGlWidget->bindTexture(m_pEditImageData->getImage(imageNo)) ;
 		m_pEditImageData->setTexObj(imageNo, obj);
 	}
-
 }
 
 // イメージ削除
@@ -873,6 +872,7 @@ void AnimationForm::slot_delImage( int imageNo )
 	}
 
 	m_pEditImageData->removeImageData(imageNo) ;
+	m_pGlWidget->update();
 }
 
 // イメージ番号変更
@@ -894,6 +894,18 @@ void AnimationForm::slot_changeUVAnime( bool flag )
 		return ;
 	}
 	pData->bUVAnime = flag ;
+}
+
+// イメージ更新
+void AnimationForm::slot_modifiedImage(int index)
+{
+	QImage &image = m_pEditImageData->getImage(index) ;
+	if ( m_pEditImageData->getTexObj(index) ) {
+		m_pGlWidget->deleteTexture(m_pEditImageData->getTexObj(index)) ;
+	}
+	GLuint obj = m_pGlWidget->bindTexture(image) ;
+	m_pEditImageData->setTexObj(index, obj);
+	m_pGlWidget->update();
 }
 
 // 現在選択しているフレームデータ取得

@@ -56,12 +56,17 @@ void ImageWindow::dropEvent(QDropEvent *event)
 	for ( int i = 0 ; i < urls.size() ; i ++ ) {
 		QString fileName = urls[i].toLocalFile() ;
 
+		CEditImageData::ImageData data ;
 		QImage image ;
 		if ( !image.load(fileName) ) {
 			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(fileName)) ;
 			continue ;
 		}
-		m_pEditImageData->addImage(image);
+		data.fileName		= fileName ;
+		data.Image			= image ;
+		data.lastModified	= QDateTime::currentDateTimeUtc() ;
+		data.nTexObj		= 0 ;
+		m_pEditImageData->addImageData(data);
 		addTab(index) ;
 
 		emit sig_addImage(index) ;
@@ -74,6 +79,7 @@ void ImageWindow::addTab(int imageIndex)
 {
 	QLabel *pLabel = new QLabel(m_pTabWidget) ;
 	pLabel->setPixmap(QPixmap::fromImage(m_pEditImageData->getImage(imageIndex))) ;
+	pLabel->setObjectName("ImageLabel");
 	pLabel->setScaledContents(true) ;
 
 	CGridLabel *pGridLabel = new CGridLabel(m_pEditImageData, imageIndex, pLabel) ;
@@ -106,4 +112,17 @@ void ImageWindow::slot_delImage( void )
 	}
 
 	emit sig_delImage(index) ;
+}
+
+void ImageWindow::slot_modifiedImage( int index )
+{
+	QScrollArea *pScrollArea = (QScrollArea *)m_pTabWidget->widget(index) ;
+
+	QLabel *label = pScrollArea->findChild<QLabel *>("ImageLabel") ;
+	if ( !label ) {
+		qDebug() << "ERROR:ImageLabel not found!!!!!" ;
+		return ;
+	}
+	label->setPixmap(QPixmap::fromImage(m_pEditImageData->getImage(index))) ;
+	label->update();
 }

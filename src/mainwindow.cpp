@@ -15,6 +15,9 @@ MainWindow::MainWindow(QWidget *parent)
 	m_pMdiArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 	setCentralWidget(m_pMdiArea);
 
+	m_pTimer = new QTimer(this) ;
+	m_pTimer->start(1000);
+
 	createActions() ;
 	createMenus() ;
 
@@ -24,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
 	setUnifiedTitleAndToolBarOnMac(true);
 
 	connect(m_pMdiArea, SIGNAL(dropFiles(QString)), this, SLOT(slot_dropFiles(QString))) ;
+	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(slot_checkFileModified())) ;
 
 	m_UndoIndex = 0 ;
 }
@@ -99,6 +103,37 @@ void MainWindow::slot_dropFiles(QString fileName)
 	}
 
 	fileOpen(fileName) ;
+}
+
+// 読み込んでるイメージデータの最終更新日時をチェック
+void MainWindow::slot_checkFileModified( void )
+{
+	for ( int i = 0 ; i < m_EditImageData.getImageDataSize() ; i ++ ) {
+		QString fullPath = m_EditImageData.getImageFileName(i) ;
+		QFileInfo info(fullPath) ;
+		if ( !info.isFile() ) { continue ; }
+		if ( !info.lastModified().isValid() ) { continue ; }
+		if ( info.lastModified().toUTC() <= m_EditImageData.getImageDataLastModified(i) ) { continue ; }
+
+		QDateTime time = info.lastModified().toUTC() ;
+		m_EditImageData.setImageDataLastModified(i, time);
+
+		QMessageBox::StandardButton reply = QMessageBox::question(this,
+																  trUtf8("質問"),
+																  trUtf8("%1が更新されています。読み込みますか？").arg(info.fileName()),
+																  QMessageBox::Yes | QMessageBox::No) ;
+		if ( reply != QMessageBox::Yes ) {
+			continue ;
+		}
+
+		QImage image ;
+		if ( !image.load(fullPath) ) {
+			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(info.fileName())) ;
+			continue ;
+		}
+		m_EditImageData.setImage(i, image) ;
+		emit sig_modifiedImageFile(i) ;
+	}
 }
 
 #ifndef QT_NO_DEBUG
@@ -226,6 +261,9 @@ void MainWindow::createWindows( void )
 	m_pMdiArea->addSubWindow(m_pImageWindow) ;
 	m_pImageWindow->show();
 
+	connect(this, SIGNAL(sig_modifiedImageFile(int)), m_pImageWindow, SLOT(slot_modifiedImage(int))) ;
+	connect(this, SIGNAL(sig_modifiedImageFile(int)), m_pAnimationForm, SLOT(slot_modifiedImage(int))) ;
+
 	// ルーペウィンドウ
 	CLoupeWindow *pLoupe = new CLoupeWindow(&m_EditImageData, m_pMdiArea) ;
 	m_pMdiArea->addSubWindow( pLoupe ) ;
@@ -324,14 +362,21 @@ bool MainWindow::fileOpen( QString fileName )
 	}
 	// 画像ファイル
 	else {
+		CEditImageData::ImageData data ;
 		QImage imageData ;
 		if ( !imageData.load(fileName) ) {
 			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(fileName)) ;
 			return false ;
 		}
 		resizeImage(imageData) ;
+
+		data.Image			= imageData ;
+		data.fileName		= fileName ;
+		data.nTexObj		= 0 ;
+		data.lastModified	= QDateTime::currentDateTimeUtc() ;
+		m_EditImageData.addImageData(data);
+
 		m_StrSaveFileName = QString() ;
-		m_EditImageData.addImage( imageData );
 	}
 
 	createWindows() ;

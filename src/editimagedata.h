@@ -12,6 +12,8 @@ public:
 	typedef struct {
 		QImage			Image ;
 		GLuint			nTexObj ;
+		QString			fileName ;
+		QDateTime		lastModified ;	// fileNameの最終更新時間
 	} ImageData ;
 
 public:
@@ -22,12 +24,24 @@ public:
 	{
 		m_ImageData = data ;
 	}
+	void addImageData( ImageData &data )
+	{
+		m_ImageData.append(data) ;
+	}
 
 	void	addImage( QImage &image )
 	{
 		m_ImageData.append(ImageData());
 		m_ImageData.last().Image = image ;
 	}
+	void	setImage( int index, QImage &image )
+	{
+		if ( index < 0 || index >= m_ImageData.size() ) {
+			return ;
+		}
+		m_ImageData[index].Image = image ;
+	}
+
 	QImage	&getImage( int index )
 	{
 		if ( index < 0 || index >= m_ImageData.size() ) {
@@ -37,12 +51,47 @@ public:
 
 		return m_ImageData[index].Image ;
 	}
+	void setImageFileName( int index, QString &name )
+	{
+		if ( index < 0 || index >= m_ImageData.size() ) {
+			return ;
+		}
+		m_ImageData[index].fileName = name ;
+	}
+	QString &getImageFileName( int index )
+	{
+		if ( index < 0 || index >= m_ImageData.size() ) {
+			static QString str ;
+			return str ;
+		}
+		return m_ImageData[index].fileName ;
+	}
+
+	void setImageDataLastModified( int index, QDateTime &time )
+	{
+		if ( index < 0 || index >= m_ImageData.size() ) {
+			return ;
+		}
+		m_ImageData[index].lastModified = time ;
+	}
+	QDateTime &getImageDataLastModified( int index )
+	{
+		if ( index < 0 || index >= m_ImageData.size() ) {
+			static QDateTime time ;
+			return time ;
+		}
+		return m_ImageData[index].lastModified ;
+	}
+
 	int getImageDataSize( void ) { return m_ImageData.size() ; }
 
 	void removeImageData( int index )
 	{
 		if ( index < 0 || index >= m_ImageData.size() ) {
 			return ;
+		}
+		if ( m_ImageData[index].nTexObj ) {
+			glDeleteTextures(1, &m_ImageData[index].nTexObj);
 		}
 		m_ImageData.removeAt(index);
 	}

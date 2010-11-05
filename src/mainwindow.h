@@ -29,6 +29,7 @@ private slots:
 	void slot_save( void ) ;
 	void slot_saveAs( void ) ;
 	void slot_dropFiles(QString fileName) ;
+	void slot_checkFileModified( void ) ;
 
 #ifndef QT_NO_DEBUG
 	void slot_dbgObjectDump( void ) ;
@@ -53,6 +54,9 @@ private:
 
 	bool checkChangedFileSave( void ) ;
 
+signals:
+	void sig_modifiedImageFile(int index) ;
+
 private:
 	CDropableMdiArea	*m_pMdiArea ;
 
@@ -68,15 +72,19 @@ private:
 	CSettings			setting ;
 	// ---- 設定
 
-	QAction				*m_pActOpen ;
-	QAction				*m_pActSave ;
-	QAction				*m_pActSaveAs ;
-	QAction				*m_pActUndo ;
-	QAction				*m_pActRedo ;
+	// アクション ----
+	QAction				*m_pActOpen ;			// ファイルを開く
+	QAction				*m_pActSave ;			// 保存
+	QAction				*m_pActSaveAs ;			// 名前を付けて保存
+	QAction				*m_pActUndo ;			// 戻す
+	QAction				*m_pActRedo ;			// やり直す
+	// ---- アクション
 
 	QStringList			m_DragFileList ;
 
 	int					m_UndoIndex ;
+
+	QTimer				*m_pTimer ;
 
 #ifndef QT_NO_DEBUG
 	// デバッグ用 ----

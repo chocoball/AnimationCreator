@@ -84,6 +84,7 @@ typedef struct {
 	unsigned short		nHeight ;				///< 高さ
 	unsigned short		nImageNo ;				///< イメージ番号
 	unsigned short		pad[1] ;
+	char				fileName[256] ;			///< ファイル名
 	unsigned char		data[1] ;				///< RGBAバイト列(nWidth*nHeight)
 } Anm2DImage ;
 

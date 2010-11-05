@@ -35,8 +35,8 @@ signals:
 	void sig_delImage(int imageNo) ;
 
 public slots:
-
 	void slot_delImage( void ) ;
+	void slot_modifiedImage( int index ) ;
 
 private:
 	CSettings		*m_pSetting ;

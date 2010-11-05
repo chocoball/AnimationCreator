@@ -79,6 +79,8 @@ public slots:
 
 	void slot_changeUVAnime( bool flag ) ;
 
+	void slot_modifiedImage(int index) ;
+
 protected:
 	CObjectModel::FrameData *getNowSelectFrameData( void ) ;
 	void addNewObject( QString str ) ;

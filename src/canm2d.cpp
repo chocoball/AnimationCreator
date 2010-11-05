@@ -192,6 +192,7 @@ bool CAnm2D::makeImageList( QList<QByteArray> &rData, CEditImageData &rEditImage
 		pImage->nWidth = img.width() ;
 		pImage->nHeight = img.height() ;
 		pImage->nImageNo = i ;
+		strncpy(pImage->fileName, rEditImageData.getImageFileName(i).toStdString().c_str(), 255) ;
 		memcpy(pImage->data, img.bits(), img.width()*img.height()*4) ;
 
 		rData << imgArray ;
@@ -389,12 +390,15 @@ bool CAnm2D::addImageData(Anm2DHeader *pHeader, CEditImageData &rEditImageData)
 			{
 				Anm2DImage *pImage = (Anm2DImage *)p ;
 
-				QImage image = QImage(pImage->nWidth, pImage->nHeight, QImage::Format_ARGB32) ;
-				unsigned int *pCol = (unsigned int *)pImage->data ;
-				for ( int y = 0 ; y < pImage->nHeight ; y ++ ) {
-					for ( int x = 0 ; x < pImage->nWidth ; x ++ ) {
-						image.setPixel(x, y, *pCol);
-						pCol ++ ;
+				QImage image ;
+				if ( !image.load(pImage->fileName) ) {
+					image = QImage(pImage->nWidth, pImage->nHeight, QImage::Format_ARGB32) ;
+					unsigned int *pCol = (unsigned int *)pImage->data ;
+					for ( int y = 0 ; y < pImage->nHeight ; y ++ ) {
+						for ( int x = 0 ; x < pImage->nWidth ; x ++ ) {
+							image.setPixel(x, y, *pCol);
+							pCol ++ ;
+						}
 					}
 				}
 
@@ -403,6 +407,8 @@ bool CAnm2D::addImageData(Anm2DHeader *pHeader, CEditImageData &rEditImageData)
 				CEditImageData::ImageData ImageData ;
 				ImageData.Image = image ;
 				ImageData.nTexObj = 0 ;
+				ImageData.fileName = pImage->fileName ;
+				ImageData.lastModified = QDateTime::currentDateTimeUtc() ;
 				data.insert(pImage->nImageNo, ImageData);
 			}
 			break ;
