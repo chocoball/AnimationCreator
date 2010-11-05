@@ -11,7 +11,7 @@ class CGridLabel : public QLabel
 	Q_OBJECT
 
 public:
-	explicit CGridLabel(CEditImageData *pImage, QWidget *parent = 0) ;
+	explicit CGridLabel(CEditImageData *pImage, int nTabIndex, QWidget *parent = 0) ;
 
 	void setScale( int scale )			{ mScale		= scale ;	repaint() ; }
 	void setGridSize( QPoint &size )	{ m_GridSize	= size ;	repaint() ; }
@@ -54,6 +54,8 @@ private:
 
 	bool			m_bDrawGrid ;		// グリッド表示するならtrue
 	bool			m_bPressCtrl ;		// Ctrlキー押してたらtrue
+
+	int				m_Index ;			// タブのインデックス
 } ;
 
 #endif // GRIDLABEL_H

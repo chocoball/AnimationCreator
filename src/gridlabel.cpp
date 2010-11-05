@@ -2,7 +2,7 @@
 #include "gridlabel.h"
 
 
-CGridLabel::CGridLabel(CEditImageData *pImage, QWidget *parent)
+CGridLabel::CGridLabel(CEditImageData *pImage, int nTabIndex, QWidget *parent)
 	: QLabel(parent)
 {
 	m_pImageData = pImage ;
@@ -15,6 +15,7 @@ CGridLabel::CGridLabel(CEditImageData *pImage, QWidget *parent)
 	m_bCatchable	= true ;
 	m_bDrawGrid		= true ;
 	m_bPressCtrl	= false ;
+	m_Index			= nTabIndex ;
 
 	setFocusPolicy(Qt::StrongFocus);
 }
@@ -36,7 +37,7 @@ void CGridLabel::paintEvent(QPaintEvent *event)
 	penCenter.setWidth(mScale);
 
 	if ( m_pImageData ) {
-		QSize size = m_pImageData->getImage().size()*mScale ;
+		QSize size = m_pImageData->getImage(m_Index).size()*mScale ;
 		size += QSize(mScale, mScale) ;
 		resize(size) ;
 	}
@@ -119,8 +120,8 @@ void CGridLabel::mouseMoveEvent(QMouseEvent *ev)
 
 	QRect r = m_pImageData->getCatchRect() ;
 
-	int img_w = m_pImageData->getImage().width() ;
-	int img_h = m_pImageData->getImage().height() ;
+	int img_w = m_pImageData->getImage(m_Index).width() ;
+	int img_h = m_pImageData->getImage(m_Index).height() ;
 	int x = ev->pos().x() / mScale ;
 	int y = ev->pos().y() / mScale ;
 
@@ -184,8 +185,8 @@ void CGridLabel::mouseReleaseEvent(QMouseEvent *ev)
 	}
 	m_bRectMove = false ;
 
-	int img_w = m_pImageData->getImage().width() ;
-	int img_h = m_pImageData->getImage().height() ;
+	int img_w = m_pImageData->getImage(m_Index).width() ;
+	int img_h = m_pImageData->getImage(m_Index).height() ;
 
 	QRect r = m_pImageData->getCatchRect() ;
 
@@ -218,13 +219,13 @@ void CGridLabel::startDragAndDrop( QMouseEvent *ev )
 {
 	Q_UNUSED(ev) ;
 
-	QImage img = m_pImageData->getImage().copy(m_pImageData->getCatchRect()) ;
+	QImage img = m_pImageData->getImage(m_Index).copy(m_pImageData->getCatchRect()) ;
 	QPixmap pix = QPixmap::fromImage(img);
 
 	QByteArray itemData ;
 	QDataStream stream(&itemData, QIODevice::WriteOnly) ;
 	QRect rect = m_pImageData->getCatchRect() ;
-	stream << rect << mScale ;
+	stream << rect << mScale << m_Index ;
 
 	QMimeData *mimeData = new QMimeData ;
 	mimeData->setData("editor/selected-image", itemData);

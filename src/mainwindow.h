@@ -46,7 +46,7 @@ private:
 	void createAnimationForm( void ) ;
 	void setCurrentDir( QString &fileName ) ;
 
-	void resizeImage( void ) ;
+	void resizeImage( QImage &imageData ) ;
 
 	bool fileOpen( QString fileName ) ;
 	bool saveFile( QString fileName ) ;
@@ -61,7 +61,6 @@ private:
 
 	// 編集データ ----
 	QString				m_StrSaveFileName ;		// 保存ファイル名
-	QImage				imageData ;				// 開いている画像データ
 	CEditImageData		m_EditImageData ;
 	// ---- 編集データ
 
@@ -76,6 +75,8 @@ private:
 	QAction				*m_pActRedo ;
 
 	QStringList			m_DragFileList ;
+
+	int					m_UndoIndex ;
 
 #ifndef QT_NO_DEBUG
 	// デバッグ用 ----

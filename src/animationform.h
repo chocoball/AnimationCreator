@@ -35,7 +35,7 @@ public slots:
 	void slot_deleteObject( void ) ;
 	void slot_deleteFrameData( void ) ;
 
-	void slot_dropedImage( QRect rect, QPoint pos ) ;
+	void slot_dropedImage( QRect rect, QPoint pos, int imageIndex ) ;
 
 	void slot_frameChanged(int frame) ;
 	void slot_selectLayerChanged( CObjectModel::typeID layerID ) ;
@@ -71,6 +71,11 @@ public slots:
 
 	void slot_changeSelectLayerUV( QRect rect ) ;
 	void slot_changeAnimeSpeed(int index) ;
+
+	void slot_addImage( int imageNo ) ;
+	void slot_delImage( int imageNo ) ;
+
+	void slot_changeImageIndex(int index) ;
 
 protected:
 	CObjectModel::FrameData *getNowSelectFrameData( void ) ;

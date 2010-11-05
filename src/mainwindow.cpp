@@ -24,6 +24,8 @@ MainWindow::MainWindow(QWidget *parent)
 	setUnifiedTitleAndToolBarOnMac(true);
 
 	connect(m_pMdiArea, SIGNAL(dropFiles(QString)), this, SLOT(slot_dropFiles(QString))) ;
+
+	m_UndoIndex = 0 ;
 }
 
 MainWindow::~MainWindow()
@@ -213,30 +215,25 @@ void MainWindow::setCurrentDir( QString &fileName )
 // ウィンドウ達を作成
 void MainWindow::createWindows( void )
 {
-	// イメージウィンドウ
-	m_pImageWindow = new ImageWindow( &setting, &m_EditImageData, m_pMdiArea ) ;
-	m_pMdiArea->addSubWindow(m_pImageWindow) ;
-	m_pImageWindow->show();
-
 	// アニメーションフォーム
 	m_pAnimationForm = new AnimationForm( &m_EditImageData, m_pMdiArea ) ;
 	m_pMdiArea->addSubWindow( m_pAnimationForm ) ;
 	m_pAnimationForm->show();
 	m_pAnimationForm->setBarCenter();
 
+	// イメージウィンドウ
+	m_pImageWindow = new ImageWindow( &setting, &m_EditImageData, m_pAnimationForm, m_pMdiArea ) ;
+	m_pMdiArea->addSubWindow(m_pImageWindow) ;
+	m_pImageWindow->show();
+
 	// ルーペウィンドウ
 	CLoupeWindow *pLoupe = new CLoupeWindow(&m_EditImageData, m_pMdiArea) ;
 	m_pMdiArea->addSubWindow( pLoupe ) ;
 	pLoupe->show();
-
-	connect(m_pAnimationForm, SIGNAL(sig_imageRepaint()), (QWidget *)m_pImageWindow->getGridLabel(), SLOT(update())) ;
-	connect((QWidget *)m_pImageWindow->getGridLabel(),	SIGNAL(sig_changeSelectLayerUV(QRect)),
-			m_pAnimationForm,							SLOT(slot_changeSelectLayerUV(QRect))) ;
-
 }
 
 // imageDataのサイズを2の累乗に修正
-void MainWindow::resizeImage( void )
+void MainWindow::resizeImage( QImage &imageData )
 {
 	int origW = imageData.width() ;
 	int origH = imageData.height() ;
@@ -302,40 +299,39 @@ bool MainWindow::fileOpen( QString fileName )
 		m_pMdiArea->closeAllSubWindows() ;	// 全部閉じる
 	}
 	m_EditImageData.resetData();
+	m_UndoIndex = 0 ;
 
-	// 画像ファイル
-	if ( fileName.toLower().indexOf(".png") > 0
-	  || fileName.toLower().indexOf(".bmp") > 0
-	  || fileName.toLower().indexOf(".jpg") > 0 ) {
-		if ( !imageData.load(fileName) ) {
-			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました") ) ;
-			return false ;
-		}
-		resizeImage() ;
-		m_StrSaveFileName = QString() ;
-	}
 	// アニメファイル
-	else if ( fileName.indexOf(FILE_EXT_ANM2D) > 0 ) {
+	if ( fileName.indexOf(FILE_EXT_ANM2D) > 0 ) {
 		CAnm2D data ;
 		QByteArray dataArray ;
 
 		QFile file(fileName) ;
 		if ( !file.open(QFile::ReadOnly) ) {
-			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました") ) ;
+			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(fileName)) ;
 			return false ;
 		}
 		QDataStream in(&file) ;
 		dataArray.resize(file.size());
 		in.readRawData(dataArray.data(), file.size()) ;
 
-		if ( !data.makeFromFile(dataArray, imageData, m_EditImageData) ) {
+		if ( !data.makeFromFile(dataArray, m_EditImageData) ) {
 			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(data.getErrorNo()) )  ;
 			return false ;
 		}
 		m_StrSaveFileName = fileName ;
 	}
-
-	m_EditImageData.setImage( imageData );
+	// 画像ファイル
+	else {
+		QImage imageData ;
+		if ( !imageData.load(fileName) ) {
+			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(fileName)) ;
+			return false ;
+		}
+		resizeImage(imageData) ;
+		m_StrSaveFileName = QString() ;
+		m_EditImageData.addImage( imageData );
+	}
 
 	createWindows() ;
 
@@ -377,11 +373,13 @@ bool MainWindow::saveFile( QString fileName )
 // キャンセルならfalse
 bool MainWindow::checkChangedFileSave( void )
 {
-	if ( 0 ) {
+	QUndoStack *p = m_EditImageData.getUndoStack() ;
+	if ( p->index() != m_UndoIndex ) {
 		QMessageBox::StandardButton reply = QMessageBox::question(this, trUtf8("確認"), trUtf8("保存しますか？"),
 																  QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel) ;
 		if ( reply == QMessageBox::Yes ) {		// 保存する
 			slot_save();
+			m_UndoIndex = p->index() ;
 		}
 		else if ( reply == QMessageBox::Cancel ) {	// キャンセル
 			return false ;

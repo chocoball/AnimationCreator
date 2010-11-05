@@ -57,9 +57,7 @@ typedef struct {
 												///< nSize = sizeof(Anm2DLayer) + (nFrameDataNum-1) * unsigned int
 	Anm2DName			layerName ;				///< レイヤ名
 	unsigned short		nLayerNo ;				///< レイヤ番号
-	unsigned short		nImageNo ;				///< 参照するイメージ番号
 	unsigned short		nFrameDataNum ;			///< フレームデータ数
-	unsigned short		pad[1] ;
 	unsigned int		nFrameDataNo[1] ;		///< フレームデータ番号
 } Anm2DLayer ;
 
@@ -72,6 +70,8 @@ typedef struct {
 	short				pos_x, pos_y, pos_z ;	///< 位置
 	short				rot_x, rot_y, rot_z ;	///< 回転角
 	short				cx, cy ;				///< センター位置
+	unsigned short		nImageNo ;				///< 参照するイメージ番号
+	short				pad[1] ;
 	short				uv[4] ;					///< UV [0]:left [1]:right [2]:top [3]:bottom
 	float				fScaleX, fScaleY ;		///< スケール
 } Anm2DFrameData ;

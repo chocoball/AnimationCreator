@@ -48,7 +48,6 @@ bool CAnm2D::makeFromEditImageData( CEditImageData &rEditImageData )
 			pLayerData->header.nSize = sizeof(Anm2DLayer) + (frameDataList.size()-1)*sizeof(unsigned int) ;
 			strcpy( pLayerData->layerName.name, pLayerItem->text().toUtf8().data() ) ;
 			pLayerData->nLayerNo = layerList.size() ;
-			pLayerData->nImageNo = 0 ;		// TODO:複数画像対応
 			pLayerData->nFrameDataNum = frameDataList.size() ;
 
 			pObjData->nLayerNo[j] = pLayerData->nLayerNo ;	// オブジェクトが参照するレイヤ番号セット
@@ -72,6 +71,7 @@ bool CAnm2D::makeFromEditImageData( CEditImageData &rEditImageData )
 				pFrameData->rot_z			= data.rot_z ;
 				pFrameData->cx				= data.center_x ;
 				pFrameData->cy				= data.center_y ;
+				pFrameData->nImageNo		= data.nImage ;
 				pFrameData->uv[0]			= data.left ;
 				pFrameData->uv[1]			= data.right ;
 				pFrameData->uv[2]			= data.top ;
@@ -157,7 +157,7 @@ bool CAnm2D::makeHeader( QByteArray &rData, CEditImageData &rEditImageData )
 			blockNum += frameDataList.size() ;	// フレームデータ数
 		}
 	}
-	blockNum += 1 ;	// イメージデータ数 TODO:複数画像対応
+	blockNum += rEditImageData.getImageDataSize() ;	// イメージデータ数
 
 	rData.resize(sizeof(Anm2DHeader) + (blockNum-1) * sizeof(unsigned int));
 	Anm2DHeader *pHeader = (Anm2DHeader *)rData.data() ;
@@ -175,10 +175,10 @@ bool CAnm2D::makeHeader( QByteArray &rData, CEditImageData &rEditImageData )
 // イメージデータ作成
 bool CAnm2D::makeImageList( QList<QByteArray> &rData, CEditImageData &rEditImageData )
 {
-	int imageNum = 1 ;
+	int imageNum = rEditImageData.getImageDataSize() ;
 
 	for ( int i = 0 ; i < imageNum ; i ++ ) {
-		QImage img = rEditImageData.getImage() ;
+		QImage img = rEditImageData.getImage(i) ;
 		unsigned int size = sizeof(Anm2DImage) + img.width() * img.height() * 4 * sizeof(unsigned char) - 1 ;
 		size = (size+0x03) & ~0x03 ;
 
@@ -190,7 +190,7 @@ bool CAnm2D::makeImageList( QList<QByteArray> &rData, CEditImageData &rEditImage
 		pImage->header.nSize = size ;
 		pImage->nWidth = img.width() ;
 		pImage->nHeight = img.height() ;
-		pImage->nImageNo = 0 ;
+		pImage->nImageNo = i ;
 		memcpy(pImage->data, img.bits(), img.width()*img.height()*4) ;
 
 		rData << imgArray ;
@@ -199,7 +199,7 @@ bool CAnm2D::makeImageList( QList<QByteArray> &rData, CEditImageData &rEditImage
 }
 
 // アニメファイルから作成中データへ変換
-bool CAnm2D::makeFromFile(QByteArray &data, QImage &imageData, CEditImageData &rEditImageData)
+bool CAnm2D::makeFromFile(QByteArray &data, CEditImageData &rEditImageData)
 {
 	m_Data = data ;
 
@@ -225,7 +225,7 @@ bool CAnm2D::makeFromFile(QByteArray &data, QImage &imageData, CEditImageData &r
 	if ( !addFrameData(pHeader, rEditImageData) ) {
 		return false ;
 	}
-	if ( !addImageData(pHeader, imageData) ) {
+	if ( !addImageData(pHeader, rEditImageData) ) {
 		return false ;
 	}
 
@@ -355,6 +355,7 @@ bool CAnm2D::addFrameData(Anm2DHeader *pHeader, CEditImageData &rEditImageData)
 							data.bottom		= pFrame->uv[3] ;
 							data.fScaleX	= pFrame->fScaleX ;
 							data.fScaleY	= pFrame->fScaleY ;
+							data.nImage		= pFrame->nImageNo ;
 
 							frameDataList.append(data) ;
 						}
@@ -376,8 +377,9 @@ bool CAnm2D::addFrameData(Anm2DHeader *pHeader, CEditImageData &rEditImageData)
 }
 
 // イメージを追加
-bool CAnm2D::addImageData(Anm2DHeader *pHeader, QImage &image)
+bool CAnm2D::addImageData(Anm2DHeader *pHeader, CEditImageData &rEditImageData)
 {
+	QList<CEditImageData::ImageData> data ;
 	for ( int i = 0 ; i < pHeader->nBlockNum ; i ++ ) {
 		Anm2DBlockHeader *p = (Anm2DBlockHeader *)LP_ADD(pHeader, pHeader->nBlockOffset[i]) ;
 		switch ( p->nID ) {
@@ -385,7 +387,7 @@ bool CAnm2D::addImageData(Anm2DHeader *pHeader, QImage &image)
 			{
 				Anm2DImage *pImage = (Anm2DImage *)p ;
 
-				image = QImage(pImage->nWidth, pImage->nHeight, QImage::Format_ARGB32) ;
+				QImage image = QImage(pImage->nWidth, pImage->nHeight, QImage::Format_ARGB32) ;
 				unsigned int *pCol = (unsigned int *)pImage->data ;
 				for ( int y = 0 ; y < pImage->nHeight ; y ++ ) {
 					for ( int x = 0 ; x < pImage->nWidth ; x ++ ) {
@@ -395,7 +397,11 @@ bool CAnm2D::addImageData(Anm2DHeader *pHeader, QImage &image)
 				}
 
 				qDebug("w:%d h:%d, %d %d", image.width(), image.height(), pImage->nWidth, pImage->nHeight) ;
-				return true ;
+
+				CEditImageData::ImageData ImageData ;
+				ImageData.Image = image ;
+				ImageData.nTexObj = 0 ;
+				data.insert(pImage->nImageNo, ImageData);
 			}
 			break ;
 		case ANM2D_ID_OBJECT:
@@ -408,6 +414,7 @@ bool CAnm2D::addImageData(Anm2DHeader *pHeader, QImage &image)
 			return false ;
 		}
 	}
+	rEditImageData.setImageData(data);
 	return true ;
 }
 

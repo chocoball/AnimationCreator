@@ -56,6 +56,10 @@ AnimationForm::AnimationForm(CEditImageData *pImageData, QWidget *parent) :
 	ui->comboBox_fps->addItem(tr("15 fps"));
 	ui->comboBox_fps->setCurrentIndex(0);
 
+	for ( int i = 0 ; i < m_pEditImageData->getImageDataSize() ; i ++ ) {
+		ui->comboBox_image_no->addItem(tr("%1").arg(i));
+	}
+
 	m_pSplitter = new QSplitter(this) ;
 	m_pSplitter->addWidget(ui->treeView) ;
 	m_pSplitter->addWidget(ui->scrollArea_anime) ;
@@ -102,8 +106,8 @@ AnimationForm::AnimationForm(CEditImageData *pImageData, QWidget *parent) :
 //	connect(ui->treeView, SIGNAL(doubleClicked(QModelIndex)),			this, SLOT(slot_treeViewDoubleClicked(QModelIndex))) ;
 	connect(ui->treeView, SIGNAL(clicked(QModelIndex)),					this, SLOT(slot_changeSelectObject(QModelIndex))) ;
 
-	connect(m_pGlWidget, SIGNAL(sig_dropedImage(QRect, QPoint)),
-			this,		SLOT(slot_dropedImage(QRect, QPoint))) ;
+	connect(m_pGlWidget, SIGNAL(sig_dropedImage(QRect, QPoint, int)),
+			this,		SLOT(slot_dropedImage(QRect, QPoint, int))) ;
 	connect(m_pGlWidget, SIGNAL(sig_selectLayerChanged(CObjectModel::typeID)),
 			this,		SLOT(slot_selectLayerChanged(CObjectModel::typeID))) ;
 	connect(m_pGlWidget, SIGNAL(sig_dragedImage(CObjectModel::FrameData)),
@@ -140,6 +144,8 @@ AnimationForm::AnimationForm(CEditImageData *pImageData, QWidget *parent) :
 	connect(ui->checkBox_grid, SIGNAL(clicked(bool)), m_pGlWidget, SLOT(slot_setDrawGrid(bool))) ;
 
 	connect(ui->comboBox_fps, SIGNAL(activated(int)), this, SLOT(slot_changeAnimeSpeed(int))) ;
+
+	connect(ui->comboBox_image_no, SIGNAL(activated(int)), this, SLOT(slot_changeImageIndex(int))) ;
 
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(slot_timerEvent())) ;
 
@@ -329,7 +335,7 @@ void AnimationForm::slot_deleteFrameData(void)
 
 // ドロップ時のスロット
 // レイヤ追加
-void AnimationForm::slot_dropedImage( QRect rect, QPoint pos )
+void AnimationForm::slot_dropedImage( QRect rect, QPoint pos, int imageIndex )
 {
 	CObjectModel *pModel = m_pEditImageData->getObjectModel() ;
 	int frameNum  = ui->horizontalSlider_nowSequence->value() ;
@@ -365,13 +371,6 @@ void AnimationForm::slot_dropedImage( QRect rect, QPoint pos )
 
 	pos -= QPoint(512, 512) ;	// GLWidgetのローカルポスに変換
 
-	// テクスチャ作成されてなかったら作る
-	if ( !m_pEditImageData->getTexObj() ) {
-		qDebug() << "bindTexture" ;
-		GLuint obj = m_pGlWidget->bindTexture(m_pEditImageData->getImage()) ;
-		m_pEditImageData->setTexObj(obj);
-	}
-
 	// ツリービューに追加
 	QStandardItem *newItem = new QStandardItem(QString("Layer %1").arg(pLayerGroupList->size())) ;
 	newItem->setData(true, Qt::CheckStateRole);
@@ -388,6 +387,7 @@ void AnimationForm::slot_dropedImage( QRect rect, QPoint pos )
 	frameData.frame = frameNum ;
 	frameData.fScaleX = frameData.fScaleY = 1.0f ;
 	frameData.setRect(rect);
+	frameData.nImage = imageIndex ;
 
 	QList<QWidget *> updateWidget ;
 	updateWidget << m_pGlWidget ;
@@ -464,6 +464,7 @@ void AnimationForm::slot_setUI(CObjectModel::FrameData data)
 	ui->spinBox_uv_bottom->setValue(data.bottom);
 	ui->spinBox_center_x->setValue(data.center_x);
 	ui->spinBox_center_y->setValue(data.center_y);
+	ui->comboBox_image_no->setCurrentIndex(data.nImage);
 
 	if ( data.getRect() != m_pEditImageData->getCatchRect() ) {
 		QRect rect = data.getRect() ;
@@ -837,6 +838,40 @@ void AnimationForm::slot_changeAnimeSpeed(int index)
 	if ( bPlay ) {
 		m_pTimer->start();
 	}
+}
+
+// イメージ追加
+void AnimationForm::slot_addImage( int imageNo )
+{
+	qDebug() << "AnimationForm::slot_addImage:" << imageNo ;
+
+	ui->comboBox_image_no->addItem(tr("%1").arg(imageNo));
+
+	if ( !m_pEditImageData->getTexObj(imageNo) ) {
+		GLuint obj = m_pGlWidget->bindTexture(m_pEditImageData->getImage(imageNo)) ;
+		m_pEditImageData->setTexObj(imageNo, obj);
+	}
+
+}
+
+// イメージ削除
+void AnimationForm::slot_delImage( int imageNo )
+{
+	ui->comboBox_image_no->removeItem(imageNo);
+	for ( int i = 0 ; i < ui->comboBox_image_no->count() ; i ++ ) {
+		ui->comboBox_image_no->setItemText(i, tr("%1").arg(i));
+	}
+}
+
+// イメージ番号変更
+void AnimationForm::slot_changeImageIndex(int index)
+{
+	CObjectModel::FrameData *pData = getNowSelectFrameData() ;
+	if ( !pData ) {
+		return ;
+	}
+	pData->nImage = index ;
+	m_pGlWidget->update();
 }
 
 // 現在選択しているフレームデータ取得

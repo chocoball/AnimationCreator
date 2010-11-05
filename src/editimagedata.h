@@ -18,11 +18,39 @@ public:
 	CEditImageData() ;
 	~CEditImageData() ;
 
-	void	setImage( QImage &image )	{ m_ImageData.Image = image ; }
-	QImage	&getImage( void )			{ return m_ImageData.Image ; }
+	void setImageData( QList<ImageData> &data )
+	{
+		m_ImageData = data ;
+	}
 
-	void	setTexObj( GLuint texObj )	{ m_ImageData.nTexObj = texObj ; }
-	GLuint	getTexObj( void )			{ return m_ImageData.nTexObj ; }
+	void	addImage( QImage &image )
+	{
+		m_ImageData.append(ImageData());
+		m_ImageData.last().Image = image ;
+	}
+	QImage	&getImage( int index )
+	{
+		if ( index < 0 || index >= m_ImageData.size() ) {
+			static QImage image ;
+			return image ;
+		}
+
+		return m_ImageData[index].Image ;
+	}
+	int getImageDataSize( void ) { return m_ImageData.size() ; }
+
+	void	setTexObj( int index, GLuint texObj )
+	{
+		if ( index < 0 || index >= m_ImageData.size() ) {
+			return ;
+		}
+		m_ImageData[index].nTexObj = texObj ;
+	}
+	GLuint	getTexObj( int index )
+	{
+		if ( index < 0 || index >= m_ImageData.size() ) { return 0 ; }
+		return m_ImageData[index].nTexObj ;
+	}
 
 	void	setCatchRect( QRect &rect )	{ m_CatchRect = rect ; }
 	QRect	&getCatchRect( void )		{ return m_CatchRect ; }
@@ -63,7 +91,7 @@ public:
 	void cmd_editFrameData( CObjectModel::typeID objID, CObjectModel::typeID layerID, int frame, CObjectModel::FrameData &data, QList<QWidget *> &updateWidget ) ;
 
 private:
-	ImageData				m_ImageData ;
+	QList<ImageData>		m_ImageData ;
 
 	QRect					m_CatchRect ;
 	QPoint					m_Center ;

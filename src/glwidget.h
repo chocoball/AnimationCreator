@@ -11,7 +11,7 @@ public:
 	explicit AnimeGLWidget(CEditImageData *editData, QWidget *parent = 0);
 
 signals:
-	void sig_dropedImage(QRect rect, QPoint pos) ;
+	void sig_dropedImage(QRect rect, QPoint pos, int index) ;
 	void sig_selectLayerChanged( CObjectModel::typeID layerID ) ;
 	void sig_dragedImage( CObjectModel::FrameData data ) ;
 	void sig_deleteFrameData( void ) ;

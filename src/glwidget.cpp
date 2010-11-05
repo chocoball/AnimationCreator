@@ -43,9 +43,10 @@ void AnimeGLWidget::initializeGL()
 
 	glEnable(GL_DEPTH_TEST);
 
-	if ( !m_pEditImageData->getTexObj() ) {
-		GLuint obj = bindTexture(m_pEditImageData->getImage()) ;
-		m_pEditImageData->setTexObj(obj);
+	for ( int i = 0 ; i < m_pEditImageData->getImageDataSize() ; i ++ ) {
+		if ( m_pEditImageData->getTexObj(i) ) { continue ; }
+		GLuint obj = bindTexture(m_pEditImageData->getImage(i)) ;
+		m_pEditImageData->setTexObj(i, obj) ;
 	}
 }
 
@@ -77,14 +78,9 @@ void AnimeGLWidget::paintGL()
 
 void AnimeGLWidget::drawLayers( void )
 {
-	if ( !m_pEditImageData->getTexObj() ) {
-		return ;
-	}
-
 	if ( !m_pEditImageData->getSelectObject() ) { return ; }
 
 	glEnable(GL_TEXTURE_2D) ;
-	glBindTexture(GL_TEXTURE_2D, m_pEditImageData->getTexObj()) ;
 
 	if ( m_pEditImageData->isPlayAnime() ) {
 		drawLayers_Anime() ;
@@ -128,11 +124,7 @@ void AnimeGLWidget::drawLayers_Normal()
 
 				glPushMatrix();
 				glTranslatef(data.pos_x, data.pos_y, data.pos_z / 4096.0f);
-#if 0
-				glRotatef(data.rot_x, 1, 0, 0);
-				glRotatef(data.rot_y, 0, 1, 0);
-				glRotatef(data.rot_z, 0, 0, 1);
-#endif
+
 				glDisable(GL_TEXTURE_2D) ;
 				drawLine(QPoint(v.x0, v.y0), QPoint(v.x0, v.y1), col);
 				drawLine(QPoint(v.x1, v.y0), QPoint(v.x1, v.y1), col);
@@ -186,7 +178,7 @@ void AnimeGLWidget::drawLayers_Anime()
 
 void AnimeGLWidget::drawFrameData( const CObjectModel::FrameData &data, QColor col )
 {
-	QImage &Image = m_pEditImageData->getImage() ;
+	QImage &Image = m_pEditImageData->getImage(data.nImage) ;
 	QRectF rect ;
 	QRect uv = data.getRect() ;
 	QRectF uvF ;
@@ -207,6 +199,8 @@ void AnimeGLWidget::drawFrameData( const CObjectModel::FrameData &data, QColor c
 	uvF.setRight((float)uv.right()/Image.width());
 	uvF.setTop((float)(Image.height()-uv.top())/Image.height());
 	uvF.setBottom((float)(Image.height()-uv.bottom())/Image.height());
+
+	glBindTexture(GL_TEXTURE_2D, m_pEditImageData->getTexObj(data.nImage)) ;
 
 	drawRect(rect, uvF, data.pos_z / 4096.0f, col) ;
 
@@ -281,16 +275,17 @@ void AnimeGLWidget::dropEvent(QDropEvent *event)
 		QRect rect ;
 		int scale ;
 		QPoint pos ;
+		int index ;
 
 		QByteArray itemData = event->mimeData()->data("editor/selected-image");
 		QDataStream stream( &itemData, QIODevice::ReadOnly ) ;
-		stream >> rect >> scale ;
+		stream >> rect >> scale >> index ;
 
 		pos = event->pos() ;
 
 		event->accept();
 
-		emit(sig_dropedImage(rect, pos)) ;
+		emit(sig_dropedImage(rect, pos, index)) ;
 	}
 	else {
 		event->ignore();
@@ -351,6 +346,7 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 
 		QPoint sub = event->pos() - m_DragOffset ;
 		if ( m_bPressCtrl ) {	// UV操作
+			QSize imageSize = m_pEditImageData->getImage(pData->nImage).size() ;
 			pData->left		+= sub.x() ;
 			pData->right	+= sub.x() ;
 			pData->top		+= sub.y() ;
@@ -359,17 +355,17 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 				pData->right -= pData->left ;
 				pData->left = 0 ;
 			}
-			if ( pData->right > m_pEditImageData->getImage().width()-1 ) {
-				pData->left -= pData->right-(m_pEditImageData->getImage().width()-1) ;
-				pData->right = m_pEditImageData->getImage().width()-1 ;
+			if ( pData->right > imageSize.width()-1 ) {
+				pData->left -= pData->right-(imageSize.width()-1) ;
+				pData->right = imageSize.width()-1 ;
 			}
 			if ( pData->top < 0 ) {
 				pData->bottom -= pData->top ;
 				pData->top = 0 ;
 			}
-			if ( pData->bottom > m_pEditImageData->getImage().height()-1 ) {
-				pData->top -= pData->bottom-(m_pEditImageData->getImage().height()-1) ;
-				pData->bottom = m_pEditImageData->getImage().height()-1 ;
+			if ( pData->bottom > imageSize.height()-1 ) {
+				pData->top -= pData->bottom-(imageSize.height()-1) ;
+				pData->bottom = imageSize.height()-1 ;
 			}
 		}
 		else {

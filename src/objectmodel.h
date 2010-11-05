@@ -18,6 +18,7 @@ public:
 		short			rot_x, rot_y, rot_z ;		///< rotation
 		short			center_x, center_y ;		///< local center position
 		short			left, right, top, bottom ;	///< UV
+		short			nImage ;					///< Image No.
 		float			fScaleX, fScaleY ;			///< scale
 
 		void setRect( QRect &rect )

@@ -18,9 +18,11 @@ CEditImageData::~CEditImageData()
 
 void CEditImageData::resetData( void )
 {
-	if ( m_ImageData.nTexObj ) {
-		glDeleteTextures(1, &m_ImageData.nTexObj);
-		m_ImageData.nTexObj = 0 ;
+	for ( int i = 0 ; i < m_ImageData.size() ; i ++ ) {
+		if ( !m_ImageData[i].nTexObj ) { continue ; }
+
+		glDeleteTextures(1, &m_ImageData[i].nTexObj) ;
+		m_ImageData[i].nTexObj = 0 ;
 	}
 	if ( m_pObjectModel ) {
 		delete m_pObjectModel ;
@@ -37,8 +39,7 @@ void CEditImageData::resetData( void )
 
 void CEditImageData::initData( void )
 {
-	m_ImageData.Image	= QImage() ;
-	m_ImageData.nTexObj	= 0 ;
+	m_ImageData.clear();
 
 	m_CatchRect			= QRect(0, 0, 0, 0) ;
 	m_Center			= QPoint(0, 0) ;

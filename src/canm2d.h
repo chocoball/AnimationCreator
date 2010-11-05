@@ -25,7 +25,7 @@ public:
 	CAnm2D();
 
 	bool makeFromEditImageData( CEditImageData &rEditImageData ) ;
-	bool makeFromFile(QByteArray &data, QImage &imageData, CEditImageData &rEditImageData) ;
+	bool makeFromFile(QByteArray &data, CEditImageData &rEditImageData) ;
 
 	QByteArray &getData() { return m_Data ; }
 	int getErrorNo() { return m_nError ; }
@@ -37,7 +37,7 @@ private:
 	bool addObject(Anm2DHeader *pHeader, CEditImageData &rEditImageData) ;
 	bool addLayer(Anm2DHeader *pHeader, CEditImageData &rEditImageData) ;
 	bool addFrameData(Anm2DHeader *pHeader, CEditImageData &rEditImageData) ;
-	bool addImageData(Anm2DHeader *pHeader, QImage &image) ;
+	bool addImageData(Anm2DHeader *pHeader, CEditImageData &rEditImageData) ;
 
 	Anm2DObject	*search2DObjectFromName(Anm2DHeader *pHeader, QString name) ;
 	Anm2DLayer	*search2DLayerFromName(Anm2DHeader *pHeader, QString name) ;

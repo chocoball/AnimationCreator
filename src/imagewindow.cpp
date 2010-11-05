@@ -2,34 +2,32 @@
 #include <QGraphicsView>
 #include "imagewindow.h"
 #include "gridlabel.h"
+#include "animationform.h"
 
-ImageWindow::ImageWindow(CSettings *p, CEditImageData *pEditImage, QWidget *parent)
+ImageWindow::ImageWindow(CSettings *p, CEditImageData *pEditImage, AnimationForm *pAnimForm, QWidget *parent)
 	: QWidget(parent)
 {
 	m_pSetting = p ;
 	m_pEditImageData = pEditImage ;
+	setAnimationForm(pAnimForm);
 
-	QCheckBox *pCheckBox = new QCheckBox(trUtf8("グリッド"), this) ;
-	pCheckBox->setChecked(true);
+	m_pCheckBox = new QCheckBox(trUtf8("グリッド"), this) ;
+	m_pCheckBox->setChecked(true);
 
-	m_pImageLabel = new QLabel(this) ;
-	m_pImageLabel->setPixmap(QPixmap::fromImage(m_pEditImageData->getImage()));
-	m_pImageLabel->setScaledContents(true);
+	connect(this, SIGNAL(sig_addImage(int)), m_pAnimationForm, SLOT(slot_addImage(int))) ;
 
-	m_pGridLabel = new CGridLabel(m_pEditImageData, m_pImageLabel) ;
-	m_pGridLabel->show();
+	setAcceptDrops(true) ;
 
-	m_pScrollArea = new QScrollArea(this) ;
-	m_pScrollArea->setWidget(m_pImageLabel);
+	m_pTabWidget = new QTabWidget(this) ;
+	for ( int i = 0 ; i < m_pEditImageData->getImageDataSize() ; i ++ ) {
+		addTab(i);
+	}
 
 	QGridLayout *layout = new QGridLayout ;
-	layout->addWidget(pCheckBox, 0, 0);
-	layout->addWidget(m_pScrollArea, 1, 0, 1, 3) ;
+	layout->addWidget(m_pCheckBox, 0, 0);
+	layout->addWidget(m_pTabWidget, 1, 0, 1, 3) ;
+
 	setLayout(layout) ;
-
-	m_Scale = 1 ;
-
-	connect(pCheckBox, SIGNAL(clicked(bool)), m_pGridLabel, SLOT(slot_gridOnOff(bool))) ;
 
 	setWindowTitle(tr("Image Window")) ;
 }
@@ -42,3 +40,48 @@ ImageWindow::~ImageWindow()
 	m_pSetting->setImgWinSize(Size) ;
 }
 
+void ImageWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+	event->accept();
+}
+
+void ImageWindow::dropEvent(QDropEvent *event)
+{
+	QList<QUrl> urls = event->mimeData()->urls() ;
+	int index = m_pEditImageData->getImageDataSize() ;
+
+	for ( int i = 0 ; i < urls.size() ; i ++ ) {
+		QString fileName = urls[i].toLocalFile() ;
+
+		QImage image ;
+		if ( !image.load(fileName) ) {
+			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(fileName)) ;
+			continue ;
+		}
+		m_pEditImageData->addImage(image);
+		addTab(index) ;
+
+		emit sig_addImage(index) ;
+
+		index ++ ;
+	}
+}
+
+void ImageWindow::addTab(int imageIndex)
+{
+	QLabel *pLabel = new QLabel(m_pTabWidget) ;
+	pLabel->setPixmap(QPixmap::fromImage(m_pEditImageData->getImage(imageIndex))) ;
+	pLabel->setScaledContents(true) ;
+
+	CGridLabel *pGridLabel = new CGridLabel(m_pEditImageData, imageIndex, pLabel) ;
+	pGridLabel->show() ;
+
+	QScrollArea *pScrollArea = new QScrollArea(m_pTabWidget) ;
+	pScrollArea->setWidget(pLabel) ;
+
+	m_pTabWidget->addTab(pScrollArea, tr("%1").arg(imageIndex)) ;
+
+	connect(m_pCheckBox, SIGNAL(clicked(bool)), pGridLabel, SLOT(slot_gridOnOff(bool))) ;
+	connect(pGridLabel, SIGNAL(sig_changeSelectLayerUV(QRect)), m_pAnimationForm, SLOT(slot_changeSelectLayerUV(QRect))) ;
+	connect(m_pAnimationForm, SIGNAL(sig_imageRepaint()), pGridLabel, SLOT(update())) ;
+}
