@@ -568,6 +568,19 @@
     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
    </property>
   </widget>
+  <widget class="QCheckBox" name="checkBox_uv_anime">
+   <property name="geometry">
+    <rect>
+     <x>560</x>
+     <y>220</y>
+     <width>101</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>UV Animation</string>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>pushButton_play</tabstop>

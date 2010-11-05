@@ -71,7 +71,7 @@ typedef struct {
 	short				rot_x, rot_y, rot_z ;	///< 回転角
 	short				cx, cy ;				///< センター位置
 	unsigned short		nImageNo ;				///< 参照するイメージ番号
-	short				pad[1] ;
+	short				bFlag ;					///< フラグ 0x0001:UVアニメする
 	short				uv[4] ;					///< UV [0]:left [1]:right [2]:top [3]:bottom
 	float				fScaleX, fScaleY ;		///< スケール
 } Anm2DFrameData ;

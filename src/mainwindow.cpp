@@ -320,6 +320,7 @@ bool MainWindow::fileOpen( QString fileName )
 			return false ;
 		}
 		m_StrSaveFileName = fileName ;
+		setWindowTitle(tr("Animation Creator %1").arg(fileName));
 	}
 	// 画像ファイル
 	else {
@@ -361,6 +362,9 @@ bool MainWindow::saveFile( QString fileName )
 		QDataStream out(&file) ;
 		out.writeRawData(data.getData().data(), data.getData().size()) ;
 		QApplication::restoreOverrideCursor();
+
+		m_UndoIndex = m_EditImageData.getUndoStack()->index() ;
+		setWindowTitle(tr("Animation Creator %1").arg(fileName));
 		return true ;
 	}
 	else if ( fileName.indexOf(".png") ) {
@@ -375,7 +379,7 @@ bool MainWindow::checkChangedFileSave( void )
 {
 	QUndoStack *p = m_EditImageData.getUndoStack() ;
 	if ( p->index() != m_UndoIndex ) {
-		QMessageBox::StandardButton reply = QMessageBox::question(this, trUtf8("確認"), trUtf8("保存しますか？"),
+		QMessageBox::StandardButton reply = QMessageBox::question(this, trUtf8("確認"), trUtf8("現在のファイルを保存しますか？"),
 																  QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel) ;
 		if ( reply == QMessageBox::Yes ) {		// 保存する
 			slot_save();

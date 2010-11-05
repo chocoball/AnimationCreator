@@ -20,6 +20,7 @@ public:
 		short			left, right, top, bottom ;	///< UV
 		short			nImage ;					///< Image No.
 		float			fScaleX, fScaleY ;			///< scale
+		bool			bUVAnime ;					///< UVアニメするならtrue
 
 		void setRect( QRect &rect )
 		{
@@ -56,10 +57,14 @@ public:
 			data.rot_z		+= (pNext->rot_z - rot_z)*frameNow/frameAll ;
 			data.center_x	+= (pNext->center_x - center_x)*frameNow/frameAll ;
 			data.center_y	+= (pNext->center_y - center_y)*frameNow/frameAll ;
-			data.left		+= (pNext->left - left)*frameNow/frameAll ;
-			data.right		+= (pNext->right - right)*frameNow/frameAll ;
-			data.top		+= (pNext->top - top)*frameNow/frameAll ;
-			data.bottom		+= (pNext->bottom - bottom)*frameNow/frameAll ;
+
+			if ( pNext->bUVAnime ) {
+				data.left		+= (pNext->left - left)*frameNow/frameAll ;
+				data.right		+= (pNext->right - right)*frameNow/frameAll ;
+				data.top		+= (pNext->top - top)*frameNow/frameAll ;
+				data.bottom		+= (pNext->bottom - bottom)*frameNow/frameAll ;
+			}
+
 			data.fScaleX	+= (pNext->fScaleX - fScaleX)*frameNow/frameAll ;
 			data.fScaleY	+= (pNext->fScaleY - fScaleY)*frameNow/frameAll ;
 			return data ;

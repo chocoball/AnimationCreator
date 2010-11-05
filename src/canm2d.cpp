@@ -78,6 +78,7 @@ bool CAnm2D::makeFromEditImageData( CEditImageData &rEditImageData )
 				pFrameData->uv[3]			= data.bottom ;
 				pFrameData->fScaleX			= data.fScaleX ;
 				pFrameData->fScaleY			= data.fScaleY ;
+				pFrameData->bFlag			= (data.bUVAnime) ? 1 : 0 ;
 
 				pLayerData->nFrameDataNo[k] = pFrameData->nFrameDataNo ;	// レイヤが参照するフレームデータ番号セット
 
@@ -356,6 +357,7 @@ bool CAnm2D::addFrameData(Anm2DHeader *pHeader, CEditImageData &rEditImageData)
 							data.fScaleX	= pFrame->fScaleX ;
 							data.fScaleY	= pFrame->fScaleY ;
 							data.nImage		= pFrame->nImageNo ;
+							data.bUVAnime	= (pFrame->bFlag & 0x01) ;
 
 							frameDataList.append(data) ;
 						}

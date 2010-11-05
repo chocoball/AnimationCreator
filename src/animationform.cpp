@@ -118,7 +118,6 @@ AnimationForm::AnimationForm(CEditImageData *pImageData, QWidget *parent) :
 			this,		SLOT(slot_addNewFrameData(CObjectModel::typeID, CObjectModel::typeID, int, CObjectModel::FrameData))) ;
 
 	connect(ui->horizontalSlider_nowSequence, SIGNAL(valueChanged(int)), this, SLOT(slot_frameChanged(int))) ;
-
 	connect(ui->spinBox_pos_x,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changePosX(int))) ;
 	connect(ui->spinBox_pos_y,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changePosY(int))) ;
 	connect(ui->spinBox_pos_z,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changePosZ(int))) ;
@@ -133,21 +132,16 @@ AnimationForm::AnimationForm(CEditImageData *pImageData, QWidget *parent) :
 	connect(ui->spinBox_uv_bottom,		SIGNAL(valueChanged(int)),		this, SLOT(slot_changeUvBottom(int))) ;
 	connect(ui->spinBox_center_x,		SIGNAL(valueChanged(int)),		this, SLOT(slot_changeCenterX(int))) ;
 	connect(ui->spinBox_center_y,		SIGNAL(valueChanged(int)),		this, SLOT(slot_changeCenterY(int))) ;
-
-	connect(m_pActTreeViewAdd, SIGNAL(triggered()), this, SLOT(slot_createNewObject())) ;
-	connect(m_pActTreeViewDel, SIGNAL(triggered()), this, SLOT(slot_deleteObject())) ;
-	connect(m_pActTreeViewLayerDisp, SIGNAL(triggered()), this, SLOT(slot_changeLayerDisp())) ;
-
-	connect(ui->pushButton_play, SIGNAL(clicked()), this, SLOT(slot_playAnimation())) ;
-	connect(ui->pushButton_stop, SIGNAL(clicked()), this, SLOT(slot_stopAnimation())) ;
-
-	connect(ui->checkBox_grid, SIGNAL(clicked(bool)), m_pGlWidget, SLOT(slot_setDrawGrid(bool))) ;
-
-	connect(ui->comboBox_fps, SIGNAL(activated(int)), this, SLOT(slot_changeAnimeSpeed(int))) ;
-
-	connect(ui->comboBox_image_no, SIGNAL(activated(int)), this, SLOT(slot_changeImageIndex(int))) ;
-
-	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(slot_timerEvent())) ;
+	connect(m_pActTreeViewAdd,			SIGNAL(triggered()),			this, SLOT(slot_createNewObject())) ;
+	connect(m_pActTreeViewDel,			SIGNAL(triggered()),			this, SLOT(slot_deleteObject())) ;
+	connect(m_pActTreeViewLayerDisp,	SIGNAL(triggered()),			this, SLOT(slot_changeLayerDisp())) ;
+	connect(ui->pushButton_play,		SIGNAL(clicked()),				this, SLOT(slot_playAnimation())) ;
+	connect(ui->pushButton_stop,		SIGNAL(clicked()),				this, SLOT(slot_stopAnimation())) ;
+	connect(ui->checkBox_grid,			SIGNAL(clicked(bool)),			m_pGlWidget, SLOT(slot_setDrawGrid(bool))) ;
+	connect(ui->checkBox_uv_anime,		SIGNAL(clicked(bool)),			this, SLOT(slot_changeUVAnime(bool))) ;
+	connect(ui->comboBox_fps,			SIGNAL(activated(int)),			this, SLOT(slot_changeAnimeSpeed(int))) ;
+	connect(ui->comboBox_image_no,		SIGNAL(activated(int)),			this, SLOT(slot_changeImageIndex(int))) ;
+	connect(m_pTimer,					SIGNAL(timeout()),				this, SLOT(slot_timerEvent())) ;
 
 #ifndef LAYOUT_OWN
 	QGridLayout *pLayout = new QGridLayout(this) ;
@@ -231,6 +225,14 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 	for ( int i = 0 ; i < ARRAY_NUM(tmpBox2) ; i ++ ) {
 		tmpBox2[i]->move(tmpBox2[i]->pos().x()+add.width(), tmpBox2[i]->pos().y());
 	}
+
+	QCheckBox *tmpCheck[] = {
+		ui->checkBox_uv_anime,
+	} ;
+	for ( int i = 0 ; i < ARRAY_NUM(tmpCheck) ; i ++ ) {
+		tmpCheck[i]->move(tmpCheck[i]->pos().x()+add.width(), tmpCheck[i]->pos().y());
+	}
+
 }
 #endif
 
@@ -426,7 +428,14 @@ void AnimationForm::slot_dropedImage( QRect rect, QPoint pos, int imageIndex )
 // 現在フレーム変更
 void AnimationForm::slot_frameChanged(int frame)
 {
+	bool bChange = (m_pEditImageData->getSelectFrame() != frame) ;
 	m_pEditImageData->setSelectFrame( frame ) ;
+	if ( bChange ) {
+		CObjectModel::FrameData *pData = getNowSelectFrameData() ;
+		if ( pData ) {
+			slot_setUI(*pData);
+		}
+	}
 	m_pGlWidget->update();
 }
 
@@ -465,6 +474,7 @@ void AnimationForm::slot_setUI(CObjectModel::FrameData data)
 	ui->spinBox_center_x->setValue(data.center_x);
 	ui->spinBox_center_y->setValue(data.center_y);
 	ui->comboBox_image_no->setCurrentIndex(data.nImage);
+	ui->checkBox_uv_anime->setChecked(data.bUVAnime);
 
 	if ( data.getRect() != m_pEditImageData->getCatchRect() ) {
 		QRect rect = data.getRect() ;
@@ -872,6 +882,16 @@ void AnimationForm::slot_changeImageIndex(int index)
 	}
 	pData->nImage = index ;
 	m_pGlWidget->update();
+}
+
+// UVアニメON/OFF
+void AnimationForm::slot_changeUVAnime( bool flag )
+{
+	CObjectModel::FrameData *pData = getNowSelectFrameData() ;
+	if ( !pData ) {
+		return ;
+	}
+	pData->bUVAnime = flag ;
 }
 
 // 現在選択しているフレームデータ取得

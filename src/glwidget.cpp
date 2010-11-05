@@ -82,7 +82,7 @@ void AnimeGLWidget::drawLayers( void )
 
 	glEnable(GL_TEXTURE_2D) ;
 
-	if ( m_pEditImageData->isPlayAnime() ) {
+	if ( m_pEditImageData->isPlayAnime() || m_pEditImageData->isPauseAnime() ) {
 		drawLayers_Anime() ;
 	}
 	else {
