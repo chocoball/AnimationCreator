@@ -43,4 +43,5 @@ RESOURCES += \
 			Resource.qrc
 
 FORMS += \
-			ui/animationform.ui
+			ui/animationform.ui \
+    ui/imagewindow.ui
