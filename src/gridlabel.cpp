@@ -109,6 +109,8 @@ void CGridLabel::mousePressEvent(QMouseEvent *ev)
 		QRect r = QRect(x, y, 1, 1) ;
 		m_pImageData->setCatchRect(r);
 		repaint() ;
+
+		emit sig_changeCatchRect(r) ;
 	}
 }
 
@@ -168,6 +170,7 @@ void CGridLabel::mouseMoveEvent(QMouseEvent *ev)
 	}
 
 	m_pImageData->setCatchRect(r);
+	emit sig_changeCatchRect(r) ;
 
 	repaint() ;
 }

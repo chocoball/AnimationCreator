@@ -5,32 +5,37 @@
 #include "animationform.h"
 
 ImageWindow::ImageWindow(CSettings *p, CEditImageData *pEditImage, AnimationForm *pAnimForm, QWidget *parent)
-	: QWidget(parent)
+	: QWidget(parent),
+	ui(new Ui::ImageWindow)
 {
+	ui->setupUi(this) ;
+
 	m_pSetting = p ;
 	m_pEditImageData = pEditImage ;
 	setAnimationForm(pAnimForm);
 
 	setAcceptDrops(true) ;
 
-	m_pCheckBox = new QCheckBox(trUtf8("グリッド"), this) ;
-	m_pCheckBox->setChecked(true);
+	ui->checkBox->setChecked(true);
+	ui->spinBox_uv_bottom->setMaximum(1024);
+	ui->spinBox_uv_top->setMaximum(1024);
+	ui->spinBox_uv_left->setMaximum(1024);
+	ui->spinBox_uv_right->setMaximum(1024);
 
 	m_pActDelImage = new QAction(trUtf8("Delete"), this) ;
 
 	connect(m_pActDelImage, SIGNAL(triggered()), this, SLOT(slot_delImage())) ;
 	connect(this, SIGNAL(sig_addImage(int)), m_pAnimationForm, SLOT(slot_addImage(int))) ;
 	connect(this, SIGNAL(sig_delImage(int)), m_pAnimationForm, SLOT(slot_delImage(int))) ;
+	connect(ui->spinBox_uv_bottom,	SIGNAL(valueChanged(int)), this, SLOT(slot_changeUVBottom(int))) ;
+	connect(ui->spinBox_uv_top,		SIGNAL(valueChanged(int)), this, SLOT(slot_changeUVTop(int))) ;
+	connect(ui->spinBox_uv_left,	SIGNAL(valueChanged(int)), this, SLOT(slot_changeUVLeft(int))) ;
+	connect(ui->spinBox_uv_right,	SIGNAL(valueChanged(int)), this, SLOT(slot_changeUVRight(int))) ;
 
-	m_pTabWidget = new QTabWidget(this) ;
+	ui->tabWidget->clear();
 	for ( int i = 0 ; i < m_pEditImageData->getImageDataSize() ; i ++ ) {
 		addTab(i);
 	}
-
-	QGridLayout *layout = new QGridLayout ;
-	layout->addWidget(m_pCheckBox, 0, 0);
-	layout->addWidget(m_pTabWidget, 1, 0, 1, 3) ;
-	setLayout(layout) ;
 
 	setWindowTitle(tr("Image Window")) ;
 }
@@ -77,7 +82,7 @@ void ImageWindow::dropEvent(QDropEvent *event)
 
 void ImageWindow::addTab(int imageIndex)
 {
-	QLabel *pLabel = new QLabel(m_pTabWidget) ;
+	QLabel *pLabel = new QLabel(ui->tabWidget) ;
 	pLabel->setPixmap(QPixmap::fromImage(m_pEditImageData->getImage(imageIndex))) ;
 	pLabel->setObjectName("ImageLabel");
 	pLabel->setScaledContents(true) ;
@@ -85,13 +90,14 @@ void ImageWindow::addTab(int imageIndex)
 	CGridLabel *pGridLabel = new CGridLabel(m_pEditImageData, imageIndex, pLabel) ;
 	pGridLabel->show() ;
 
-	QScrollArea *pScrollArea = new QScrollArea(m_pTabWidget) ;
+	QScrollArea *pScrollArea = new QScrollArea(ui->tabWidget) ;
 	pScrollArea->setWidget(pLabel) ;
 
-	m_pTabWidget->addTab(pScrollArea, tr("%1").arg(imageIndex)) ;
+	ui->tabWidget->addTab(pScrollArea, tr("%1").arg(imageIndex)) ;
 
-	connect(m_pCheckBox, SIGNAL(clicked(bool)), pGridLabel, SLOT(slot_gridOnOff(bool))) ;
+	connect(ui->checkBox, SIGNAL(clicked(bool)), pGridLabel, SLOT(slot_gridOnOff(bool))) ;
 	connect(pGridLabel, SIGNAL(sig_changeSelectLayerUV(QRect)), m_pAnimationForm, SLOT(slot_changeSelectLayerUV(QRect))) ;
+	connect(pGridLabel, SIGNAL(sig_changeCatchRect(QRect)), this, SLOT(slot_setUI(QRect))) ;
 	connect(m_pAnimationForm, SIGNAL(sig_imageRepaint()), pGridLabel, SLOT(update())) ;
 }
 
@@ -102,13 +108,23 @@ void ImageWindow::contextMenuEvent(QContextMenuEvent *event)
 	menu.exec(event->globalPos()) ;
 }
 
+void ImageWindow::updateGridLabel( void )
+{
+	QScrollArea *pScrollArea = (QScrollArea *)ui->tabWidget->widget(ui->tabWidget->currentIndex()) ;
+
+	QLabel *label = pScrollArea->findChild<QLabel *>("ImageLabel") ;
+	if ( label ) {
+		label->update();
+	}
+}
+
 void ImageWindow::slot_delImage( void )
 {
-	int index = m_pTabWidget->currentIndex() ;
-	m_pTabWidget->removeTab(index);
+	int index = ui->tabWidget->currentIndex() ;
+	ui->tabWidget->removeTab(index);
 
-	for ( int i = 0 ; i < m_pTabWidget->count() ; i ++ ) {
-		m_pTabWidget->setTabText(i, tr("%1").arg(i));
+	for ( int i = 0 ; i < ui->tabWidget->count() ; i ++ ) {
+		ui->tabWidget->setTabText(i, tr("%1").arg(i));
 	}
 
 	emit sig_delImage(index) ;
@@ -116,7 +132,7 @@ void ImageWindow::slot_delImage( void )
 
 void ImageWindow::slot_modifiedImage( int index )
 {
-	QScrollArea *pScrollArea = (QScrollArea *)m_pTabWidget->widget(index) ;
+	QScrollArea *pScrollArea = (QScrollArea *)ui->tabWidget->widget(index) ;
 
 	QLabel *label = pScrollArea->findChild<QLabel *>("ImageLabel") ;
 	if ( !label ) {
@@ -126,3 +142,51 @@ void ImageWindow::slot_modifiedImage( int index )
 	label->setPixmap(QPixmap::fromImage(m_pEditImageData->getImage(index))) ;
 	label->update();
 }
+
+void ImageWindow::slot_changeUVBottom( int val )
+{
+	QRect r = m_pEditImageData->getCatchRect() ;
+	r.setBottom(val);
+	m_pEditImageData->setCatchRect(r);
+
+	updateGridLabel() ;
+}
+
+void ImageWindow::slot_changeUVTop( int val )
+{
+	QRect r = m_pEditImageData->getCatchRect() ;
+	r.setTop(val);
+	m_pEditImageData->setCatchRect(r);
+
+	updateGridLabel() ;
+}
+
+void ImageWindow::slot_changeUVLeft( int val )
+{
+	QRect r = m_pEditImageData->getCatchRect() ;
+	r.setLeft(val);
+	m_pEditImageData->setCatchRect(r);
+
+	updateGridLabel() ;
+}
+
+void ImageWindow::slot_changeUVRight( int val )
+{
+	QRect r = m_pEditImageData->getCatchRect() ;
+	r.setRight(val);
+	m_pEditImageData->setCatchRect(r);
+
+	updateGridLabel() ;
+}
+
+void ImageWindow::slot_setUI( QRect rect )
+{
+	ui->spinBox_uv_bottom->setValue(rect.bottom());
+	ui->spinBox_uv_top->setValue(rect.top());
+	ui->spinBox_uv_left->setValue(rect.left());
+	ui->spinBox_uv_right->setValue(rect.right());
+}
+
+
+
+
