@@ -1,13 +1,17 @@
 #include "canm2d.h"
 
 
-CAnm2D::CAnm2D()
+/************************************************************
+*
+* CAnm2DBin
+*
+************************************************************/
+CAnm2DBin::CAnm2DBin()
 {
-	m_nError = kErrorNo_NoError ;
 }
 
 // 作成中のデータをアニメデータに変換
-bool CAnm2D::makeFromEditImageData( CEditImageData &rEditImageData )
+bool CAnm2DBin::makeFromEditImageData( CEditImageData &rEditImageData )
 {
 	QByteArray header ;
 	QList<QByteArray> objectList ;
@@ -142,66 +146,8 @@ bool CAnm2D::makeFromEditImageData( CEditImageData &rEditImageData )
 	return true ;
 }
 
-// ヘッダ作成
-bool CAnm2D::makeHeader( QByteArray &rData, CEditImageData &rEditImageData )
-{
-	int blockNum = 0 ;
-	CObjectModel *pModel = rEditImageData.getObjectModel() ;
-	const CObjectModel::ObjectList &objList = pModel->getObjectList() ;
-
-	blockNum += objList.size() ;	// オブジェクト数
-	for ( int i = 0 ; i < objList.size() ; i ++ ) {
-		const CObjectModel::LayerGroupList &layerGroupList = objList.at(i).second ;
-		blockNum += layerGroupList.size() ;	// レイヤ数
-		for ( int j = 0 ; j < layerGroupList.size() ; j ++ ) {
-			const CObjectModel::FrameDataList &frameDataList = layerGroupList.at(j).second ;
-			blockNum += frameDataList.size() ;	// フレームデータ数
-		}
-	}
-	blockNum += rEditImageData.getImageDataSize() ;	// イメージデータ数
-
-	rData.resize(sizeof(Anm2DHeader) + (blockNum-1) * sizeof(unsigned int));
-	Anm2DHeader *pHeader = (Anm2DHeader *)rData.data() ;
-	memset( pHeader, 0, sizeof(Anm2DHeader) + (blockNum-1) * sizeof(unsigned int) ) ;
-	pHeader->header.nID		= ANM2D_ID_HEADER ;
-	pHeader->header.nSize	= sizeof( Anm2DHeader ) ;
-	pHeader->nVersion		= ANM2D_VERSION ;
-	pHeader->nFileSize		= 0 ;	// 後で入れる
-	pHeader->nBlockNum		= blockNum ;
-
-
-	return true ;
-}
-
-// イメージデータ作成
-bool CAnm2D::makeImageList( QList<QByteArray> &rData, CEditImageData &rEditImageData )
-{
-	int imageNum = rEditImageData.getImageDataSize() ;
-
-	for ( int i = 0 ; i < imageNum ; i ++ ) {
-		QImage img = rEditImageData.getImage(i) ;
-		unsigned int size = sizeof(Anm2DImage) + img.width() * img.height() * 4 * sizeof(unsigned char) - 1 ;
-		size = (size+0x03) & ~0x03 ;
-
-		QByteArray imgArray ;
-		imgArray.resize(size);
-		Anm2DImage *pImage = (Anm2DImage *)imgArray.data() ;
-		memset( pImage, 0, size ) ;
-		pImage->header.nID = ANM2D_ID_IMAGE ;
-		pImage->header.nSize = size ;
-		pImage->nWidth = img.width() ;
-		pImage->nHeight = img.height() ;
-		pImage->nImageNo = i ;
-		strncpy(pImage->fileName, rEditImageData.getImageFileName(i).toStdString().c_str(), 255) ;
-		memcpy(pImage->data, img.bits(), img.width()*img.height()*4) ;
-
-		rData << imgArray ;
-	}
-	return true ;
-}
-
 // アニメファイルから作成中データへ変換
-bool CAnm2D::makeFromFile(QByteArray &data, CEditImageData &rEditImageData)
+bool CAnm2DBin::makeFromFile(QByteArray &data, CEditImageData &rEditImageData)
 {
 	m_Data = data ;
 
@@ -234,8 +180,66 @@ bool CAnm2D::makeFromFile(QByteArray &data, CEditImageData &rEditImageData)
 	return true ;
 }
 
-// オブジェクトを追加
-bool CAnm2D::addObject(Anm2DHeader *pHeader, CEditImageData &rEditImageData)
+
+// ヘッダ作成
+bool CAnm2DBin::makeHeader( QByteArray &rData, CEditImageData &rEditImageData )
+{
+	int blockNum = 0 ;
+	CObjectModel *pModel = rEditImageData.getObjectModel() ;
+	const CObjectModel::ObjectList &objList = pModel->getObjectList() ;
+
+	blockNum += objList.size() ;	// オブジェクト数
+	for ( int i = 0 ; i < objList.size() ; i ++ ) {
+		const CObjectModel::LayerGroupList &layerGroupList = objList.at(i).second ;
+		blockNum += layerGroupList.size() ;	// レイヤ数
+		for ( int j = 0 ; j < layerGroupList.size() ; j ++ ) {
+			const CObjectModel::FrameDataList &frameDataList = layerGroupList.at(j).second ;
+			blockNum += frameDataList.size() ;	// フレームデータ数
+		}
+	}
+	blockNum += rEditImageData.getImageDataSize() ;	// イメージデータ数
+
+	rData.resize(sizeof(Anm2DHeader) + (blockNum-1) * sizeof(unsigned int));
+	Anm2DHeader *pHeader = (Anm2DHeader *)rData.data() ;
+	memset( pHeader, 0, sizeof(Anm2DHeader) + (blockNum-1) * sizeof(unsigned int) ) ;
+	pHeader->header.nID		= ANM2D_ID_HEADER ;
+	pHeader->header.nSize	= sizeof( Anm2DHeader ) ;
+	pHeader->nVersion		= ANM2D_VERSION ;
+	pHeader->nFileSize		= 0 ;	// 後で入れる
+	pHeader->nBlockNum		= blockNum ;
+
+	return true ;
+}
+
+// イメージデータ作成
+bool CAnm2DBin::makeImageList( QList<QByteArray> &rData, CEditImageData &rEditImageData )
+{
+	int imageNum = rEditImageData.getImageDataSize() ;
+
+	for ( int i = 0 ; i < imageNum ; i ++ ) {
+		QImage img = rEditImageData.getImage(i) ;
+		unsigned int size = sizeof(Anm2DImage) + img.width() * img.height() * 4 * sizeof(unsigned char) - 1 ;
+		size = (size+0x03) & ~0x03 ;
+
+		QByteArray imgArray ;
+		imgArray.resize(size);
+		Anm2DImage *pImage = (Anm2DImage *)imgArray.data() ;
+		memset( pImage, 0, size ) ;
+		pImage->header.nID = ANM2D_ID_IMAGE ;
+		pImage->header.nSize = size ;
+		pImage->nWidth = img.width() ;
+		pImage->nHeight = img.height() ;
+		pImage->nImageNo = i ;
+		strncpy(pImage->fileName, rEditImageData.getImageFileName(i).toStdString().c_str(), 255) ;
+		memcpy(pImage->data, img.bits(), img.width()*img.height()*4) ;
+
+		rData << imgArray ;
+	}
+	return true ;
+}
+
+// 編集データにオブジェクトを追加
+bool CAnm2DBin::addObject(Anm2DHeader *pHeader, CEditImageData &rEditImageData)
 {
 	CObjectModel *pModel = rEditImageData.getObjectModel() ;
 	QStandardItemModel *pTreeModel = rEditImageData.getTreeModel() ;
@@ -269,8 +273,8 @@ bool CAnm2D::addObject(Anm2DHeader *pHeader, CEditImageData &rEditImageData)
 	return true ;
 }
 
-// レイヤを追加
-bool CAnm2D::addLayer(Anm2DHeader *pHeader, CEditImageData &rEditImageData)
+// 編集データにレイヤを追加
+bool CAnm2DBin::addLayer(Anm2DHeader *pHeader, CEditImageData &rEditImageData)
 {
 	CObjectModel *pModel = rEditImageData.getObjectModel() ;
 
@@ -315,8 +319,8 @@ bool CAnm2D::addLayer(Anm2DHeader *pHeader, CEditImageData &rEditImageData)
 	return true ;
 }
 
-// フレームデータを追加
-bool CAnm2D::addFrameData(Anm2DHeader *pHeader, CEditImageData &rEditImageData)
+// 編集データにフレームデータを追加
+bool CAnm2DBin::addFrameData(Anm2DHeader *pHeader, CEditImageData &rEditImageData)
 {
 	CObjectModel *pModel = rEditImageData.getObjectModel() ;
 
@@ -379,8 +383,8 @@ bool CAnm2D::addFrameData(Anm2DHeader *pHeader, CEditImageData &rEditImageData)
 	return true ;
 }
 
-// イメージを追加
-bool CAnm2D::addImageData(Anm2DHeader *pHeader, CEditImageData &rEditImageData)
+// 編集データにイメージを追加
+bool CAnm2DBin::addImageData(Anm2DHeader *pHeader, CEditImageData &rEditImageData)
 {
 	QList<CEditImageData::ImageData> data ;
 	for ( int i = 0 ; i < pHeader->nBlockNum ; i ++ ) {
@@ -427,7 +431,7 @@ bool CAnm2D::addImageData(Anm2DHeader *pHeader, CEditImageData &rEditImageData)
 }
 
 // 名前からオブジェクトを探す
-Anm2DObject *CAnm2D::search2DObjectFromName(Anm2DHeader *pHeader, QString name)
+Anm2DObject *CAnm2DBin::search2DObjectFromName(Anm2DHeader *pHeader, QString name)
 {
 	for ( int i = 0 ; i < pHeader->nBlockNum ; i ++ ) {
 		Anm2DObject *p = (Anm2DObject *)LP_ADD(pHeader, pHeader->nBlockOffset[i]) ;
@@ -440,7 +444,7 @@ Anm2DObject *CAnm2D::search2DObjectFromName(Anm2DHeader *pHeader, QString name)
 }
 
 // 名前からレイヤを探す
-Anm2DLayer *CAnm2D::search2DLayerFromName(Anm2DHeader *pHeader, QString name)
+Anm2DLayer *CAnm2DBin::search2DLayerFromName(Anm2DHeader *pHeader, QString name)
 {
 	for ( int i = 0 ; i < pHeader->nBlockNum ; i ++ ) {
 		Anm2DLayer *p = (Anm2DLayer *)LP_ADD(pHeader, pHeader->nBlockOffset[i]) ;
@@ -451,4 +455,230 @@ Anm2DLayer *CAnm2D::search2DLayerFromName(Anm2DHeader *pHeader, QString name)
 	}
 	return NULL ;
 }
+
+
+/************************************************************
+*
+* CAnm2DXml
+*
+************************************************************/
+CAnm2DXml::CAnm2DXml()
+{
+	m_pProgress = NULL ;
+}
+
+// 作成中のデータをアニメデータに変換
+bool CAnm2DXml::makeFromEditImageData( CEditImageData &rEditImageData )
+{
+	QDomDocument doc(kAnmXML_ID_Anm2D) ;
+	QDomElement root = doc.createElement(kAnmXML_ID_Root) ;
+
+	setProgMaximum(m_pProgress, rEditImageData) ;
+
+	if ( !makeHeader(root, doc, rEditImageData) ) {
+		return false ;
+	}
+	if ( !makeObject(root, doc, rEditImageData) ) {
+		return false ;
+	}
+	if ( !makeImage(root, doc, rEditImageData) ) {
+		return false ;
+	}
+
+	doc.appendChild(root) ;
+
+	m_Data = doc ;
+	return true ;
+}
+
+// アニメファイルから作成中データへ変換
+bool CAnm2DXml::makeFromFile(QDomDocument &xml, CEditImageData &rEditImageData)
+{
+
+	return true ;
+}
+
+// ヘッダエレメント作成
+bool CAnm2DXml::makeHeader(QDomElement &element, QDomDocument &doc, CEditImageData &rEditImageData)
+{
+Q_UNUSED(doc) ;
+
+	CObjectModel *pModel = rEditImageData.getObjectModel() ;
+	const CObjectModel::ObjectList &objList = pModel->getObjectList() ;
+
+	element.setAttribute(kAnmXML_Attr_Version, kAnmXML_Version);
+	element.setAttribute(kAnmXML_Attr_ObjNum, objList.size());
+	element.setAttribute(kAnmXML_Attr_ImageNum, rEditImageData.getImageDataSize());
+	return true ;
+}
+
+// オブジェクトエレメント作成
+bool CAnm2DXml::makeObject(QDomElement &element, QDomDocument &doc, CEditImageData &rEditImageData)
+{
+	CObjectModel *pModel = rEditImageData.getObjectModel() ;
+	const CObjectModel::ObjectList &objList = pModel->getObjectList() ;
+
+	for ( int i = 0 ; i < objList.size() ; i ++ ) {
+		const CObjectModel::ObjectGroup &objGroup = objList.at(i) ;
+		QStandardItem *pObjID = objGroup.first ;
+		const CObjectModel::LayerGroupList &layerGroupList = objGroup.second ;
+
+		QDomElement elmObj = doc.createElement(kAnmXML_ID_Object) ;
+		elmObj.setAttribute(kAnmXML_Attr_Name, pObjID->text());
+		elmObj.setAttribute(kAnmXML_Attr_No, i);
+		elmObj.setAttribute(kAnmXML_Attr_LayerNum, layerGroupList.size());
+		element.appendChild(elmObj) ;
+
+		for ( int j = 0 ; j < layerGroupList.size() ; j ++ ) {
+			const CObjectModel::LayerGroup &layerGroup = layerGroupList.at(j) ;
+			QStandardItem *pLayerID = layerGroup.first ;
+			const CObjectModel::FrameDataList &frameDataList = layerGroup.second ;
+
+			QDomElement elmLayer = doc.createElement(kAnmXML_ID_Layer) ;
+			elmLayer.setAttribute(kAnmXML_Attr_Name, pLayerID->text());
+			elmLayer.setAttribute(kAnmXML_Attr_No, j);
+			elmLayer.setAttribute(kAnmXML_Attr_FrameNum, frameDataList.size());
+			elmObj.appendChild(elmLayer) ;
+
+			for ( int k = 0 ; k < frameDataList.size() ; k ++ ) {
+				const CObjectModel::FrameData &data = frameDataList.at(k) ;
+
+				QDomElement elmFrameData = doc.createElement(kAnmXML_ID_FrameData) ;
+				QDomElement elmTmp ;
+				QDomText text ;
+
+				elmTmp = doc.createElement("frame") ;
+				text = doc.createTextNode(QString("%1").arg(data.frame)) ;
+				elmTmp.appendChild(text) ;
+				elmFrameData.appendChild(elmTmp) ;
+
+				elmTmp = doc.createElement("pos") ;
+				text = doc.createTextNode(QString("%1 %2 %3").arg(data.pos_x).arg(data.pos_y).arg(data.pos_z)) ;
+				elmTmp.appendChild(text) ;
+				elmFrameData.appendChild(elmTmp) ;
+
+				elmTmp = doc.createElement("rot") ;
+				text = doc.createTextNode(QString("%1 %2 %3").arg(data.rot_x).arg(data.rot_y).arg(data.rot_z)) ;
+				elmTmp.appendChild(text) ;
+				elmFrameData.appendChild(elmTmp) ;
+
+				elmTmp = doc.createElement("center") ;
+				text = doc.createTextNode(QString("%1 %2").arg(data.center_x).arg(data.center_y)) ;
+				elmTmp.appendChild(text) ;
+				elmFrameData.appendChild(elmTmp) ;
+
+				elmTmp = doc.createElement("UV") ;
+				text = doc.createTextNode(QString("%1 %2 %3 %4").arg(data.left).arg(data.top).arg(data.right).arg(data.bottom)) ;
+				elmTmp.appendChild(text) ;
+				elmFrameData.appendChild(elmTmp) ;
+
+				elmTmp = doc.createElement("Image No") ;
+				text = doc.createTextNode(QString("%1").arg(data.nImage)) ;
+				elmTmp.appendChild(text) ;
+				elmFrameData.appendChild(elmTmp) ;
+
+				elmTmp = doc.createElement("scale") ;
+				text = doc.createTextNode(QString("%1 %2").arg(data.fScaleX).arg(data.fScaleY)) ;
+				elmTmp.appendChild(text) ;
+				elmFrameData.appendChild(elmTmp) ;
+
+				elmTmp = doc.createElement("UV Anime") ;
+				text = doc.createTextNode(QString("%1").arg(data.bUVAnime)) ;
+				elmTmp.appendChild(text) ;
+				elmFrameData.appendChild(elmTmp) ;
+
+				elmLayer.appendChild(elmFrameData) ;
+
+				if ( m_pProgress ) {
+					m_pProgress->setValue(m_pProgress->value()+1);
+
+					if ( m_pProgress->wasCanceled() ) {
+						m_nError = kErrorNo_Cancel ;
+						return false ;
+					}
+				}
+			}
+		}
+	}
+
+	return true ;
+}
+
+// イメージエレメント作成
+bool CAnm2DXml::makeImage( QDomElement &element, QDomDocument &doc, CEditImageData &rEditImageData )
+{
+	for ( int i = 0 ; i < rEditImageData.getImageDataSize() ; i ++ ) {
+		QString imgFilePath = rEditImageData.getImageFileName(i) ;
+		QImage image = rEditImageData.getImage(i) ;
+
+		QDomElement elmImage = doc.createElement(kAnmXML_ID_Image) ;
+		elmImage.setAttribute(kAnmXML_Attr_No, i);
+
+		QDomElement elmTmp ;
+		QDomText text ;
+
+		elmTmp = doc.createElement("FilePath") ;
+		text = doc.createTextNode(imgFilePath.toUtf8()) ;
+		elmTmp.appendChild(text) ;
+		elmImage.appendChild(elmTmp) ;
+
+		elmTmp = doc.createElement("Size") ;
+		text = doc.createTextNode(QString("%1 %2").arg(image.width()).arg(image.height())) ;
+		elmTmp.appendChild(text) ;
+		elmImage.appendChild(elmTmp) ;
+
+		elmTmp = doc.createElement("Data") ;
+		QString str ;
+		str.reserve(image.height()*image.width()*9+image.height()*15);
+		for ( int y = 0 ; y < image.height() ; y ++ ) {
+			for ( int x = 0 ; x < image.width() ; x ++ ) {
+				if ( !(x%16) ) {
+					str.append(QString("\n            ")) ;
+				}
+				str.append(QString::number(image.pixel(x, y), 16)) ;
+				str.append(" ") ;
+
+				if ( m_pProgress ) {
+					m_pProgress->setValue(m_pProgress->value()+1);
+					if ( m_pProgress->wasCanceled() ) {
+						m_nError = kErrorNo_Cancel ;
+						return false ;
+					}
+				}
+			}
+		}
+		str.append(QString("\n        ")) ;
+		text = doc.createTextNode(str) ;
+		elmTmp.appendChild(text) ;
+		elmImage.appendChild(elmTmp) ;
+
+		element.appendChild(elmImage) ;
+	}
+
+	return true ;
+}
+
+// プログレスバーの最大値セット
+void CAnm2DXml::setProgMaximum( QProgressDialog *pProg, CEditImageData &rEditImageData )
+{
+	if ( !pProg ) { return ; }
+
+	int max = 0 ;
+	CObjectModel *pModel = rEditImageData.getObjectModel() ;
+	const CObjectModel::ObjectList &objList = pModel->getObjectList() ;
+	for ( int i = 0 ; i < objList.size() ; i ++ ) {
+		const CObjectModel::LayerGroupList &layerGroupList = objList.at(i).second ;
+		for ( int j = 0 ; j < layerGroupList.size() ; j ++ ) {
+			max += layerGroupList.at(j).second.size() ;
+		}
+	}
+
+	for ( int i = 0 ; i < rEditImageData.getImageDataSize() ; i ++ ) {
+		max += rEditImageData.getImage(i).height() * rEditImageData.getImage(i).width() ;
+	}
+	qDebug() << "max:" << max ;
+	pProg->setMaximum(max);
+}
+
+
 

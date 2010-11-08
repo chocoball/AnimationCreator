@@ -5,7 +5,7 @@
 #include "canm2d.h"
 #include "cloupewindow.h"
 
-#define FILE_EXT_ANM2D	".anm2d"
+#define FILE_EXT_ANM2D_XML	".xml"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -71,7 +71,7 @@ void MainWindow::slot_open( void )
 											this,
 											tr("Open File"),
 											setting.getCurrentDir(),
-											tr("Images (*.png *.bmp *.jpg *"FILE_EXT_ANM2D")")) ;
+											tr("Images (*.png *.bmp *.jpg *"FILE_EXT_ANM2D_XML")")) ;
 	if ( fileName.isEmpty() ) {
 		return ;
 	}
@@ -93,7 +93,7 @@ void MainWindow::slot_save( void )
 // 名前を付けて保存
 void MainWindow::slot_saveAs( void )
 {
-	QString str = QFileDialog::getSaveFileName(this, trUtf8("名前を付けて保存"), setting.getCurrentSaveDir(), tr("*.anm2d")) ;
+	QString str = QFileDialog::getSaveFileName(this, trUtf8("名前を付けて保存"), setting.getCurrentSaveDir(), tr("*"FILE_EXT_ANM2D_XML)) ;
 	if ( str.isEmpty() ) { return ; }
 
 	if ( saveFile(str) ) {
@@ -349,7 +349,7 @@ bool MainWindow::fileOpen( QString fileName )
 	if ( fileName.toLower().indexOf(".png")	<= 0
 	  && fileName.toLower().indexOf(".bmp")	<= 0
 	  && fileName.toLower().indexOf(".jpg")	<= 0
-	  && fileName.indexOf(FILE_EXT_ANM2D)	<= 0 ) {
+	  && fileName.indexOf(FILE_EXT_ANM2D_XML)	<= 0 ) {
 		QMessageBox::warning(this, tr("warning"), trUtf8("対応していないファイルです") ) ;
 		return false ;
 	}
@@ -361,8 +361,8 @@ bool MainWindow::fileOpen( QString fileName )
 	m_UndoIndex = 0 ;
 
 	// アニメファイル
-	if ( fileName.indexOf(FILE_EXT_ANM2D) > 0 ) {
-		CAnm2D data ;
+	if ( fileName.indexOf(FILE_EXT_ANM2D_XML) > 0 ) {
+		CAnm2DBin data ;
 		QByteArray dataArray ;
 
 		QFile file(fileName) ;
@@ -411,14 +411,24 @@ bool MainWindow::saveFile( QString fileName )
 {
 	qDebug() << "SaveFile:" << fileName ;
 
-	if ( fileName.indexOf(FILE_EXT_ANM2D) > 0 ) {
-		CAnm2D data ;
+	if ( fileName.indexOf(FILE_EXT_ANM2D_XML) > 0 ) {
+		CAnm2DXml data ;
+		QProgressDialog prog(trUtf8("保存しています"), trUtf8("&Cancel"), 0, 100, this) ;
+		prog.setWindowModality(Qt::WindowModal);
+		prog.setAutoClose(true);
+		data.setProgress(&prog);
+
 		QApplication::setOverrideCursor(Qt::WaitCursor);
 		if ( !data.makeFromEditImageData(m_EditImageData) ) {
-			QMessageBox::warning(this, trUtf8("エラー"),
-								 trUtf8("コンバート失敗 %1:\n%2").arg(fileName).arg(data.getErrorNo())) ;
+			if ( data.getErrorNo() != CAnm2DBase::kErrorNo_Cancel ) {
+				QMessageBox::warning(this, trUtf8("エラー"),
+									 trUtf8("コンバート失敗 %1:\n%2").arg(fileName).arg(data.getErrorNo())) ;
+			}
 			QApplication::restoreOverrideCursor();
+			return false ;
 		}
+		prog.setValue(prog.maximum());
+
 		QFile file(fileName) ;
 		if ( !file.open(QFile::WriteOnly) ) {
 			QMessageBox::warning(this, trUtf8("エラー"),
@@ -426,15 +436,17 @@ bool MainWindow::saveFile( QString fileName )
 			QApplication::restoreOverrideCursor();
 			return false ;
 		}
+#if 1
+		file.write(data.getData().toString(4).toAscii()) ;
+#else
 		QDataStream out(&file) ;
 		out.writeRawData(data.getData().data(), data.getData().size()) ;
+#endif
 		QApplication::restoreOverrideCursor();
 
 		m_UndoIndex = m_EditImageData.getUndoStack()->index() ;
 		setWindowTitle(tr("Animation Creator[%1]").arg(fileName));
 		return true ;
-	}
-	else if ( fileName.indexOf(".png") ) {
 	}
 
 	return false ;
