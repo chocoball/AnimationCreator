@@ -154,6 +154,11 @@ void MainWindow::slot_checkDataModified(int index)
 	}
 }
 
+void MainWindow::slot_help( void )
+{
+
+}
+
 #ifndef QT_NO_DEBUG
 void MainWindow::slot_dbgObjectDump( void )
 {
@@ -227,6 +232,13 @@ void MainWindow::createActions( void )
 	m_pActRedo = pStack->createRedoAction(this, trUtf8("&Redo")) ;
 	m_pActRedo->setShortcuts(QKeySequence::Redo);
 
+	m_pActHelp = new QAction(trUtf8("&Help"), this) ;
+	m_pActHelp->setShortcuts(QKeySequence::HelpContents) ;
+	connect(m_pActHelp, SIGNAL(triggered()), this, SLOT(slot_help())) ;
+
+	m_pActAboutQt = new QAction(trUtf8("About &Qt"), this) ;
+	connect(m_pActAboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt())) ;
+
 #ifndef QT_NO_DEBUG
 	m_pActDbgDump = new QAction(tr("Dump"), this) ;
 	connect(m_pActDbgDump, SIGNAL(triggered()), this, SLOT(slot_dbgObjectDump())) ;
@@ -243,10 +255,13 @@ void MainWindow::createMenus( void )
 	pMenu->addAction(m_pActSave) ;
 	pMenu->addAction(m_pActSaveAs) ;
 
-
 	pMenu = menuBar()->addMenu(trUtf8("&Edit")) ;
 	pMenu->addAction(m_pActUndo) ;
 	pMenu->addAction(m_pActRedo) ;
+
+	pMenu = menuBar()->addMenu(trUtf8("&Help")) ;
+	pMenu->addAction(m_pActHelp) ;
+	pMenu->addAction(m_pActAboutQt) ;
 
 #ifndef QT_NO_DEBUG
 	pMenu = menuBar()->addMenu(tr("Debug")) ;
@@ -362,22 +377,30 @@ bool MainWindow::fileOpen( QString fileName )
 
 	// アニメファイル
 	if ( fileName.indexOf(FILE_EXT_ANM2D_XML) > 0 ) {
-		CAnm2DBin data ;
-		QByteArray dataArray ;
+		CAnm2DXml data ;
+//		QByteArray dataArray ;
 
 		QFile file(fileName) ;
 		if ( !file.open(QFile::ReadOnly) ) {
 			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(fileName)) ;
 			return false ;
 		}
+#if 1
+		QDomDocument xml ;
+		xml.setContent(&file) ;
+		if ( !data.makeFromFile(xml, m_EditImageData) ) {
+			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(data.getErrorNo()) )  ;
+			return false ;
+		}
+#else
 		QDataStream in(&file) ;
 		dataArray.resize(file.size());
 		in.readRawData(dataArray.data(), file.size()) ;
-
 		if ( !data.makeFromFile(dataArray, m_EditImageData) ) {
 			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(data.getErrorNo()) )  ;
 			return false ;
 		}
+#endif
 		m_StrSaveFileName = fileName ;
 	}
 	// 画像ファイル

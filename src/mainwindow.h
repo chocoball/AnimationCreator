@@ -31,6 +31,7 @@ private slots:
 	void slot_dropFiles(QString fileName) ;
 	void slot_checkFileModified( void ) ;
 	void slot_checkDataModified(int index) ;
+	void slot_help( void ) ;
 
 #ifndef QT_NO_DEBUG
 	void slot_dbgObjectDump( void ) ;
@@ -79,6 +80,8 @@ private:
 	QAction				*m_pActSaveAs ;			// 名前を付けて保存
 	QAction				*m_pActUndo ;			// 戻す
 	QAction				*m_pActRedo ;			// やり直す
+	QAction				*m_pActHelp ;			// ヘルプ
+	QAction				*m_pActAboutQt ;		// Qtについて
 	// ---- アクション
 
 	QStringList			m_DragFileList ;

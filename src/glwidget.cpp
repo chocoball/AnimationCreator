@@ -320,7 +320,7 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 			CObjectModel::LayerGroupList *pLGList = pModel->getLayerGroupListFromID(objID) ;
 			if ( pLGList ) {
 				for ( int i = 0 ; i < pLGList->size() ; i ++ ) {
-					// 現在のフレームにデータがあったら調べない
+					// 既に現在のフレームにデータがあったら調べない
 					if ( pModel->getFrameDataFromIDAndFrame(objID, pLGList->at(i).first, frame) ) { continue ; }
 
 					CObjectModel::FrameData *data = pModel->getFrameDataFromPrevFrame(objID, pLGList->at(i).first, frame) ;
@@ -336,6 +336,7 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 				}
 			}
 		}
+
 		emit sig_selectLayerChanged(layerID) ;
 	}
 }

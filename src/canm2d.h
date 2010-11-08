@@ -34,12 +34,18 @@ class CAnm2DBase
 {
 public:
 	enum {
-		kErrorNo_NoError = 0,		///< エラーなし
-		kErrorNo_BlockNumNotSame,	///< ブロック数が違う
-		kErrorNo_InvalidFileSize,	///< ファイルサイズが違う
-		kErrorNo_InvalidVersion,	///< バージョンが違う
-		kErrorNo_InvalidID,			///< 不正なID
-		kErrorNo_Cancel,			///< キャンセルされた
+		kErrorNo_NoError = 0,			///< [0]エラーなし
+		kErrorNo_BlockNumNotSame,		///< [1]ブロック数が違う
+		kErrorNo_InvalidFileSize,		///< [2]ファイルサイズが違う
+		kErrorNo_InvalidVersion,		///< [3]バージョンが違う
+		kErrorNo_InvalidID,				///< [4]不正なID
+		kErrorNo_Cancel,				///< [5]キャンセルされた
+		kErrorNo_InvalidNode,			///< [6]ノードが不正
+		kErrorNo_InvalidObjNum,			///< [7]オブジェ数が不正
+		kErrorNo_InvalidImageNum,		///< [8]イメージ数が不正
+		kErrorNo_InvalidLayerNum,		///< [9]レイヤ数が不正
+		kErrorNo_InvalidFrameDataNum,	///< [10]フレームデータ数が不正
+		kErrorNo_InvalidImageData,		///< [11]イメージデータが不正
 	} ;
 
 	int getErrorNo() { return m_nError ; }
@@ -76,7 +82,6 @@ private:
 	Anm2DLayer	*search2DLayerFromName(Anm2DHeader *pHeader, QString name) ;
 
 private:
-	CEditImageData	*m_pEditImageData ;
 	QByteArray		m_Data ;
 };
 
@@ -98,11 +103,17 @@ private:
 
 	void setProgMaximum( QProgressDialog *pProg, CEditImageData &rEditImageData ) ;
 
+	bool addElement( QDomNode &node, CEditImageData &rEditImageData ) ;
+	bool addLayer( QDomNode &node, CObjectModel::LayerGroupList &layerGroupList, QStandardItem *pParentItem, int maxLayerNum ) ;
+	bool addFrameData( QDomNode &node, CObjectModel::FrameDataList &frameDataList, int maxFrameDataNum ) ;
+	bool addImage( QDomNode &node, CEditImageData::ImageData &data ) ;
+
 private:
-	CEditImageData	*m_pEditImageData ;
 	QDomDocument	m_Data ;
 
 	QProgressDialog	*m_pProgress ;
+
+	int				m_ObjNum, m_ImageNum ;
 };
 
 #endif // CANM2D_H

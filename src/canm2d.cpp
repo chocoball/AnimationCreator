@@ -494,6 +494,49 @@ bool CAnm2DXml::makeFromEditImageData( CEditImageData &rEditImageData )
 // アニメファイルから作成中データへ変換
 bool CAnm2DXml::makeFromFile(QDomDocument &xml, CEditImageData &rEditImageData)
 {
+	m_Data = xml ;
+	if ( m_Data.doctype().name() != kAnmXML_ID_Anm2D ) {
+		m_nError = kErrorNo_InvalidID ;
+		return false ;
+	}
+
+	QDomElement root = m_Data.documentElement() ;
+	if ( root.isNull() ) {
+		m_nError = kErrorNo_InvalidNode ;
+		return false ;
+	}
+	if ( root.nodeName() != kAnmXML_ID_Root ) {
+		m_nError = kErrorNo_InvalidID ;
+		return false ;
+	}
+
+	QDomNamedNodeMap nodeMap = root.attributes() ;
+	if ( nodeMap.isEmpty() ) {
+		m_nError = kErrorNo_InvalidNode ;
+		return false ;
+	}
+	if ( nodeMap.namedItem(kAnmXML_Attr_Version).isNull()
+	  || nodeMap.namedItem(kAnmXML_Attr_Version).toAttr().value().toInt() != kAnmXML_Version ) {
+		m_nError = kErrorNo_InvalidVersion ;
+		return false ;
+	}
+	if ( nodeMap.namedItem(kAnmXML_Attr_ObjNum).isNull() ) {
+		m_nError = kErrorNo_InvalidObjNum ;
+		return false ;
+	}
+	if ( nodeMap.namedItem(kAnmXML_Attr_ImageNum).isNull() ) {
+		m_nError = kErrorNo_InvalidImageNum ;
+		return false ;
+	}
+	m_ObjNum = nodeMap.namedItem(kAnmXML_Attr_ObjNum).toAttr().value().toInt() ;
+	m_ImageNum = nodeMap.namedItem(kAnmXML_Attr_ImageNum).toAttr().value().toInt() ;
+
+	qDebug("objNum:%d imageNum:%d", m_ObjNum, m_ImageNum) ;
+
+	QDomNode n = root.firstChild() ;
+	if ( !addElement(n, rEditImageData) ) {
+		return false ;
+	}
 
 	return true ;
 }
@@ -572,7 +615,7 @@ bool CAnm2DXml::makeObject(QDomElement &element, QDomDocument &doc, CEditImageDa
 				elmTmp.appendChild(text) ;
 				elmFrameData.appendChild(elmTmp) ;
 
-				elmTmp = doc.createElement("Image No") ;
+				elmTmp = doc.createElement("ImageNo") ;
 				text = doc.createTextNode(QString("%1").arg(data.nImage)) ;
 				elmTmp.appendChild(text) ;
 				elmFrameData.appendChild(elmTmp) ;
@@ -582,7 +625,7 @@ bool CAnm2DXml::makeObject(QDomElement &element, QDomDocument &doc, CEditImageDa
 				elmTmp.appendChild(text) ;
 				elmFrameData.appendChild(elmTmp) ;
 
-				elmTmp = doc.createElement("UV Anime") ;
+				elmTmp = doc.createElement("UVAnime") ;
 				text = doc.createTextNode(QString("%1").arg(data.bUVAnime)) ;
 				elmTmp.appendChild(text) ;
 				elmFrameData.appendChild(elmTmp) ;
@@ -680,5 +723,300 @@ void CAnm2DXml::setProgMaximum( QProgressDialog *pProg, CEditImageData &rEditIma
 	pProg->setMaximum(max);
 }
 
+// エレメント追加
+bool CAnm2DXml::addElement( QDomNode &node, CEditImageData &rEditImageData )
+{
+	CObjectModel *pModel = rEditImageData.getObjectModel() ;
+	CObjectModel::ObjectList *pObjList = pModel->getObjectListPtr() ;
+	QStandardItemModel *pTreeModel = rEditImageData.getTreeModel() ;
+	QStandardItem *pTreeRoot = pTreeModel->invisibleRootItem() ;
 
+	QList<CEditImageData::ImageData> ImageData ;
 
+	while ( !node.isNull() ) {
+		if ( node.nodeName() == kAnmXML_ID_Object ) {	// オブジェクト
+			QString name ;
+			int layerNum = 0 ;
+			int no = 0 ;
+			QDomNamedNodeMap nodeMap = node.attributes() ;
+			if ( nodeMap.namedItem(kAnmXML_Attr_Name).isNull()
+			  || nodeMap.namedItem(kAnmXML_Attr_LayerNum).isNull()
+			  || nodeMap.namedItem(kAnmXML_Attr_No).isNull() ) {
+				m_nError = kErrorNo_InvalidNode ;
+				return false ;
+			}
+			name = nodeMap.namedItem(kAnmXML_Attr_Name).toAttr().value() ;
+			layerNum = nodeMap.namedItem(kAnmXML_Attr_LayerNum).toAttr().value().toInt() ;
+			no = nodeMap.namedItem(kAnmXML_Attr_No).toAttr().value().toInt() ;
+
+			CObjectModel::ObjectGroup objGroup ;
+			QStandardItem *pObjItem = new QStandardItem(name) ;
+
+			pTreeRoot->insertRow(no, pObjItem);
+			objGroup.first = pObjItem ;
+
+			QDomNode child = node.firstChild() ;
+			if ( !addLayer(child, objGroup.second, pObjItem, layerNum) ) {
+				return false ;
+			}
+
+			pObjList->insert(no, objGroup) ;
+		}
+		else if ( node.nodeName() == kAnmXML_ID_Image ) {	// イメージ
+			QDomNamedNodeMap nodeMap = node.attributes() ;
+			if ( nodeMap.namedItem(kAnmXML_Attr_No).isNull() ) {
+				m_nError = kErrorNo_InvalidNode ;
+				return false ;
+			}
+			int no = nodeMap.namedItem(kAnmXML_Attr_No).toAttr().value().toInt() ;
+
+			CEditImageData::ImageData data ;
+			QDomNode child = node.firstChild() ;
+			if ( !addImage(child, data) ) {
+				return false ;
+			}
+			data.lastModified = QDateTime::currentDateTimeUtc() ;
+			data.nTexObj = 0 ;
+			ImageData.insert(no, data);
+		}
+		node = node.nextSibling() ;
+	}
+
+	if ( pObjList->size() != m_ObjNum
+	  || ImageData.size() != m_ImageNum ) {
+		m_nError = kErrorNo_InvalidObjNum ;
+		return false ;
+	}
+
+	rEditImageData.setImageData(ImageData);
+	return true ;
+}
+
+// レイヤデータを追加
+bool CAnm2DXml::addLayer( QDomNode &node, CObjectModel::LayerGroupList &layerGroupList, QStandardItem *pParentItem, int maxLayerNum )
+{
+	while ( !node.isNull() ) {
+		if ( node.nodeName() == kAnmXML_ID_Layer ) {
+			QDomNamedNodeMap nodeMap = node.attributes() ;
+			if ( nodeMap.namedItem(kAnmXML_Attr_Name).isNull()
+			  || nodeMap.namedItem(kAnmXML_Attr_FrameNum).isNull()
+			  || nodeMap.namedItem(kAnmXML_Attr_No).isNull() ) {
+				m_nError = kErrorNo_InvalidNode ;
+				return false ;
+			}
+			QString name ;
+			int frameDataNum = 0 ;
+			int no = 0 ;
+
+			name = nodeMap.namedItem(kAnmXML_Attr_Name).toAttr().value() ;
+			frameDataNum = nodeMap.namedItem(kAnmXML_Attr_FrameNum).toAttr().value().toInt() ;
+			no = nodeMap.namedItem(kAnmXML_Attr_No).toAttr().value().toInt() ;
+
+			QStandardItem *layerItem = new QStandardItem(name) ;
+			layerItem->setData(true, Qt::CheckStateRole);
+			pParentItem->insertRow(no, layerItem) ;
+
+			CObjectModel::LayerGroup layerGroup ;
+			layerGroup.first = layerItem ;
+
+			QDomNode child = node.firstChild() ;
+			if ( !addFrameData(child, layerGroup.second, frameDataNum) ) {
+				return false ;
+			}
+
+			layerGroupList.insert(no, layerGroup) ;
+		}
+		node = node.nextSibling() ;
+	}
+
+	if ( layerGroupList.size() != maxLayerNum ) {
+		m_nError = kErrorNo_InvalidLayerNum ;
+		return false ;
+	}
+	return true ;
+}
+
+// フレームデータを追加
+bool CAnm2DXml::addFrameData( QDomNode &node, CObjectModel::FrameDataList &frameDataList, int maxFrameDataNum )
+{
+	while ( !node.isNull() ) {
+		if ( node.nodeName() == kAnmXML_ID_FrameData ) {
+			CObjectModel::FrameData data ;
+			memset( &data, 0, sizeof(data) ) ;
+
+			QDomNode dataNode = node.firstChild() ;
+			while ( !dataNode.isNull() ) {
+				if ( dataNode.nodeName() == "frame" ) {
+					if ( !dataNode.hasChildNodes() ) {
+						m_nError = kErrorNo_InvalidNode ;
+						return false ;
+					}
+					QString frame = dataNode.firstChild().toText().nodeValue() ;
+					if ( frame.isEmpty() ) {
+						m_nError = kErrorNo_InvalidNode ;
+						return false ;
+					}
+					data.frame = frame.toInt() ;
+				}
+				else if ( dataNode.nodeName() == "pos" ) {
+					if ( !dataNode.hasChildNodes() ) {
+						m_nError = kErrorNo_InvalidNode ;
+						return false ;
+					}
+					QStringList pos = dataNode.firstChild().toText().nodeValue().split(" ") ;
+					if ( pos.size() != 3 ) {
+						m_nError = kErrorNo_InvalidNode ;
+						return false ;
+					}
+					data.pos_x = pos[0].toInt() ;
+					data.pos_y = pos[1].toInt() ;
+					data.pos_z = pos[2].toInt() ;
+				}
+				else if ( dataNode.nodeName() == "rot" ) {
+					if ( !dataNode.hasChildNodes() ) {
+						m_nError = kErrorNo_InvalidNode ;
+						return false ;
+					}
+					QStringList rot = dataNode.firstChild().toText().nodeValue().split(" ") ;
+					if ( rot.size() != 3 ) {
+						m_nError = kErrorNo_InvalidNode ;
+						return false ;
+					}
+					data.rot_x = rot[0].toInt() ;
+					data.rot_y = rot[1].toInt() ;
+					data.rot_z = rot[2].toInt() ;
+				}
+				else if ( dataNode.nodeName() == "center" ) {
+					if ( !dataNode.hasChildNodes() ) {
+						m_nError = kErrorNo_InvalidNode ;
+						return false ;
+					}
+					QStringList center = dataNode.firstChild().toText().nodeValue().split(" ") ;
+					if ( center.size() != 2 ) {
+						m_nError = kErrorNo_InvalidNode ;
+						return false ;
+					}
+					data.center_x = center[0].toInt() ;
+					data.center_y = center[1].toInt() ;
+				}
+				else if ( dataNode.nodeName() == "UV" ) {
+					if ( !dataNode.hasChildNodes() ) {
+						m_nError = kErrorNo_InvalidNode ;
+						return false ;
+					}
+					QStringList uv = dataNode.firstChild().toText().nodeValue().split(" ") ;
+					if ( uv.size() != 4 ) {
+						m_nError = kErrorNo_InvalidNode ;
+						return false ;
+					}
+					data.left	= uv[0].toInt() ;
+					data.top	= uv[1].toInt() ;
+					data.right	= uv[2].toInt() ;
+					data.bottom	= uv[3].toInt() ;
+				}
+				else if ( dataNode.nodeName() == "ImageNo" ) {
+					if ( !dataNode.hasChildNodes() ) {
+						m_nError = kErrorNo_InvalidNode ;
+						return false ;
+					}
+					QString image = dataNode.firstChild().toText().nodeValue() ;
+					if ( image.isEmpty() ) {
+						m_nError = kErrorNo_InvalidNode ;
+						return false ;
+					}
+					data.nImage = image.toInt() ;
+				}
+				else if ( dataNode.nodeName() == "scale" ) {
+					if ( !dataNode.hasChildNodes() ) {
+						m_nError = kErrorNo_InvalidNode ;
+						return false ;
+					}
+					QStringList scale = dataNode.firstChild().toText().nodeValue().split(" ") ;
+					if ( scale.size() != 2 ) {
+						m_nError = kErrorNo_InvalidNode ;
+						return false ;
+					}
+					data.fScaleX = scale[0].toFloat() ;
+					data.fScaleY = scale[1].toFloat() ;
+				}
+				else if ( dataNode.nodeName() == "UVAnime" ) {
+					if ( !dataNode.hasChildNodes() ) {
+						m_nError = kErrorNo_InvalidNode ;
+						return false ;
+					}
+					QString anime = dataNode.firstChild().toText().nodeValue() ;
+					if ( anime.isEmpty() ) {
+						m_nError = kErrorNo_InvalidNode ;
+						return false ;
+					}
+					data.bUVAnime = anime.toInt() ? true : false ;
+				}
+
+				dataNode = dataNode.nextSibling() ;
+			}
+
+			frameDataList.append(data);
+		}
+		node = node.nextSibling() ;
+	}
+
+	if ( frameDataList.size() != maxFrameDataNum ) {
+		qDebug("%d %d", frameDataList.size(), maxFrameDataNum) ;
+		m_nError = kErrorNo_InvalidFrameDataNum ;
+		return false ;
+	}
+	return true ;
+}
+
+// イメージ追加
+bool CAnm2DXml::addImage( QDomNode &node, CEditImageData::ImageData &data )
+{
+	while ( !node.isNull() ) {
+		if ( node.nodeName() == "FilePath" ) {
+			if ( !node.hasChildNodes() ) {
+				m_nError = kErrorNo_InvalidNode ;
+				return false ;
+			}
+			data.fileName = node.firstChild().toText().nodeValue().toUtf8() ;
+		}
+		else if ( node.nodeName() == "Size" ) {
+			if ( !node.hasChildNodes() ) {
+				m_nError = kErrorNo_InvalidNode ;
+				return false ;
+			}
+			QStringList size = node.firstChild().toText().nodeValue().split(" ") ;
+			if ( size.size() != 2 ) {
+				m_nError = kErrorNo_InvalidNode ;
+				return false ;
+			}
+			data.Image = QImage(size[0].toInt(), size[1].toInt(), QImage::Format_ARGB32) ;
+		}
+		else if ( node.nodeName() == "Data" ) {
+			if ( !node.hasChildNodes() ) {
+				m_nError = kErrorNo_InvalidNode ;
+				return false ;
+			}
+			QStringList image = node.firstChild().toText().nodeValue().split(QRegExp("( |\n|\r)"), QString::SkipEmptyParts) ;
+			qDebug("size:%d w:%d h:%d = %d", image.size(), data.Image.width(), data.Image.height(), data.Image.width()*data.Image.height()) ;
+			if ( image.size() != data.Image.width()*data.Image.height() ) {
+				for ( int i = 0 ; i < 32 ; i ++ ) {
+					if ( i >= image.size() ) {
+						break ;
+					}
+					qDebug() << image[i] ;
+				}
+				m_nError = kErrorNo_InvalidImageData ;
+				return false ;
+			}
+			int cnt = 0 ;
+			for ( int y = 0 ; y < data.Image.height() ; y ++ ) {
+				for ( int x = 0 ; x < data.Image.width() ; x ++ ) {
+					data.Image.setPixel(x, y, image[cnt].toUInt(NULL, 16));
+					cnt ++ ;
+				}
+			}
+		}
+		node = node.nextSibling() ;
+	}
+	return true ;
+}
