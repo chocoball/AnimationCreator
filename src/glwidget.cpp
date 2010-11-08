@@ -176,6 +176,7 @@ void AnimeGLWidget::drawLayers_Anime()
 	}
 }
 
+// フレームデータ描画
 void AnimeGLWidget::drawFrameData( const CObjectModel::FrameData &data, QColor col )
 {
 	QImage &Image = m_pEditImageData->getImage(data.nImage) ;
@@ -207,6 +208,7 @@ void AnimeGLWidget::drawFrameData( const CObjectModel::FrameData &data, QColor c
 	glPopMatrix();
 }
 
+// グリッド描画
 void AnimeGLWidget::drawGrid( void )
 {
 	glPushMatrix();
@@ -227,6 +229,7 @@ void AnimeGLWidget::drawGrid( void )
 	glPopMatrix();
 }
 
+// ライン描画
 void AnimeGLWidget::drawLine( QPoint pos0, QPoint pos1, QColor col, float z )
 {
 	glColor4ub(col.red(), col.green(), col.blue(), col.alpha());
@@ -237,6 +240,7 @@ void AnimeGLWidget::drawLine( QPoint pos0, QPoint pos1, QColor col, float z )
 	glEnd() ;
 }
 
+// 矩形描画
 void AnimeGLWidget::drawRect(QRectF rc, QRectF uv, float z, QColor col)
 {
 	glColor4ub(col.red(), col.green(), col.blue(), col.alpha());
@@ -253,6 +257,7 @@ void AnimeGLWidget::drawRect(QRectF rc, QRectF uv, float z, QColor col)
 	glEnd() ;
 }
 
+// ドラッグ進入イベント
 void AnimeGLWidget::dragEnterEvent(QDragEnterEvent *event)
 {
 	if ( m_pEditImageData->getObjectModel()->getObjListSize() <= 0 ) {
@@ -268,6 +273,7 @@ void AnimeGLWidget::dragEnterEvent(QDragEnterEvent *event)
 	}
 }
 
+// ドロップイベント
 void AnimeGLWidget::dropEvent(QDropEvent *event)
 {
 	if ( event->mimeData()->hasFormat("editor/selected-image") ) {
@@ -323,6 +329,9 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 
 					layerID = pLGList->at(i).first ;
 					emit sig_selectPrevLayer(objID, layerID, frame, *data) ;
+
+					m_bDragging = true ;
+					m_DragOffset = event->pos() ;
 					break ;
 				}
 			}
