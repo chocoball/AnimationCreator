@@ -5,11 +5,13 @@
 #include <QWidget>
 #include "editimagedata.h"
 
+class MainWindow ;
+
 class CLoupeWindow : public QWidget
 {
     Q_OBJECT
 public:
-	explicit CLoupeWindow(CEditImageData *pEditImageData, QWidget *parent = 0);
+	explicit CLoupeWindow(CEditImageData *pEditImageData, MainWindow *pMainWindow, QWidget *parent = 0);
 
 signals:
 
@@ -20,6 +22,7 @@ public slots:
 private:
 	CEditImageData	*m_pEditImageData ;
 	QLabel			*m_pLabel ;
+	MainWindow		*m_pMainWindow ;
 
 	QTimer			*m_pTimer ;
 	int				m_Scale ;

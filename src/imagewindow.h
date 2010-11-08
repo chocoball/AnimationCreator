@@ -9,6 +9,7 @@
 
 class CGridLabel ;
 class AnimationForm ;
+class MainWindow ;
 
 namespace Ui {
 	class ImageWindow ;
@@ -19,7 +20,7 @@ class ImageWindow : public QWidget
 	Q_OBJECT
 
 public:
-	explicit ImageWindow(CSettings *p, CEditImageData *pEditImage, AnimationForm *pAnimForm, QWidget *parent = 0);
+	explicit ImageWindow(CSettings *p, CEditImageData *pEditImage, AnimationForm *pAnimForm, MainWindow *pMainWindow, QWidget *parent = 0);
 	~ImageWindow() ;
 
 	void setAnimationForm( AnimationForm *p )
@@ -60,6 +61,8 @@ private:
 	AnimationForm	*m_pAnimationForm ;
 
 	QAction			*m_pActDelImage ;
+
+	MainWindow		*m_pMainWindow ;
 };
 
 #endif // IMAGEWINDOW_H

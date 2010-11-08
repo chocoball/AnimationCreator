@@ -13,12 +13,14 @@ namespace Ui {
     class AnimationForm;
 }
 
+class MainWindow ;
+
 class AnimationForm : public QWidget
 {
     Q_OBJECT
 
 public:
-	explicit AnimationForm(CEditImageData *pImageData, QWidget *parent = 0);
+	explicit AnimationForm(CEditImageData *pImageData, MainWindow *pMainWindow, QWidget *parent = 0);
     ~AnimationForm();
 #ifdef LAYOUT_OWN
 	void resizeEvent(QResizeEvent *event) ;
@@ -87,10 +89,13 @@ protected:
 
 	void addCommandEdit( CObjectModel::FrameData *pData ) ;
 
+	void closeEvent(QCloseEvent *event) ;
+
 private:
 	Ui::AnimationForm	*ui;
 
 	AnimeGLWidget		*m_pGlWidget ;
+	MainWindow			*m_pMainWindow ;
 
 	CEditImageData		*m_pEditImageData ;
 	int					m_ObjIndex ;

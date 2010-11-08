@@ -3,7 +3,6 @@
 #include "mainwindow.h"
 #include "imagewindow.h"
 #include "canm2d.h"
-#include "cloupewindow.h"
 
 #define FILE_EXT_ANM2D_XML	".xml"
 
@@ -32,6 +31,11 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(pUndoStack, SIGNAL(indexChanged(int)), this, SLOT(slot_checkDataModified(int))) ;
 
 	m_UndoIndex = 0 ;
+	m_bSaveImage = false ;
+
+	m_pImageWindow = NULL ;
+	m_pLoupeWindow = NULL ;
+	m_pAnimationForm = NULL ;
 }
 
 MainWindow::~MainWindow()
@@ -154,9 +158,34 @@ void MainWindow::slot_checkDataModified(int index)
 	}
 }
 
+// ヘルプ選択時
 void MainWindow::slot_help( void )
 {
 
+}
+
+// イメージウィンドウOn/Off
+void MainWindow::slot_triggeredImageWindow( bool flag )
+{
+	if ( m_pImageWindow ) {
+		m_pImageWindow->setVisible(flag);
+	}
+}
+
+// ルーペウィンドウOn/Off
+void MainWindow::slot_triggeredLoupeWindow( bool flag )
+{
+	if ( m_pLoupeWindow ) {
+		m_pLoupeWindow->setVisible(flag);
+	}
+}
+
+// アニメーションウィンドウOn/Off
+void MainWindow::slot_triggeredAnimeWindow( bool flag )
+{
+	if ( m_pAnimationForm ) {
+		m_pAnimationForm->setVisible(flag);
+	}
 }
 
 #ifndef QT_NO_DEBUG
@@ -210,32 +239,57 @@ void MainWindow::writeRootSetting( void )
 // アクションを作成
 void MainWindow::createActions( void )
 {
+	// 開く
 	m_pActOpen = new QAction(trUtf8("&Open..."), this) ;
 	m_pActOpen->setShortcuts(QKeySequence::Open) ;
 	m_pActOpen->setStatusTip(trUtf8("ファイルを開きます")) ;
 	connect(m_pActOpen, SIGNAL(triggered()), this, SLOT(slot_open())) ;
 
+	// 保存
 	m_pActSave = new QAction(trUtf8("&Save"), this) ;
 	m_pActSave->setShortcuts(QKeySequence::Save) ;
 	m_pActSave->setStatusTip(trUtf8("ファイルを保存します")) ;
 	connect(m_pActSave, SIGNAL(triggered()), this, SLOT(slot_save())) ;
 
+	// 名前を付けて保存
 	m_pActSaveAs = new QAction(trUtf8("Save &As..."), this) ;
 	m_pActSaveAs->setShortcuts(QKeySequence::SaveAs) ;
 	m_pActSaveAs->setStatusTip(trUtf8("ファイルを保存します")) ;
 	connect(m_pActSaveAs, SIGNAL(triggered()), this, SLOT(slot_saveAs())) ;
 
+	// 戻す
 	QUndoStack *pStack = m_EditImageData.getUndoStack() ;
 	m_pActUndo = pStack->createUndoAction(this, trUtf8("&Undo")) ;
 	m_pActUndo->setShortcuts(QKeySequence::Undo);
 
+	// やり直す
 	m_pActRedo = pStack->createRedoAction(this, trUtf8("&Redo")) ;
 	m_pActRedo->setShortcuts(QKeySequence::Redo);
 
+	// イメージウィンドウon/off
+	m_pActImageWindow = new QAction(trUtf8("Image Window"), this) ;
+	m_pActImageWindow->setEnabled(false);
+	m_pActImageWindow->setCheckable(true);
+	connect(m_pActImageWindow, SIGNAL(triggered(bool)), this, SLOT(slot_triggeredImageWindow(bool))) ;
+
+	// ルーペウィンドウon/off
+	m_pActLoupeWindow = new QAction(trUtf8("Loupe Window"), this) ;
+	m_pActLoupeWindow->setEnabled(false);
+	m_pActLoupeWindow->setCheckable(true);
+	connect(m_pActLoupeWindow, SIGNAL(triggered(bool)), this, SLOT(slot_triggeredLoupeWindow(bool))) ;
+
+	// アニメーションウィンドウon/off
+	m_pActAnimeWindow = new QAction(trUtf8("Animeation Window"), this) ;
+	m_pActAnimeWindow->setEnabled(false);
+	m_pActAnimeWindow->setCheckable(true);
+	connect(m_pActAnimeWindow, SIGNAL(triggered(bool)), this, SLOT(slot_triggeredAnimeWindow(bool))) ;
+
+	// ヘルプ
 	m_pActHelp = new QAction(trUtf8("&Help"), this) ;
 	m_pActHelp->setShortcuts(QKeySequence::HelpContents) ;
 	connect(m_pActHelp, SIGNAL(triggered()), this, SLOT(slot_help())) ;
 
+	// Qtについて
 	m_pActAboutQt = new QAction(trUtf8("About &Qt"), this) ;
 	connect(m_pActAboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt())) ;
 
@@ -258,7 +312,12 @@ void MainWindow::createMenus( void )
 	pMenu = menuBar()->addMenu(trUtf8("&Edit")) ;
 	pMenu->addAction(m_pActUndo) ;
 	pMenu->addAction(m_pActRedo) ;
-
+#if 0
+	pMenu = menuBar()->addMenu(trUtf8("&Window")) ;
+	pMenu->addAction(m_pActImageWindow) ;
+	pMenu->addAction(m_pActLoupeWindow) ;
+	pMenu->addAction(m_pActAnimeWindow) ;
+#endif
 	pMenu = menuBar()->addMenu(trUtf8("&Help")) ;
 	pMenu->addAction(m_pActHelp) ;
 	pMenu->addAction(m_pActAboutQt) ;
@@ -283,24 +342,9 @@ void MainWindow::setCurrentDir( QString &fileName )
 // ウィンドウ達を作成
 void MainWindow::createWindows( void )
 {
-	// アニメーションフォーム
-	m_pAnimationForm = new AnimationForm( &m_EditImageData, m_pMdiArea ) ;
-	m_pMdiArea->addSubWindow( m_pAnimationForm ) ;
-	m_pAnimationForm->show();
-	m_pAnimationForm->setBarCenter();
-
-	// イメージウィンドウ
-	m_pImageWindow = new ImageWindow( &setting, &m_EditImageData, m_pAnimationForm, m_pMdiArea ) ;
-	m_pMdiArea->addSubWindow(m_pImageWindow) ;
-	m_pImageWindow->show();
-
-	connect(this, SIGNAL(sig_modifiedImageFile(int)), m_pImageWindow, SLOT(slot_modifiedImage(int))) ;
-	connect(this, SIGNAL(sig_modifiedImageFile(int)), m_pAnimationForm, SLOT(slot_modifiedImage(int))) ;
-
-	// ルーペウィンドウ
-	CLoupeWindow *pLoupe = new CLoupeWindow(&m_EditImageData, m_pMdiArea) ;
-	m_pMdiArea->addSubWindow( pLoupe ) ;
-	pLoupe->show();
+	makeAnimeWindow() ;
+	makeImageWindow() ;
+	makeLoupeWindow() ;
 }
 
 // imageDataのサイズを2の累乗に修正
@@ -494,5 +538,41 @@ bool MainWindow::checkChangedFileSave( void )
 	return true ;
 }
 
+// イメージウィンドウ作成
+void MainWindow::makeImageWindow( void )
+{
+	m_pImageWindow = new ImageWindow( &setting, &m_EditImageData, m_pAnimationForm, this, m_pMdiArea ) ;
+	m_pMdiArea->addSubWindow(m_pImageWindow) ;
+	m_pImageWindow->show();
 
+	m_pActImageWindow->setEnabled(true);
+	m_pActImageWindow->setChecked(true);
+
+	connect(this, SIGNAL(sig_modifiedImageFile(int)), m_pImageWindow, SLOT(slot_modifiedImage(int))) ;
+}
+
+// ルーペウィンドウ作成
+void MainWindow::makeLoupeWindow( void )
+{
+	m_pLoupeWindow = new CLoupeWindow(&m_EditImageData, this, m_pMdiArea) ;
+	m_pMdiArea->addSubWindow( m_pLoupeWindow ) ;
+	m_pLoupeWindow->show();
+
+	m_pActLoupeWindow->setEnabled(true);
+	m_pActLoupeWindow->setChecked(true);
+}
+
+// アニメーションフォーム作成
+void MainWindow::makeAnimeWindow( void )
+{
+	m_pAnimationForm = new AnimationForm( &m_EditImageData, this, m_pMdiArea ) ;
+	m_pMdiArea->addSubWindow( m_pAnimationForm ) ;
+	m_pAnimationForm->show();
+	m_pAnimationForm->setBarCenter();
+
+	m_pActAnimeWindow->setEnabled(true);
+	m_pActAnimeWindow->setChecked(true);
+
+	connect(this, SIGNAL(sig_modifiedImageFile(int)), m_pAnimationForm, SLOT(slot_modifiedImage(int))) ;
+}
 

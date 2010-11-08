@@ -1,11 +1,13 @@
 #include <QGridLayout>
 #include <QComboBox>
 #include "cloupewindow.h"
+#include "mainwindow.h"
 
-CLoupeWindow::CLoupeWindow(CEditImageData *pEditImageData, QWidget *parent) :
+CLoupeWindow::CLoupeWindow(CEditImageData *pEditImageData, MainWindow *pMainWindow, QWidget *parent) :
     QWidget(parent)
 {
 	m_pEditImageData = pEditImageData ;
+	m_pMainWindow = pMainWindow ;
 
 	QLabel *pLabelScale = new QLabel(trUtf8("倍率"), this) ;
 

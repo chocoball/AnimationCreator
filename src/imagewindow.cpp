@@ -3,8 +3,9 @@
 #include "imagewindow.h"
 #include "gridlabel.h"
 #include "animationform.h"
+#include "mainwindow.h"
 
-ImageWindow::ImageWindow(CSettings *p, CEditImageData *pEditImage, AnimationForm *pAnimForm, QWidget *parent)
+ImageWindow::ImageWindow(CSettings *p, CEditImageData *pEditImage, AnimationForm *pAnimForm, MainWindow *pMainWindow, QWidget *parent)
 	: QWidget(parent),
 	ui(new Ui::ImageWindow)
 {
@@ -13,6 +14,7 @@ ImageWindow::ImageWindow(CSettings *p, CEditImageData *pEditImage, AnimationForm
 	m_pSetting = p ;
 	m_pEditImageData = pEditImage ;
 	setAnimationForm(pAnimForm);
+	m_pMainWindow = pMainWindow ;
 
 	setAcceptDrops(true) ;
 

@@ -7,6 +7,7 @@
 #include "editimagedata.h"
 #include "animationform.h"
 #include "cdropablemdiarea.h"
+#include "cloupewindow.h"
 
 QT_BEGIN_NAMESPACE
 class QMdiArea ;
@@ -21,10 +22,12 @@ public:
 	explicit MainWindow(QWidget *parent = 0);
 	~MainWindow();
 
+	bool checkChangedFileSave( void ) ;
+
 protected:
 	void closeEvent(QCloseEvent *event) ;
 
-private slots:
+public slots:
 	void slot_open( void ) ;
 	void slot_save( void ) ;
 	void slot_saveAs( void ) ;
@@ -32,6 +35,10 @@ private slots:
 	void slot_checkFileModified( void ) ;
 	void slot_checkDataModified(int index) ;
 	void slot_help( void ) ;
+
+	void slot_triggeredImageWindow( bool flag ) ;
+	void slot_triggeredLoupeWindow( bool flag ) ;
+	void slot_triggeredAnimeWindow( bool flag ) ;
 
 #ifndef QT_NO_DEBUG
 	void slot_dbgObjectDump( void ) ;
@@ -54,7 +61,9 @@ private:
 	bool fileOpen( QString fileName ) ;
 	bool saveFile( QString fileName ) ;
 
-	bool checkChangedFileSave( void ) ;
+	void makeImageWindow( void ) ;
+	void makeLoupeWindow( void ) ;
+	void makeAnimeWindow( void ) ;
 
 signals:
 	void sig_modifiedImageFile(int index) ;
@@ -63,6 +72,7 @@ private:
 	CDropableMdiArea	*m_pMdiArea ;
 
 	ImageWindow			*m_pImageWindow ;		// イメージウィンドウ
+	CLoupeWindow		*m_pLoupeWindow ;		// ルーペウィンドウ
 	AnimationForm		*m_pAnimationForm ;		// アニメーションフォーム
 
 	// 編集データ ----
@@ -80,6 +90,9 @@ private:
 	QAction				*m_pActSaveAs ;			// 名前を付けて保存
 	QAction				*m_pActUndo ;			// 戻す
 	QAction				*m_pActRedo ;			// やり直す
+	QAction				*m_pActImageWindow ;	// イメージウィンドウon/off
+	QAction				*m_pActLoupeWindow ;	// ルーペウィンドウon/off
+	QAction				*m_pActAnimeWindow ;	// アニメーションウィンドウon/off
 	QAction				*m_pActHelp ;			// ヘルプ
 	QAction				*m_pActAboutQt ;		// Qtについて
 	// ---- アクション
@@ -89,6 +102,8 @@ private:
 	int					m_UndoIndex ;
 
 	QTimer				*m_pTimer ;
+
+	bool				m_bSaveImage ;			// 画像データ保存するならtrue
 
 #ifndef QT_NO_DEBUG
 	// デバッグ用 ----

@@ -1,14 +1,16 @@
 #include <QStandardItemModel>
 #include "animationform.h"
 #include "ui_animationform.h"
+#include "mainwindow.h"
 
 #define ARRAY_NUM( n ) (int)(sizeof(n)/sizeof((n)[0]))
 
-AnimationForm::AnimationForm(CEditImageData *pImageData, QWidget *parent) :
+AnimationForm::AnimationForm(CEditImageData *pImageData, MainWindow *pMainWindow, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::AnimationForm)
 {
 	m_pEditImageData = pImageData ;
+	m_pMainWindow = pMainWindow ;
 
 	ui->setupUi(this);
 
@@ -953,6 +955,15 @@ void AnimationForm::addCommandEdit( CObjectModel::FrameData *pData )
 	m_pEditImageData->cmd_editFrameData(objID, layerID, frame, *pData, update);
 }
 
-
+void AnimationForm::closeEvent(QCloseEvent *event)
+{
+#if 0
+	if ( !m_pMainWindow->checkChangedFileSave() ) {
+		event->ignore();
+		return ;
+	}
+#endif
+	event->accept();
+}
 
 
