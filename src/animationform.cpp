@@ -183,6 +183,8 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 	ui->scrollArea_anime->resize(ui->scrollArea_anime->size()+add);
 	m_pSplitter->resize(m_pSplitter->size()+add);
 
+	ui->comboBox_image_no->move(ui->comboBox_image_no->pos() + QPoint(add.width(), 0));
+
 	QLabel *tmpLabel[] = {
 		ui->label_pos,
 		ui->label_rot,
@@ -196,10 +198,11 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 		ui->label_uv_right,
 		ui->label_uv_top,
 		ui->label_uv_bottom,
+		ui->label_image,
 	} ;
-	qDebug("array_num:%d", ARRAY_NUM(tmpLabel)) ;
+
 	for ( int i = 0 ; i < ARRAY_NUM(tmpLabel) ; i ++ ) {
-		tmpLabel[i]->move(tmpLabel[i]->pos().x()+add.width(), tmpLabel[i]->pos().y());
+		tmpLabel[i]->move(tmpLabel[i]->pos() + QPoint(add.width(), 0));
 	}
 
 	QSpinBox *tmpBox[] = {
@@ -217,21 +220,21 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 		ui->spinBox_center_y,
 	} ;
 	for ( int i = 0 ; i < ARRAY_NUM(tmpBox) ; i ++ ) {
-		tmpBox[i]->move(tmpBox[i]->pos().x()+add.width(), tmpBox[i]->pos().y());
+		tmpBox[i]->move(tmpBox[i]->pos()+QPoint(add.width(), 0));
 	}
 	QDoubleSpinBox *tmpBox2[] = {
 		ui->doubleSpinBox_scale_x,
 		ui->doubleSpinBox_scale_y,
 	} ;
 	for ( int i = 0 ; i < ARRAY_NUM(tmpBox2) ; i ++ ) {
-		tmpBox2[i]->move(tmpBox2[i]->pos().x()+add.width(), tmpBox2[i]->pos().y());
+		tmpBox2[i]->move(tmpBox2[i]->pos()+QPoint(add.width(), 0));
 	}
 
 	QCheckBox *tmpCheck[] = {
 		ui->checkBox_uv_anime,
 	} ;
 	for ( int i = 0 ; i < ARRAY_NUM(tmpCheck) ; i ++ ) {
-		tmpCheck[i]->move(tmpCheck[i]->pos().x()+add.width(), tmpCheck[i]->pos().y());
+		tmpCheck[i]->move(tmpCheck[i]->pos()+QPoint(add.width(), 0));
 	}
 
 }

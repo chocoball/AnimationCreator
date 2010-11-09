@@ -568,7 +568,7 @@ bool CAnm2DXml::makeObject(QDomElement &element, QDomDocument &doc, CEditImageDa
 		const CObjectModel::LayerGroupList &layerGroupList = objGroup.second ;
 
 		QDomElement elmObj = doc.createElement(kAnmXML_ID_Object) ;
-		elmObj.setAttribute(kAnmXML_Attr_Name, pObjID->text());
+		elmObj.setAttribute(kAnmXML_Attr_Name, QString(pObjID->text().toUtf8()));
 		elmObj.setAttribute(kAnmXML_Attr_No, i);
 		elmObj.setAttribute(kAnmXML_Attr_LayerNum, layerGroupList.size());
 		element.appendChild(elmObj) ;
@@ -579,7 +579,7 @@ bool CAnm2DXml::makeObject(QDomElement &element, QDomDocument &doc, CEditImageDa
 			const CObjectModel::FrameDataList &frameDataList = layerGroup.second ;
 
 			QDomElement elmLayer = doc.createElement(kAnmXML_ID_Layer) ;
-			elmLayer.setAttribute(kAnmXML_Attr_Name, pLayerID->text());
+			elmLayer.setAttribute(kAnmXML_Attr_Name, QString(pLayerID->text().toUtf8()));
 			elmLayer.setAttribute(kAnmXML_Attr_No, j);
 			elmLayer.setAttribute(kAnmXML_Attr_FrameNum, frameDataList.size());
 			elmObj.appendChild(elmLayer) ;
