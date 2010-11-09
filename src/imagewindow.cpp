@@ -1,5 +1,6 @@
 #include <QPixmap>
 #include <QGraphicsView>
+#include "defines.h"
 #include "imagewindow.h"
 #include "gridlabel.h"
 #include "animationform.h"
@@ -117,6 +118,40 @@ void ImageWindow::updateGridLabel( void )
 	QLabel *label = pScrollArea->findChild<QLabel *>("ImageLabel") ;
 	if ( label ) {
 		label->update();
+	}
+}
+
+void ImageWindow::resizeEvent(QResizeEvent *event)
+{
+	QSize add = event->size() - event->oldSize() ;
+	QSize add_h = QSize(0, add.height()) ;
+	QSize add_w = QSize(add.width(), 0) ;
+
+	if ( event->oldSize().width() < 0 || event->oldSize().height() < 0 ) {
+		return ;
+	}
+
+	ui->tabWidget->resize(ui->tabWidget->size()+add);
+
+	QLabel *pTmpLabel[] = {
+		ui->label_uv,
+		ui->label_uv_bottom,
+		ui->label_uv_left,
+		ui->label_uv_right,
+		ui->label_uv_top,
+	} ;
+	for ( int i = 0 ; i < ARRAY_NUM(pTmpLabel) ; i ++ ) {
+		pTmpLabel[i]->move(pTmpLabel[i]->pos() + QPoint(add.width(), 0));
+	}
+
+	QSpinBox *pTmpBox[] = {
+		ui->spinBox_uv_bottom,
+		ui->spinBox_uv_left,
+		ui->spinBox_uv_right,
+		ui->spinBox_uv_top,
+	} ;
+	for ( int i = 0 ; i < ARRAY_NUM(pTmpBox) ; i ++ ) {
+		pTmpBox[i]->move(pTmpBox[i]->pos() + QPoint(add.width(), 0));
 	}
 }
 

@@ -38,6 +38,8 @@ protected:
 
 	void updateGridLabel( void ) ;
 
+	void resizeEvent(QResizeEvent *event) ;
+
 signals:
 	void sig_addImage(int imageNo) ;
 	void sig_delImage(int imageNo) ;

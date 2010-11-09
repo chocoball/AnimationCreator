@@ -1,9 +1,8 @@
 #include <QStandardItemModel>
+#include "defines.h"
 #include "animationform.h"
 #include "ui_animationform.h"
 #include "mainwindow.h"
-
-#define ARRAY_NUM( n ) (int)(sizeof(n)/sizeof((n)[0]))
 
 AnimationForm::AnimationForm(CEditImageData *pImageData, MainWindow *pMainWindow, QWidget *parent) :
     QWidget(parent),

@@ -71,6 +71,7 @@ void AnimeWindowTab::slot_changeBGColor(QString colorName)
 
 // イメージウィンドウ タブ
 ImageWindowTab::ImageWindowTab(CSettings *pSetting, QWidget *parent)
+	: QWidget(parent)
 {
 	m_pSetting = pSetting ;
 

@@ -43,7 +43,8 @@ HEADERS		+=	src/setting.h				\
 				src/animationform.h			\
 				src/optiondialog.h			\
 				src/helpbrowser.h			\
-				src/helpwindow.h
+				src/helpwindow.h			\
+				src/defines.h
 
 RESOURCES	+=	Resource.qrc
 
@@ -51,4 +52,3 @@ FORMS		+= 	ui/animationform.ui			\
 				ui/imagewindow.ui
 
 CONFIG		+=	help
-
