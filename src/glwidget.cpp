@@ -143,7 +143,7 @@ void AnimeGLWidget::drawLayers_Normal()
 		QStandardItem *pLayerItem = layerGroupList[i].first ;
 		if ( !pLayerItem->data(Qt::CheckStateRole).toBool() ) { continue ; }	// 非表示
 
-		CObjectModel::FrameData *pData = pModel->getFrameDataFromPrevFrame(objID, layerGroupList[i].first, selFrame) ;
+		CObjectModel::FrameData *pData = pModel->getFrameDataFromPrevFrame(objID, layerGroupList[i].first, selFrame, true) ;
 		if ( pData ) {
 			CObjectModel::FrameData data = *pData ;
 			data.pos_z -= 2048.0f ;
@@ -324,7 +324,7 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 					// 既に現在のフレームにデータがあったら調べない
 					if ( pModel->getFrameDataFromIDAndFrame(objID, pLGList->at(i).first, frame) ) { continue ; }
 
-					CObjectModel::FrameData *data = pModel->getFrameDataFromPrevFrame(objID, pLGList->at(i).first, frame) ;
+					CObjectModel::FrameData *data = pModel->getFrameDataFromPrevFrame(objID, pLGList->at(i).first, frame, true) ;
 					if ( !data ) { continue ; }
 					if ( !pModel->isFrameDataInPos(*data, localPos) ) { continue ; }
 

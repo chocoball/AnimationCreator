@@ -67,6 +67,22 @@ CObjectModel::FrameData *CObjectModel::getFrameDataFromIDAndFrame(typeID objID, 
 	return NULL ;
 }
 
+CObjectModel::FrameData *CObjectModel::getMaxFrameDataFromID(typeID objID, typeID layerID)
+{
+	FrameDataList *pList = getFrameDataListFromID(objID, layerID) ;
+	if ( !pList ) { return NULL ; }
+
+	int frame = -1 ;
+	FrameData *pRet = NULL ;
+	for ( int i = 0 ; i < pList->size() ; i ++ ) {
+		if ( !pRet || (frame < pList->at(i).frame) ) {
+			pRet = &((*pList)[i]) ;
+			frame = pList->at(i).frame ;
+		}
+	}
+	return pRet ;
+}
+
 CObjectModel::typeID CObjectModel::getLayerIDFromFrameAndPos( typeID objID, int frame, QPoint pos )
 {
 	LayerGroupList *p = getLayerGroupListFromID(objID) ;
@@ -83,15 +99,25 @@ CObjectModel::typeID CObjectModel::getLayerIDFromFrameAndPos( typeID objID, int 
 	return 0 ;
 }
 
-CObjectModel::FrameData *CObjectModel::getFrameDataFromPrevFrame( typeID objID, typeID layerID, int nowFrame )
+CObjectModel::FrameData *CObjectModel::getFrameDataFromPrevFrame( typeID objID, typeID layerID, int nowFrame, bool bRepeat )
 {
 	FrameData *pRet = NULL ;
+	int prevFrame = nowFrame ;
 
 	do {
 		nowFrame -- ;
+		if ( nowFrame < 0 ) {
+			FrameData *p = getMaxFrameDataFromID(objID, layerID) ;
+			if ( bRepeat && p ) {
+				nowFrame = p->frame ;
+			}
+			else {
+				return NULL ;
+			}
+		}
 		pRet = getFrameDataFromIDAndFrame(objID, layerID, nowFrame) ;
 		if ( pRet ) { return pRet ; }
-	} while ( nowFrame >= 0 ) ;
+	} while ( prevFrame != nowFrame ) ;
 
 	return NULL ;
 }

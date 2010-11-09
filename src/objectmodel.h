@@ -89,8 +89,9 @@ public:
 	LayerGroupList	*getLayerGroupListFromID( typeID objID ) ;
 	FrameDataList	*getFrameDataListFromID( typeID objID, typeID layerID ) ;
 	FrameData		*getFrameDataFromIDAndFrame(typeID objID, typeID layerID, int frame) ;
+	FrameData		*getMaxFrameDataFromID(typeID objID, typeID layerID) ;
 	typeID			getLayerIDFromFrameAndPos( typeID objID, int frame, QPoint pos ) ;
-	FrameData		*getFrameDataFromPrevFrame( typeID objID, typeID layerID, int nowFrame ) ;
+	FrameData		*getFrameDataFromPrevFrame( typeID objID, typeID layerID, int nowFrame, bool bRepeat = false ) ;
 	FrameData		*getFrameDataFromNextFrame( typeID objID, typeID layerID, int nowFrame ) ;
 
 	int getObjListSize() { return m_ObjectList.size() ; }
