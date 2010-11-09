@@ -1,0 +1,21 @@
+<!DOCTYPE ANM2D>
+<ROOT ObjNum="1" Version="1" ImageNum="1">
+    <OBJECT Name="??" LayerNum="1" No="0">
+        <LAYER Name="?" FrameDataNum="1" No="0">
+            <FRAMEDATA>
+                <frame>2</frame>
+                <pos>1 -73 0</pos>
+                <rot>0 0 0</rot>
+                <center>51 38</center>
+                <UV>6 17 108 93</UV>
+                <ImageNo>0</ImageNo>
+                <scale>1 1</scale>
+                <UVAnime>58</UVAnime>
+            </FRAMEDATA>
+        </LAYER>
+    </OBJECT>
+    <IMAGE No="0">
+        <FilePath>D:/Qt/Project/AnimationCreator/test.bmp</FilePath>
+        <Size>256 128</Size>
+    </IMAGE>
+</ROOT>

@@ -8,6 +8,7 @@
 #include "animationform.h"
 #include "cdropablemdiarea.h"
 #include "cloupewindow.h"
+#include "helpwindow.h"
 
 QT_BEGIN_NAMESPACE
 class QMdiArea ;

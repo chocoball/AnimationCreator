@@ -37,6 +37,8 @@ MainWindow::MainWindow(QWidget *parent)
 	m_pImageWindow = NULL ;
 	m_pLoupeWindow = NULL ;
 	m_pAnimationForm = NULL ;
+
+	setObjectName("AnimationCreator MainWindow");
 }
 
 MainWindow::~MainWindow()
@@ -98,7 +100,10 @@ void MainWindow::slot_save( void )
 // 名前を付けて保存
 void MainWindow::slot_saveAs( void )
 {
-	QString str = QFileDialog::getSaveFileName(this, trUtf8("名前を付けて保存"), setting.getCurrentSaveDir(), tr("Text Anm Files (*"FILE_EXT_ANM2D_XML")")) ;
+	QString str = QFileDialog::getSaveFileName(this,
+											   trUtf8("名前を付けて保存"),
+											   setting.getCurrentSaveDir(),
+											   tr("Text Anm Files (*"FILE_EXT_ANM2D_XML")")) ;
 	if ( str.isEmpty() ) { return ; }
 
 	if ( saveFile(str) ) {
@@ -162,7 +167,10 @@ void MainWindow::slot_checkDataModified(int index)
 // ヘルプ選択時
 void MainWindow::slot_help( void )
 {
-
+	HelpWindow *p = new HelpWindow ;
+	if ( !p->isLoaded() ) {
+		delete p ;
+	}
 }
 
 // イメージウィンドウOn/Off

@@ -14,6 +14,8 @@ OptionDialog::OptionDialog(CSettings *pSetting, QWidget *parent) :
 
 	QBoxLayout *p = new QBoxLayout(QBoxLayout::TopToBottom, this) ;
 	p->addWidget(pTabWidget);
+
+	setWindowTitle(trUtf8("オプション"));
 }
 
 // ファイル タブ

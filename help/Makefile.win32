@@ -1,0 +1,21 @@
+EXE	= qcollectiongenerator.exe
+
+COPY = copy
+DEL = del
+
+all: default install
+
+default:
+	$(EXE) AnimationCreator.qhcp -o AnimationCreator.qhc
+
+install:
+	if not exist ..\..\AnimationCreator-build-desktop\debug\help mkdir ..\..\AnimationCreator-build-desktop\debug\help
+	if not exist ..\..\AnimationCreator-build-desktop\release\help mkdir ..\..\AnimationCreator-build-desktop\release\help
+	$(COPY) /Y .\AnimationCreator.qch ..\..\AnimationCreator-build-desktop\debug\help /B
+	$(COPY) /Y .\AnimationCreator.qhc ..\..\AnimationCreator-build-desktop\debug\help /B
+	$(COPY) /Y .\AnimationCreator.qch ..\..\AnimationCreator-build-desktop\release\help /B
+	$(COPY) /Y .\AnimationCreator.qhc ..\..\AnimationCreator-build-desktop\release\help /B
+
+clean:
+	$(DEL) AnimationCreator.qch
+	$(DEL) AnimationCreator.qhc

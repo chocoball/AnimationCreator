@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<QtHelpProject version="1.0">
+    <virtualFolder>doc</virtualFolder>
+    <namespace>chocoball.com.AnimationCreator</namespace>
+    <filterSection>
+        <toc>
+            <section title="Help Index" ref="doc/index.html">
+	            <section title="メニュー" ref="doc/menu.html">
+	            </section>
+	            <section title="チュートリアル" ref="doc/tutorial.html">
+	            </section>
+            </section>
+        </toc>
+        <keywords>
+            <keyword name="index" id="index" ref="doc/index.html"/>
+            <keyword name="メニュー" id="menu" ref="doc/menu.html"/>
+            <keyword name="チュートリアル" id="tutorial" ref="doc/tutorial.html"/>
+        </keywords>
+        <files>
+            <file>doc/index.html</file>
+            <file>doc/menu.html</file>
+            <file>doc/tutorial.html</file>
+        </files>
+    </filterSection>
+</QtHelpProject>
