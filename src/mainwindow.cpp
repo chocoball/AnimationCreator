@@ -3,6 +3,7 @@
 #include "mainwindow.h"
 #include "imagewindow.h"
 #include "canm2d.h"
+#include "optiondialog.h"
 
 #define FILE_EXT_ANM2D_XML	".xml"
 
@@ -75,7 +76,7 @@ void MainWindow::slot_open( void )
 											this,
 											tr("Open File"),
 											setting.getCurrentDir(),
-											tr("Images (*.png *.bmp *.jpg *"FILE_EXT_ANM2D_XML")")) ;
+											tr("All Files (*);;Image Files (*.png *.bmp *.jpg);;Text Anm Files (*"FILE_EXT_ANM2D_XML")")) ;
 	if ( fileName.isEmpty() ) {
 		return ;
 	}
@@ -97,7 +98,7 @@ void MainWindow::slot_save( void )
 // 名前を付けて保存
 void MainWindow::slot_saveAs( void )
 {
-	QString str = QFileDialog::getSaveFileName(this, trUtf8("名前を付けて保存"), setting.getCurrentSaveDir(), tr("*"FILE_EXT_ANM2D_XML)) ;
+	QString str = QFileDialog::getSaveFileName(this, trUtf8("名前を付けて保存"), setting.getCurrentSaveDir(), tr("Text Anm Files (*"FILE_EXT_ANM2D_XML")")) ;
 	if ( str.isEmpty() ) { return ; }
 
 	if ( saveFile(str) ) {
@@ -188,6 +189,14 @@ void MainWindow::slot_triggeredAnimeWindow( bool flag )
 	}
 }
 
+// オプション選択時
+void MainWindow::slot_option( void )
+{
+	OptionDialog dialog(&setting, this) ;
+	dialog.exec() ;
+	emit sig_endedOption() ;
+}
+
 #ifndef QT_NO_DEBUG
 void MainWindow::slot_dbgObjectDump( void )
 {
@@ -202,7 +211,6 @@ void MainWindow::readRootSetting( void )
 	QSettings settings("Editor", "rootSettings") ;
 	QPoint pos = settings.value("pos_root", QPoint(200, 200)).toPoint() ;
 	QSize size = settings.value("size_root", QSize(400, 400)).toSize() ;
-
 	QString dir =
 #if defined(Q_OS_WIN32)
 	settings.value("cur_dir", QString(".\\")).toString() ;
@@ -213,15 +221,17 @@ void MainWindow::readRootSetting( void )
 #else
 	#error OSが定義されてないよ
 #endif
+	QRgb col ;
+	col = settings.value("anime_color", 0).toUInt() ;
+	QColor animeCol = QColor(qRed(col), qGreen(col), qBlue(col), qAlpha(col)) ;
+	col = settings.value("image_color", 0).toUInt() ;
+	QColor imageCol = QColor(qRed(col), qGreen(col), qBlue(col), qAlpha(col)) ;
 
 	move(pos) ;
 	resize(size) ;
 	setting.setCurrentDir(dir) ;
-
-	pos = settings.value("pos_imgwindow", QPoint(100, 100)).toPoint() ;
-	size = settings.value("size_imgwindow", QSize(100, 100)).toSize() ;
-	setting.setImgWinPos(pos) ;
-	setting.setImgWinSize(size) ;
+	setting.setAnimeBGColor(animeCol);
+	setting.setImageBGColor(imageCol);
 }
 
 // 設定を保存
@@ -231,9 +241,8 @@ void MainWindow::writeRootSetting( void )
 	settings.setValue("pos_root", pos()) ;
 	settings.setValue("size_root", size()) ;
 	settings.setValue("cur_dir", setting.getCurrentDir()) ;
-
-	settings.setValue("pos_imgwindow", setting.getImgWinPos());
-	settings.setValue("size_imgwindow", setting.getImgWinSize());
+	settings.setValue("anime_color", setting.getAnimeBGColor().rgba());
+	settings.setValue("image_color", setting.getImageBGColor().rgba());
 }
 
 // アクションを作成
@@ -284,6 +293,10 @@ void MainWindow::createActions( void )
 	m_pActAnimeWindow->setCheckable(true);
 	connect(m_pActAnimeWindow, SIGNAL(triggered(bool)), this, SLOT(slot_triggeredAnimeWindow(bool))) ;
 
+	// オプション
+	m_pActOption = new QAction(trUtf8("&Option"), this) ;
+	connect(m_pActOption, SIGNAL(triggered()), this, SLOT(slot_option())) ;
+
 	// ヘルプ
 	m_pActHelp = new QAction(trUtf8("&Help"), this) ;
 	m_pActHelp->setShortcuts(QKeySequence::HelpContents) ;
@@ -318,6 +331,9 @@ void MainWindow::createMenus( void )
 	pMenu->addAction(m_pActLoupeWindow) ;
 	pMenu->addAction(m_pActAnimeWindow) ;
 #endif
+	pMenu = menuBar()->addMenu(trUtf8("Too&ls")) ;
+	pMenu->addAction(m_pActOption) ;
+
 	pMenu = menuBar()->addMenu(trUtf8("&Help")) ;
 	pMenu->addAction(m_pActHelp) ;
 	pMenu->addAction(m_pActAboutQt) ;
@@ -549,6 +565,7 @@ void MainWindow::makeImageWindow( void )
 	m_pActImageWindow->setChecked(true);
 
 	connect(this, SIGNAL(sig_modifiedImageFile(int)), m_pImageWindow, SLOT(slot_modifiedImage(int))) ;
+	connect(this, SIGNAL(sig_endedOption()), m_pImageWindow, SLOT(slot_endedOption())) ;
 }
 
 // ルーペウィンドウ作成
@@ -574,5 +591,6 @@ void MainWindow::makeAnimeWindow( void )
 	m_pActAnimeWindow->setChecked(true);
 
 	connect(this, SIGNAL(sig_modifiedImageFile(int)), m_pAnimationForm, SLOT(slot_modifiedImage(int))) ;
+	connect(this, SIGNAL(sig_endedOption()), m_pAnimationForm, SLOT(slot_endedOption())) ;
 }
 

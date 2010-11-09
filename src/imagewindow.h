@@ -52,6 +52,8 @@ public slots:
 	void slot_changeUVRight( int val ) ;
 	void slot_setUI( QRect rect ) ;
 
+	void slot_endedOption( void ) ;
+
 private:
 	Ui::ImageWindow	*ui ;
 

@@ -22,7 +22,8 @@ SOURCES +=	src/objectmodel.cpp			\
 			src/cdropablemdiarea.cpp	\
 			src/cdatamarkerlabel.cpp	\
 			src/canm2d.cpp				\
-			src/animationform.cpp
+			src/animationform.cpp \
+    src/optiondialog.cpp
 
 HEADERS  += src/setting.h				\
 			src/objectmodel.h			\
@@ -37,7 +38,8 @@ HEADERS  += src/setting.h				\
 			src/cdatamarkerlabel.h		\
 			src/canm2d.h				\
 			src/Anm2dTypes.h			\
-			src/animationform.h
+			src/animationform.h \
+    src/optiondialog.h
 
 RESOURCES += \
 			Resource.qrc

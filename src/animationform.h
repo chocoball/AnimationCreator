@@ -83,13 +83,13 @@ public slots:
 
 	void slot_modifiedImage(int index) ;
 
+	void slot_endedOption( void ) ;
+
 protected:
 	CObjectModel::FrameData *getNowSelectFrameData( void ) ;
 	void addNewObject( QString str ) ;
 
 	void addCommandEdit( CObjectModel::FrameData *pData ) ;
-
-	void closeEvent(QCloseEvent *event) ;
 
 private:
 	Ui::AnimationForm	*ui;

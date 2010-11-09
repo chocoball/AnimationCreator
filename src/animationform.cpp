@@ -910,6 +910,12 @@ void AnimationForm::slot_modifiedImage(int index)
 	m_pGlWidget->update();
 }
 
+// オプションダイアログ終了時
+void AnimationForm::slot_endedOption( void )
+{
+	m_pGlWidget->update();
+}
+
 // 現在選択しているフレームデータ取得
 CObjectModel::FrameData *AnimationForm::getNowSelectFrameData( void )
 {
@@ -954,16 +960,4 @@ void AnimationForm::addCommandEdit( CObjectModel::FrameData *pData )
 	update << m_pGlWidget ;
 	m_pEditImageData->cmd_editFrameData(objID, layerID, frame, *pData, update);
 }
-
-void AnimationForm::closeEvent(QCloseEvent *event)
-{
-#if 0
-	if ( !m_pMainWindow->checkChangedFileSave() ) {
-		event->ignore();
-		return ;
-	}
-#endif
-	event->accept();
-}
-
 

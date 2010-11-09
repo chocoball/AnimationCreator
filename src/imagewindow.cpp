@@ -44,10 +44,6 @@ ImageWindow::ImageWindow(CSettings *p, CEditImageData *pEditImage, AnimationForm
 
 ImageWindow::~ImageWindow()
 {
-	QPoint Pos = pos() ;
-	QSize Size = size() ;
-	m_pSetting->setImgWinPos(Pos) ;
-	m_pSetting->setImgWinSize(Size) ;
 }
 
 void ImageWindow::dragEnterEvent(QDragEnterEvent *event)
@@ -88,6 +84,10 @@ void ImageWindow::addTab(int imageIndex)
 	pLabel->setPixmap(QPixmap::fromImage(m_pEditImageData->getImage(imageIndex))) ;
 	pLabel->setObjectName("ImageLabel");
 	pLabel->setScaledContents(true) ;
+	pLabel->setAutoFillBackground(true);
+	QPalette palette = pLabel->palette() ;
+	palette.setColor(QPalette::Background, m_pSetting->getImageBGColor()) ;
+	pLabel->setPalette(palette);
 
 	CGridLabel *pGridLabel = new CGridLabel(m_pEditImageData, imageIndex, pLabel) ;
 	pGridLabel->show() ;
@@ -142,6 +142,9 @@ void ImageWindow::slot_modifiedImage( int index )
 		return ;
 	}
 	label->setPixmap(QPixmap::fromImage(m_pEditImageData->getImage(index))) ;
+	QPalette palette = label->palette() ;
+	palette.setColor(QPalette::Background, m_pSetting->getImageBGColor()) ;
+	label->setPalette(palette);
 	label->update();
 }
 
@@ -189,6 +192,12 @@ void ImageWindow::slot_setUI( QRect rect )
 	ui->spinBox_uv_right->setValue(rect.right());
 }
 
+void ImageWindow::slot_endedOption( void )
+{
+	for ( int i = 0 ; i < ui->tabWidget->count() ; i ++ ) {
+		slot_modifiedImage(i);
+	}
+}
 
 
 

@@ -40,6 +40,8 @@ public slots:
 	void slot_triggeredLoupeWindow( bool flag ) ;
 	void slot_triggeredAnimeWindow( bool flag ) ;
 
+	void slot_option( void ) ;
+
 #ifndef QT_NO_DEBUG
 	void slot_dbgObjectDump( void ) ;
 #endif
@@ -67,6 +69,7 @@ private:
 
 signals:
 	void sig_modifiedImageFile(int index) ;
+	void sig_endedOption( void ) ;
 
 private:
 	CDropableMdiArea	*m_pMdiArea ;
@@ -93,6 +96,7 @@ private:
 	QAction				*m_pActImageWindow ;	// イメージウィンドウon/off
 	QAction				*m_pActLoupeWindow ;	// ルーペウィンドウon/off
 	QAction				*m_pActAnimeWindow ;	// アニメーションウィンドウon/off
+	QAction				*m_pActOption ;			// オプション
 	QAction				*m_pActHelp ;			// ヘルプ
 	QAction				*m_pActAboutQt ;		// Qtについて
 	// ---- アクション

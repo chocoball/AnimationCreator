@@ -29,7 +29,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Animation Edit</string>
+   <string>Animation Window</string>
   </property>
   <widget class="QScrollArea" name="scrollArea_anime">
    <property name="geometry">
