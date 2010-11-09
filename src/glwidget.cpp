@@ -1,9 +1,10 @@
 #include "glwidget.h"
 
-AnimeGLWidget::AnimeGLWidget(CEditImageData *editData, QWidget *parent) :
+AnimeGLWidget::AnimeGLWidget(CEditImageData *editData, CSettings *pSetting, QWidget *parent) :
     QGLWidget(parent)
 {
 	m_pEditImageData = editData ;
+	m_pSetting = pSetting ;
 	m_DrawWidth = m_DrawHeight = 0 ;
 	m_bDrawGrid = true ;
 	m_bDragging = false ;
@@ -33,8 +34,6 @@ void AnimeGLWidget::slot_setDrawGrid(bool flag)
 
 void AnimeGLWidget::initializeGL()
 {
-	glClearColor(0, 0, 0, 0) ;
-
 	glEnable(GL_BLEND) ;
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -58,6 +57,8 @@ void AnimeGLWidget::resizeGL(int w, int h)
 
 void AnimeGLWidget::paintGL()
 {
+	QColor col = m_pSetting->getAnimeBGColor() ;
+	glClearColor(col.redF(), col.greenF(), col.blueF(), col.alphaF()) ;
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT) ;
 
 	glMatrixMode(GL_PROJECTION) ;

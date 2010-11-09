@@ -593,7 +593,7 @@ void MainWindow::makeLoupeWindow( void )
 // アニメーションフォーム作成
 void MainWindow::makeAnimeWindow( void )
 {
-	m_pAnimationForm = new AnimationForm( &m_EditImageData, this, m_pMdiArea ) ;
+	m_pAnimationForm = new AnimationForm( &m_EditImageData, &setting, m_pMdiArea ) ;
 	m_pMdiArea->addSubWindow( m_pAnimationForm ) ;
 	m_pAnimationForm->show();
 	m_pAnimationForm->setBarCenter();

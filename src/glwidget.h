@@ -3,12 +3,13 @@
 
 #include <QGLWidget>
 #include "editimagedata.h"
+#include "setting.h"
 
 class AnimeGLWidget : public QGLWidget
 {
     Q_OBJECT
 public:
-	explicit AnimeGLWidget(CEditImageData *editData, QWidget *parent = 0);
+	explicit AnimeGLWidget(CEditImageData *editData, CSettings *pSetting, QWidget *parent = 0);
 
 signals:
 	void sig_dropedImage(QRect rect, QPoint pos, int index) ;
@@ -57,6 +58,7 @@ public:
 
 private:
 	CEditImageData	*m_pEditImageData ;
+	CSettings		*m_pSetting ;
 	GLint			m_DrawWidth, m_DrawHeight ;
 	GLint			m_GridWidth, m_GridHeight ;
 

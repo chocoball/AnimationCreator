@@ -4,16 +4,15 @@
 #include "ui_animationform.h"
 #include "mainwindow.h"
 
-AnimationForm::AnimationForm(CEditImageData *pImageData, MainWindow *pMainWindow, QWidget *parent) :
+AnimationForm::AnimationForm(CEditImageData *pImageData, CSettings *pSetting, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::AnimationForm)
 {
 	m_pEditImageData = pImageData ;
-	m_pMainWindow = pMainWindow ;
 
 	ui->setupUi(this);
 
-	m_pGlWidget = new AnimeGLWidget(pImageData, this) ;
+	m_pGlWidget = new AnimeGLWidget(pImageData, pSetting, this) ;
 	ui->scrollArea_anime->setWidget(m_pGlWidget);
 	m_pGlWidget->resize(1024, 1024);
 	m_pGlWidget->setDrawArea(1024, 1024);
