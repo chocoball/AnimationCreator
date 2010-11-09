@@ -64,7 +64,7 @@ AnimeWindowTab::AnimeWindowTab(CSettings *pSetting, QWidget *parent)
 void AnimeWindowTab::slot_changeBGColor(QString colorName)
 {
 	QColor color(colorName) ;
-	m_pSetting->setAnimeBGColor(color.rgba()) ;
+	m_pSetting->setAnimeBGColor(color) ;
 }
 
 // イメージウィンドウ タブ
@@ -95,7 +95,7 @@ ImageWindowTab::ImageWindowTab(CSettings *pSetting, QWidget *parent)
 void ImageWindowTab::slot_changeBGColor(QString colorName)
 {
 	QColor color(colorName) ;
-	m_pSetting->setImageBGColor(color.rgba()) ;
+	m_pSetting->setImageBGColor(color) ;
 }
 
 

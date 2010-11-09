@@ -226,12 +226,14 @@ void MainWindow::readRootSetting( void )
 	QColor animeCol = QColor(qRed(col), qGreen(col), qBlue(col), qAlpha(col)) ;
 	col = settings.value("image_color", 0).toUInt() ;
 	QColor imageCol = QColor(qRed(col), qGreen(col), qBlue(col), qAlpha(col)) ;
+	bool bSaveImage = settings.value("save_image", false).toBool() ;
 
 	move(pos) ;
 	resize(size) ;
 	setting.setCurrentDir(dir) ;
 	setting.setAnimeBGColor(animeCol);
 	setting.setImageBGColor(imageCol);
+	setting.setSaveImage(bSaveImage);
 }
 
 // 設定を保存
@@ -243,6 +245,7 @@ void MainWindow::writeRootSetting( void )
 	settings.setValue("cur_dir", setting.getCurrentDir()) ;
 	settings.setValue("anime_color", setting.getAnimeBGColor().rgba());
 	settings.setValue("image_color", setting.getImageBGColor().rgba());
+	settings.setValue("save_image", setting.getSaveImage());
 }
 
 // アクションを作成
@@ -437,7 +440,7 @@ bool MainWindow::fileOpen( QString fileName )
 
 	// アニメファイル
 	if ( fileName.indexOf(FILE_EXT_ANM2D_XML) > 0 ) {
-		CAnm2DXml data ;
+		CAnm2DXml data(setting.getSaveImage()) ;
 //		QByteArray dataArray ;
 
 		QFile file(fileName) ;
@@ -449,7 +452,7 @@ bool MainWindow::fileOpen( QString fileName )
 		QDomDocument xml ;
 		xml.setContent(&file) ;
 		if ( !data.makeFromFile(xml, m_EditImageData) ) {
-			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(data.getErrorNo()) )  ;
+			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(data.getErrorString()) )  ;
 			return false ;
 		}
 #else
@@ -495,7 +498,7 @@ bool MainWindow::saveFile( QString fileName )
 	qDebug() << "SaveFile:" << fileName ;
 
 	if ( fileName.indexOf(FILE_EXT_ANM2D_XML) > 0 ) {
-		CAnm2DXml data ;
+		CAnm2DXml data(setting.getSaveImage()) ;
 		QProgressDialog prog(trUtf8("保存しています"), trUtf8("&Cancel"), 0, 100, this) ;
 		prog.setWindowModality(Qt::WindowModal);
 		prog.setAutoClose(true);

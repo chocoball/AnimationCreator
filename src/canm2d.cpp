@@ -462,9 +462,10 @@ Anm2DLayer *CAnm2DBin::search2DLayerFromName(Anm2DHeader *pHeader, QString name)
 * CAnm2DXml
 *
 ************************************************************/
-CAnm2DXml::CAnm2DXml()
+CAnm2DXml::CAnm2DXml(bool bSaveImage)
 {
 	m_pProgress = NULL ;
+	m_bSaveImage = bSaveImage ;
 }
 
 // 作成中のデータをアニメデータに変換
@@ -670,30 +671,32 @@ bool CAnm2DXml::makeImage( QDomElement &element, QDomDocument &doc, CEditImageDa
 		elmTmp.appendChild(text) ;
 		elmImage.appendChild(elmTmp) ;
 
-		elmTmp = doc.createElement("Data") ;
-		QString str ;
-		str.reserve(image.height()*image.width()*9+image.height()*15);
-		for ( int y = 0 ; y < image.height() ; y ++ ) {
-			for ( int x = 0 ; x < image.width() ; x ++ ) {
-				if ( !(x%16) ) {
-					str.append(QString("\n            ")) ;
-				}
-				str.append(QString::number(image.pixel(x, y), 16)) ;
-				str.append(" ") ;
+		if ( m_bSaveImage ) {
+			elmTmp = doc.createElement("Data") ;
+			QString str ;
+			str.reserve(image.height()*image.width()*9+image.height()*15);
+			for ( int y = 0 ; y < image.height() ; y ++ ) {
+				for ( int x = 0 ; x < image.width() ; x ++ ) {
+					if ( !(x%16) ) {
+						str.append(QString("\n            ")) ;
+					}
+					str.append(QString::number(image.pixel(x, y), 16)) ;
+					str.append(" ") ;
 
-				if ( m_pProgress ) {
-					m_pProgress->setValue(m_pProgress->value()+1);
-					if ( m_pProgress->wasCanceled() ) {
-						m_nError = kErrorNo_Cancel ;
-						return false ;
+					if ( m_pProgress ) {
+						m_pProgress->setValue(m_pProgress->value()+1);
+						if ( m_pProgress->wasCanceled() ) {
+							m_nError = kErrorNo_Cancel ;
+							return false ;
+						}
 					}
 				}
 			}
+			str.append(QString("\n        ")) ;
+			text = doc.createTextNode(str) ;
+			elmTmp.appendChild(text) ;
+			elmImage.appendChild(elmTmp) ;
 		}
-		str.append(QString("\n        ")) ;
-		text = doc.createTextNode(str) ;
-		elmTmp.appendChild(text) ;
-		elmImage.appendChild(elmTmp) ;
 
 		element.appendChild(elmImage) ;
 	}
@@ -716,8 +719,10 @@ void CAnm2DXml::setProgMaximum( QProgressDialog *pProg, CEditImageData &rEditIma
 		}
 	}
 
-	for ( int i = 0 ; i < rEditImageData.getImageDataSize() ; i ++ ) {
-		max += rEditImageData.getImage(i).height() * rEditImageData.getImage(i).width() ;
+	if ( m_bSaveImage ) {
+		for ( int i = 0 ; i < rEditImageData.getImageDataSize() ; i ++ ) {
+			max += rEditImageData.getImage(i).height() * rEditImageData.getImage(i).width() ;
+		}
 	}
 	qDebug() << "max:" << max ;
 	pProg->setMaximum(max);
@@ -971,13 +976,15 @@ bool CAnm2DXml::addFrameData( QDomNode &node, CObjectModel::FrameDataList &frame
 // イメージ追加
 bool CAnm2DXml::addImage( QDomNode &node, CEditImageData::ImageData &data )
 {
+	bool bFindData = false ;
+
 	while ( !node.isNull() ) {
 		if ( node.nodeName() == "FilePath" ) {
 			if ( !node.hasChildNodes() ) {
 				m_nError = kErrorNo_InvalidNode ;
 				return false ;
 			}
-			data.fileName = node.firstChild().toText().nodeValue().toUtf8() ;
+			data.fileName = node.firstChild().toText().nodeValue() ;
 		}
 		else if ( node.nodeName() == "Size" ) {
 			if ( !node.hasChildNodes() ) {
@@ -992,6 +999,7 @@ bool CAnm2DXml::addImage( QDomNode &node, CEditImageData::ImageData &data )
 			data.Image = QImage(size[0].toInt(), size[1].toInt(), QImage::Format_ARGB32) ;
 		}
 		else if ( node.nodeName() == "Data" ) {
+			bFindData = true ;
 			if ( !node.hasChildNodes() ) {
 				m_nError = kErrorNo_InvalidNode ;
 				return false ;
@@ -1017,6 +1025,19 @@ bool CAnm2DXml::addImage( QDomNode &node, CEditImageData::ImageData &data )
 			}
 		}
 		node = node.nextSibling() ;
+	}
+
+	if ( !bFindData ) {	// Data要素が無い場合はファイルパスから読み込む
+		qDebug() << data.fileName ;
+		if ( data.fileName.isEmpty() ) {	// ファイルパスもない
+			m_nError = kErrorNo_InvalidFilePath ;
+			return false ;
+		}
+		data.Image = QImage(data.fileName) ;
+		if ( data.Image.isNull() ) {
+			m_nError = kErrorNo_InvalidFilePath ;
+			return false ;
+		}
 	}
 	return true ;
 }

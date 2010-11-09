@@ -34,21 +34,47 @@ class CAnm2DBase
 {
 public:
 	enum {
-		kErrorNo_NoError = 0,			///< [0]エラーなし
-		kErrorNo_BlockNumNotSame,		///< [1]ブロック数が違う
-		kErrorNo_InvalidFileSize,		///< [2]ファイルサイズが違う
-		kErrorNo_InvalidVersion,		///< [3]バージョンが違う
-		kErrorNo_InvalidID,				///< [4]不正なID
-		kErrorNo_Cancel,				///< [5]キャンセルされた
-		kErrorNo_InvalidNode,			///< [6]ノードが不正
-		kErrorNo_InvalidObjNum,			///< [7]オブジェ数が不正
-		kErrorNo_InvalidImageNum,		///< [8]イメージ数が不正
-		kErrorNo_InvalidLayerNum,		///< [9]レイヤ数が不正
+		kErrorNo_NoError = 0,			///< [ 0]エラーなし
+		kErrorNo_BlockNumNotSame,		///< [ 1]ブロック数が違う
+		kErrorNo_InvalidFileSize,		///< [ 2]ファイルサイズが違う
+		kErrorNo_InvalidVersion,		///< [ 3]バージョンが違う
+		kErrorNo_InvalidID,				///< [ 4]不正なID
+		kErrorNo_Cancel,				///< [ 5]キャンセルされた
+		kErrorNo_InvalidNode,			///< [ 6]ノードが不正
+		kErrorNo_InvalidObjNum,			///< [ 7]オブジェ数が不正
+		kErrorNo_InvalidImageNum,		///< [ 8]イメージ数が不正
+		kErrorNo_InvalidLayerNum,		///< [ 9]レイヤ数が不正
 		kErrorNo_InvalidFrameDataNum,	///< [10]フレームデータ数が不正
 		kErrorNo_InvalidImageData,		///< [11]イメージデータが不正
+		kErrorNo_InvalidFilePath,		///< [12]イメージのファイルパスが不正
+
+		kErrorNo_Max
 	} ;
 
 	int getErrorNo() { return m_nError ; }
+
+	QString getErrorString()
+	{
+		const char *str[] = {
+			"エラーはありません",
+			"ブロック数が違います",
+			"ファイルサイズが違います",
+			"バージョンが違います",
+			"不正なIDです",
+			"キャンセルされました",
+			"ノードが不正です",
+			"オブジェクト数が不正です",
+			"イメージ数が不正です",
+			"レイヤ数が不正です",
+			"フレームデータ数が不正です",
+			"イメージデータが不正です",
+			"イメージのファイルパスが不正です",
+		} ;
+		if ( m_nError >= 0 && m_nError < kErrorNo_Max ) {
+			return QObject::trUtf8(str[m_nError]) ;
+		}
+		return QObject::trUtf8("エラー番号が不正です:%1").arg(m_nError) ;
+	}
 
 	CAnm2DBase()
 	{
@@ -89,7 +115,7 @@ private:
 class CAnm2DXml : public CAnm2DBase
 {
 public:
-	CAnm2DXml() ;
+	CAnm2DXml(bool bSaveImage) ;
 
 	bool makeFromEditImageData( CEditImageData &rEditImageData ) ;
 	bool makeFromFile(QDomDocument &xml, CEditImageData &rEditImageData) ;
@@ -114,6 +140,7 @@ private:
 	QProgressDialog	*m_pProgress ;
 
 	int				m_ObjNum, m_ImageNum ;
+	bool			m_bSaveImage ;
 };
 
 #endif // CANM2D_H
