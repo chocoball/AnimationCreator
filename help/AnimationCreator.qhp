@@ -1,25 +1,38 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <QtHelpProject version="1.0">
-    <virtualFolder>doc</virtualFolder>
-    <namespace>chocoball.com.AnimationCreator</namespace>
-    <filterSection>
-        <toc>
-            <section title="Help Index" ref="doc/index.html">
-	            <section title="メニュー" ref="doc/menu.html">
-	            </section>
-	            <section title="チュートリアル" ref="doc/tutorial.html">
-	            </section>
-            </section>
-        </toc>
-        <keywords>
-            <keyword name="index" id="index" ref="doc/index.html"/>
-            <keyword name="メニュー" id="menu" ref="doc/menu.html"/>
-            <keyword name="チュートリアル" id="tutorial" ref="doc/tutorial.html"/>
-        </keywords>
-        <files>
-            <file>doc/index.html</file>
-            <file>doc/menu.html</file>
-            <file>doc/tutorial.html</file>
-        </files>
-    </filterSection>
+	<virtualFolder>doc</virtualFolder>
+	<namespace>chocoball.com.AnimationCreator</namespace>
+	<filterSection>
+		<toc>
+			<section title="Help Index" ref="doc/index.html">
+				<section title="メニュー" ref="doc/menu.html">
+					<section title="Option" ref="doc/option.html"/>
+				</section>
+				<section title="ウィンドウ説明" ref="doc/window_explanation.html">
+					<section title="アニメーション ウィンドウ" ref="doc/win_exp_anime.html"/>
+					<section title="イメージ ウィンドウ" ref="doc/win_exp_image.html"/>
+					<section title="ルーペ ウィンドウ" ref="doc/win_exp_loupe.html"/>
+				</section>
+				<section title="チュートリアル" ref="doc/tutorial.html">
+					<section title="01 ファイルを読み込む" ref="doc/tutorial_01.html"/>
+					<section title="02 レイヤを追加する" ref="doc/tutorial_02.html"/>
+					<section title="03 アニメーションさせる" ref="doc/tutorial_03.html"/>
+				</section>
+			</section>
+		</toc>
+		<keywords>
+			<keyword name="index" id="index" ref="doc/index.html"/>
+			<keyword name="メニュー" id="menu" ref="doc/menu.html"/>
+			<keyword name="Option" id="option" ref="doc/option.html"/>
+			<keyword name="ウィンドウ説明" id="window_exp" ref="doc/window_explanation.html"/>
+			<keyword name="アニメーション ウィンドウ" id="window_exp_anime" ref="doc/win_exp_anime.html"/>
+			<keyword name="イメージ ウィンドウ" id="window_exp_image" ref="doc/win_exp_image.html"/>
+			<keyword name="ルーペ ウィンドウ" id="window_exp_loupe" ref="doc/win_exp_loupe.html"/>
+			<keyword name="チュートリアル" id="tutorial" ref="doc/tutorial.html"/>
+		</keywords>
+		<files>
+			<file>doc/*.html</file>
+			<file>doc/*.png</file>
+		</files>
+	</filterSection>
 </QtHelpProject>

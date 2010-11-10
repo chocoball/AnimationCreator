@@ -20,6 +20,7 @@ CLoupeWindow::CLoupeWindow(CEditImageData *pEditImageData, MainWindow *pMainWind
 	m_pLabel = new QLabel(this) ;
 	m_pLabel->setGeometry(QRect(0, 0, 200, 200));
 	m_pLabel->setScaledContents(true);
+	m_pLabel->setMinimumSize(200, 200);
 
 	QGridLayout *layout = new QGridLayout(this) ;
 	layout->addWidget(pLabelScale, 0, 0);
@@ -37,9 +38,6 @@ CLoupeWindow::CLoupeWindow(CEditImageData *pEditImageData, MainWindow *pMainWind
 	m_Scale = 2 ;
 
 	setWindowTitle(trUtf8("ルーペ"));
-//	setMinimumSize(200, 200);
-	setFixedSize(200, 200);
-	setMaximumSize(200, 200);
 }
 
 void CLoupeWindow::slot_cursorScreenShort()
@@ -53,6 +51,8 @@ void CLoupeWindow::slot_cursorScreenShort()
 	QPixmap pix = QPixmap::grabWindow(QApplication::desktop()->winId(), pos.x()-rowSize/2-(rowSize%2), pos.y()-rowSize/2-(rowSize%2), rowSize+(rowSize%2), rowSize+(rowSize%2)) ;
 	int i, j ;
 	QImage image = pix.scaled(QSize(200, 200)).toImage() ;
+
+	// ウィンドウからはみ出した場合、色を0に。
 	for ( i = 0 ; i < -(pos.x()-50)*2 ; i ++ ) {
 		for ( j = 0 ; j < 200 ; j ++ ) {
 			image.setPixel(i, j, 0);
@@ -75,6 +75,7 @@ void CLoupeWindow::slot_cursorScreenShort()
 		}
 	}
 
+	// 中心
 	for ( i = 100-m_Scale*3 ; i <= 100+m_Scale*3 ; i ++ ) {
 		for ( j = 0 ; j < m_Scale ; j ++ ) {
 			image.setPixel(i, 100+j, QColor(255, 0, 0).rgba()) ;

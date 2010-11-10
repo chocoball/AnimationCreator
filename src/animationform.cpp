@@ -393,6 +393,7 @@ void AnimationForm::slot_dropedImage( QRect rect, QPoint pos, int imageIndex )
 	frameData.fScaleX = frameData.fScaleY = 1.0f ;
 	frameData.setRect(rect);
 	frameData.nImage = imageIndex ;
+	frameData.bUVAnime = false ;
 
 	QList<QWidget *> updateWidget ;
 	updateWidget << m_pGlWidget ;

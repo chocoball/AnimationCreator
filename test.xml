@@ -1,21 +1,133 @@
 <!DOCTYPE ANM2D>
 <ROOT ObjNum="1" Version="1" ImageNum="1">
-    <OBJECT Name="人" LayerNum="1" No="0">
-        <LAYER Name="顔" FrameDataNum="1" No="0">
+    <OBJECT Name="人" LayerNum="2" No="0">
+        <LAYER Name="顔" FrameDataNum="6" No="0">
             <FRAMEDATA>
                 <frame>0</frame>
-                <pos>-4 -29 0</pos>
+                <pos>-3 -132 0</pos>
                 <rot>0 0 0</rot>
-                <center>52 41</center>
-                <UV>8 14 112 95</UV>
+                <center>51 40</center>
+                <UV>6 15 107 95</UV>
                 <ImageNo>0</ImageNo>
                 <scale>1 1</scale>
-                <UVAnime>0</UVAnime>
+                <UVAnime>65</UVAnime>
+            </FRAMEDATA>
+            <FRAMEDATA>
+                <frame>18</frame>
+                <pos>145 -131 0</pos>
+                <rot>0 0 0</rot>
+                <center>51 40</center>
+                <UV>6 15 107 95</UV>
+                <ImageNo>0</ImageNo>
+                <scale>1 1</scale>
+                <UVAnime>65</UVAnime>
+            </FRAMEDATA>
+            <FRAMEDATA>
+                <frame>10</frame>
+                <pos>68 -209 0</pos>
+                <rot>0 0 0</rot>
+                <center>51 40</center>
+                <UV>6 15 107 95</UV>
+                <ImageNo>0</ImageNo>
+                <scale>1 1</scale>
+                <UVAnime>65</UVAnime>
+            </FRAMEDATA>
+            <FRAMEDATA>
+                <frame>29</frame>
+                <pos>238 -204 0</pos>
+                <rot>0 0 0</rot>
+                <center>51 40</center>
+                <UV>6 15 107 95</UV>
+                <ImageNo>0</ImageNo>
+                <scale>1 1</scale>
+                <UVAnime>65</UVAnime>
+            </FRAMEDATA>
+            <FRAMEDATA>
+                <frame>42</frame>
+                <pos>345 -131 0</pos>
+                <rot>0 0 0</rot>
+                <center>51 40</center>
+                <UV>6 15 107 95</UV>
+                <ImageNo>0</ImageNo>
+                <scale>1 1</scale>
+                <UVAnime>65</UVAnime>
+            </FRAMEDATA>
+            <FRAMEDATA>
+                <frame>63</frame>
+                <pos>345 -131 0</pos>
+                <rot>0 0 0</rot>
+                <center>51 40</center>
+                <UV>6 15 107 95</UV>
+                <ImageNo>0</ImageNo>
+                <scale>1 1</scale>
+                <UVAnime>65</UVAnime>
+            </FRAMEDATA>
+        </LAYER>
+        <LAYER Name="体" FrameDataNum="6" No="1">
+            <FRAMEDATA>
+                <frame>0</frame>
+                <pos>5 -43 0</pos>
+                <rot>0 0 0</rot>
+                <center>56 47</center>
+                <UV>8 97 120 190</UV>
+                <ImageNo>0</ImageNo>
+                <scale>1 1</scale>
+                <UVAnime>65</UVAnime>
+            </FRAMEDATA>
+            <FRAMEDATA>
+                <frame>18</frame>
+                <pos>148 -44 0</pos>
+                <rot>0 0 0</rot>
+                <center>56 47</center>
+                <UV>8 97 120 190</UV>
+                <ImageNo>0</ImageNo>
+                <scale>1 1</scale>
+                <UVAnime>65</UVAnime>
+            </FRAMEDATA>
+            <FRAMEDATA>
+                <frame>10</frame>
+                <pos>73 -42 0</pos>
+                <rot>0 0 0</rot>
+                <center>56 47</center>
+                <UV>8 97 120 190</UV>
+                <ImageNo>0</ImageNo>
+                <scale>1 1</scale>
+                <UVAnime>65</UVAnime>
+            </FRAMEDATA>
+            <FRAMEDATA>
+                <frame>29</frame>
+                <pos>239 -44 0</pos>
+                <rot>0 0 0</rot>
+                <center>56 47</center>
+                <UV>8 97 120 190</UV>
+                <ImageNo>0</ImageNo>
+                <scale>1 1</scale>
+                <UVAnime>65</UVAnime>
+            </FRAMEDATA>
+            <FRAMEDATA>
+                <frame>42</frame>
+                <pos>349 -44 0</pos>
+                <rot>0 0 0</rot>
+                <center>56 47</center>
+                <UV>8 97 120 190</UV>
+                <ImageNo>0</ImageNo>
+                <scale>1 1</scale>
+                <UVAnime>65</UVAnime>
+            </FRAMEDATA>
+            <FRAMEDATA>
+                <frame>63</frame>
+                <pos>349 -44 0</pos>
+                <rot>0 0 0</rot>
+                <center>56 47</center>
+                <UV>8 97 120 190</UV>
+                <ImageNo>0</ImageNo>
+                <scale>1 1</scale>
+                <UVAnime>65</UVAnime>
             </FRAMEDATA>
         </LAYER>
     </OBJECT>
     <IMAGE No="0">
-        <FilePath>/Users/chocoball/Documents/Program/Qt/AnimationCreator/test.bmp</FilePath>
-        <Size>256 128</Size>
+        <FilePath>D:/Qt/Project/AnimationCreator/test.bmp</FilePath>
+        <Size>256 256</Size>
     </IMAGE>
 </ROOT>

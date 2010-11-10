@@ -143,7 +143,7 @@ void AnimeGLWidget::drawLayers_Normal()
 		QStandardItem *pLayerItem = layerGroupList[i].first ;
 		if ( !pLayerItem->data(Qt::CheckStateRole).toBool() ) { continue ; }	// 非表示
 
-		CObjectModel::FrameData *pData = pModel->getFrameDataFromPrevFrame(objID, layerGroupList[i].first, selFrame, true) ;
+		CObjectModel::FrameData *pData = pModel->getFrameDataFromPrevFrame(objID, layerGroupList[i].first, selFrame, !(pModel->getFrameDataFromIDAndFrame(objID, layerGroupList[i].first, selFrame))) ;
 		if ( pData ) {
 			CObjectModel::FrameData data = *pData ;
 			data.pos_z -= 2048.0f ;

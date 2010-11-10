@@ -217,7 +217,9 @@ void MainWindow::slot_dbgObjectDump( void )
 void MainWindow::readRootSetting( void )
 {
 #if 1
-	QSettings settings(qApp->applicationDirPath() + "./settnig.ini", QSettings::IniFormat) ;
+	QSettings settings(qApp->applicationDirPath() + "/settnig.ini", QSettings::IniFormat) ;
+	qDebug() << "readRootSetting\n" << settings.allKeys() ;
+	qDebug() << "file:" << qApp->applicationDirPath() + "/settnig.ini" ;
 #else
 	QSettings settings("Editor", "rootSettings") ;
 #endif
@@ -257,7 +259,9 @@ void MainWindow::readRootSetting( void )
 void MainWindow::writeRootSetting( void )
 {
 #if 1
-	QSettings settings(qApp->applicationDirPath() + "./settnig.ini", QSettings::IniFormat) ;
+	QSettings settings(qApp->applicationDirPath() + "/settnig.ini", QSettings::IniFormat) ;
+	qDebug() << "writeRootSetting writable:" << settings.isWritable() ;
+	qDebug() << "file:" << qApp->applicationDirPath() + "/settnig.ini" ;
 #else
 	QSettings settings("Editor", "rootSettings") ;
 #endif
@@ -270,7 +274,7 @@ void MainWindow::writeRootSetting( void )
 
 	settings.beginGroup("MainWindow");
 	settings.setValue("pos", pos()) ;
-	settings.setValue("sizet", size()) ;
+	settings.setValue("size", size()) ;
 	settings.endGroup();
 
 }
@@ -295,6 +299,12 @@ void MainWindow::createActions( void )
 	m_pActSaveAs->setShortcuts(QKeySequence::SaveAs) ;
 	m_pActSaveAs->setStatusTip(trUtf8("ファイルを保存します")) ;
 	connect(m_pActSaveAs, SIGNAL(triggered()), this, SLOT(slot_saveAs())) ;
+
+	// 終了
+	m_pActExit = new QAction(trUtf8("E&xit"), this) ;
+	m_pActExit->setShortcuts(QKeySequence::Quit);
+	m_pActExit->setStatusTip(trUtf8("アプリケーションを終了します"));
+	connect(m_pActExit, SIGNAL(triggered()), this, SLOT(close())) ;
 
 	// 戻す
 	QUndoStack *pStack = m_EditImageData.getUndoStack() ;
@@ -351,6 +361,8 @@ void MainWindow::createMenus( void )
 	pMenu->addAction(m_pActOpen) ;
 	pMenu->addAction(m_pActSave) ;
 	pMenu->addAction(m_pActSaveAs) ;
+	pMenu->addSeparator() ;
+	pMenu->addAction(m_pActExit) ;
 
 	pMenu = menuBar()->addMenu(trUtf8("&Edit")) ;
 	pMenu->addAction(m_pActUndo) ;

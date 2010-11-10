@@ -13,9 +13,13 @@ public:
 
 	bool isLoaded() { return (m_pEngine) ? true : false ; }
 
+protected:
+	void resizeEvent(QResizeEvent *event);
+
 private:
 	QHelpEngine		*m_pEngine ;
 	HelpBrowser		*m_pBrowser ;
+	QSplitter		*m_pSplitter ;
 };
 
 

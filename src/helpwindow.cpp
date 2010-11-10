@@ -18,12 +18,12 @@ HelpWindow::HelpWindow(QWidget *parent)
 
 	QHelpContentWidget *pHelpWidget = m_pEngine->contentWidget() ;
 
-	QSplitter *pSplitter = new QSplitter(Qt::Horizontal, this) ;
-	pSplitter->addWidget(pHelpWidget);
-	pSplitter->addWidget(m_pBrowser);
+	m_pSplitter = new QSplitter(Qt::Horizontal, this) ;
+	m_pSplitter->addWidget(pHelpWidget);
+	m_pSplitter->addWidget(m_pBrowser);
 
 	QGridLayout *pLayout = new QGridLayout(this) ;
-	pLayout->addWidget(pSplitter);
+	pLayout->addWidget(m_pSplitter);
 
 	setObjectName("HelpWindow");
 	setWindowTitle("Animation Creator Help");
@@ -32,3 +32,8 @@ HelpWindow::HelpWindow(QWidget *parent)
 	show() ;
 }
 
+void HelpWindow::resizeEvent(QResizeEvent *event)
+{
+	QSize sub = event->size() - event->oldSize() ;
+
+}

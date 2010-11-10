@@ -92,6 +92,7 @@ private:
 	QAction				*m_pActOpen ;			// ファイルを開く
 	QAction				*m_pActSave ;			// 保存
 	QAction				*m_pActSaveAs ;			// 名前を付けて保存
+	QAction				*m_pActExit ;			// 終了
 	QAction				*m_pActUndo ;			// 戻す
 	QAction				*m_pActRedo ;			// やり直す
 	QAction				*m_pActImageWindow ;	// イメージウィンドウon/off
