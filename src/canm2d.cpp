@@ -662,7 +662,12 @@ bool CAnm2DXml::makeImage( QDomElement &element, QDomDocument &doc, CEditImageDa
 		QDomText text ;
 
 		elmTmp = doc.createElement("FilePath") ;
+#if 1
+		QString relPath = getRelativePath(m_filePath, imgFilePath) ;
+		text = doc.createTextNode(relPath.toUtf8()) ;
+#else
 		text = doc.createTextNode(imgFilePath.toUtf8()) ;
+#endif
 		elmTmp.appendChild(text) ;
 		elmImage.appendChild(elmTmp) ;
 
@@ -1033,7 +1038,12 @@ bool CAnm2DXml::addImage( QDomNode &node, CEditImageData::ImageData &data )
 			m_nError = kErrorNo_InvalidFilePath ;
 			return false ;
 		}
+#if 1
+		QString path = getAbsolutePath(m_filePath, data.fileName) ;
+		data.Image = QImage(path) ;
+#else
 		data.Image = QImage(data.fileName) ;
+#endif
 		if ( data.Image.isNull() ) {
 			m_nError = kErrorNo_InvalidFilePath ;
 			return false ;
@@ -1041,3 +1051,26 @@ bool CAnm2DXml::addImage( QDomNode &node, CEditImageData::ImageData &data )
 	}
 	return true ;
 }
+
+QString CAnm2DXml::getRelativePath(QString &src, QString &dest)
+{
+	QString path = src ;
+	if ( path.at(path.count()-1) != '/' ) {
+		path.chop(path.count()-path.lastIndexOf("/")-1) ;
+	}
+	QDir dir(path) ;
+	return dir.relativeFilePath(dest) ;
+}
+
+QString CAnm2DXml::getAbsolutePath(QString &src, QString &dest)
+{
+	QString path = src ;
+	if ( path.at(path.count()-1) != '/' ) {
+		path.chop(path.count()-path.lastIndexOf("/")-1) ;
+	}
+	QDir dir(path) ;
+	return dir.absoluteFilePath(dest) ;
+}
+
+
+

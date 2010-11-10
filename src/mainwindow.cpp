@@ -490,6 +490,7 @@ bool MainWindow::fileOpen( QString fileName )
 #if 1
 		QDomDocument xml ;
 		xml.setContent(&file) ;
+		data.setFilePath(fileName);
 		if ( !data.makeFromFile(xml, m_EditImageData) ) {
 			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(data.getErrorString()) )  ;
 			return false ;
@@ -542,6 +543,7 @@ bool MainWindow::saveFile( QString fileName )
 		prog.setWindowModality(Qt::WindowModal);
 		prog.setAutoClose(true);
 		data.setProgress(&prog);
+		data.setFilePath(fileName);
 
 		QApplication::setOverrideCursor(Qt::WaitCursor);
 		if ( !data.makeFromEditImageData(m_EditImageData) ) {

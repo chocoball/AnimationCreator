@@ -121,6 +121,7 @@ public:
 	bool makeFromFile(QDomDocument &xml, CEditImageData &rEditImageData) ;
 	QDomDocument &getData() { return m_Data ; }
 	void setProgress( QProgressDialog *p ) { m_pProgress = p ; }
+	void setFilePath( QString &str ) { m_filePath = str ; }
 
 private:
 	bool makeHeader( QDomElement &element, QDomDocument &doc, CEditImageData &rEditImageData ) ;
@@ -134,10 +135,13 @@ private:
 	bool addFrameData( QDomNode &node, CObjectModel::FrameDataList &frameDataList, int maxFrameDataNum ) ;
 	bool addImage( QDomNode &node, CEditImageData::ImageData &data ) ;
 
+	QString getRelativePath(QString &src, QString &dest) ;
+	QString getAbsolutePath(QString &src, QString &dest) ;
+
 private:
 	QDomDocument	m_Data ;
-
 	QProgressDialog	*m_pProgress ;
+	QString			m_filePath ;
 
 	int				m_ObjNum, m_ImageNum ;
 	bool			m_bSaveImage ;

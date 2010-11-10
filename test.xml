@@ -3,16 +3,6 @@
     <OBJECT Name="人" LayerNum="2" No="0">
         <LAYER Name="顔" FrameDataNum="6" No="0">
             <FRAMEDATA>
-                <frame>0</frame>
-                <pos>-3 -132 0</pos>
-                <rot>0 0 0</rot>
-                <center>51 40</center>
-                <UV>6 15 107 95</UV>
-                <ImageNo>0</ImageNo>
-                <scale>1 1</scale>
-                <UVAnime>65</UVAnime>
-            </FRAMEDATA>
-            <FRAMEDATA>
                 <frame>18</frame>
                 <pos>145 -131 0</pos>
                 <rot>0 0 0</rot>
@@ -20,7 +10,7 @@
                 <UV>6 15 107 95</UV>
                 <ImageNo>0</ImageNo>
                 <scale>1 1</scale>
-                <UVAnime>65</UVAnime>
+                <UVAnime>1</UVAnime>
             </FRAMEDATA>
             <FRAMEDATA>
                 <frame>10</frame>
@@ -30,7 +20,7 @@
                 <UV>6 15 107 95</UV>
                 <ImageNo>0</ImageNo>
                 <scale>1 1</scale>
-                <UVAnime>65</UVAnime>
+                <UVAnime>1</UVAnime>
             </FRAMEDATA>
             <FRAMEDATA>
                 <frame>29</frame>
@@ -40,7 +30,7 @@
                 <UV>6 15 107 95</UV>
                 <ImageNo>0</ImageNo>
                 <scale>1 1</scale>
-                <UVAnime>65</UVAnime>
+                <UVAnime>1</UVAnime>
             </FRAMEDATA>
             <FRAMEDATA>
                 <frame>42</frame>
@@ -50,7 +40,7 @@
                 <UV>6 15 107 95</UV>
                 <ImageNo>0</ImageNo>
                 <scale>1 1</scale>
-                <UVAnime>65</UVAnime>
+                <UVAnime>1</UVAnime>
             </FRAMEDATA>
             <FRAMEDATA>
                 <frame>63</frame>
@@ -60,7 +50,17 @@
                 <UV>6 15 107 95</UV>
                 <ImageNo>0</ImageNo>
                 <scale>1 1</scale>
-                <UVAnime>65</UVAnime>
+                <UVAnime>1</UVAnime>
+            </FRAMEDATA>
+            <FRAMEDATA>
+                <frame>0</frame>
+                <pos>4 -135 0</pos>
+                <rot>0 0 0</rot>
+                <center>51 40</center>
+                <UV>6 15 107 95</UV>
+                <ImageNo>0</ImageNo>
+                <scale>1 1</scale>
+                <UVAnime>1</UVAnime>
             </FRAMEDATA>
         </LAYER>
         <LAYER Name="体" FrameDataNum="6" No="1">
@@ -72,7 +72,7 @@
                 <UV>8 97 120 190</UV>
                 <ImageNo>0</ImageNo>
                 <scale>1 1</scale>
-                <UVAnime>65</UVAnime>
+                <UVAnime>1</UVAnime>
             </FRAMEDATA>
             <FRAMEDATA>
                 <frame>18</frame>
@@ -82,7 +82,7 @@
                 <UV>8 97 120 190</UV>
                 <ImageNo>0</ImageNo>
                 <scale>1 1</scale>
-                <UVAnime>65</UVAnime>
+                <UVAnime>1</UVAnime>
             </FRAMEDATA>
             <FRAMEDATA>
                 <frame>10</frame>
@@ -92,7 +92,7 @@
                 <UV>8 97 120 190</UV>
                 <ImageNo>0</ImageNo>
                 <scale>1 1</scale>
-                <UVAnime>65</UVAnime>
+                <UVAnime>1</UVAnime>
             </FRAMEDATA>
             <FRAMEDATA>
                 <frame>29</frame>
@@ -102,7 +102,7 @@
                 <UV>8 97 120 190</UV>
                 <ImageNo>0</ImageNo>
                 <scale>1 1</scale>
-                <UVAnime>65</UVAnime>
+                <UVAnime>1</UVAnime>
             </FRAMEDATA>
             <FRAMEDATA>
                 <frame>42</frame>
@@ -112,7 +112,7 @@
                 <UV>8 97 120 190</UV>
                 <ImageNo>0</ImageNo>
                 <scale>1 1</scale>
-                <UVAnime>65</UVAnime>
+                <UVAnime>1</UVAnime>
             </FRAMEDATA>
             <FRAMEDATA>
                 <frame>63</frame>
@@ -122,12 +122,12 @@
                 <UV>8 97 120 190</UV>
                 <ImageNo>0</ImageNo>
                 <scale>1 1</scale>
-                <UVAnime>65</UVAnime>
+                <UVAnime>1</UVAnime>
             </FRAMEDATA>
         </LAYER>
     </OBJECT>
     <IMAGE No="0">
-        <FilePath>D:/Qt/Project/AnimationCreator/test.bmp</FilePath>
-        <Size>256 256</Size>
+        <FilePath>test.bmp</FilePath>
+        <Size>142 205</Size>
     </IMAGE>
 </ROOT>
