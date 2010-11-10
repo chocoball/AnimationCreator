@@ -216,9 +216,12 @@ void MainWindow::slot_dbgObjectDump( void )
 // 設定を復元
 void MainWindow::readRootSetting( void )
 {
+#if 1
+	QSettings settings(qApp->applicationDirPath() + "./settnig.ini", QSettings::IniFormat) ;
+#else
 	QSettings settings("Editor", "rootSettings") ;
-	QPoint pos = settings.value("pos_root", QPoint(200, 200)).toPoint() ;
-	QSize size = settings.value("size_root", QSize(400, 400)).toSize() ;
+#endif
+	settings.beginGroup("Global");
 	QString dir =
 #if defined(Q_OS_WIN32)
 	settings.value("cur_dir", QString(".\\")).toString() ;
@@ -235,6 +238,12 @@ void MainWindow::readRootSetting( void )
 	col = settings.value("image_color", 0).toUInt() ;
 	QColor imageCol = QColor(qRed(col), qGreen(col), qBlue(col), qAlpha(col)) ;
 	bool bSaveImage = settings.value("save_image", false).toBool() ;
+	settings.endGroup();
+
+	settings.beginGroup("MainWindow");
+	QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint() ;
+	QSize size = settings.value("size", QSize(400, 400)).toSize() ;
+	settings.endGroup();
 
 	move(pos) ;
 	resize(size) ;
@@ -247,13 +256,23 @@ void MainWindow::readRootSetting( void )
 // 設定を保存
 void MainWindow::writeRootSetting( void )
 {
+#if 1
+	QSettings settings(qApp->applicationDirPath() + "./settnig.ini", QSettings::IniFormat) ;
+#else
 	QSettings settings("Editor", "rootSettings") ;
-	settings.setValue("pos_root", pos()) ;
-	settings.setValue("size_root", size()) ;
+#endif
+	settings.beginGroup("Global");
 	settings.setValue("cur_dir", setting.getCurrentDir()) ;
 	settings.setValue("anime_color", setting.getAnimeBGColor().rgba());
 	settings.setValue("image_color", setting.getImageBGColor().rgba());
 	settings.setValue("save_image", setting.getSaveImage());
+	settings.endGroup();
+
+	settings.beginGroup("MainWindow");
+	settings.setValue("pos", pos()) ;
+	settings.setValue("sizet", size()) ;
+	settings.endGroup();
+
 }
 
 // アクションを作成
