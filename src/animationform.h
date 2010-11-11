@@ -87,6 +87,11 @@ public slots:
 
 	void slot_frameDataMoveEnd(CObjectModel::FrameData*) ;
 
+	void slot_clickedRadioPos( bool flag ) ;
+	void slot_clickedRadioRot( bool flag ) ;
+	void slot_clickedRadioCenter( bool flag ) ;
+	void slot_clickedRadioScale( bool flag ) ;
+
 protected:
 	CObjectModel::FrameData *getNowSelectFrameData( void ) ;
 	void addNewObject( QString str ) ;

@@ -19,6 +19,12 @@ AnimeGLWidget::AnimeGLWidget(CEditImageData *editData, CSettings *pSetting, QWid
 	m_pActDel->setText(trUtf8("Delete"));
 	connect(m_pActDel, SIGNAL(triggered()), this, SLOT(slot_actDel())) ;
 
+	m_editMode = kEditMode_Pos ;
+}
+
+GLuint AnimeGLWidget::bindTexture(QImage &image)
+{
+	return QGLWidget::bindTexture(image, GL_TEXTURE_2D, GL_RGBA, QGLContext::InvertedYBindOption) ;
 }
 
 void AnimeGLWidget::slot_actDel( void )
@@ -393,8 +399,36 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 			}
 		}
 		else {
+#if 1
 			pData->pos_x += sub.x() ;
 			pData->pos_y += sub.y() ;
+#else
+			switch ( m_editMode ) {
+				case kEditMode_Pos:
+					pData->pos_x += sub.x() ;
+					pData->pos_y += sub.y() ;
+					break ;
+				case kEditMode_Rot:
+					{
+						QVector2D vOld = QVector2D(m_DragOffset - QPoint(pData->center_x, pData->center_y)) ;
+						QVector2D vNow = QVector2D(event->pos() - QPoint(pData->center_x, pData->center_y)) ;
+						vOld.normalize();
+						vNow.normalize();
+						float d = QVector2D::dotProduct(vOld, vNow) ;
+						qDebug() << d << acos(d) << (short)(acos(d)*360.0f) ;
+						pData->rot_z += (short)(acos(d)*360.0f) ;
+					}
+					break ;
+				case kEditMode_Center:
+					pData->center_x += sub.x() ;
+					pData->center_y += sub.y() ;
+					break ;
+				case kEditMode_Scale:
+					pData->fScaleX += (float)sub.x() * 0.01f ;
+					pData->fScaleY += (float)sub.y() * 0.01f ;
+					break ;
+			}
+#endif
 		}
 		m_DragOffset = event->pos() ;
 		update() ;

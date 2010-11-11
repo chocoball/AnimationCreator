@@ -18,6 +18,7 @@ AnimationForm::AnimationForm(CEditImageData *pImageData, CSettings *pSetting, QW
 	m_pGlWidget->setDrawArea(1024, 1024);
 	m_pGlWidget->show();
 
+	ui->radioButton_pos->setChecked(true);
 	ui->spinBox_nowSequence->setMaximum(180);
 	ui->horizontalSlider_nowSequence->setMaximum(180);
 	ui->spinBox_pos_x->setMinimum(-1028);
@@ -102,6 +103,11 @@ AnimationForm::AnimationForm(CEditImageData *pImageData, CSettings *pSetting, QW
 	m_pDataMarker->setForegroundRole(QPalette::Highlight);
 	m_pDataMarker->show();
 
+	connect(ui->radioButton_pos, SIGNAL(clicked(bool)), this, SLOT(slot_clickedRadioPos(bool))) ;
+	connect(ui->radioButton_rot, SIGNAL(clicked(bool)), this, SLOT(slot_clickedRadioRot(bool))) ;
+	connect(ui->radioButton_center, SIGNAL(clicked(bool)), this, SLOT(slot_clickedRadioCenter(bool))) ;
+	connect(ui->radioButton_scale, SIGNAL(clicked(bool)), this, SLOT(slot_clickedRadioScale(bool))) ;
+
 	connect(ui->treeView, SIGNAL(customContextMenuRequested(QPoint)),	this, SLOT(slot_treeViewMenuReq(QPoint))) ;
 //	connect(ui->treeView, SIGNAL(doubleClicked(QModelIndex)),			this, SLOT(slot_treeViewDoubleClicked(QModelIndex))) ;
 	connect(ui->treeView, SIGNAL(clicked(QModelIndex)),					this, SLOT(slot_changeSelectObject(QModelIndex))) ;
@@ -174,7 +180,7 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 {
 	QSize add = event->size() - event->oldSize() ;
 	QSize add_h = QSize(0, add.height()) ;
-	QSize add_w = QSize(add.width(), 0) ;
+//	QSize add_w = QSize(add.width(), 0) ;
 
 	if ( event->oldSize().width() < 0 || event->oldSize().height() < 0 ) {
 		return ;
@@ -185,12 +191,9 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 	m_pSplitter->resize(m_pSplitter->size()+add);
 
 	ui->comboBox_image_no->move(ui->comboBox_image_no->pos() + QPoint(add.width(), 0));
+	ui->groupBox->move(ui->groupBox->pos() + QPoint(add.width(), 0));
 
 	QLabel *tmpLabel[] = {
-		ui->label_pos,
-		ui->label_rot,
-		ui->label_center,
-		ui->label_scale,
 		ui->label_x,
 		ui->label_y,
 		ui->label_z,
@@ -923,6 +926,34 @@ void AnimationForm::slot_endedOption( void )
 void AnimationForm::slot_frameDataMoveEnd(CObjectModel::FrameData *pData)
 {
 	addCommandEdit(pData, 2);
+}
+
+void AnimationForm::slot_clickedRadioPos( bool flag )
+{
+	if ( flag ) {
+		m_pGlWidget->setEditMode(AnimeGLWidget::kEditMode_Pos) ;
+	}
+}
+
+void AnimationForm::slot_clickedRadioRot( bool flag )
+{
+	if ( flag ) {
+		m_pGlWidget->setEditMode(AnimeGLWidget::kEditMode_Rot) ;
+	}
+}
+
+void AnimationForm::slot_clickedRadioCenter( bool flag )
+{
+	if ( flag ) {
+		m_pGlWidget->setEditMode(AnimeGLWidget::kEditMode_Center) ;
+	}
+}
+
+void AnimationForm::slot_clickedRadioScale( bool flag )
+{
+	if ( flag ) {
+		m_pGlWidget->setEditMode(AnimeGLWidget::kEditMode_Scale) ;
+	}
 }
 
 // 現在選択しているフレームデータ取得

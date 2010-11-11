@@ -9,7 +9,17 @@ class AnimeGLWidget : public QGLWidget
 {
     Q_OBJECT
 public:
+	enum {
+		kEditMode_Pos = 0,
+		kEditMode_Rot,
+		kEditMode_Center,
+		kEditMode_Scale,
+	} ;
+
+public:
 	explicit AnimeGLWidget(CEditImageData *editData, CSettings *pSetting, QWidget *parent = 0);
+
+	GLuint bindTexture(QImage &image) ;
 
 signals:
 	void sig_dropedImage(QRect rect, QPoint pos, int index) ;
@@ -56,6 +66,10 @@ public:
 		m_GridWidth = w ;
 		m_GridHeight = h ;
 	}
+	void setEditMode( int mode )
+	{
+		m_editMode = mode ;
+	}
 
 private:
 	CEditImageData	*m_pEditImageData ;
@@ -72,6 +86,8 @@ private:
 	QPoint			m_DragOffset ;
 
 	QAction			*m_pActDel ;
+
+	int				m_editMode ;
 };
 
 #endif // GLWIDGET_H
