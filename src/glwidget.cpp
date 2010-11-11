@@ -113,28 +113,6 @@ void AnimeGLWidget::drawLayers_Normal()
 			if ( data.frame != selFrame ) { continue ; }
 
 			drawFrameData(data);
-			if ( layerID == layerGroupList[i].first ) {	// 選択中のレイヤ
-				QColor col ;
-				if ( m_bPressCtrl ) {
-					col = QColor(0, 255, 0, 255) ;
-				}
-				else {
-					col = QColor(255, 0, 0, 255) ;
-				}
-				Vertex v = data.getVertex() ;
-
-				glPushMatrix();
-				glTranslatef(data.pos_x, data.pos_y, data.pos_z / 4096.0f);
-
-				glDisable(GL_TEXTURE_2D) ;
-				drawLine(QPoint(v.x0, v.y0), QPoint(v.x0, v.y1), col);
-				drawLine(QPoint(v.x1, v.y0), QPoint(v.x1, v.y1), col);
-				drawLine(QPoint(v.x0, v.y0), QPoint(v.x1, v.y0), col);
-				drawLine(QPoint(v.x0, v.y1), QPoint(v.x1, v.y1), col);
-				glEnable(GL_TEXTURE_2D) ;
-
-				glPopMatrix();
-			}
 		}
 	}
 
@@ -149,6 +127,40 @@ void AnimeGLWidget::drawLayers_Normal()
 			data.pos_z -= 2048.0f ;
 			drawFrameData(data, QColor(255, 255, 255, 128));
 		}
+	}
+
+	// 選択中フレームデータの枠
+	const CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(objID, layerID, selFrame) ;
+	if ( pData ) {
+		QColor col ;
+		if ( m_bPressCtrl ) {
+			col = QColor(0, 255, 0, 255) ;
+		}
+		else {
+			col = QColor(255, 0, 0, 255) ;
+		}
+		const Vertex v = pData->getVertex() ;
+
+		glPushMatrix();
+
+		glTranslatef(pData->pos_x, pData->pos_y, pData->pos_z / 4096.0f);
+
+		glRotatef(pData->rot_x, 1, 0, 0);
+		glRotatef(pData->rot_y, 0, 1, 0);
+		glRotatef(pData->rot_z, 0, 0, 1);
+
+		glDisable(GL_TEXTURE_2D) ;
+		glDisable(GL_ALPHA_TEST);
+		glDisable(GL_DEPTH_TEST);
+		drawLine(QPoint(v.x0, v.y0), QPoint(v.x0, v.y1), col, 0);
+		drawLine(QPoint(v.x1, v.y0), QPoint(v.x1, v.y1), col, 0);
+		drawLine(QPoint(v.x0, v.y0), QPoint(v.x1, v.y0), col, 0);
+		drawLine(QPoint(v.x0, v.y1), QPoint(v.x1, v.y1), col, 0);
+		glEnable(GL_ALPHA_TEST);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_TEXTURE_2D) ;
+
+		glPopMatrix();
 	}
 }
 
@@ -308,6 +320,7 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 
 	if ( event->button() == Qt::LeftButton ) {	// 左ボタン
 		QPoint localPos = event->pos() - QPoint(512, 512) ;
+
 		CObjectModel *pModel = m_pEditImageData->getObjectModel() ;
 		CObjectModel::typeID objID = m_pEditImageData->getSelectObject() ;
 		int frame = m_pEditImageData->getSelectFrame() ;

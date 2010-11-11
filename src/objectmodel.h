@@ -3,6 +3,7 @@
 
 #include <QtGui>
 #include <QPair>
+#include <QMatrix4x4>
 
 typedef struct {
 	float		x0, y0 ;
@@ -44,6 +45,12 @@ public:
 			v.y1 = v.y0 + height()*fScaleY ;
 			return v ;
 		}
+
+		void getMatrix( float m[16] )
+		{
+
+		}
+
 		struct _tagFrameData getInterpolation(const struct _tagFrameData *pNext, int nowFrame) const
 		{
 			struct _tagFrameData data = *this ;
