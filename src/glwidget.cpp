@@ -19,6 +19,12 @@ AnimeGLWidget::AnimeGLWidget(CEditImageData *editData, CSettings *pSetting, QWid
 	m_pActDel->setText(trUtf8("Delete"));
 	connect(m_pActDel, SIGNAL(triggered()), this, SLOT(slot_actDel())) ;
 
+	m_editMode = kEditMode_Pos ;
+}
+
+GLuint AnimeGLWidget::bindTexture(QImage &image)
+{
+	return QGLWidget::bindTexture(image, GL_TEXTURE_2D, GL_RGBA, QGLContext::InvertedYBindOption) ;
 }
 
 void AnimeGLWidget::slot_actDel( void )
@@ -90,6 +96,10 @@ void AnimeGLWidget::drawLayers( void )
 		drawLayers_Normal() ;
 	}
 
+	if ( !m_pEditImageData->isPlayAnime() || m_pEditImageData->isPauseAnime() ) {
+		drawSelFrameInfo();
+	}
+
 	glDisable(GL_TEXTURE_2D) ;
 	glBindTexture(GL_TEXTURE_2D, 0) ;
 }
@@ -98,7 +108,6 @@ void AnimeGLWidget::drawLayers_Normal()
 {
 	CObjectModel			*pModel		= m_pEditImageData->getObjectModel() ;
 	CObjectModel::typeID	objID		= m_pEditImageData->getSelectObject() ;
-	CObjectModel::typeID	layerID		= m_pEditImageData->getSelectLayer() ;
 	int						selFrame	= m_pEditImageData->getSelectFrame() ;
 
 	if ( pModel->getLayerGroupListFromID(objID) == NULL ) { return ; }
@@ -129,39 +138,6 @@ void AnimeGLWidget::drawLayers_Normal()
 		}
 	}
 
-	// 選択中フレームデータの枠
-	const CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(objID, layerID, selFrame) ;
-	if ( pData ) {
-		QColor col ;
-		if ( m_bPressCtrl ) {
-			col = QColor(0, 255, 0, 255) ;
-		}
-		else {
-			col = QColor(255, 0, 0, 255) ;
-		}
-		const Vertex v = pData->getVertex() ;
-
-		glPushMatrix();
-
-		glTranslatef(pData->pos_x, pData->pos_y, pData->pos_z / 4096.0f);
-
-		glRotatef(pData->rot_x, 1, 0, 0);
-		glRotatef(pData->rot_y, 0, 1, 0);
-		glRotatef(pData->rot_z, 0, 0, 1);
-
-		glDisable(GL_TEXTURE_2D) ;
-		glDisable(GL_ALPHA_TEST);
-		glDisable(GL_DEPTH_TEST);
-		drawLine(QPoint(v.x0, v.y0), QPoint(v.x0, v.y1), col, 0);
-		drawLine(QPoint(v.x1, v.y0), QPoint(v.x1, v.y1), col, 0);
-		drawLine(QPoint(v.x0, v.y0), QPoint(v.x1, v.y0), col, 0);
-		drawLine(QPoint(v.x0, v.y1), QPoint(v.x1, v.y1), col, 0);
-		glEnable(GL_ALPHA_TEST);
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_TEXTURE_2D) ;
-
-		glPopMatrix();
-	}
 }
 
 // アニメ再生中
@@ -187,6 +163,76 @@ void AnimeGLWidget::drawLayers_Anime()
 			drawFrameData(data);
 		}
 	}
+}
+
+// 選択中フレーム
+void AnimeGLWidget::drawSelFrameInfo( void )
+{
+	CObjectModel			*pModel		= m_pEditImageData->getObjectModel() ;
+	CObjectModel::typeID	objID		= m_pEditImageData->getSelectObject() ;
+	CObjectModel::typeID	layerID		= m_pEditImageData->getSelectLayer() ;
+	int						selFrame	= m_pEditImageData->getSelectFrame() ;
+
+	const CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(objID, layerID, selFrame) ;
+	if ( !pData ) {
+		return ;
+	}
+
+	glDisable(GL_TEXTURE_2D) ;
+	glDisable(GL_ALPHA_TEST);
+	glDisable(GL_DEPTH_TEST);
+
+	// 枠
+	QColor col ;
+	if ( m_bPressCtrl ) {
+		col = QColor(0, 255, 0, 255) ;
+	}
+	else {
+		col = QColor(255, 0, 0, 255) ;
+	}
+	const Vertex v = pData->getVertex() ;
+
+	glPushMatrix();
+		glTranslatef(pData->pos_x, pData->pos_y, pData->pos_z / 4096.0f);
+		glRotatef(pData->rot_x, 1, 0, 0);
+		glRotatef(pData->rot_y, 0, 1, 0);
+		glRotatef(pData->rot_z, 0, 0, 1);
+
+		drawLine(QPoint(v.x0, v.y0), QPoint(v.x0, v.y1), col, 0);
+		drawLine(QPoint(v.x1, v.y0), QPoint(v.x1, v.y1), col, 0);
+		drawLine(QPoint(v.x0, v.y0), QPoint(v.x1, v.y0), col, 0);
+		drawLine(QPoint(v.x0, v.y1), QPoint(v.x1, v.y1), col, 0);
+	glPopMatrix();
+
+	if ( m_bDragging ) {
+		switch ( m_editMode ) {
+		case kEditMode_Rot:
+			glEnable(GL_LINE_STIPPLE);
+			glLineStipple(2, 0x3333);
+			{
+				QPoint c = QPoint(pData->pos_x, pData->pos_y) ;
+				QPoint p0 = m_DragOffset - QPoint(512, 512) ;
+
+				float len = QVector2D(p0-c).length() ;
+				drawLine(c, p0, col, 0);
+				glBegin(GL_LINES);
+				for ( int i = 0 ; i < 40 ; i ++ ) {
+					float rad = i * M_PI*2.0f / 40.0f ;
+					float x = cosf(rad) * len ;
+					float y = sinf(rad) * len ;
+					glVertex2f(x+pData->pos_x, y+pData->pos_y);
+				}
+				glEnd() ;
+			}
+
+			glDisable(GL_LINE_STIPPLE);
+			break ;
+		}
+	}
+
+	glEnable(GL_ALPHA_TEST);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D) ;
 }
 
 // フレームデータ描画
@@ -351,6 +397,13 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 			}
 		}
 
+		if ( m_bDragging ) {
+			CObjectModel::FrameData *p = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
+			if ( p ) {
+				m_rotStart = (float)p->rot_z*M_PI/180.0f ;
+			}
+		}
+
 		emit sig_selectLayerChanged(layerID) ;
 	}
 }
@@ -393,10 +446,46 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 			}
 		}
 		else {
+#if 0
 			pData->pos_x += sub.x() ;
 			pData->pos_y += sub.y() ;
+#else
+			switch ( m_editMode ) {
+				case kEditMode_Pos:
+					pData->pos_x += sub.x() ;
+					pData->pos_y += sub.y() ;
+					break ;
+				case kEditMode_Rot:
+					{
+						QVector2D vOld = QVector2D(m_DragOffset-QPoint(512, 512) - QPoint(pData->pos_x, pData->pos_y)) ;
+						QVector2D vNow = QVector2D(event->pos()-QPoint(512, 512) - QPoint(pData->pos_x, pData->pos_y)) ;
+						vOld.normalize();
+						vNow.normalize();
+						float old = atan2(vOld.y(), vOld.x()) ;
+						float now = atan2(vNow.y(), vNow.x()) ;
+						now -= old ;
+						if ( now >= M_PI*2 ) { now -= M_PI*2 ; }
+						if ( now < -M_PI*2 ) { now += M_PI*2 ; }
+						now += m_rotStart ;
+						if ( now >= M_PI*2 ) { now -= M_PI*2 ; }
+						if ( now < -M_PI*2 ) { now += M_PI*2 ; }
+						pData->rot_z = now*180.0f/M_PI ;
+					}
+					break ;
+				case kEditMode_Center:
+					pData->center_x += sub.x() ;
+					pData->center_y += sub.y() ;
+					break ;
+				case kEditMode_Scale:
+					pData->fScaleX += (float)sub.x() * 0.01f ;
+					pData->fScaleY += (float)sub.y() * 0.01f ;
+					break ;
+			}
+			if ( m_editMode != kEditMode_Rot ) {
+				m_DragOffset = event->pos() ;
+			}
+#endif
 		}
-		m_DragOffset = event->pos() ;
 		update() ;
 
 		emit sig_dragedImage(*pData) ;

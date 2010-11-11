@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>771</width>
-    <height>371</height>
+    <height>568</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -73,6 +73,7 @@
       <height>297</height>
      </rect>
     </property>
+    <zorder>commandLinkButton</zorder>
    </widget>
   </widget>
   <widget class="QSpinBox" name="spinBox_nowSequence">
@@ -300,38 +301,6 @@
     <string>UV</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_pos">
-   <property name="geometry">
-    <rect>
-     <x>520</x>
-     <y>100</y>
-     <width>41</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Pos</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_scale">
-   <property name="geometry">
-    <rect>
-     <x>520</x>
-     <y>190</y>
-     <width>41</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Scale</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-   </property>
-  </widget>
   <widget class="QTreeView" name="treeView">
    <property name="geometry">
     <rect>
@@ -437,22 +406,6 @@
     </size>
    </property>
   </widget>
-  <widget class="QLabel" name="label_center">
-   <property name="geometry">
-    <rect>
-     <x>520</x>
-     <y>160</y>
-     <width>41</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Center</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-   </property>
-  </widget>
   <widget class="QSpinBox" name="spinBox_center_x">
    <property name="geometry">
     <rect>
@@ -526,22 +479,6 @@
     </rect>
    </property>
   </widget>
-  <widget class="QLabel" name="label_rot">
-   <property name="geometry">
-    <rect>
-     <x>520</x>
-     <y>130</y>
-     <width>41</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Rot</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-   </property>
-  </widget>
   <widget class="QComboBox" name="comboBox_image_no">
    <property name="geometry">
     <rect>
@@ -580,6 +517,74 @@
    <property name="text">
     <string>UV Animation</string>
    </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>510</x>
+     <y>100</y>
+     <width>61</width>
+     <height>111</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string/>
+   </property>
+   <property name="flat">
+    <bool>true</bool>
+   </property>
+   <widget class="QRadioButton" name="radioButton_pos">
+    <property name="geometry">
+     <rect>
+      <x>4</x>
+      <y>3</y>
+      <width>41</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Pos</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioButton_rot">
+    <property name="geometry">
+     <rect>
+      <x>4</x>
+      <y>33</y>
+      <width>41</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Rot</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioButton_center">
+    <property name="geometry">
+     <rect>
+      <x>4</x>
+      <y>62</y>
+      <width>51</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Center</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioButton_scale">
+    <property name="geometry">
+     <rect>
+      <x>4</x>
+      <y>93</y>
+      <width>51</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Scale</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <tabstops>
