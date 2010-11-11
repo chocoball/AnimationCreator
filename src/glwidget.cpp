@@ -407,6 +407,17 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 void AnimeGLWidget::mouseReleaseEvent(QMouseEvent *event)
 {
 	Q_UNUSED(event) ;
+	if ( m_bDragging ) {	// ドラッグ中
+		CObjectModel *pModel = m_pEditImageData->getObjectModel() ;
+		CObjectModel::typeID layerID = m_pEditImageData->getSelectLayer() ;
+		CObjectModel::typeID objID = m_pEditImageData->getSelectObject() ;
+		int frame = m_pEditImageData->getSelectFrame() ;
+		CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
+
+		if ( pData ) {
+			emit sig_frameDataMoveEnd(pData) ;
+		}
+	}
 
 	m_bDragging = false ;
 }

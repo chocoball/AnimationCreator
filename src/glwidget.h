@@ -17,6 +17,7 @@ signals:
 	void sig_dragedImage( CObjectModel::FrameData data ) ;
 	void sig_deleteFrameData( void ) ;
 	void sig_selectPrevLayer( CObjectModel::typeID objID, CObjectModel::typeID layerID, int frame, CObjectModel::FrameData data ) ;
+	void sig_frameDataMoveEnd(CObjectModel::FrameData *pData) ;
 
 public slots:
 	void slot_actDel( void ) ;

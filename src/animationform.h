@@ -85,11 +85,13 @@ public slots:
 
 	void slot_endedOption( void ) ;
 
+	void slot_frameDataMoveEnd(CObjectModel::FrameData*) ;
+
 protected:
 	CObjectModel::FrameData *getNowSelectFrameData( void ) ;
 	void addNewObject( QString str ) ;
 
-	void addCommandEdit( CObjectModel::FrameData *pData ) ;
+	void addCommandEdit( CObjectModel::FrameData *pData, int id = 1 ) ;
 
 private:
 	Ui::AnimationForm	*ui;

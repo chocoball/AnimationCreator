@@ -286,19 +286,21 @@ void Command_DelFrameData::redo()
 /**
   フレームデータ編集コマンド
   */
-Command_EditFrameData::Command_EditFrameData(CEditImageData *pEditImageData,
-											 CObjectModel::typeID objID,
-											 CObjectModel::typeID layerID,
-											 int frame,
-											 CObjectModel::FrameData &data,
-											 QList<QWidget *> &updateWidget)
+Command_EditFrameData::Command_EditFrameData(CEditImageData				*pEditImageData,
+											 CObjectModel::typeID		objID,
+											 CObjectModel::typeID		layerID,
+											 int						frame,
+											 CObjectModel::FrameData	&data,
+											 QList<QWidget *>			&updateWidget,
+											 int						id)
 {
 	m_pObjModel = pEditImageData->getObjectModel() ;
-	m_objID = objID ;
-	m_layerID = layerID ;
-	m_Frame = frame ;
+	m_objID		= objID ;
+	m_layerID	= layerID ;
+	m_Frame		= frame ;
 	m_FrameData = data ;
 	m_UpdateWidgetList = updateWidget ;
+	m_ID = 1 ;
 }
 
 void Command_EditFrameData::undo()
@@ -330,6 +332,38 @@ void Command_EditFrameData::redo()
 	}
 }
 
+bool Command_EditFrameData::mergeWith(const QUndoCommand *other)
+{
+#if 1
+	if ( other->id() < 0 ) {
+		return false ;
+	}
+	Command_EditFrameData *p = (Command_EditFrameData *)other ;
+	if ( *this != *p ) {
+		return false ;
+	}
+
+	m_pObjModel			= p->m_pObjModel ;
+	m_objID				= p->m_objID ;
+	m_layerID			= p->m_layerID ;
+	m_Frame				= p->m_Frame ;
+	m_FrameData			= p->m_FrameData ;
+	m_UpdateWidgetList	= p->m_UpdateWidgetList ;
+	return true ;
+#else
+	if ( id() != other->id() ) {
+		return false ;
+	}
+	Command_EditFrameData *p = (Command_EditFrameData *)other ;
+	m_pObjModel = p->m_pObjModel ;
+	m_objID = p->m_objID ;
+	m_layerID = p->m_layerID ;
+	m_Frame = p->m_Frame ;
+	m_FrameData = p->m_FrameData ;
+	m_UpdateWidgetList = p->m_UpdateWidgetList ;
+	return true ;
+#endif
+}
 
 
 

@@ -116,6 +116,8 @@ AnimationForm::AnimationForm(CEditImageData *pImageData, CSettings *pSetting, QW
 			this,		SLOT(slot_deleteFrameData())) ;
 	connect(m_pGlWidget, SIGNAL(sig_selectPrevLayer(CObjectModel::typeID, CObjectModel::typeID, int, CObjectModel::FrameData)),
 			this,		SLOT(slot_addNewFrameData(CObjectModel::typeID, CObjectModel::typeID, int, CObjectModel::FrameData))) ;
+	connect(m_pGlWidget, SIGNAL(sig_frameDataMoveEnd(CObjectModel::FrameData*)),
+			this,		SLOT(slot_frameDataMoveEnd(CObjectModel::FrameData*))) ;
 
 	connect(ui->horizontalSlider_nowSequence, SIGNAL(valueChanged(int)), this, SLOT(slot_frameChanged(int))) ;
 	connect(ui->spinBox_pos_x,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changePosX(int))) ;
@@ -918,6 +920,11 @@ void AnimationForm::slot_endedOption( void )
 	m_pGlWidget->update();
 }
 
+void AnimationForm::slot_frameDataMoveEnd(CObjectModel::FrameData *pData)
+{
+	addCommandEdit(pData, 2);
+}
+
 // 現在選択しているフレームデータ取得
 CObjectModel::FrameData *AnimationForm::getNowSelectFrameData( void )
 {
@@ -952,7 +959,7 @@ void AnimationForm::addNewObject( QString str )
 }
 
 // フレームデータ編集コマンド
-void AnimationForm::addCommandEdit( CObjectModel::FrameData *pData )
+void AnimationForm::addCommandEdit( CObjectModel::FrameData *pData, int id )
 {
 	CObjectModel::typeID	objID	= m_pEditImageData->getSelectObject() ;
 	CObjectModel::typeID	layerID	= m_pEditImageData->getSelectLayer() ;
@@ -960,6 +967,6 @@ void AnimationForm::addCommandEdit( CObjectModel::FrameData *pData )
 	QList<QWidget *> update ;
 
 	update << m_pGlWidget ;
-	m_pEditImageData->cmd_editFrameData(objID, layerID, frame, *pData, update);
+	m_pEditImageData->cmd_editFrameData(objID, layerID, frame, *pData, update, id);
 }
 

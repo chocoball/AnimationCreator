@@ -95,9 +95,9 @@ void CEditImageData::cmd_delFrameData( CObjectModel::typeID objID, CObjectModel:
 }
 
 // フレームデータ編集コマンド
-void CEditImageData::cmd_editFrameData( CObjectModel::typeID objID, CObjectModel::typeID layerID, int frame, CObjectModel::FrameData &data, QList<QWidget *> &updateWidget )
+void CEditImageData::cmd_editFrameData( CObjectModel::typeID objID, CObjectModel::typeID layerID, int frame, CObjectModel::FrameData &data, QList<QWidget *> &updateWidget, int id )
 {
-	m_pUndoStack->push( new Command_EditFrameData(this, objID, layerID, frame, data, updateWidget));
+	m_pUndoStack->push( new Command_EditFrameData(this, objID, layerID, frame, data, updateWidget, id));
 }
 
 

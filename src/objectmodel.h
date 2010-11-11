@@ -23,6 +23,36 @@ public:
 		float			fScaleX, fScaleY ;			///< scale
 		bool			bUVAnime ;					///< UVアニメするならtrue
 
+		bool operator == (const struct _tagFrameData &r) const
+		{
+			if ( frame != r.frame )			{ return false ; }
+			if ( pos_x != r.pos_x )			{ return false ; }
+			if ( pos_y != r.pos_y )			{ return false ; }
+			if ( pos_z != r.pos_z )			{ return false ; }
+			if ( rot_x != r.rot_x )			{ return false ; }
+			if ( rot_y != r.rot_y )			{ return false ; }
+			if ( rot_z != r.rot_z )			{ return false ; }
+			if ( center_x != r.center_x )	{ return false ; }
+			if ( center_y != r.center_y )	{ return false ; }
+			if ( left != r.left )			{ return false ; }
+			if ( right != r.right )			{ return false ; }
+			if ( top != r.top )				{ return false ; }
+			if ( bottom != r.bottom )		{ return false ; }
+			if ( nImage != r.nImage )		{ return false ; }
+			if ( fScaleX != r.fScaleX )		{ return false ; }
+			if ( fScaleY != r.fScaleY )		{ return false ; }
+			if ( bUVAnime != r.bUVAnime )	{ return false ; }
+
+			return true ;
+		}
+		bool operator != (const struct _tagFrameData &r) const
+		{
+			if ( *this == r ) {
+				return false ;
+			}
+			return true ;
+		}
+
 		void setRect( QRect &rect )
 		{
 			left	= rect.left() ;
