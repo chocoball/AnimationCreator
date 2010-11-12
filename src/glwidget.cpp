@@ -204,7 +204,7 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 		drawLine(QPoint(v.x0, v.y1), QPoint(v.x1, v.y1), col, 0);
 	glPopMatrix();
 
-	if ( m_bDragging ) {
+	if ( m_bDragging && !m_bPressCtrl ) {
 		switch ( m_editMode ) {
 		case kEditMode_Rot:
 			glEnable(GL_LINE_STIPPLE);
