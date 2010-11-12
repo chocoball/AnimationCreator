@@ -45,6 +45,7 @@ ImageWindow::ImageWindow(CSettings *p, CEditImageData *pEditImage, AnimationForm
 
 ImageWindow::~ImageWindow()
 {
+	delete ui ;
 }
 
 void ImageWindow::dragEnterEvent(QDragEnterEvent *event)
