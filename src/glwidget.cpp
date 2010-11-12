@@ -444,12 +444,9 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 				pData->top -= pData->bottom-(imageSize.height()-1) ;
 				pData->bottom = imageSize.height()-1 ;
 			}
+			m_DragOffset = event->pos() ;
 		}
 		else {
-#if 0
-			pData->pos_x += sub.x() ;
-			pData->pos_y += sub.y() ;
-#else
 			switch ( m_editMode ) {
 				case kEditMode_Pos:
 					pData->pos_x += sub.x() ;
@@ -484,7 +481,6 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 			if ( m_editMode != kEditMode_Rot ) {
 				m_DragOffset = event->pos() ;
 			}
-#endif
 		}
 		update() ;
 
