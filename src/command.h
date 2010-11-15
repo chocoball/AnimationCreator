@@ -131,30 +131,9 @@ public:
 						  QList<CObjectModel::typeID>		&layerIDs,
 						  int								frame,
 						  QList<CObjectModel::FrameData>	&datas,
-						  QList<QWidget *>					&updateWidget,
-						  int								id) ;
+						  QList<QWidget *>					&updateWidget) ;
 	void undo() ;
 	void redo() ;
-
-	bool mergeWith(const QUndoCommand *other) ;
-	int id() const { return m_ID ; }
-
-	bool operator == (const Command_EditFrameData &r) const
-	{
-		if ( m_pObjModel != r.m_pObjModel )	{ return false ; }
-		if ( m_objID != r.m_objID )			{ return false ; }
-		if ( m_layerIDs != r.m_layerIDs )	{ return false ; }
-		if ( m_FrameData != r.m_FrameData )	{ return false ; }
-		if ( m_Frame != r.m_Frame )			{ return false ; }
-		return true ;
-	}
-	bool operator != (const Command_EditFrameData &r) const
-	{
-		if ( *this == r ) {
-			return false ;
-		}
-		return true ;
-	}
 
 private:
 	CEditData						*m_pEditData ;
@@ -165,7 +144,6 @@ private:
 	int								m_Frame ;
 
 	QList<QWidget *>				m_UpdateWidgetList ;
-	int								m_ID ;
 };
 
 

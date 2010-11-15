@@ -1,4 +1,5 @@
 #include "command.h"
+#include "animationform.h"
 
 /**
   オブジェクト追加コマンド
@@ -296,8 +297,7 @@ Command_EditFrameData::Command_EditFrameData(CEditData						*pEditData,
 											 QList<CObjectModel::typeID>	&layerIDs,
 											 int							frame,
 											 QList<CObjectModel::FrameData>	&datas,
-											 QList<QWidget *>				&updateWidget,
-											 int							id)
+											 QList<QWidget *>				&updateWidget)
 {
 	m_pEditData = pEditData ;
 	m_pObjModel = pEditData->getObjectModel() ;
@@ -306,7 +306,6 @@ Command_EditFrameData::Command_EditFrameData(CEditData						*pEditData,
 	m_Frame		= frame ;
 	m_FrameData = datas ;
 	m_UpdateWidgetList = updateWidget ;
-	m_ID = 1 ;
 }
 
 void Command_EditFrameData::undo()
@@ -323,7 +322,12 @@ void Command_EditFrameData::undo()
 	m_pEditData->updateSelectData();
 
 	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
-		m_UpdateWidgetList[i]->update();
+		if ( m_UpdateWidgetList[i]->objectName() == "AnimationForm" ) {
+			static_cast<AnimationForm *>(m_UpdateWidgetList[i])->slot_setUI(m_OldFrameData[0]);
+		}
+		else {
+			m_UpdateWidgetList[i]->update();
+		}
 	}
 }
 
@@ -342,49 +346,19 @@ void Command_EditFrameData::redo()
 		}
 		*p = m_FrameData[i] ;
 	}
+
 	m_pEditData->updateSelectData();
 
 	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
-		m_UpdateWidgetList[i]->update();
+		if ( m_UpdateWidgetList[i]->objectName() == "AnimationForm" ) {
+			static_cast<AnimationForm *>(m_UpdateWidgetList[i])->slot_setUI(m_FrameData[0]);
+		}
+		else {
+			m_UpdateWidgetList[i]->update();
+		}
 	}
 }
 
-bool Command_EditFrameData::mergeWith(const QUndoCommand *other)
-{
-#if 1
-#if 1
-	return false ;
-#else
-	if ( other->id() < 0 ) {
-		return false ;
-	}
-	Command_EditFrameData *p = (Command_EditFrameData *)other ;
-	if ( *this != *p ) {
-		return false ;
-	}
-
-	m_pObjModel			= p->m_pObjModel ;
-	m_objID				= p->m_objID ;
-	m_layerIDs			= p->m_layerIDs ;
-	m_Frame				= p->m_Frame ;
-	m_FrameData			= p->m_FrameData ;
-	m_UpdateWidgetList	= p->m_UpdateWidgetList ;
-	return true ;
-#endif
-#else
-	if ( id() != other->id() ) {
-		return false ;
-	}
-	Command_EditFrameData *p = (Command_EditFrameData *)other ;
-	m_pObjModel = p->m_pObjModel ;
-	m_objID = p->m_objID ;
-	m_layerID = p->m_layerID ;
-	m_Frame = p->m_Frame ;
-	m_FrameData = p->m_FrameData ;
-	m_UpdateWidgetList = p->m_UpdateWidgetList ;
-	return true ;
-#endif
-}
 
 
 

@@ -179,11 +179,6 @@ void AnimeGLWidget::drawLayers_Anime()
 // 選択中フレーム
 void AnimeGLWidget::drawSelFrameInfo( void )
 {
-	CObjectModel			*pModel		= m_pEditData->getObjectModel() ;
-	CObjectModel::typeID	objID		= m_pEditData->getSelectObject() ;
-	CObjectModel::typeID	layerID		= 0 ;
-	int						selFrame	= m_pEditData->getSelectFrame() ;
-
 	glDisable(GL_TEXTURE_2D) ;
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_DEPTH_TEST);
@@ -507,7 +502,6 @@ void AnimeGLWidget::mouseReleaseEvent(QMouseEvent *event)
 			rc.setRight(m_SelPluralStartPos.x()<m_SelPluralEndPos.x()?m_SelPluralEndPos.x():m_SelPluralStartPos.x());
 			rc.setTop(m_SelPluralStartPos.y()<m_SelPluralEndPos.y()?m_SelPluralStartPos.y():m_SelPluralEndPos.y());
 			rc.setBottom(m_SelPluralStartPos.y()<m_SelPluralEndPos.y()?m_SelPluralEndPos.y():m_SelPluralStartPos.y());
-			qDebug() << rc ;
 			selLayers = pModel->getFrameDatasFromRect(objID, frame, rc) ;
 			emit sig_selectLayerChanged(selLayers) ;
 		}

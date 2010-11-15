@@ -980,7 +980,7 @@ void AnimationForm::slot_frameDataMoveEnd( void )
 		data_ptrs.insert(i, m_pEditData->getSelectFrameData(i));
 	}
 
-	addCommandEdit(data_ptrs, 2);
+	addCommandEdit(data_ptrs);
 }
 
 void AnimationForm::slot_clickedRadioPos( bool flag )
@@ -1041,17 +1041,20 @@ void AnimationForm::addNewObject( QString str )
 }
 
 // フレームデータ編集コマンド
-void AnimationForm::addCommandEdit( QList<CObjectModel::FrameData *> &rData, int id )
+void AnimationForm::addCommandEdit( QList<CObjectModel::FrameData *> &rData )
 {
 	CObjectModel::typeID	objID	= m_pEditData->getSelectObject() ;
 	int						frame	= m_pEditData->getSelectFrame() ;
 	QList<QWidget *> update ;
 	QList<CObjectModel::FrameData> datas ;
+
+	if ( rData.size() <= 0 ) { return ; }
+
 	for ( int i = 0 ; i < rData.size() ; i ++ ) {
 		datas.insert(i, *(rData[i])) ;
 	}
 
-	update << m_pGlWidget ;
-	m_pEditData->cmd_editFrameData(objID, m_pEditData->getSelectLayers(), frame, datas, update, id);
+	update << m_pGlWidget << this ;
+	m_pEditData->cmd_editFrameData(objID, m_pEditData->getSelectLayers(), frame, datas, update);
 }
 

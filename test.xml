@@ -14,7 +14,7 @@
             </FRAMEDATA>
             <FRAMEDATA>
                 <frame>30</frame>
-                <pos>89 0 0</pos>
+                <pos>116 -158 0</pos>
                 <rot>0 0 0</rot>
                 <center>51 40</center>
                 <UV>6 15 107 95</UV>
@@ -23,7 +23,7 @@
                 <UVAnime>0</UVAnime>
             </FRAMEDATA>
         </LAYER>
-        <LAYER Name="右手" FrameDataNum="1" No="1">
+        <LAYER Name="右手" FrameDataNum="2" No="1">
             <FRAMEDATA>
                 <frame>0</frame>
                 <pos>-26 -96 2</pos>
@@ -34,8 +34,18 @@
                 <scale>1 1</scale>
                 <UVAnime>0</UVAnime>
             </FRAMEDATA>
+            <FRAMEDATA>
+                <frame>30</frame>
+                <pos>85 -116 2</pos>
+                <rot>0 0 35</rot>
+                <center>28 11</center>
+                <UV>8 95 46 112</UV>
+                <ImageNo>0</ImageNo>
+                <scale>1 1</scale>
+                <UVAnime>0</UVAnime>
+            </FRAMEDATA>
         </LAYER>
-        <LAYER Name="左手" FrameDataNum="1" No="2">
+        <LAYER Name="左手" FrameDataNum="2" No="2">
             <FRAMEDATA>
                 <frame>0</frame>
                 <pos>28 -97 2</pos>
@@ -46,8 +56,18 @@
                 <scale>1 1</scale>
                 <UVAnime>0</UVAnime>
             </FRAMEDATA>
+            <FRAMEDATA>
+                <frame>30</frame>
+                <pos>139 -117 2</pos>
+                <rot>0 0 -29</rot>
+                <center>12 7</center>
+                <UV>63 97 115 110</UV>
+                <ImageNo>0</ImageNo>
+                <scale>1 1</scale>
+                <UVAnime>0</UVAnime>
+            </FRAMEDATA>
         </LAYER>
-        <LAYER Name="体" FrameDataNum="1" No="3">
+        <LAYER Name="体" FrameDataNum="2" No="3">
             <FRAMEDATA>
                 <frame>0</frame>
                 <pos>2 -71 1</pos>
@@ -58,8 +78,18 @@
                 <scale>1 1</scale>
                 <UVAnime>0</UVAnime>
             </FRAMEDATA>
+            <FRAMEDATA>
+                <frame>30</frame>
+                <pos>113 -91 1</pos>
+                <rot>0 0 0</rot>
+                <center>10 26</center>
+                <UV>45 100 65 151</UV>
+                <ImageNo>0</ImageNo>
+                <scale>1 1</scale>
+                <UVAnime>0</UVAnime>
+            </FRAMEDATA>
         </LAYER>
-        <LAYER Name="右足" FrameDataNum="1" No="4">
+        <LAYER Name="右足" FrameDataNum="2" No="4">
             <FRAMEDATA>
                 <frame>0</frame>
                 <pos>-4 -43 2</pos>
@@ -70,11 +100,31 @@
                 <scale>1 1</scale>
                 <UVAnime>0</UVAnime>
             </FRAMEDATA>
+            <FRAMEDATA>
+                <frame>30</frame>
+                <pos>107 -63 2</pos>
+                <rot>0 0 0</rot>
+                <center>23 0</center>
+                <UV>27 152 50 191</UV>
+                <ImageNo>0</ImageNo>
+                <scale>1 1</scale>
+                <UVAnime>0</UVAnime>
+            </FRAMEDATA>
         </LAYER>
-        <LAYER Name="左足" FrameDataNum="1" No="5">
+        <LAYER Name="左足" FrameDataNum="2" No="5">
             <FRAMEDATA>
                 <frame>0</frame>
                 <pos>7 -44 2</pos>
+                <rot>0 0 0</rot>
+                <center>0 0</center>
+                <UV>60 149 95 188</UV>
+                <ImageNo>0</ImageNo>
+                <scale>1 1</scale>
+                <UVAnime>0</UVAnime>
+            </FRAMEDATA>
+            <FRAMEDATA>
+                <frame>30</frame>
+                <pos>118 -64 2</pos>
                 <rot>0 0 0</rot>
                 <center>0 0</center>
                 <UV>60 149 95 188</UV>

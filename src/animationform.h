@@ -96,7 +96,7 @@ protected:
 	QList<CObjectModel::FrameData *> getNowSelectFrameData( void ) ;
 	void addNewObject( QString str ) ;
 
-	void addCommandEdit( QList<CObjectModel::FrameData *> &rData, int id = 1 ) ;
+	void addCommandEdit( QList<CObjectModel::FrameData *> &rData ) ;
 
 private:
 	Ui::AnimationForm	*ui;

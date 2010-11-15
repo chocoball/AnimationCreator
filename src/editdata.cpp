@@ -99,10 +99,9 @@ void CEditData::cmd_editFrameData( CObjectModel::typeID				objID,
 								   QList<CObjectModel::typeID>		&layerIDs,
 								   int								frame,
 								   QList<CObjectModel::FrameData>	&datas,
-								   QList<QWidget *>					&updateWidget,
-								   int								id )
+								   QList<QWidget *>					&updateWidget )
 {
-	m_pUndoStack->push( new Command_EditFrameData(this, objID, layerIDs, frame, datas, updateWidget, id));
+	m_pUndoStack->push( new Command_EditFrameData(this, objID, layerIDs, frame, datas, updateWidget));
 }
 
 

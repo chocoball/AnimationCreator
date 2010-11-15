@@ -202,8 +202,7 @@ public:
 							QList<CObjectModel::typeID>		&layerIDs,
 							int								frame,
 							QList<CObjectModel::FrameData>	&datas,
-							QList<QWidget *>				&updateWidget,
-							int								id ) ;
+							QList<QWidget *>				&updateWidget ) ;
 
 private:
 	QList<ImageData>				m_ImageData ;
