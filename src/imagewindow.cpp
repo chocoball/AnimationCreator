@@ -6,14 +6,14 @@
 #include "animationform.h"
 #include "mainwindow.h"
 
-ImageWindow::ImageWindow(CSettings *p, CEditImageData *pEditImage, AnimationForm *pAnimForm, MainWindow *pMainWindow, QWidget *parent)
+ImageWindow::ImageWindow(CSettings *p, CEditData *pEditImage, AnimationForm *pAnimForm, MainWindow *pMainWindow, QWidget *parent)
 	: QWidget(parent),
 	ui(new Ui::ImageWindow)
 {
 	ui->setupUi(this) ;
 
 	m_pSetting = p ;
-	m_pEditImageData = pEditImage ;
+	m_pEditData = pEditImage ;
 	setAnimationForm(pAnimForm);
 	m_pMainWindow = pMainWindow ;
 
@@ -36,7 +36,7 @@ ImageWindow::ImageWindow(CSettings *p, CEditImageData *pEditImage, AnimationForm
 	connect(ui->spinBox_uv_right,	SIGNAL(valueChanged(int)), this, SLOT(slot_changeUVRight(int))) ;
 
 	ui->tabWidget->clear();
-	for ( int i = 0 ; i < m_pEditImageData->getImageDataSize() ; i ++ ) {
+	for ( int i = 0 ; i < m_pEditData->getImageDataSize() ; i ++ ) {
 		addTab(i);
 	}
 
@@ -56,12 +56,12 @@ void ImageWindow::dragEnterEvent(QDragEnterEvent *event)
 void ImageWindow::dropEvent(QDropEvent *event)
 {
 	QList<QUrl> urls = event->mimeData()->urls() ;
-	int index = m_pEditImageData->getImageDataSize() ;
+	int index = m_pEditData->getImageDataSize() ;
 
 	for ( int i = 0 ; i < urls.size() ; i ++ ) {
 		QString fileName = urls[i].toLocalFile() ;
 
-		CEditImageData::ImageData data ;
+		CEditData::ImageData data ;
 		QImage image ;
 		if ( !image.load(fileName) ) {
 			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(fileName)) ;
@@ -71,7 +71,7 @@ void ImageWindow::dropEvent(QDropEvent *event)
 		data.Image			= image ;
 		data.lastModified	= QDateTime::currentDateTimeUtc() ;
 		data.nTexObj		= 0 ;
-		m_pEditImageData->addImageData(data);
+		m_pEditData->addImageData(data);
 		addTab(index) ;
 
 		emit sig_addImage(index) ;
@@ -83,7 +83,7 @@ void ImageWindow::dropEvent(QDropEvent *event)
 void ImageWindow::addTab(int imageIndex)
 {
 	QLabel *pLabel = new QLabel(ui->tabWidget) ;
-	pLabel->setPixmap(QPixmap::fromImage(m_pEditImageData->getImage(imageIndex))) ;
+	pLabel->setPixmap(QPixmap::fromImage(m_pEditData->getImage(imageIndex))) ;
 	pLabel->setObjectName("ImageLabel");
 	pLabel->setScaledContents(true) ;
 	pLabel->setAutoFillBackground(true);
@@ -91,7 +91,7 @@ void ImageWindow::addTab(int imageIndex)
 	palette.setColor(QPalette::Background, m_pSetting->getImageBGColor()) ;
 	pLabel->setPalette(palette);
 
-	CGridLabel *pGridLabel = new CGridLabel(m_pEditImageData, imageIndex, pLabel) ;
+	CGridLabel *pGridLabel = new CGridLabel(m_pEditData, imageIndex, pLabel) ;
 	pGridLabel->show() ;
 
 	QScrollArea *pScrollArea = new QScrollArea(ui->tabWidget) ;
@@ -177,7 +177,7 @@ void ImageWindow::slot_modifiedImage( int index )
 		qDebug() << "ERROR:ImageLabel not found!!!!!" ;
 		return ;
 	}
-	label->setPixmap(QPixmap::fromImage(m_pEditImageData->getImage(index))) ;
+	label->setPixmap(QPixmap::fromImage(m_pEditData->getImage(index))) ;
 	QPalette palette = label->palette() ;
 	palette.setColor(QPalette::Background, m_pSetting->getImageBGColor()) ;
 	label->setPalette(palette);
@@ -186,36 +186,36 @@ void ImageWindow::slot_modifiedImage( int index )
 
 void ImageWindow::slot_changeUVBottom( int val )
 {
-	QRect r = m_pEditImageData->getCatchRect() ;
+	QRect r = m_pEditData->getCatchRect() ;
 	r.setBottom(val);
-	m_pEditImageData->setCatchRect(r);
+	m_pEditData->setCatchRect(r);
 
 	updateGridLabel() ;
 }
 
 void ImageWindow::slot_changeUVTop( int val )
 {
-	QRect r = m_pEditImageData->getCatchRect() ;
+	QRect r = m_pEditData->getCatchRect() ;
 	r.setTop(val);
-	m_pEditImageData->setCatchRect(r);
+	m_pEditData->setCatchRect(r);
 
 	updateGridLabel() ;
 }
 
 void ImageWindow::slot_changeUVLeft( int val )
 {
-	QRect r = m_pEditImageData->getCatchRect() ;
+	QRect r = m_pEditData->getCatchRect() ;
 	r.setLeft(val);
-	m_pEditImageData->setCatchRect(r);
+	m_pEditData->setCatchRect(r);
 
 	updateGridLabel() ;
 }
 
 void ImageWindow::slot_changeUVRight( int val )
 {
-	QRect r = m_pEditImageData->getCatchRect() ;
+	QRect r = m_pEditData->getCatchRect() ;
 	r.setRight(val);
-	m_pEditImageData->setCatchRect(r);
+	m_pEditData->setCatchRect(r);
 
 	updateGridLabel() ;
 }

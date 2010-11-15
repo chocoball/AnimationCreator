@@ -1,7 +1,7 @@
 #ifndef CANM2D_H
 #define CANM2D_H
 
-#include "editimagedata.h"
+#include "editdata.h"
 #include "Anm2dTypes.h"
 
 #include <QDomDocument>
@@ -91,18 +91,19 @@ class CAnm2DBin : public CAnm2DBase
 public:
 	CAnm2DBin();
 
-	bool makeFromEditImageData( CEditImageData &rEditImageData ) ;
-	bool makeFromFile(QByteArray &data, CEditImageData &rEditImageData) ;
+	bool makeFromEditData( CEditData &rEditData ) ;
+	bool makeFromFile(QByteArray &data, CEditData &rEditData) ;
+
 	QByteArray &getData() { return m_Data ; }
 
 private:
-	bool makeHeader( QByteArray &rData, CEditImageData &rEditImageData ) ;
-	bool makeImageList( QList<QByteArray> &rData, CEditImageData &rEditImageData ) ;
+	bool makeHeader( QByteArray &rData, CEditData &rEditData ) ;
+	bool makeImageList( QList<QByteArray> &rData, CEditData &rEditData ) ;
 
-	bool addObject(Anm2DHeader *pHeader, CEditImageData &rEditImageData) ;
-	bool addLayer(Anm2DHeader *pHeader, CEditImageData &rEditImageData) ;
-	bool addFrameData(Anm2DHeader *pHeader, CEditImageData &rEditImageData) ;
-	bool addImageData(Anm2DHeader *pHeader, CEditImageData &rEditImageData) ;
+	bool addObject(Anm2DHeader *pHeader, CEditData &rEditData) ;
+	bool addLayer(Anm2DHeader *pHeader, CEditData &rEditData) ;
+	bool addFrameData(Anm2DHeader *pHeader, CEditData &rEditData) ;
+	bool addImageData(Anm2DHeader *pHeader, CEditData &rEditData) ;
 
 	Anm2DObject	*search2DObjectFromName(Anm2DHeader *pHeader, QString name) ;
 	Anm2DLayer	*search2DLayerFromName(Anm2DHeader *pHeader, QString name) ;
@@ -117,23 +118,24 @@ class CAnm2DXml : public CAnm2DBase
 public:
 	CAnm2DXml(bool bSaveImage) ;
 
-	bool makeFromEditImageData( CEditImageData &rEditImageData ) ;
-	bool makeFromFile(QDomDocument &xml, CEditImageData &rEditImageData) ;
-	QDomDocument &getData() { return m_Data ; }
-	void setProgress( QProgressDialog *p ) { m_pProgress = p ; }
-	void setFilePath( QString &str ) { m_filePath = str ; }
+	bool makeFromEditData( CEditData &rEditData ) ;
+	bool makeFromFile(QDomDocument &xml, CEditData &rEditData) ;
+
+	QDomDocument &getData()					{ return m_Data ; }
+	void setProgress( QProgressDialog *p )	{ m_pProgress = p ; }
+	void setFilePath( QString &str )		{ m_filePath = str ; }
 
 private:
-	bool makeHeader( QDomElement &element, QDomDocument &doc, CEditImageData &rEditImageData ) ;
-	bool makeObject(QDomElement &element, QDomDocument &doc, CEditImageData &rEditImageData) ;
-	bool makeImage( QDomElement &element, QDomDocument &doc, CEditImageData &rEditImageData ) ;
+	bool makeHeader( QDomElement &element, QDomDocument &doc, CEditData &rEditData ) ;
+	bool makeObject(QDomElement &element, QDomDocument &doc, CEditData &rEditData) ;
+	bool makeImage( QDomElement &element, QDomDocument &doc, CEditData &rEditData ) ;
 
-	void setProgMaximum( QProgressDialog *pProg, CEditImageData &rEditImageData ) ;
+	void setProgMaximum( QProgressDialog *pProg, CEditData &rEditData ) ;
 
-	bool addElement( QDomNode &node, CEditImageData &rEditImageData ) ;
+	bool addElement( QDomNode &node, CEditData &rEditData ) ;
 	bool addLayer( QDomNode &node, CObjectModel::LayerGroupList &layerGroupList, QStandardItem *pParentItem, int maxLayerNum ) ;
 	bool addFrameData( QDomNode &node, CObjectModel::FrameDataList &frameDataList, int maxFrameDataNum ) ;
-	bool addImage( QDomNode &node, CEditImageData::ImageData &data ) ;
+	bool addImage( QDomNode &node, CEditData::ImageData &data ) ;
 
 	QString getRelativePath(QString &src, QString &dest) ;
 	QString getAbsolutePath(QString &src, QString &dest) ;

@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include "imagewindow.h"
 #include "setting.h"
-#include "editimagedata.h"
+#include "editdata.h"
 #include "animationform.h"
 #include "cdropablemdiarea.h"
 #include "cloupewindow.h"
@@ -81,7 +81,7 @@ private:
 
 	// 編集データ ----
 	QString				m_StrSaveFileName ;		// 保存ファイル名
-	CEditImageData		m_EditImageData ;
+	CEditData			m_EditData ;
 	// ---- 編集データ
 
 	// 設定 ----

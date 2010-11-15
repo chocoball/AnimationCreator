@@ -2,7 +2,7 @@
 #include "gridlabel.h"
 
 
-CGridLabel::CGridLabel(CEditImageData *pImage, int nTabIndex, QWidget *parent)
+CGridLabel::CGridLabel(CEditData *pImage, int nTabIndex, QWidget *parent)
 	: QLabel(parent)
 {
 	m_pImageData = pImage ;

@@ -4,7 +4,7 @@
 #include <QtGui>
 #include <QScrollArea>
 #include "setting.h"
-#include "editimagedata.h"
+#include "editdata.h"
 #include "ui_imagewindow.h"
 
 class CGridLabel ;
@@ -20,7 +20,7 @@ class ImageWindow : public QWidget
 	Q_OBJECT
 
 public:
-	explicit ImageWindow(CSettings *p, CEditImageData *pEditImage, AnimationForm *pAnimForm, MainWindow *pMainWindow, QWidget *parent = 0);
+	explicit ImageWindow(CSettings *p, CEditData *pEditImage, AnimationForm *pAnimForm, MainWindow *pMainWindow, QWidget *parent = 0);
 	~ImageWindow() ;
 
 	void setAnimationForm( AnimationForm *p )
@@ -60,7 +60,7 @@ private:
 	Ui::ImageWindow	*ui ;
 
 	CSettings		*m_pSetting ;
-	CEditImageData	*m_pEditImageData ;
+	CEditData		*m_pEditData ;
 
 	AnimationForm	*m_pAnimationForm ;
 

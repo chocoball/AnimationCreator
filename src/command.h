@@ -4,15 +4,15 @@
 #include <QtGui>
 #include <QUndoCommand>
 #include <QStandardItemModel>
-#include "editimagedata.h"
+#include "editdata.h"
 
-class CEditImageData ;
+class CEditData ;
 
 // オブジェクト追加コマンド
 class Command_AddObject : public QUndoCommand
 {
 public:
-	Command_AddObject(CEditImageData *pEditImageData, QString &str);
+	Command_AddObject(CEditData *pEditData, QString &str);
 
 	void undo();
 	void redo();
@@ -34,7 +34,7 @@ private:
 class Command_DelObject : public QUndoCommand
 {
 public:
-	Command_DelObject(CEditImageData *pEditImageData, QModelIndex index, QLabel *pDataMakerLabel) ;
+	Command_DelObject(CEditData *pEditData, QModelIndex index, QLabel *pDataMakerLabel) ;
 
 	void undo();
 	void redo();
@@ -55,7 +55,7 @@ private:
 class Command_AddLayer : public QUndoCommand
 {
 public:
-	Command_AddLayer(CEditImageData *pEditImageData,
+	Command_AddLayer(CEditData *pEditData,
 					 QModelIndex parentIndex,
 					 QStandardItem *pAddItem,
 					 CObjectModel::FrameData frameData,
@@ -80,7 +80,7 @@ private:
 class Command_AddFrameData : public QUndoCommand
 {
 public:
-	Command_AddFrameData(CEditImageData *pEditImageData,
+	Command_AddFrameData(CEditData *pEditData,
 						 CObjectModel::typeID objID,
 						 CObjectModel::typeID layerID,
 						 CObjectModel::FrameData &data,
@@ -103,7 +103,7 @@ private:
 class Command_DelFrameData : public QUndoCommand
 {
 public:
-	Command_DelFrameData(CEditImageData *pEditImageData,
+	Command_DelFrameData(CEditData *pEditData,
 						 CObjectModel::typeID objID,
 						 CObjectModel::typeID layerID,
 						 int frame,
@@ -125,7 +125,7 @@ private:
 class Command_EditFrameData : public QUndoCommand
 {
 public:
-	Command_EditFrameData(CEditImageData			*pEditImageData,
+	Command_EditFrameData(CEditData			*pEditData,
 						  CObjectModel::typeID		objID,
 						  CObjectModel::typeID		layerID,
 						  int						frame,

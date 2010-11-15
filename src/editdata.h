@@ -1,12 +1,12 @@
-#ifndef EDITIMAGEDATA_H
-#define EDITIMAGEDATA_H
+#ifndef EDITDATA_H
+#define EDITDATA_H
 
 #include <QImage>
 #include <QtOpenGL>
 #include <QUndoStack>
 #include "objectmodel.h"
 
-class CEditImageData
+class CEditData
 {
 public:
 	typedef struct {
@@ -17,8 +17,8 @@ public:
 	} ImageData ;
 
 public:
-	CEditImageData() ;
-	~CEditImageData() ;
+	CEditData() ;
+	~CEditData() ;
 
 	void setImageData( QList<ImageData> &data )
 	{
@@ -166,4 +166,4 @@ private:
 	bool					m_bDraggingImage ;
 } ;
 
-#endif // EDITIMAGEDATA_H
+#endif // EDITDATA_H

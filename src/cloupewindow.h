@@ -3,7 +3,7 @@
 
 #include <QtGui>
 #include <QWidget>
-#include "editimagedata.h"
+#include "editdata.h"
 
 class MainWindow ;
 
@@ -11,7 +11,7 @@ class CLoupeWindow : public QWidget
 {
     Q_OBJECT
 public:
-	explicit CLoupeWindow(CEditImageData *pEditImageData, MainWindow *pMainWindow, QWidget *parent = 0);
+	explicit CLoupeWindow(CEditData *pEditData, MainWindow *pMainWindow, QWidget *parent = 0);
 
 signals:
 
@@ -20,7 +20,7 @@ public slots:
 	void slot_changeScale(QString str) ;
 
 private:
-	CEditImageData	*m_pEditImageData ;
+	CEditData		*m_pEditData ;
 	QLabel			*m_pLabel ;
 	MainWindow		*m_pMainWindow ;
 

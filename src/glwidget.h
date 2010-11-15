@@ -2,7 +2,7 @@
 #define GLWIDGET_H
 
 #include <QGLWidget>
-#include "editimagedata.h"
+#include "editdata.h"
 #include "setting.h"
 
 class AnimeGLWidget : public QGLWidget
@@ -17,7 +17,7 @@ public:
 	} ;
 
 public:
-	explicit AnimeGLWidget(CEditImageData *editData, CSettings *pSetting, QWidget *parent = 0);
+	explicit AnimeGLWidget(CEditData *editData, CSettings *pSetting, QWidget *parent = 0);
 
 	GLuint bindTexture(QImage &image) ;
 
@@ -73,7 +73,7 @@ public:
 	}
 
 private:
-	CEditImageData	*m_pEditImageData ;
+	CEditData		*m_pEditData ;
 	CSettings		*m_pSetting ;
 	GLint			m_DrawWidth, m_DrawHeight ;
 	GLint			m_GridWidth, m_GridHeight ;

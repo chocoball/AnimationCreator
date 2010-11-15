@@ -3,7 +3,7 @@
 
 #include <QtGui>
 #include <QWidget>
-#include "editimagedata.h"
+#include "editdata.h"
 #include "glwidget.h"
 #include "cdatamarkerlabel.h"
 
@@ -20,7 +20,7 @@ class AnimationForm : public QWidget
     Q_OBJECT
 
 public:
-	explicit AnimationForm(CEditImageData *pImageData, CSettings *pSetting, QWidget *parent = 0);
+	explicit AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget *parent = 0);
     ~AnimationForm();
 #ifdef LAYOUT_OWN
 	void resizeEvent(QResizeEvent *event) ;
@@ -103,7 +103,7 @@ private:
 
 	AnimeGLWidget		*m_pGlWidget ;
 
-	CEditImageData		*m_pEditImageData ;
+	CEditData			*m_pEditData ;
 	int					m_ObjIndex ;
 
 	QAction				*m_pActTreeViewAdd ;

@@ -4,14 +4,14 @@
 #include <QLabel>
 #include <QPaintEvent>
 #include <QPainter>
-#include "editimagedata.h"
+#include "editdata.h"
 
 class CGridLabel : public QLabel
 {
 	Q_OBJECT
 
 public:
-	explicit CGridLabel(CEditImageData *pImage, int nTabIndex, QWidget *parent = 0) ;
+	explicit CGridLabel(CEditData *pImage, int nTabIndex, QWidget *parent = 0) ;
 
 	void setScale( int scale )			{ mScale		= scale ;	repaint() ; }
 	void setGridSize( QPoint &size )	{ m_GridSize	= size ;	repaint() ; }
@@ -48,7 +48,7 @@ private:
 	bool			bCatching ;			// 範囲選択中ならtrue
 	bool			m_bRectMove ;		// 範囲移動してるならtrue
 	QPoint			m_MovePos ;			// 範囲移動中の座標
-	CEditImageData	*m_pImageData ;		// 編集データ
+	CEditData	*m_pImageData ;		// 編集データ
 
 	QPoint			m_GridSize ;		// グリッドのサイズ
 	bool			m_bCatchable ;		// 範囲選択できるならtrue

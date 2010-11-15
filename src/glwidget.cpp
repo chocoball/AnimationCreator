@@ -1,9 +1,9 @@
 #include "glwidget.h"
 
-AnimeGLWidget::AnimeGLWidget(CEditImageData *editData, CSettings *pSetting, QWidget *parent) :
+AnimeGLWidget::AnimeGLWidget(CEditData *editData, CSettings *pSetting, QWidget *parent) :
     QGLWidget(parent)
 {
-	m_pEditImageData = editData ;
+	m_pEditData = editData ;
 	m_pSetting = pSetting ;
 	m_DrawWidth = m_DrawHeight = 0 ;
 	m_bDrawGrid = true ;
@@ -48,10 +48,10 @@ void AnimeGLWidget::initializeGL()
 
 	glEnable(GL_DEPTH_TEST);
 
-	for ( int i = 0 ; i < m_pEditImageData->getImageDataSize() ; i ++ ) {
-		if ( m_pEditImageData->getTexObj(i) ) { continue ; }
-		GLuint obj = bindTexture(m_pEditImageData->getImage(i)) ;
-		m_pEditImageData->setTexObj(i, obj) ;
+	for ( int i = 0 ; i < m_pEditData->getImageDataSize() ; i ++ ) {
+		if ( m_pEditData->getTexObj(i) ) { continue ; }
+		GLuint obj = bindTexture(m_pEditData->getImage(i)) ;
+		m_pEditData->setTexObj(i, obj) ;
 	}
 }
 
@@ -74,7 +74,7 @@ void AnimeGLWidget::paintGL()
 	glMatrixMode(GL_MODELVIEW) ;
 	glLoadIdentity() ;
 
-	if ( m_pEditImageData ) {
+	if ( m_pEditData ) {
 		drawLayers() ;
 	}
 
@@ -85,18 +85,18 @@ void AnimeGLWidget::paintGL()
 
 void AnimeGLWidget::drawLayers( void )
 {
-	if ( !m_pEditImageData->getSelectObject() ) { return ; }
+	if ( !m_pEditData->getSelectObject() ) { return ; }
 
 	glEnable(GL_TEXTURE_2D) ;
 
-	if ( m_pEditImageData->isPlayAnime() || m_pEditImageData->isPauseAnime() ) {
+	if ( m_pEditData->isPlayAnime() || m_pEditData->isPauseAnime() ) {
 		drawLayers_Anime() ;
 	}
 	else {
 		drawLayers_Normal() ;
 	}
 
-	if ( !m_pEditImageData->isPlayAnime() || m_pEditImageData->isPauseAnime() ) {
+	if ( !m_pEditData->isPlayAnime() || m_pEditData->isPauseAnime() ) {
 		drawSelFrameInfo();
 	}
 
@@ -106,9 +106,9 @@ void AnimeGLWidget::drawLayers( void )
 
 void AnimeGLWidget::drawLayers_Normal()
 {
-	CObjectModel			*pModel		= m_pEditImageData->getObjectModel() ;
-	CObjectModel::typeID	objID		= m_pEditImageData->getSelectObject() ;
-	int						selFrame	= m_pEditImageData->getSelectFrame() ;
+	CObjectModel			*pModel		= m_pEditData->getObjectModel() ;
+	CObjectModel::typeID	objID		= m_pEditData->getSelectObject() ;
+	int						selFrame	= m_pEditData->getSelectFrame() ;
 
 	if ( pModel->getLayerGroupListFromID(objID) == NULL ) { return ; }
 
@@ -143,9 +143,9 @@ void AnimeGLWidget::drawLayers_Normal()
 // アニメ再生中
 void AnimeGLWidget::drawLayers_Anime()
 {
-	CObjectModel *pModel = m_pEditImageData->getObjectModel() ;
-	int frame = m_pEditImageData->getSelectFrame() ;
-	CObjectModel::typeID objID = m_pEditImageData->getSelectObject() ;
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	int frame = m_pEditData->getSelectFrame() ;
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
 	if ( !pModel->getLayerGroupListFromID(objID) ) { return ; }
 
 	const CObjectModel::LayerGroupList &layerGroupList = *pModel->getLayerGroupListFromID(objID) ;
@@ -168,10 +168,10 @@ void AnimeGLWidget::drawLayers_Anime()
 // 選択中フレーム
 void AnimeGLWidget::drawSelFrameInfo( void )
 {
-	CObjectModel			*pModel		= m_pEditImageData->getObjectModel() ;
-	CObjectModel::typeID	objID		= m_pEditImageData->getSelectObject() ;
-	CObjectModel::typeID	layerID		= m_pEditImageData->getSelectLayer() ;
-	int						selFrame	= m_pEditImageData->getSelectFrame() ;
+	CObjectModel			*pModel		= m_pEditData->getObjectModel() ;
+	CObjectModel::typeID	objID		= m_pEditData->getSelectObject() ;
+	CObjectModel::typeID	layerID		= m_pEditData->getSelectLayer() ;
+	int						selFrame	= m_pEditData->getSelectFrame() ;
 
 	const CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(objID, layerID, selFrame) ;
 	if ( !pData ) {
@@ -238,7 +238,7 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 // フレームデータ描画
 void AnimeGLWidget::drawFrameData( const CObjectModel::FrameData &data, QColor col )
 {
-	QImage &Image = m_pEditImageData->getImage(data.nImage) ;
+	QImage &Image = m_pEditData->getImage(data.nImage) ;
 	QRectF rect ;
 	QRect uv = data.getRect() ;
 	QRectF uvF ;
@@ -260,7 +260,7 @@ void AnimeGLWidget::drawFrameData( const CObjectModel::FrameData &data, QColor c
 	uvF.setTop((float)(Image.height()-uv.top())/Image.height());
 	uvF.setBottom((float)(Image.height()-uv.bottom())/Image.height());
 
-	glBindTexture(GL_TEXTURE_2D, m_pEditImageData->getTexObj(data.nImage)) ;
+	glBindTexture(GL_TEXTURE_2D, m_pEditData->getTexObj(data.nImage)) ;
 
 	drawRect(rect, uvF, data.pos_z / 4096.0f, col) ;
 
@@ -319,7 +319,7 @@ void AnimeGLWidget::drawRect(QRectF rc, QRectF uv, float z, QColor col)
 // ドラッグ進入イベント
 void AnimeGLWidget::dragEnterEvent(QDragEnterEvent *event)
 {
-	if ( m_pEditImageData->getObjectModel()->getObjListSize() <= 0 ) {
+	if ( m_pEditData->getObjectModel()->getObjListSize() <= 0 ) {
 		event->ignore();
 		return ;
 	}
@@ -362,14 +362,14 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 {
 	m_bDragging = false ;
 	m_bChangeUV = false ;
-	if ( m_pEditImageData->isPlayAnime() ) { return ; }
+	if ( m_pEditData->isPlayAnime() ) { return ; }
 
 	if ( event->button() == Qt::LeftButton ) {	// 左ボタン
 		QPoint localPos = event->pos() - QPoint(512, 512) ;
 
-		CObjectModel *pModel = m_pEditImageData->getObjectModel() ;
-		CObjectModel::typeID objID = m_pEditImageData->getSelectObject() ;
-		int frame = m_pEditImageData->getSelectFrame() ;
+		CObjectModel *pModel = m_pEditData->getObjectModel() ;
+		CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+		int frame = m_pEditData->getSelectFrame() ;
 		CObjectModel::typeID layerID = pModel->getLayerIDFromFrameAndPos(objID, frame, localPos) ;
 		if ( layerID ) {
 			m_bDragging = true ;
@@ -388,10 +388,10 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 					if ( !pModel->isFrameDataInPos(*data, localPos) ) { continue ; }
 
 					layerID = pLGList->at(i).first ;
-					emit sig_selectPrevLayer(objID, layerID, frame, *data) ;
-
 					m_bDragging = true ;
 					m_DragOffset = event->pos() ;
+
+					emit sig_selectPrevLayer(objID, layerID, frame, *data) ;
 					break ;
 				}
 			}
@@ -402,9 +402,8 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 			if ( p ) {
 				m_rotStart = (float)p->rot_z*M_PI/180.0f ;
 			}
+			emit sig_selectLayerChanged(layerID) ;
 		}
-
-		emit sig_selectLayerChanged(layerID) ;
 	}
 }
 
@@ -412,18 +411,18 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 {
 	if ( m_bDragging ) {	// ドラッグ中
-		CObjectModel::typeID layerID = m_pEditImageData->getSelectLayer() ;
+		CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
 		if ( !layerID ) { return ; }
 
-		CObjectModel *pModel = m_pEditImageData->getObjectModel() ;
-		CObjectModel::typeID objID = m_pEditImageData->getSelectObject() ;
-		int frame = m_pEditImageData->getSelectFrame() ;
+		CObjectModel *pModel = m_pEditData->getObjectModel() ;
+		CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+		int frame = m_pEditData->getSelectFrame() ;
 		CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
 		if ( !pData ) { return ; }
 
 		QPoint sub = event->pos() - m_DragOffset ;
 		if ( m_bPressCtrl ) {	// UV操作
-			QSize imageSize = m_pEditImageData->getImage(pData->nImage).size() ;
+			QSize imageSize = m_pEditData->getImage(pData->nImage).size() ;
 			pData->left		+= sub.x() ;
 			pData->right	+= sub.x() ;
 			pData->top		+= sub.y() ;
@@ -493,10 +492,10 @@ void AnimeGLWidget::mouseReleaseEvent(QMouseEvent *event)
 {
 	Q_UNUSED(event) ;
 	if ( m_bDragging ) {	// ドラッグ中
-		CObjectModel *pModel = m_pEditImageData->getObjectModel() ;
-		CObjectModel::typeID layerID = m_pEditImageData->getSelectLayer() ;
-		CObjectModel::typeID objID = m_pEditImageData->getSelectObject() ;
-		int frame = m_pEditImageData->getSelectFrame() ;
+		CObjectModel *pModel = m_pEditData->getObjectModel() ;
+		CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
+		CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+		int frame = m_pEditData->getSelectFrame() ;
 		CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
 
 		if ( pData ) {
@@ -510,10 +509,10 @@ void AnimeGLWidget::mouseReleaseEvent(QMouseEvent *event)
 // 右クリックメニューイベント
 void AnimeGLWidget::contextMenuEvent(QContextMenuEvent *event)
 {
-	if ( m_pEditImageData->getSelectLayer() == 0 ) {
+	if ( m_pEditData->getSelectLayer() == 0 ) {
 		return ;
 	}
-	qDebug() << "select layer:" << m_pEditImageData->getSelectLayer() ;
+	qDebug() << "select layer:" << m_pEditData->getSelectLayer() ;
 
 	QMenu menu(this) ;
 	menu.addAction(m_pActDel) ;

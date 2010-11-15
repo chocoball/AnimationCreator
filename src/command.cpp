@@ -3,11 +3,11 @@
 /**
   オブジェクト追加コマンド
   */
-Command_AddObject::Command_AddObject(CEditImageData *pEditImageData, QString &str)
+Command_AddObject::Command_AddObject(CEditData *pEditData, QString &str)
 {
 	m_strObjName = str ;
-	m_pObjModel = pEditImageData->getObjectModel() ;
-	m_pTreeModel = pEditImageData->getTreeModel() ;
+	m_pObjModel = pEditData->getObjectModel() ;
+	m_pTreeModel = pEditData->getTreeModel() ;
 	m_pItem = NULL ;
 
 	m_pItem = new QStandardItem(m_strObjName) ;
@@ -56,10 +56,10 @@ void Command_AddObject::redo()
 /**
   オブジェクト削除コマンド
   */
-Command_DelObject::Command_DelObject(CEditImageData *pEditImageData, QModelIndex index, QLabel *pDataMakerLabel)
+Command_DelObject::Command_DelObject(CEditData *pEditData, QModelIndex index, QLabel *pDataMakerLabel)
 {
-	m_pObjModel = pEditImageData->getObjectModel() ;
-	m_pTreeModel = pEditImageData->getTreeModel() ;
+	m_pObjModel = pEditData->getObjectModel() ;
+	m_pTreeModel = pEditData->getTreeModel() ;
 	m_ItemIndex = index ;
 	m_pDataMarkerLabel = pDataMakerLabel ;
 }
@@ -119,14 +119,14 @@ void Command_DelObject::redo()
 /**
   レイヤ追加コマンド
   */
-Command_AddLayer::Command_AddLayer(CEditImageData *pEditImageData,
+Command_AddLayer::Command_AddLayer(CEditData *pEditData,
 								   QModelIndex objIndex,
 								   QStandardItem *pAddItem,
 								   CObjectModel::FrameData frameData,
 								   QList<QWidget *> &updateWidget)
 {
-	m_pObjModel = pEditImageData->getObjectModel() ;
-	m_pTreeModel = pEditImageData->getTreeModel() ;
+	m_pObjModel = pEditData->getObjectModel() ;
+	m_pTreeModel = pEditData->getTreeModel() ;
 	m_ObjIndex = objIndex ;
 	m_pAddItem = pAddItem ;
 	m_LayerGroup.first = pAddItem ;
@@ -183,13 +183,13 @@ void Command_AddLayer::redo()
 /**
   フレームデータ追加コマンド
   */
-Command_AddFrameData::Command_AddFrameData(CEditImageData *pEditImageData,
+Command_AddFrameData::Command_AddFrameData(CEditData *pEditData,
 										   CObjectModel::typeID objID,
 										   CObjectModel::typeID layerID,
 										   CObjectModel::FrameData &data,
 										   QList<QWidget *> &updateWidget)
 {
-	m_pObjModel = pEditImageData->getObjectModel() ;
+	m_pObjModel = pEditData->getObjectModel() ;
 	m_objID = objID ;
 	m_layerID = layerID ;
 	m_FrameData = data ;
@@ -228,13 +228,13 @@ void Command_AddFrameData::redo()
 /**
   フレームデータ削除コマンド
   */
-Command_DelFrameData::Command_DelFrameData(CEditImageData *pEditImageData,
+Command_DelFrameData::Command_DelFrameData(CEditData *pEditData,
 					 CObjectModel::typeID objID,
 					 CObjectModel::typeID layerID,
 					 int frame,
 					 QList<QWidget *> &updateWidget)
 {
-	m_pObjModel = pEditImageData->getObjectModel() ;
+	m_pObjModel = pEditData->getObjectModel() ;
 	m_objID = objID ;
 	m_layerID = layerID ;
 	m_FrameData.frame = frame ;
@@ -286,7 +286,7 @@ void Command_DelFrameData::redo()
 /**
   フレームデータ編集コマンド
   */
-Command_EditFrameData::Command_EditFrameData(CEditImageData				*pEditImageData,
+Command_EditFrameData::Command_EditFrameData(CEditData				*pEditData,
 											 CObjectModel::typeID		objID,
 											 CObjectModel::typeID		layerID,
 											 int						frame,
@@ -294,7 +294,7 @@ Command_EditFrameData::Command_EditFrameData(CEditImageData				*pEditImageData,
 											 QList<QWidget *>			&updateWidget,
 											 int						id)
 {
-	m_pObjModel = pEditImageData->getObjectModel() ;
+	m_pObjModel = pEditData->getObjectModel() ;
 	m_objID		= objID ;
 	m_layerID	= layerID ;
 	m_Frame		= frame ;

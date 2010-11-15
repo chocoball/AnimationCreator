@@ -1,10 +1,10 @@
 #include <QtGui>
 #include "cdatamarkerlabel.h"
 
-CDataMarkerLabel::CDataMarkerLabel(CEditImageData *pEditImageData, QWidget *parent) :
+CDataMarkerLabel::CDataMarkerLabel(CEditData *pEditData, QWidget *parent) :
     QLabel(parent)
 {
-	m_pEditImageData = pEditImageData ;
+	m_pEditData = pEditData ;
 }
 
 
@@ -12,8 +12,8 @@ void CDataMarkerLabel::paintEvent(QPaintEvent */*event*/)
 {
 	QPainter painter(this) ;
 
-	CObjectModel *pModel = m_pEditImageData->getObjectModel() ;
-	CObjectModel::LayerGroupList *pLayerGroupList = pModel->getLayerGroupListFromID(m_pEditImageData->getSelectObject()) ;
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	CObjectModel::LayerGroupList *pLayerGroupList = pModel->getLayerGroupListFromID(m_pEditData->getSelectObject()) ;
 	if ( !pLayerGroupList ) { return ; }
 
 	painter.setPen(QPen(QColor(255, 0, 0)));

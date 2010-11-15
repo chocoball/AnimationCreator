@@ -2,13 +2,13 @@
 #define CDATAMARKERLABEL_H
 
 #include <QLabel>
-#include "editimagedata.h"
+#include "editdata.h"
 
 class CDataMarkerLabel : public QLabel
 {
     Q_OBJECT
 public:
-	explicit CDataMarkerLabel(CEditImageData *pEditImageData, QWidget *parent = 0);
+	explicit CDataMarkerLabel(CEditData *pEditData, QWidget *parent = 0);
 
 signals:
 
@@ -18,7 +18,7 @@ protected:
 	void paintEvent(QPaintEvent *event);
 
 private:
-	CEditImageData		*m_pEditImageData ;
+	CEditData		*m_pEditData ;
 };
 
 #endif // CDATAMARKERLABEL_H

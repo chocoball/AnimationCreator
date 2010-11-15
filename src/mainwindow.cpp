@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 	connect(m_pMdiArea, SIGNAL(dropFiles(QString)), this, SLOT(slot_dropFiles(QString))) ;
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(slot_checkFileModified())) ;
-	QUndoStack *pUndoStack = m_EditImageData.getUndoStack() ;
+	QUndoStack *pUndoStack = m_EditData.getUndoStack() ;
 	connect(pUndoStack, SIGNAL(indexChanged(int)), this, SLOT(slot_checkDataModified(int))) ;
 
 	m_UndoIndex = 0 ;
@@ -125,15 +125,15 @@ void MainWindow::slot_dropFiles(QString fileName)
 // 読み込んでるイメージデータの最終更新日時をチェック
 void MainWindow::slot_checkFileModified( void )
 {
-	for ( int i = 0 ; i < m_EditImageData.getImageDataSize() ; i ++ ) {
-		QString fullPath = m_EditImageData.getImageFileName(i) ;
+	for ( int i = 0 ; i < m_EditData.getImageDataSize() ; i ++ ) {
+		QString fullPath = m_EditData.getImageFileName(i) ;
 		QFileInfo info(fullPath) ;
 		if ( !info.isFile() ) { continue ; }
 		if ( !info.lastModified().isValid() ) { continue ; }
-		if ( info.lastModified().toUTC() <= m_EditImageData.getImageDataLastModified(i) ) { continue ; }
+		if ( info.lastModified().toUTC() <= m_EditData.getImageDataLastModified(i) ) { continue ; }
 
 		QDateTime time = info.lastModified().toUTC() ;
-		m_EditImageData.setImageDataLastModified(i, time);
+		m_EditData.setImageDataLastModified(i, time);
 
 		QMessageBox::StandardButton reply = QMessageBox::question(this,
 																  trUtf8("質問"),
@@ -148,7 +148,7 @@ void MainWindow::slot_checkFileModified( void )
 			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(info.fileName())) ;
 			continue ;
 		}
-		m_EditImageData.setImage(i, image) ;
+		m_EditData.setImage(i, image) ;
 		emit sig_modifiedImageFile(i) ;
 	}
 }
@@ -307,7 +307,7 @@ void MainWindow::createActions( void )
 	connect(m_pActExit, SIGNAL(triggered()), this, SLOT(close())) ;
 
 	// 戻す
-	QUndoStack *pStack = m_EditImageData.getUndoStack() ;
+	QUndoStack *pStack = m_EditData.getUndoStack() ;
 	m_pActUndo = pStack->createUndoAction(this, trUtf8("&Undo")) ;
 	m_pActUndo->setShortcuts(QKeySequence::Undo);
 
@@ -474,7 +474,7 @@ bool MainWindow::fileOpen( QString fileName )
 	if ( m_pMdiArea->currentSubWindow() ) {
 		m_pMdiArea->closeAllSubWindows() ;	// 全部閉じる
 	}
-	m_EditImageData.resetData();
+	m_EditData.resetData();
 	m_UndoIndex = 0 ;
 
 	// アニメファイル
@@ -491,7 +491,7 @@ bool MainWindow::fileOpen( QString fileName )
 		QDomDocument xml ;
 		xml.setContent(&file) ;
 		data.setFilePath(fileName);
-		if ( !data.makeFromFile(xml, m_EditImageData) ) {
+		if ( !data.makeFromFile(xml, m_EditData) ) {
 			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(data.getErrorString()) )  ;
 			return false ;
 		}
@@ -499,7 +499,7 @@ bool MainWindow::fileOpen( QString fileName )
 		QDataStream in(&file) ;
 		dataArray.resize(file.size());
 		in.readRawData(dataArray.data(), file.size()) ;
-		if ( !data.makeFromFile(dataArray, m_EditImageData) ) {
+		if ( !data.makeFromFile(dataArray, m_EditData) ) {
 			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(data.getErrorNo()) )  ;
 			return false ;
 		}
@@ -508,7 +508,7 @@ bool MainWindow::fileOpen( QString fileName )
 	}
 	// 画像ファイル
 	else {
-		CEditImageData::ImageData data ;
+		CEditData::ImageData data ;
 		QImage imageData ;
 		if ( !imageData.load(fileName) ) {
 			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(fileName)) ;
@@ -520,7 +520,7 @@ bool MainWindow::fileOpen( QString fileName )
 		data.fileName		= fileName ;
 		data.nTexObj		= 0 ;
 		data.lastModified	= QDateTime::currentDateTimeUtc() ;
-		m_EditImageData.addImageData(data);
+		m_EditData.addImageData(data);
 
 		m_StrSaveFileName = QString() ;
 	}
@@ -546,7 +546,7 @@ bool MainWindow::saveFile( QString fileName )
 		data.setFilePath(fileName);
 
 		QApplication::setOverrideCursor(Qt::WaitCursor);
-		if ( !data.makeFromEditImageData(m_EditImageData) ) {
+		if ( !data.makeFromEditData(m_EditData) ) {
 			if ( data.getErrorNo() != CAnm2DBase::kErrorNo_Cancel ) {
 				QMessageBox::warning(this, trUtf8("エラー"),
 									 trUtf8("コンバート失敗 %1:\n%2").arg(fileName).arg(data.getErrorNo())) ;
@@ -571,7 +571,7 @@ bool MainWindow::saveFile( QString fileName )
 #endif
 		QApplication::restoreOverrideCursor();
 
-		m_UndoIndex = m_EditImageData.getUndoStack()->index() ;
+		m_UndoIndex = m_EditData.getUndoStack()->index() ;
 		setWindowTitle(tr("Animation Creator[%1]").arg(fileName));
 		return true ;
 	}
@@ -583,7 +583,7 @@ bool MainWindow::saveFile( QString fileName )
 // キャンセルならfalse
 bool MainWindow::checkChangedFileSave( void )
 {
-	QUndoStack *p = m_EditImageData.getUndoStack() ;
+	QUndoStack *p = m_EditData.getUndoStack() ;
 	if ( p->index() != m_UndoIndex ) {
 		QMessageBox::StandardButton reply = QMessageBox::question(this, trUtf8("確認"), trUtf8("現在のファイルを保存しますか？"),
 																  QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel) ;
@@ -601,7 +601,7 @@ bool MainWindow::checkChangedFileSave( void )
 // イメージウィンドウ作成
 void MainWindow::makeImageWindow( void )
 {
-	m_pImageWindow = new ImageWindow( &setting, &m_EditImageData, m_pAnimationForm, this, m_pMdiArea ) ;
+	m_pImageWindow = new ImageWindow( &setting, &m_EditData, m_pAnimationForm, this, m_pMdiArea ) ;
 	m_pMdiArea->addSubWindow(m_pImageWindow) ;
 	m_pImageWindow->show();
 
@@ -615,7 +615,7 @@ void MainWindow::makeImageWindow( void )
 // ルーペウィンドウ作成
 void MainWindow::makeLoupeWindow( void )
 {
-	m_pLoupeWindow = new CLoupeWindow(&m_EditImageData, this, m_pMdiArea) ;
+	m_pLoupeWindow = new CLoupeWindow(&m_EditData, this, m_pMdiArea) ;
 	m_pMdiArea->addSubWindow( m_pLoupeWindow ) ;
 	m_pLoupeWindow->show();
 
@@ -626,7 +626,7 @@ void MainWindow::makeLoupeWindow( void )
 // アニメーションフォーム作成
 void MainWindow::makeAnimeWindow( void )
 {
-	m_pAnimationForm = new AnimationForm( &m_EditImageData, &setting, m_pMdiArea ) ;
+	m_pAnimationForm = new AnimationForm( &m_EditData, &setting, m_pMdiArea ) ;
 	m_pMdiArea->addSubWindow( m_pAnimationForm ) ;
 	m_pAnimationForm->show();
 	m_pAnimationForm->setBarCenter();

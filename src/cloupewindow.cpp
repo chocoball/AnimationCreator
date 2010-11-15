@@ -3,10 +3,10 @@
 #include "cloupewindow.h"
 #include "mainwindow.h"
 
-CLoupeWindow::CLoupeWindow(CEditImageData *pEditImageData, MainWindow *pMainWindow, QWidget *parent) :
+CLoupeWindow::CLoupeWindow(CEditData *pEditData, MainWindow *pMainWindow, QWidget *parent) :
     QWidget(parent)
 {
-	m_pEditImageData = pEditImageData ;
+	m_pEditData = pEditData ;
 	m_pMainWindow = pMainWindow ;
 
 	QLabel *pLabelScale = new QLabel(trUtf8("倍率"), this) ;
@@ -42,7 +42,7 @@ CLoupeWindow::CLoupeWindow(CEditImageData *pEditImageData, MainWindow *pMainWind
 
 void CLoupeWindow::slot_cursorScreenShort()
 {
-	if ( m_pEditImageData->isDraggingImage() ) {
+	if ( m_pEditData->isDraggingImage() ) {
 		return ;
 	}
 
@@ -52,7 +52,7 @@ void CLoupeWindow::slot_cursorScreenShort()
 	int i, j ;
 	QImage image = pix.scaled(QSize(200, 200)).toImage() ;
 
-	// ウィンドウからはみ出した場合、色を0に。
+	// ウィンドウからはみ出した場合、色を0に
 	for ( i = 0 ; i < -(pos.x()-50)*2 ; i ++ ) {
 		for ( j = 0 ; j < 200 ; j ++ ) {
 			image.setPixel(i, j, 0);
