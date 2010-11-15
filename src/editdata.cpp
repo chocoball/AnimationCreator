@@ -54,8 +54,8 @@ void CEditData::initData( void )
 	}
 
 	m_SelectObject		= 0 ;
-	m_SelectLayer		= 0 ;
 	m_SelectFrame		= 0 ;
+	m_SelectLayer.clear();
 
 	m_bPlayAnime		= false ;
 	m_bPauseAnime		= false ;

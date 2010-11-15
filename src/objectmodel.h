@@ -76,9 +76,23 @@ public:
 			return v ;
 		}
 
-		void getMatrix( float m[16] )
+		void getVertexApplyMatrix(QVector3D ret[4]) const
 		{
+			Vertex v = getVertex() ;
+			ret[0] = QVector3D(v.x0, v.y0, 0) ;		// left-up
+			ret[1] = QVector3D(v.x1, v.y0, 0) ;		// right-up
+			ret[2] = QVector3D(v.x0, v.y1, 0) ;		// left-down
+			ret[3] = QVector3D(v.x1, v.y1, 0) ;		// right-down
 
+			QMatrix4x4 m ;
+			m.setToIdentity();
+			m.translate(pos_x, pos_y, pos_z/4096.0f);
+			m.rotate(rot_x, 1, 0, 0);
+			m.rotate(rot_y, 0, 1, 0);
+			m.rotate(rot_z, 0, 0, 1);
+			for ( int i = 0 ; i < 4 ; i ++ ) {
+				ret[i] = m * ret[i] ;
+			}
 		}
 
 		struct _tagFrameData getInterpolation(const struct _tagFrameData *pNext, int nowFrame) const
@@ -120,6 +134,7 @@ public:
 	virtual ~CObjectModel() ;
 
 	bool isFrameDataInPos( const FrameData &data, QPoint pos ) ;
+	bool isFrameDataInRect( const FrameData &data, QRect rect ) ;
 
 	const ObjectList &getObjectList( void ) { return m_ObjectList ; }
 	ObjectList		*getObjectListPtr( void ) { return &m_ObjectList ; }
@@ -130,6 +145,7 @@ public:
 	typeID			getLayerIDFromFrameAndPos( typeID objID, int frame, QPoint pos ) ;
 	FrameData		*getFrameDataFromPrevFrame( typeID objID, typeID layerID, int nowFrame, bool bRepeat = false ) ;
 	FrameData		*getFrameDataFromNextFrame( typeID objID, typeID layerID, int nowFrame ) ;
+	QList<typeID>	getFrameDatasFromRect( typeID objID, int frame, QRect rect ) ;
 
 	int getObjListSize() { return m_ObjectList.size() ; }
 

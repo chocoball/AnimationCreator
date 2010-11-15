@@ -405,7 +405,9 @@ void AnimationForm::slot_dropedImage( QRect rect, QPoint pos, int imageIndex )
 	updateWidget << m_pDataMarker ;
 	m_pEditData->cmd_addNewLayer(index, newItem, frameData, updateWidget) ;
 
-	m_pEditData->setSelectLayer(newItem);
+	QList<CObjectModel::typeID> list ;
+	list << newItem ;
+	m_pEditData->setSelectLayer(list);
 	slot_setUI(frameData);
 #else
 	pParentItem->appendRow(newItem);
@@ -451,7 +453,9 @@ void AnimationForm::slot_frameChanged(int frame)
 // 選択レイヤ変更
 void AnimationForm::slot_selectLayerChanged( CObjectModel::typeID layerID )
 {
-	m_pEditData->setSelectLayer(layerID);
+	QList<CObjectModel::typeID> list ;
+	list << layerID ;
+	m_pEditData->setSelectLayer(list);
 
 	QStandardItem *item = (QStandardItem *)layerID ;
 	if ( item ) {
@@ -694,8 +698,9 @@ void AnimationForm::slot_treeViewDoubleClicked(QModelIndex index)
 // 選択オブジェクト変更
 void AnimationForm::slot_changeSelectObject(QModelIndex index)
 {
+	QList<CObjectModel::typeID> list ;
 	m_pEditData->setSelectObject(0);
-	m_pEditData->setSelectLayer(0);
+	m_pEditData->setSelectLayer(list);
 
 	if ( !index.isValid() ) { return ; }
 
@@ -705,8 +710,9 @@ void AnimationForm::slot_changeSelectObject(QModelIndex index)
 	}
 	else {		// レイヤ選択
 		qDebug("select Layer:%d parent:%d", index.row(), index.parent().row()) ;
+		list << m_pEditData->getTreeModel()->itemFromIndex(index) ;
 		m_pEditData->setSelectObject(m_pEditData->getTreeModel()->itemFromIndex(index.parent()));
-		m_pEditData->setSelectLayer(m_pEditData->getTreeModel()->itemFromIndex(index));
+		m_pEditData->setSelectLayer(list);
 
 		CObjectModel *pModel = m_pEditData->getObjectModel() ;
 		CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(m_pEditData->getSelectObject(),

@@ -9,11 +9,19 @@ class AnimeGLWidget : public QGLWidget
 {
     Q_OBJECT
 public:
+	// 編集モード
 	enum {
-		kEditMode_Pos = 0,
-		kEditMode_Rot,
-		kEditMode_Center,
-		kEditMode_Scale,
+		kEditMode_Pos = 0,		///< 位置編集中
+		kEditMode_Rot,			///< 回転角編集中
+		kEditMode_Center,		///< 中心位置編集中
+		kEditMode_Scale,		///< 拡縮編集中
+	} ;
+
+	// ドラッグモード
+	enum {
+		kDragMode_None = 0,		///< なんもない
+		kDragMode_Edit,			///< 編集モード
+		kDragMode_SelPlural,	///< レイヤ複数選択モード
 	} ;
 
 public:
@@ -60,6 +68,8 @@ protected:
 	void keyPressEvent(QKeyEvent *event) ;
 	void keyReleaseEvent(QKeyEvent *event);
 
+	QPoint editData(CObjectModel::FrameData *pData, QPoint nowPos, QPoint oldPos) ;
+
 public:
 	void setDrawArea( int w, int h ) ;
 	void setGridSpace( int w, int h )
@@ -79,16 +89,17 @@ private:
 	GLint			m_GridWidth, m_GridHeight ;
 
 	bool			m_bDrawGrid ;				///< グリッド描画するならtrue
-	bool			m_bDragging ;				///< ドラッグ中ならtrue
-	bool			m_bChangeUV ;				///< UV変更中ならtrue
-
 	bool			m_bPressCtrl ;				///< Ctrlが押されてたらtrue
+	bool			m_bPressShift ;				///< Shiftが押されてたらtrue
 
 	QPoint			m_DragOffset ;
+	QPoint			m_SelPluralStartPos ;		///< レイヤ複数選択開始位置
+	QPoint			m_SelPluralEndPos ;			///< レイヤ複数選択終了位置
 
 	QAction			*m_pActDel ;
 
-	int				m_editMode ;
+	int				m_editMode ;				///< 編集モード kEditMode_~
+	int				m_dragMode ;				///< ドラッグモード kDragMode_~
 
 	float			m_rotStart ;				///< 回転変更時の開始ラジアン
 };

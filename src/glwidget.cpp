@@ -7,9 +7,8 @@ AnimeGLWidget::AnimeGLWidget(CEditData *editData, CSettings *pSetting, QWidget *
 	m_pSetting = pSetting ;
 	m_DrawWidth = m_DrawHeight = 0 ;
 	m_bDrawGrid = true ;
-	m_bDragging = false ;
-	m_bChangeUV = false ;
-	m_bPressCtrl = 0 ;
+	m_bPressCtrl = false ;
+	m_bPressShift = false ;
 	setGridSpace( 16, 16 );
 
 	setAcceptDrops(true) ;
@@ -20,6 +19,7 @@ AnimeGLWidget::AnimeGLWidget(CEditData *editData, CSettings *pSetting, QWidget *
 	connect(m_pActDel, SIGNAL(triggered()), this, SLOT(slot_actDel())) ;
 
 	m_editMode = kEditMode_Pos ;
+	m_dragMode = kDragMode_None ;
 }
 
 GLuint AnimeGLWidget::bindTexture(QImage &image)
@@ -170,13 +170,8 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 {
 	CObjectModel			*pModel		= m_pEditData->getObjectModel() ;
 	CObjectModel::typeID	objID		= m_pEditData->getSelectObject() ;
-	CObjectModel::typeID	layerID		= m_pEditData->getSelectLayer() ;
+	CObjectModel::typeID	layerID		= 0 ;
 	int						selFrame	= m_pEditData->getSelectFrame() ;
-
-	const CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(objID, layerID, selFrame) ;
-	if ( !pData ) {
-		return ;
-	}
 
 	glDisable(GL_TEXTURE_2D) ;
 	glDisable(GL_ALPHA_TEST);
@@ -190,21 +185,32 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 	else {
 		col = QColor(255, 0, 0, 255) ;
 	}
-	const Vertex v = pData->getVertex() ;
 
-	glPushMatrix();
-		glTranslatef(pData->pos_x, pData->pos_y, pData->pos_z / 4096.0f);
-		glRotatef(pData->rot_x, 1, 0, 0);
-		glRotatef(pData->rot_y, 0, 1, 0);
-		glRotatef(pData->rot_z, 0, 0, 1);
+	for ( int i = 0 ; i < m_pEditData->getSelectLayerNum() ; i ++ ) {
+		layerID = m_pEditData->getSelectLayer(i) ;
+		if ( !layerID ) { continue ; }
 
-		drawLine(QPoint(v.x0, v.y0), QPoint(v.x0, v.y1), col, 0);
-		drawLine(QPoint(v.x1, v.y0), QPoint(v.x1, v.y1), col, 0);
-		drawLine(QPoint(v.x0, v.y0), QPoint(v.x1, v.y0), col, 0);
-		drawLine(QPoint(v.x0, v.y1), QPoint(v.x1, v.y1), col, 0);
-	glPopMatrix();
+		const CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(objID, layerID, selFrame) ;
+		if ( !pData ) { continue ; }
 
-	if ( m_bDragging && !m_bPressCtrl ) {
+		const Vertex v = pData->getVertex() ;
+
+		glPushMatrix();
+			glTranslatef(pData->pos_x, pData->pos_y, pData->pos_z / 4096.0f);
+			glRotatef(pData->rot_x, 1, 0, 0);
+			glRotatef(pData->rot_y, 0, 1, 0);
+			glRotatef(pData->rot_z, 0, 0, 1);
+
+			drawLine(QPoint(v.x0, v.y0), QPoint(v.x0, v.y1), col, 0);
+			drawLine(QPoint(v.x1, v.y0), QPoint(v.x1, v.y1), col, 0);
+			drawLine(QPoint(v.x0, v.y0), QPoint(v.x1, v.y0), col, 0);
+			drawLine(QPoint(v.x0, v.y1), QPoint(v.x1, v.y1), col, 0);
+		glPopMatrix();
+
+		if ( (m_dragMode != kDragMode_Edit) || m_bPressCtrl ) {
+			continue ;
+		}
+
 		switch ( m_editMode ) {
 		case kEditMode_Rot:
 			glEnable(GL_LINE_STIPPLE);
@@ -229,6 +235,19 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 			break ;
 		}
 	}
+
+	// レイヤ複数選択中のマウス枠
+	if ( m_dragMode == kDragMode_SelPlural ) {
+		drawLine(QPoint(m_SelPluralStartPos.x(), m_SelPluralStartPos.y()),
+				 QPoint(m_SelPluralStartPos.x(), m_SelPluralEndPos.y()), col, 0);
+		drawLine(QPoint(m_SelPluralStartPos.x(), m_SelPluralStartPos.y()),
+				 QPoint(m_SelPluralEndPos.x(), m_SelPluralStartPos.y()), col, 0);
+		drawLine(QPoint(m_SelPluralEndPos.x(), m_SelPluralEndPos.y()),
+				 QPoint(m_SelPluralEndPos.x(), m_SelPluralStartPos.y()), col, 0);
+		drawLine(QPoint(m_SelPluralEndPos.x(), m_SelPluralEndPos.y()),
+				 QPoint(m_SelPluralStartPos.x(), m_SelPluralEndPos.y()), col, 0);
+	}
+
 
 	glEnable(GL_ALPHA_TEST);
 	glEnable(GL_DEPTH_TEST);
@@ -360,8 +379,7 @@ void AnimeGLWidget::dropEvent(QDropEvent *event)
 // マウス押し直後イベント
 void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 {
-	m_bDragging = false ;
-	m_bChangeUV = false ;
+	m_dragMode = kDragMode_None ;
 	if ( m_pEditData->isPlayAnime() ) { return ; }
 
 	if ( event->button() == Qt::LeftButton ) {	// 左ボタン
@@ -371,11 +389,10 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 		CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
 		int frame = m_pEditData->getSelectFrame() ;
 		CObjectModel::typeID layerID = pModel->getLayerIDFromFrameAndPos(objID, frame, localPos) ;
-		if ( layerID ) {
-			m_bDragging = true ;
-			m_DragOffset = event->pos() ;
-		}
-		else {
+
+		m_DragOffset = event->pos() ;
+
+		if ( !layerID ) {
 			// 前フレームを調べる
 			CObjectModel::LayerGroupList *pLGList = pModel->getLayerGroupListFromID(objID) ;
 			if ( pLGList ) {
@@ -388,8 +405,6 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 					if ( !pModel->isFrameDataInPos(*data, localPos) ) { continue ; }
 
 					layerID = pLGList->at(i).first ;
-					m_bDragging = true ;
-					m_DragOffset = event->pos() ;
 
 					emit sig_selectPrevLayer(objID, layerID, frame, *data) ;
 					break ;
@@ -397,12 +412,20 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 			}
 		}
 
-		if ( m_bDragging ) {
+		if ( layerID ) {
 			CObjectModel::FrameData *p = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
 			if ( p ) {
 				m_rotStart = (float)p->rot_z*M_PI/180.0f ;
 			}
-			emit sig_selectLayerChanged(layerID) ;
+			if ( m_pEditData->getSelectLayerNum() <= 1 ) {
+				emit sig_selectLayerChanged(layerID) ;
+			}
+
+			m_dragMode = kDragMode_Edit ;
+		}
+		else {
+			m_dragMode = kDragMode_SelPlural ;
+			m_SelPluralStartPos = m_SelPluralEndPos = event->pos() - QPoint(512, 512) ;
 		}
 	}
 }
@@ -410,100 +433,87 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 // マウス移動中イベント
 void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 {
-	if ( m_bDragging ) {	// ドラッグ中
-		CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
-		if ( !layerID ) { return ; }
+	CObjectModel::typeID layerID = 0 ;
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	int frame = m_pEditData->getSelectFrame() ;
+	CObjectModel::FrameData *pData = NULL ;
 
-		CObjectModel *pModel = m_pEditData->getObjectModel() ;
-		CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
-		int frame = m_pEditData->getSelectFrame() ;
-		CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
-		if ( !pData ) { return ; }
-
-		QPoint sub = event->pos() - m_DragOffset ;
-		if ( m_bPressCtrl ) {	// UV操作
-			QSize imageSize = m_pEditData->getImage(pData->nImage).size() ;
-			pData->left		+= sub.x() ;
-			pData->right	+= sub.x() ;
-			pData->top		+= sub.y() ;
-			pData->bottom	+= sub.y() ;
-			if ( pData->left < 0 ) {
-				pData->right -= pData->left ;
-				pData->left = 0 ;
-			}
-			if ( pData->right > imageSize.width()-1 ) {
-				pData->left -= pData->right-(imageSize.width()-1) ;
-				pData->right = imageSize.width()-1 ;
-			}
-			if ( pData->top < 0 ) {
-				pData->bottom -= pData->top ;
-				pData->top = 0 ;
-			}
-			if ( pData->bottom > imageSize.height()-1 ) {
-				pData->top -= pData->bottom-(imageSize.height()-1) ;
-				pData->bottom = imageSize.height()-1 ;
-			}
-			m_DragOffset = event->pos() ;
+	switch ( m_dragMode ) {
+	case kDragMode_Edit:
+		if ( !m_pEditData->getSelectLayerNum() ) {
+			return ;
 		}
-		else {
-			switch ( m_editMode ) {
-				case kEditMode_Pos:
-					pData->pos_x += sub.x() ;
-					pData->pos_y += sub.y() ;
-					break ;
-				case kEditMode_Rot:
-					{
-						QVector2D vOld = QVector2D(m_DragOffset-QPoint(512, 512) - QPoint(pData->pos_x, pData->pos_y)) ;
-						QVector2D vNow = QVector2D(event->pos()-QPoint(512, 512) - QPoint(pData->pos_x, pData->pos_y)) ;
-						vOld.normalize();
-						vNow.normalize();
-						float old = atan2(vOld.y(), vOld.x()) ;
-						float now = atan2(vNow.y(), vNow.x()) ;
-						now -= old ;
-						if ( now >= M_PI*2 ) { now -= M_PI*2 ; }
-						if ( now < -M_PI*2 ) { now += M_PI*2 ; }
-						now += m_rotStart ;
-						if ( now >= M_PI*2 ) { now -= M_PI*2 ; }
-						if ( now < -M_PI*2 ) { now += M_PI*2 ; }
-						pData->rot_z = now*180.0f/M_PI ;
-					}
-					break ;
-				case kEditMode_Center:
-					pData->center_x += sub.x() ;
-					pData->center_y += sub.y() ;
-					break ;
-				case kEditMode_Scale:
-					pData->fScaleX += (float)sub.x() * 0.01f ;
-					pData->fScaleY += (float)sub.y() * 0.01f ;
-					break ;
-			}
-			if ( m_editMode != kEditMode_Rot ) {
-				m_DragOffset = event->pos() ;
+
+		{
+			QPoint old = m_DragOffset ;
+			for ( int i = 0 ; i < m_pEditData->getSelectLayerNum() ; i ++ ) {
+				layerID = m_pEditData->getSelectLayer(i) ;
+				if ( !layerID ) { continue ; }
+				pData = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
+				if ( !pData ) { continue ; }
+
+				QPoint ret = editData(pData, event->pos(), old) ;
+				if ( !i ) {
+					m_DragOffset = ret ;
+					emit sig_dragedImage(*pData) ;
+				}
 			}
 		}
+
 		update() ;
-
-		emit sig_dragedImage(*pData) ;
+		break ;
+	case kDragMode_SelPlural:
+		{
+			m_SelPluralEndPos = event->pos() - QPoint(512, 512) ;
+			QRect rc ;
+			rc.setLeft(m_SelPluralStartPos.x()<m_SelPluralEndPos.x()?m_SelPluralStartPos.x():m_SelPluralEndPos.x());
+			rc.setRight(m_SelPluralStartPos.x()<m_SelPluralEndPos.x()?m_SelPluralEndPos.x():m_SelPluralStartPos.x());
+			rc.setTop(m_SelPluralStartPos.y()<m_SelPluralEndPos.y()?m_SelPluralStartPos.y():m_SelPluralEndPos.y());
+			rc.setBottom(m_SelPluralStartPos.y()<m_SelPluralEndPos.y()?m_SelPluralEndPos.y():m_SelPluralStartPos.y());
+			QList<CObjectModel::typeID> selLayers = pModel->getFrameDatasFromRect(objID, frame, rc) ;
+			m_pEditData->setSelectLayer(selLayers);
+			update() ;
+		}
+		break ;
 	}
+
 }
 
 // マウスボタン離し直後イベント
 void AnimeGLWidget::mouseReleaseEvent(QMouseEvent *event)
 {
 	Q_UNUSED(event) ;
-	if ( m_bDragging ) {	// ドラッグ中
-		CObjectModel *pModel = m_pEditData->getObjectModel() ;
-		CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
-		CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
-		int frame = m_pEditData->getSelectFrame() ;
-		CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	int frame = m_pEditData->getSelectFrame() ;
 
-		if ( pData ) {
-			emit sig_frameDataMoveEnd(pData) ;
+	switch ( m_dragMode ) {
+	case kDragMode_Edit:
+		{
+			CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
+			CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
+
+			if ( pData ) {
+				emit sig_frameDataMoveEnd(pData) ;
+			}
 		}
+		break ;
+	case kDragMode_SelPlural:
+		{
+			m_SelPluralEndPos = event->pos() - QPoint(512, 512) ;
+			QRect rc ;
+			rc.setLeft(m_SelPluralStartPos.x()<m_SelPluralEndPos.x()?m_SelPluralStartPos.x():m_SelPluralEndPos.x());
+			rc.setRight(m_SelPluralStartPos.x()<m_SelPluralEndPos.x()?m_SelPluralEndPos.x():m_SelPluralStartPos.x());
+			rc.setTop(m_SelPluralStartPos.y()<m_SelPluralEndPos.y()?m_SelPluralStartPos.y():m_SelPluralEndPos.y());
+			rc.setBottom(m_SelPluralStartPos.y()<m_SelPluralEndPos.y()?m_SelPluralEndPos.y():m_SelPluralStartPos.y());
+			QList<CObjectModel::typeID> selLayers = pModel->getFrameDatasFromRect(objID, frame, rc) ;
+			m_pEditData->setSelectLayer(selLayers);
+		}
+		break ;
 	}
-
-	m_bDragging = false ;
+	m_dragMode = kDragMode_None ;
+	update() ;
 }
 
 // 右クリックメニューイベント
@@ -535,6 +545,76 @@ void AnimeGLWidget::keyReleaseEvent(QKeyEvent *event)
 		m_bPressCtrl = false ;
 		update() ;
 	}
+}
+
+/**
+  データ編集
+  */
+QPoint AnimeGLWidget::editData(CObjectModel::FrameData *pData, QPoint nowPos, QPoint oldPos)
+{
+	QPoint sub = nowPos - oldPos ;
+	QSize imageSize = m_pEditData->getImage(pData->nImage).size() ;
+	QPoint ret = oldPos ;
+	if ( m_bPressCtrl ) {	// UV操作
+		pData->left		+= sub.x() ;
+		pData->right	+= sub.x() ;
+		pData->top		+= sub.y() ;
+		pData->bottom	+= sub.y() ;
+		if ( pData->left < 0 ) {
+			pData->right -= pData->left ;
+			pData->left = 0 ;
+		}
+		if ( pData->right > imageSize.width()-1 ) {
+			pData->left -= pData->right-(imageSize.width()-1) ;
+			pData->right = imageSize.width()-1 ;
+		}
+		if ( pData->top < 0 ) {
+			pData->bottom -= pData->top ;
+			pData->top = 0 ;
+		}
+		if ( pData->bottom > imageSize.height()-1 ) {
+			pData->top -= pData->bottom-(imageSize.height()-1) ;
+			pData->bottom = imageSize.height()-1 ;
+		}
+		ret = nowPos ;
+	}
+	else {
+		switch ( m_editMode ) {
+			case kEditMode_Pos:
+				pData->pos_x += sub.x() ;
+				pData->pos_y += sub.y() ;
+				break ;
+			case kEditMode_Rot:
+				{
+					QVector2D vOld = QVector2D(oldPos-QPoint(512, 512) - QPoint(pData->pos_x, pData->pos_y)) ;
+					QVector2D vNow = QVector2D(nowPos-QPoint(512, 512) - QPoint(pData->pos_x, pData->pos_y)) ;
+					vOld.normalize();
+					vNow.normalize();
+					float old = atan2(vOld.y(), vOld.x()) ;
+					float now = atan2(vNow.y(), vNow.x()) ;
+					now -= old ;
+					if ( now >= M_PI*2 ) { now -= M_PI*2 ; }
+					if ( now < -M_PI*2 ) { now += M_PI*2 ; }
+					now += m_rotStart ;
+					if ( now >= M_PI*2 ) { now -= M_PI*2 ; }
+					if ( now < -M_PI*2 ) { now += M_PI*2 ; }
+					pData->rot_z = now*180.0f/M_PI ;
+				}
+				break ;
+			case kEditMode_Center:
+				pData->center_x += sub.x() ;
+				pData->center_y += sub.y() ;
+				break ;
+			case kEditMode_Scale:
+				pData->fScaleX += (float)sub.x() * 0.01f ;
+				pData->fScaleY += (float)sub.y() * 0.01f ;
+				break ;
+		}
+		if ( m_editMode != kEditMode_Rot ) {
+			ret = nowPos ;
+		}
+	}
+	return ret ;
 }
 
 // 描画エリア設定

@@ -10,41 +10,43 @@ TARGET = AnimationCreator
 TEMPLATE = app
 
 
-SOURCES		+=	src/objectmodel.cpp			\
+SOURCES		+=								\
+				src/animationform.cpp		\
+				src/canm2d.cpp				\
+				src/cdatamarkerlabel.cpp	\
+				src/cdropablemdiarea.cpp	\
+				src/cloupewindow.cpp		\
+				src/command.cpp				\
+				src/editdata.cpp			\
+				src/glwidget.cpp			\
+				src/gridlabel.cpp			\
+				src/helpbrowser.cpp			\
+				src/helpwindow.cpp			\
+				src/imagewindow.cpp			\
 				src/mainwindow.cpp			\
 				src/main.cpp				\
-				src/imagewindow.cpp			\
-				src/gridlabel.cpp			\
-				src/glwidget.cpp			\
-				src/editimagedata.cpp		\
-				src/command.cpp				\
-				src/cloupewindow.cpp		\
-				src/cdropablemdiarea.cpp	\
-				src/cdatamarkerlabel.cpp	\
-				src/canm2d.cpp				\
-				src/animationform.cpp		\
-				src/optiondialog.cpp		\
-				src/helpbrowser.cpp			\
-				src/helpwindow.cpp
+				src/objectmodel.cpp			\
+				src/optiondialog.cpp
 
-HEADERS		+=	src/setting.h				\
-				src/objectmodel.h			\
-				src/mainwindow.h			\
-				src/imagewindow.h			\
-				src/gridlabel.h				\
-				src/glwidget.h				\
-				src/editimagedata.h			\
-				src/command.h				\
-				src/cloupewindow.h			\
-				src/cdropablemdiarea.h		\
-				src/cdatamarkerlabel.h		\
-				src/canm2d.h				\
+HEADERS		+=								\
 				src/Anm2dTypes.h			\
 				src/animationform.h			\
-				src/optiondialog.h			\
+				src/canm2d.h				\
+				src/cdatamarkerlabel.h		\
+				src/cdropablemdiarea.h		\
+				src/cloupewindow.h			\
+				src/command.h				\
+				src/defines.h				\
+				src/editdata.h				\
+				src/glwidget.h				\
+				src/gridlabel.h				\
 				src/helpbrowser.h			\
 				src/helpwindow.h			\
-				src/defines.h
+				src/imagewindow.h			\
+				src/mainwindow.h			\
+				src/objectmodel.h			\
+				src/optiondialog.h			\
+				src/setting.h
 
 RESOURCES	+=	Resource.qrc
 
