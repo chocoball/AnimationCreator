@@ -115,10 +115,18 @@ public:
 	void	setCenter( QPoint &cen )	{ m_Center = cen ; }
 	QPoint	&getCenter( void )			{ return m_Center ; }
 
-	void setSelectObject( CObjectModel::typeID objID )	{ m_SelectObject = objID ; }
+	void setSelectObject( CObjectModel::typeID objID )
+	{
+		m_SelectObject = objID ;
+	}
 	CObjectModel::typeID getSelectObject( void )		{ return m_SelectObject ; }
-#if 1
-	void setSelectLayer( QList<CObjectModel::typeID> &layerID ) { m_SelectLayer = layerID ; }
+
+	void setSelectLayer( QList<CObjectModel::typeID> &layerID )
+	{
+		m_SelectLayer = layerID ;
+		updateSelectData();
+	}
+
 	CObjectModel::typeID getSelectLayer( int index = 0 )
 	{
 		if ( index >= m_SelectLayer.size() ) {
@@ -126,17 +134,45 @@ public:
 		}
 		return m_SelectLayer[index] ;
 	}
+	QList<CObjectModel::typeID> &getSelectLayers( void )
+	{
+		return m_SelectLayer ;
+	}
+
 	int getSelectLayerNum( void )
 	{
 		return m_SelectLayer.size() ;
 	}
+	bool isSelectedLayer( CObjectModel::typeID layerID )
+	{
+		return m_SelectLayer.indexOf(layerID) >= 0 ;
+	}
 
-#else
-	void setSelectLayer( CObjectModel::typeID layerID ) { m_SelectLayer = layerID ; }
-	CObjectModel::typeID getSelectLayer( void )			{ return m_SelectLayer ; }
-#endif
 	void	setSelectFrame( int frame )	{ m_SelectFrame = frame ; }
 	int		getSelectFrame( void )		{ return m_SelectFrame ; }
+
+	void updateSelectData( void )
+	{
+		m_SelectData.clear();
+		for ( int i = 0 ; i < m_SelectLayer.size() ; i ++ ) {
+			CObjectModel::FrameData *p = m_pObjectModel->getFrameDataFromIDAndFrame(m_SelectObject,
+																					m_SelectLayer[i],
+																					m_SelectFrame) ;
+			if ( !p ) { continue ; }
+			m_SelectData.insert(i, *p);
+		}
+	}
+	CObjectModel::FrameData *getSelectFrameData( int index )
+	{
+		if ( index >= m_SelectData.size() ) {
+			return NULL ;
+		}
+		return &m_SelectData[index] ;
+	}
+	int getSelectFrameDataNum( void )
+	{
+		return m_SelectData.size() ;
+	}
 
 	void	setPlayAnime( bool flag )	{ m_bPlayAnime = flag ; }
 	bool	isPlayAnime( void )			{ return m_bPlayAnime ; }
@@ -158,26 +194,36 @@ public:
 	void cmd_delObject(QModelIndex index, QLabel *pMarkerLabel) ;
 	void cmd_addNewLayer( QModelIndex index, QStandardItem *newItem, CObjectModel::FrameData data, QList<QWidget *> &updateWidget ) ;
 	void cmd_addNewFrameData( CObjectModel::typeID objID, CObjectModel::typeID layerID, CObjectModel::FrameData &data, QList<QWidget *> &updateWidget ) ;
-	void cmd_delFrameData( CObjectModel::typeID objID, CObjectModel::typeID layerID, int frame, QList<QWidget *> &updateWidget ) ;
-	void cmd_editFrameData( CObjectModel::typeID objID, CObjectModel::typeID layerID, int frame, CObjectModel::FrameData &data, QList<QWidget *> &updateWidget, int id ) ;
+	void cmd_delFrameData( CObjectModel::typeID	objID,
+						   CObjectModel::typeID	layerID,
+						   int					frame,
+						   QList<QWidget *>		&updateWidget ) ;
+	void cmd_editFrameData( CObjectModel::typeID			objID,
+							QList<CObjectModel::typeID>		&layerIDs,
+							int								frame,
+							QList<CObjectModel::FrameData>	&datas,
+							QList<QWidget *>				&updateWidget,
+							int								id ) ;
 
 private:
-	QList<ImageData>			m_ImageData ;
+	QList<ImageData>				m_ImageData ;
 
-	QRect						m_CatchRect ;
-	QPoint						m_Center ;
+	QRect							m_CatchRect ;
+	QPoint							m_Center ;
 
-	CObjectModel::typeID		m_SelectObject ;
-	QList<CObjectModel::typeID>	m_SelectLayer ;
-	int							m_SelectFrame ;
+	CObjectModel::typeID			m_SelectObject ;
+	QList<CObjectModel::typeID>		m_SelectLayer ;
+	int								m_SelectFrame ;
 
-	CObjectModel				*m_pObjectModel ;
-	QStandardItemModel			*m_pTreeModel ;
-	QUndoStack					*m_pUndoStack ;
+	QList<CObjectModel::FrameData>	m_SelectData ;
 
-	bool						m_bPlayAnime ;
-	bool						m_bPauseAnime ;
-	bool						m_bDraggingImage ;
+	CObjectModel					*m_pObjectModel ;
+	QStandardItemModel				*m_pTreeModel ;
+	QUndoStack						*m_pUndoStack ;
+
+	bool							m_bPlayAnime ;
+	bool							m_bPauseAnime ;
+	bool							m_bDraggingImage ;
 } ;
 
 #endif // EDITDATA_H

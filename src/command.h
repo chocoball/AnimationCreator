@@ -112,6 +112,7 @@ public:
 	void redo() ;
 
 private:
+	CEditData					*m_pEditData ;
 	CObjectModel				*m_pObjModel ;
 	CObjectModel::typeID		m_objID ;
 	CObjectModel::typeID		m_layerID ;
@@ -125,13 +126,13 @@ private:
 class Command_EditFrameData : public QUndoCommand
 {
 public:
-	Command_EditFrameData(CEditData			*pEditData,
-						  CObjectModel::typeID		objID,
-						  CObjectModel::typeID		layerID,
-						  int						frame,
-						  CObjectModel::FrameData	&data,
-						  QList<QWidget *>			&updateWidget,
-						  int						id) ;
+	Command_EditFrameData(CEditData							*pEditData,
+						  CObjectModel::typeID				objID,
+						  QList<CObjectModel::typeID>		&layerIDs,
+						  int								frame,
+						  QList<CObjectModel::FrameData>	&datas,
+						  QList<QWidget *>					&updateWidget,
+						  int								id) ;
 	void undo() ;
 	void redo() ;
 
@@ -142,7 +143,7 @@ public:
 	{
 		if ( m_pObjModel != r.m_pObjModel )	{ return false ; }
 		if ( m_objID != r.m_objID )			{ return false ; }
-		if ( m_layerID != r.m_layerID )		{ return false ; }
+		if ( m_layerIDs != r.m_layerIDs )	{ return false ; }
 		if ( m_FrameData != r.m_FrameData )	{ return false ; }
 		if ( m_Frame != r.m_Frame )			{ return false ; }
 		return true ;
@@ -156,14 +157,15 @@ public:
 	}
 
 private:
-	CObjectModel				*m_pObjModel ;
-	CObjectModel::typeID		m_objID ;
-	CObjectModel::typeID		m_layerID ;
-	CObjectModel::FrameData		m_FrameData, m_OldFrameData ;
-	int							m_Frame ;
+	CEditData						*m_pEditData ;
+	CObjectModel					*m_pObjModel ;
+	CObjectModel::typeID			m_objID ;
+	QList<CObjectModel::typeID>		m_layerIDs ;
+	QList<CObjectModel::FrameData>	m_FrameData, m_OldFrameData ;
+	int								m_Frame ;
 
-	QList<QWidget *>			m_UpdateWidgetList ;
-	int							m_ID ;
+	QList<QWidget *>				m_UpdateWidgetList ;
+	int								m_ID ;
 };
 
 

@@ -4,7 +4,7 @@
         <LAYER Name="顔" FrameDataNum="2" No="0">
             <FRAMEDATA>
                 <frame>0</frame>
-                <pos>3 -11 0</pos>
+                <pos>5 -140 0</pos>
                 <rot>0 0 0</rot>
                 <center>51 40</center>
                 <UV>6 15 107 95</UV>
@@ -26,7 +26,7 @@
         <LAYER Name="右手" FrameDataNum="1" No="1">
             <FRAMEDATA>
                 <frame>0</frame>
-                <pos>-28 33 2</pos>
+                <pos>-26 -96 2</pos>
                 <rot>0 0 35</rot>
                 <center>28 11</center>
                 <UV>8 95 46 112</UV>
@@ -38,7 +38,7 @@
         <LAYER Name="左手" FrameDataNum="1" No="2">
             <FRAMEDATA>
                 <frame>0</frame>
-                <pos>26 32 2</pos>
+                <pos>28 -97 2</pos>
                 <rot>0 0 -29</rot>
                 <center>12 7</center>
                 <UV>63 97 115 110</UV>
@@ -50,7 +50,7 @@
         <LAYER Name="体" FrameDataNum="1" No="3">
             <FRAMEDATA>
                 <frame>0</frame>
-                <pos>0 58 1</pos>
+                <pos>2 -71 1</pos>
                 <rot>0 0 0</rot>
                 <center>10 26</center>
                 <UV>45 100 65 151</UV>
@@ -62,7 +62,7 @@
         <LAYER Name="右足" FrameDataNum="1" No="4">
             <FRAMEDATA>
                 <frame>0</frame>
-                <pos>-6 86 2</pos>
+                <pos>-4 -43 2</pos>
                 <rot>0 0 0</rot>
                 <center>23 0</center>
                 <UV>27 152 50 191</UV>
@@ -74,7 +74,7 @@
         <LAYER Name="左足" FrameDataNum="1" No="5">
             <FRAMEDATA>
                 <frame>0</frame>
-                <pos>5 85 2</pos>
+                <pos>7 -44 2</pos>
                 <rot>0 0 0</rot>
                 <center>0 0</center>
                 <UV>60 149 95 188</UV>

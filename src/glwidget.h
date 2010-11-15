@@ -31,11 +31,11 @@ public:
 
 signals:
 	void sig_dropedImage(QRect rect, QPoint pos, int index) ;
-	void sig_selectLayerChanged( CObjectModel::typeID layerID ) ;
+	void sig_selectLayerChanged( QList<CObjectModel::typeID> layerIDs ) ;
 	void sig_dragedImage( CObjectModel::FrameData data ) ;
 	void sig_deleteFrameData( void ) ;
 	void sig_selectPrevLayer( CObjectModel::typeID objID, CObjectModel::typeID layerID, int frame, CObjectModel::FrameData data ) ;
-	void sig_frameDataMoveEnd(CObjectModel::FrameData *pData) ;
+	void sig_frameDataMoveEnd( void ) ;
 
 public slots:
 	void slot_actDel( void ) ;
@@ -82,26 +82,28 @@ public:
 		m_editMode = mode ;
 	}
 
+	int getDragMode( void ) { return m_dragMode ; }
+
 private:
-	CEditData		*m_pEditData ;
-	CSettings		*m_pSetting ;
-	GLint			m_DrawWidth, m_DrawHeight ;
-	GLint			m_GridWidth, m_GridHeight ;
+	CEditData						*m_pEditData ;
+	CSettings						*m_pSetting ;
+	GLint							m_DrawWidth, m_DrawHeight ;
+	GLint							m_GridWidth, m_GridHeight ;
 
-	bool			m_bDrawGrid ;				///< グリッド描画するならtrue
-	bool			m_bPressCtrl ;				///< Ctrlが押されてたらtrue
-	bool			m_bPressShift ;				///< Shiftが押されてたらtrue
+	bool							m_bDrawGrid ;				///< グリッド描画するならtrue
+	bool							m_bPressCtrl ;				///< Ctrlが押されてたらtrue
+	bool							m_bPressShift ;				///< Shiftが押されてたらtrue
 
-	QPoint			m_DragOffset ;
-	QPoint			m_SelPluralStartPos ;		///< レイヤ複数選択開始位置
-	QPoint			m_SelPluralEndPos ;			///< レイヤ複数選択終了位置
+	QPoint							m_DragOffset ;
+	QPoint							m_SelPluralStartPos ;		///< レイヤ複数選択開始位置
+	QPoint							m_SelPluralEndPos ;			///< レイヤ複数選択終了位置
 
-	QAction			*m_pActDel ;
+	QAction							*m_pActDel ;
 
-	int				m_editMode ;				///< 編集モード kEditMode_~
-	int				m_dragMode ;				///< ドラッグモード kDragMode_~
+	int								m_editMode ;				///< 編集モード kEditMode_~
+	int								m_dragMode ;				///< ドラッグモード kDragMode_~
 
-	float			m_rotStart ;				///< 回転変更時の開始ラジアン
+	float							m_rotStart ;				///< 回転変更時の開始ラジアン
 };
 
 #endif // GLWIDGET_H

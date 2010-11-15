@@ -9,6 +9,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
     ui(new Ui::AnimationForm)
 {
 	m_pEditData = pImageData ;
+	m_bDontSetData = false ;
 
 	ui->setupUi(this);
 
@@ -114,16 +115,16 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 
 	connect(m_pGlWidget, SIGNAL(sig_dropedImage(QRect, QPoint, int)),
 			this,		SLOT(slot_dropedImage(QRect, QPoint, int))) ;
-	connect(m_pGlWidget, SIGNAL(sig_selectLayerChanged(CObjectModel::typeID)),
-			this,		SLOT(slot_selectLayerChanged(CObjectModel::typeID))) ;
+	connect(m_pGlWidget, SIGNAL(sig_selectLayerChanged(QList<CObjectModel::typeID>)),
+			this,		SLOT(slot_selectLayerChanged(QList<CObjectModel::typeID>))) ;
 	connect(m_pGlWidget, SIGNAL(sig_dragedImage(CObjectModel::FrameData)),
 			this,		SLOT(slot_setUI(CObjectModel::FrameData))) ;
 	connect(m_pGlWidget, SIGNAL(sig_deleteFrameData()),
 			this,		SLOT(slot_deleteFrameData())) ;
 	connect(m_pGlWidget, SIGNAL(sig_selectPrevLayer(CObjectModel::typeID, CObjectModel::typeID, int, CObjectModel::FrameData)),
 			this,		SLOT(slot_addNewFrameData(CObjectModel::typeID, CObjectModel::typeID, int, CObjectModel::FrameData))) ;
-	connect(m_pGlWidget, SIGNAL(sig_frameDataMoveEnd(CObjectModel::FrameData*)),
-			this,		SLOT(slot_frameDataMoveEnd(CObjectModel::FrameData*))) ;
+	connect(m_pGlWidget, SIGNAL(sig_frameDataMoveEnd()),
+			this,		SLOT(slot_frameDataMoveEnd())) ;
 
 	connect(ui->horizontalSlider_nowSequence, SIGNAL(valueChanged(int)), this, SLOT(slot_frameChanged(int))) ;
 	connect(ui->spinBox_pos_x,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changePosX(int))) ;
@@ -442,36 +443,37 @@ void AnimationForm::slot_frameChanged(int frame)
 	bool bChange = (m_pEditData->getSelectFrame() != frame) ;
 	m_pEditData->setSelectFrame( frame ) ;
 	if ( bChange ) {
-		CObjectModel::FrameData *pData = getNowSelectFrameData() ;
-		if ( pData ) {
-			slot_setUI(*pData);
+		QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+		if ( Datas.size() ) {
+			slot_setUI(*(Datas[0]));
 		}
+		m_pEditData->updateSelectData();
 	}
 	m_pGlWidget->update();
 }
 
 // 選択レイヤ変更
-void AnimationForm::slot_selectLayerChanged( CObjectModel::typeID layerID )
+void AnimationForm::slot_selectLayerChanged( QList<CObjectModel::typeID> layerIDs )
 {
-	QList<CObjectModel::typeID> list ;
-	list << layerID ;
-	m_pEditData->setSelectLayer(list);
+	m_pEditData->setSelectLayer(layerIDs);
+	if ( layerIDs.size() <= 0 ) { return ; }
 
-	QStandardItem *item = (QStandardItem *)layerID ;
+	QStandardItem *item = (QStandardItem *)layerIDs[0] ;
 	if ( item ) {
 		ui->treeView->setCurrentIndex(item->index());
 	}
 
 	m_pGlWidget->update();
-	CObjectModel::FrameData *pData = getNowSelectFrameData() ;
-	if ( pData ) {
-		slot_setUI(*pData);
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( Datas.size() ) {
+		slot_setUI(*(Datas[0]));
 	}
 }
 
 // ＵＩ数値セット
 void AnimationForm::slot_setUI(CObjectModel::FrameData data)
 {
+	m_bDontSetData = true ;
 	ui->spinBox_pos_x->setValue(data.pos_x);
 	ui->spinBox_pos_y->setValue(data.pos_y);
 	ui->spinBox_pos_z->setValue(data.pos_z);
@@ -488,6 +490,7 @@ void AnimationForm::slot_setUI(CObjectModel::FrameData data)
 	ui->spinBox_center_y->setValue(data.center_y);
 	ui->comboBox_image_no->setCurrentIndex(data.nImage);
 	ui->checkBox_uv_anime->setChecked(data.bUVAnime);
+	m_bDontSetData = false ;
 
 	if ( data.getRect() != m_pEditData->getCatchRect() ) {
 		QRect rect = data.getRect() ;
@@ -499,102 +502,120 @@ void AnimationForm::slot_setUI(CObjectModel::FrameData data)
 // pos x 変更
 void AnimationForm::slot_changePosX( int val )
 {
-	CObjectModel::FrameData *pData = getNowSelectFrameData() ;
-	if ( !pData ) { return ; }
-//	if ( pData->pos_x == val ) { return ; }
+	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
+	if ( m_bDontSetData ) { return ; }
 
-	pData->pos_x = val ;
-	addCommandEdit(pData) ;
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
+
+	Datas[0]->pos_x = val ;
+	addCommandEdit(Datas) ;
 }
 
 // pos y 変更
 void AnimationForm::slot_changePosY( int val )
 {
-	CObjectModel::FrameData *pData = getNowSelectFrameData() ;
-	if ( !pData ) { return ; }
-//	if ( pData->pos_y == val ) { return ; }
+	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
+	if ( m_bDontSetData ) { return ; }
 
-	pData->pos_y = val ;
-	addCommandEdit(pData) ;
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
+
+	Datas[0]->pos_y = val ;
+	addCommandEdit(Datas) ;
 }
 
 // pos z 変更
 void AnimationForm::slot_changePosZ( int val )
 {
-	CObjectModel::FrameData *pData = getNowSelectFrameData() ;
-	if ( !pData ) { return ; }
-//	if ( pData->pos_z == val ) { return ; }
+	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
+	if ( m_bDontSetData ) { return ; }
 
-	pData->pos_z = val ;
-	addCommandEdit(pData) ;
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
+
+	Datas[0]->pos_z = val ;
+	addCommandEdit(Datas) ;
 }
 
 // rot x 変更
 void AnimationForm::slot_changeRotX( int val )
 {
-	CObjectModel::FrameData *pData = getNowSelectFrameData() ;
-	if ( !pData ) { return ; }
-//	if ( pData->rot_x == val ) { return ; }
+	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
+	if ( m_bDontSetData ) { return ; }
 
-	pData->rot_x = val ;
-	addCommandEdit(pData) ;
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
+
+	Datas[0]->rot_x = val ;
+	addCommandEdit(Datas) ;
 }
 
 // rot y 変更
 void AnimationForm::slot_changeRotY( int val )
 {
-	CObjectModel::FrameData *pData = getNowSelectFrameData() ;
-	if ( !pData ) { return ; }
-//	if ( pData->rot_y == val ) { return ; }
+	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
+	if ( m_bDontSetData ) { return ; }
 
-	pData->rot_y = val ;
-	addCommandEdit(pData) ;
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
+
+	Datas[0]->rot_y = val ;
+	addCommandEdit(Datas) ;
 }
 
 // rot z 変更
 void AnimationForm::slot_changeRotZ( int val )
 {
-	CObjectModel::FrameData *pData = getNowSelectFrameData() ;
-	if ( !pData ) { return ; }
-//	if ( pData->rot_z == val ) { return ; }
+	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
+	if ( m_bDontSetData ) { return ; }
 
-	pData->rot_z = val ;
-	addCommandEdit(pData) ;
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
+
+	Datas[0]->rot_z = val ;
+	addCommandEdit(Datas) ;
 }
 
 // scale x 変更
 void AnimationForm::slot_changeScaleX( double val )
 {
-	CObjectModel::FrameData *pData = getNowSelectFrameData() ;
-	if ( !pData ) { return ; }
-//	if ( pData->fScaleX == val ) { return ; }
+	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
+	if ( m_bDontSetData ) { return ; }
 
-	pData->fScaleX = val ;
-	addCommandEdit(pData) ;
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
+
+	Datas[0]->fScaleX = val ;
+	addCommandEdit(Datas) ;
 }
 
 // scale y 変更
 void AnimationForm::slot_changeScaleY( double val )
 {
-	CObjectModel::FrameData *pData = getNowSelectFrameData() ;
-	if ( !pData ) { return ; }
-//	if ( pData->fScaleY == val ) { return ; }
+	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
+	if ( m_bDontSetData ) { return ; }
 
-	pData->fScaleY = val ;
-	addCommandEdit(pData) ;
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
+
+	Datas[0]->fScaleY = val ;
+	addCommandEdit(Datas) ;
 }
 
 // uv left 変更
 void AnimationForm::slot_changeUvLeft( int val )
 {
-	CObjectModel::FrameData *pData = getNowSelectFrameData() ;
-	if ( !pData ) { return ; }
-//	if ( pData->left == val ) { return ; }
+	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
+	if ( m_bDontSetData ) { return ; }
 
-	pData->left = val ;
-	addCommandEdit(pData) ;
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	QRect rect = pData->getRect() ;
+	Datas[0]->left = val ;
+	addCommandEdit(Datas) ;
+
+	QRect rect = Datas[0]->getRect() ;
 	m_pEditData->setCatchRect(rect);
 	emit sig_imageRepaint() ;
 }
@@ -602,14 +623,16 @@ void AnimationForm::slot_changeUvLeft( int val )
 // uv right 変更
 void AnimationForm::slot_changeUvRight( int val )
 {
-	CObjectModel::FrameData *pData = getNowSelectFrameData() ;
-	if ( !pData ) { return ; }
-//	if ( pData->right == val ) { return ; }
+	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
+	if ( m_bDontSetData ) { return ; }
 
-	pData->right = val ;
-	addCommandEdit(pData) ;
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	QRect rect = pData->getRect() ;
+	Datas[0]->right = val ;
+	addCommandEdit(Datas) ;
+
+	QRect rect = Datas[0]->getRect() ;
 	m_pEditData->setCatchRect(rect);
 	emit sig_imageRepaint() ;
 }
@@ -617,14 +640,16 @@ void AnimationForm::slot_changeUvRight( int val )
 // uv top 変更
 void AnimationForm::slot_changeUvTop( int val )
 {
-	CObjectModel::FrameData *pData = getNowSelectFrameData() ;
-	if ( !pData ) { return ; }
-//	if ( pData->top == val ) { return ; }
+	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
+	if ( m_bDontSetData ) { return ; }
 
-	pData->top = val ;
-	addCommandEdit(pData) ;
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	QRect rect = pData->getRect() ;
+	Datas[0]->top = val ;
+	addCommandEdit(Datas) ;
+
+	QRect rect = Datas[0]->getRect() ;
 	m_pEditData->setCatchRect(rect);
 	emit sig_imageRepaint() ;
 }
@@ -632,14 +657,16 @@ void AnimationForm::slot_changeUvTop( int val )
 // uv bottom 変更
 void AnimationForm::slot_changeUvBottom( int val )
 {
-	CObjectModel::FrameData *pData = getNowSelectFrameData() ;
-	if ( !pData ) { return ; }
-//	if ( pData->bottom == val ) { return ; }
+	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
+	if ( m_bDontSetData ) { return ; }
 
-	pData->bottom = val ;
-	addCommandEdit(pData) ;
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	QRect rect = pData->getRect() ;
+	Datas[0]->bottom = val ;
+	addCommandEdit(Datas) ;
+
+	QRect rect = Datas[0]->getRect() ;
 	m_pEditData->setCatchRect(rect);
 	emit sig_imageRepaint() ;
 }
@@ -647,25 +674,29 @@ void AnimationForm::slot_changeUvBottom( int val )
 // center x 変更
 void AnimationForm::slot_changeCenterX( int val )
 {
-	CObjectModel::FrameData *pData = getNowSelectFrameData() ;
-	if ( !pData ) { return ; }
-//	if ( pData->center_x == val ) { return ; }
+	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
+	if ( m_bDontSetData ) { return ; }
 
-	pData->center_x = val ;
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	addCommandEdit(pData) ;
+	Datas[0]->center_x = val ;
+
+	addCommandEdit(Datas) ;
 }
 
 // center y 変更
 void AnimationForm::slot_changeCenterY( int val )
 {
-	CObjectModel::FrameData *pData = getNowSelectFrameData() ;
-	if ( !pData ) { return ; }
-//	if ( pData->center_y == val ) { return ; }
+	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
+	if ( m_bDontSetData ) { return ; }
 
-	pData->center_y = val ;
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	addCommandEdit(pData) ;
+	Datas[0]->center_y = val ;
+
+	addCommandEdit(Datas) ;
 }
 
 // ツリービュー メニューリクエスト
@@ -836,19 +867,14 @@ void AnimationForm::slot_changeLayerDisp( void )
 // 選択中レイヤのUV変更
 void AnimationForm::slot_changeSelectLayerUV( QRect rect )
 {
-	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
-	CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
-	int frame = m_pEditData->getSelectFrame() ;
-
-	CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
-	if ( !pData ) {
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) {
 		return ;
 	}
-	pData->setRect(rect) ;
-	addCommandEdit(pData) ;
+	Datas[0]->setRect(rect) ;
+	addCommandEdit(Datas) ;
 
-	slot_setUI(*pData);
+	slot_setUI(*(Datas[0]));
 }
 
 // FPS変更
@@ -893,22 +919,26 @@ void AnimationForm::slot_delImage( int imageNo )
 // イメージ番号変更
 void AnimationForm::slot_changeImageIndex(int index)
 {
-	CObjectModel::FrameData *pData = getNowSelectFrameData() ;
-	if ( !pData ) {
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) {
 		return ;
 	}
-	pData->nImage = index ;
+	for ( int i = 0 ; i < Datas.size() ; i ++ ) {
+		Datas[i]->nImage = index ;
+	}
 	m_pGlWidget->update();
 }
 
 // UVアニメON/OFF
 void AnimationForm::slot_changeUVAnime( bool flag )
 {
-	CObjectModel::FrameData *pData = getNowSelectFrameData() ;
-	if ( !pData ) {
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) {
 		return ;
 	}
-	pData->bUVAnime = flag ;
+	for ( int i = 0 ; i < Datas.size() ; i ++ ) {
+		Datas[i]->bUVAnime = flag ;
+	}
 }
 
 // イメージ更新
@@ -929,9 +959,28 @@ void AnimationForm::slot_endedOption( void )
 	m_pGlWidget->update();
 }
 
-void AnimationForm::slot_frameDataMoveEnd(CObjectModel::FrameData *pData)
+void AnimationForm::slot_frameDataMoveEnd( void )
 {
-	addCommandEdit(pData, 2);
+	int i ;
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	for ( i = 0 ; i < m_pEditData->getSelectLayerNum() ; i ++ ) {
+		CObjectModel::FrameData *p = pModel->getFrameDataFromIDAndFrame(m_pEditData->getSelectObject(),
+																		m_pEditData->getSelectLayer(i),
+																		m_pEditData->getSelectFrame()) ;
+		if ( !p ) { continue ; }
+		if ( !m_pEditData->getSelectFrameData(i) ) { continue ; }
+		if ( (*p) != *m_pEditData->getSelectFrameData(i) ) {
+			break ;
+		}
+	}
+	if ( i == m_pEditData->getSelectLayerNum() ) { return ; }	// データが変わっていない
+
+	QList<CObjectModel::FrameData *> data_ptrs ;
+	for ( int i = 0 ; i < m_pEditData->getSelectFrameDataNum() ; i ++ ) {
+		data_ptrs.insert(i, m_pEditData->getSelectFrameData(i));
+	}
+
+	addCommandEdit(data_ptrs, 2);
 }
 
 void AnimationForm::slot_clickedRadioPos( bool flag )
@@ -963,18 +1012,14 @@ void AnimationForm::slot_clickedRadioScale( bool flag )
 }
 
 // 現在選択しているフレームデータ取得
-CObjectModel::FrameData *AnimationForm::getNowSelectFrameData( void )
+QList<CObjectModel::FrameData *> AnimationForm::getNowSelectFrameData( void )
 {
-	CObjectModel::typeID	objID	= m_pEditData->getSelectObject() ;
-	CObjectModel::typeID	layerID	= m_pEditData->getSelectLayer() ;
-	int						frame	= m_pEditData->getSelectFrame() ;
+	QList<CObjectModel::FrameData *> ret ;
 
-	if ( !objID )		{ return NULL ; }
-	if ( !layerID )		{ return NULL ; }
-	if ( frame < 0 )	{ return NULL ; }
-
-	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	return pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
+	for ( int i = 0 ; i < m_pEditData->getSelectFrameDataNum() ; i ++ ) {
+		ret << m_pEditData->getSelectFrameData(i) ;
+	}
+	return ret ;
 }
 
 // オブジェクト追加
@@ -996,14 +1041,17 @@ void AnimationForm::addNewObject( QString str )
 }
 
 // フレームデータ編集コマンド
-void AnimationForm::addCommandEdit( CObjectModel::FrameData *pData, int id )
+void AnimationForm::addCommandEdit( QList<CObjectModel::FrameData *> &rData, int id )
 {
 	CObjectModel::typeID	objID	= m_pEditData->getSelectObject() ;
-	CObjectModel::typeID	layerID	= m_pEditData->getSelectLayer() ;
 	int						frame	= m_pEditData->getSelectFrame() ;
 	QList<QWidget *> update ;
+	QList<CObjectModel::FrameData> datas ;
+	for ( int i = 0 ; i < rData.size() ; i ++ ) {
+		datas.insert(i, *(rData[i])) ;
+	}
 
 	update << m_pGlWidget ;
-	m_pEditData->cmd_editFrameData(objID, layerID, frame, *pData, update, id);
+	m_pEditData->cmd_editFrameData(objID, m_pEditData->getSelectLayers(), frame, datas, update, id);
 }
 

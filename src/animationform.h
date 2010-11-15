@@ -40,7 +40,7 @@ public slots:
 	void slot_dropedImage( QRect rect, QPoint pos, int imageIndex ) ;
 
 	void slot_frameChanged(int frame) ;
-	void slot_selectLayerChanged( CObjectModel::typeID layerID ) ;
+	void slot_selectLayerChanged( QList<CObjectModel::typeID> layerIDs ) ;
 
 	void slot_setUI(CObjectModel::FrameData data) ;
 
@@ -85,7 +85,7 @@ public slots:
 
 	void slot_endedOption( void ) ;
 
-	void slot_frameDataMoveEnd(CObjectModel::FrameData*) ;
+	void slot_frameDataMoveEnd( void ) ;
 
 	void slot_clickedRadioPos( bool flag ) ;
 	void slot_clickedRadioRot( bool flag ) ;
@@ -93,10 +93,10 @@ public slots:
 	void slot_clickedRadioScale( bool flag ) ;
 
 protected:
-	CObjectModel::FrameData *getNowSelectFrameData( void ) ;
+	QList<CObjectModel::FrameData *> getNowSelectFrameData( void ) ;
 	void addNewObject( QString str ) ;
 
-	void addCommandEdit( CObjectModel::FrameData *pData, int id = 1 ) ;
+	void addCommandEdit( QList<CObjectModel::FrameData *> &rData, int id = 1 ) ;
 
 private:
 	Ui::AnimationForm	*ui;
@@ -118,6 +118,7 @@ private:
 	CDataMarkerLabel	*m_pDataMarker ;
 
 	QSplitter			*m_pSplitter ;
+	bool				m_bDontSetData ;
 };
 
 #endif // ANIMATIONFORM_H
