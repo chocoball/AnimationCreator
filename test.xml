@@ -1,6 +1,6 @@
 <!DOCTYPE ANM2D>
 <ROOT ObjNum="1" Version="1" ImageNum="1">
-    <OBJECT Name="New Object" LayerNum="6" No="0">
+    <OBJECT Name="人" LayerNum="6" No="0">
         <LAYER Name="顔" FrameDataNum="2" No="0">
             <FRAMEDATA>
                 <frame>0</frame>

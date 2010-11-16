@@ -47,6 +47,8 @@ public:
 		kErrorNo_InvalidFrameDataNum,	///< [10]フレームデータ数が不正
 		kErrorNo_InvalidImageData,		///< [11]イメージデータが不正
 		kErrorNo_InvalidFilePath,		///< [12]イメージのファイルパスが不正
+		kErrorNo_InvalidObjectName,		///< [13]オブジェクト名が不正
+		kErrorNo_InvalidLayerName,		///< [14]レイヤ名が不正
 
 		kErrorNo_Max
 	} ;
@@ -69,6 +71,8 @@ public:
 			"フレームデータ数が不正です",
 			"イメージデータが不正です",
 			"イメージのファイルパスが不正です",
+			"オブジェクト名が不正です",
+			"レイヤ名が不正です"
 		} ;
 		if ( m_nError >= 0 && m_nError < kErrorNo_Max ) {
 			return QObject::trUtf8(str[m_nError]) ;

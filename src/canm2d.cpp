@@ -7,6 +7,7 @@
 *
 ************************************************************/
 CAnm2DBin::CAnm2DBin()
+	: CAnm2DBase()
 {
 }
 
@@ -36,7 +37,7 @@ bool CAnm2DBin::makeFromEditData( CEditData &rEditData )
 		memset( pObjData, 0, sizeof(Anm2DObject) + (layerGroupList.size()-1)*sizeof(unsigned int) ) ;
 		pObjData->header.nID   = ANM2D_ID_OBJECT ;
 		pObjData->header.nSize = sizeof(Anm2DObject) + (layerGroupList.size()-1)*sizeof(unsigned int) ;
-		strcpy( pObjData->objName.name, pObjItem->text().toUtf8().data() ) ;
+		strncpy( pObjData->objName.name, pObjItem->text().toUtf8().data(), sizeof(Anm2DName) ) ;	// オブジェクト名
 		pObjData->nLayerNum = layerGroupList.size() ;
 
 		for ( int j = 0 ; j < layerGroupList.size() ; j ++ ) {
@@ -50,7 +51,7 @@ bool CAnm2DBin::makeFromEditData( CEditData &rEditData )
 			memset(pLayerData, 0, sizeof(Anm2DLayer) + (frameDataList.size()-1)*sizeof(unsigned int)) ;
 			pLayerData->header.nID   = ANM2D_ID_LAYER ;
 			pLayerData->header.nSize = sizeof(Anm2DLayer) + (frameDataList.size()-1)*sizeof(unsigned int) ;
-			strcpy( pLayerData->layerName.name, pLayerItem->text().toUtf8().data() ) ;
+			strncpy( pLayerData->layerName.name, pLayerItem->text().toUtf8().data(), sizeof(Anm2DName) ) ;	// レイヤ名
 			pLayerData->nLayerNo = layerList.size() ;
 			pLayerData->nFrameDataNum = frameDataList.size() ;
 
@@ -252,7 +253,7 @@ bool CAnm2DBin::addObject(Anm2DHeader *pHeader, CEditData &rEditData)
 				Anm2DObject *pObj = (Anm2DObject *)p ;
 
 				QStandardItem *pRoot = pTreeModel->invisibleRootItem() ;
-				QStandardItem *newItem = new QStandardItem(QString(pObj->objName.name)) ;
+				QStandardItem *newItem = new QStandardItem(QString::fromUtf8(pObj->objName.name)) ;
 				pRoot->appendRow(newItem);
 
 				CObjectModel::ObjectGroup objGroup ;
@@ -290,13 +291,14 @@ bool CAnm2DBin::addLayer(Anm2DHeader *pHeader, CEditData &rEditData)
 					QStandardItem *pObjItem = (QStandardItem *)objList.at(j).first ;
 					Anm2DObject *pObj = search2DObjectFromName(pHeader, pObjItem->text()) ;
 					if ( !pObj ) {
-						m_nError = 0xffffffff ;
+						qDebug() << pObjItem->text() ;
+						m_nError = kErrorNo_InvalidObjectName ;
 						return false ;
 					}
 					for ( int k = 0 ; k < pObj->nLayerNum ; k ++ ) {
 						if ( pObj->nLayerNo[k] != pLayer->nLayerNo ) { continue ; }
 
-						QStandardItem *newItem = new QStandardItem(pLayer->layerName.name) ;
+						QStandardItem *newItem = new QStandardItem(QString::fromUtf8(pLayer->layerName.name)) ;
 						newItem->setData(true, Qt::CheckStateRole);
 						pObjItem->appendRow(newItem);
 
@@ -339,7 +341,8 @@ bool CAnm2DBin::addFrameData(Anm2DHeader *pHeader, CEditData &rEditData)
 						CObjectModel::FrameDataList &frameDataList = layerGroupList[layerGroupNum].second ;
 						Anm2DLayer *pLayer = search2DLayerFromName(pHeader, pLayerItem->text()) ;
 						if ( !pLayer ) {
-							m_nError = 0xfffffffe ;
+							qDebug() << pLayerItem->text() ;
+							m_nError = kErrorNo_InvalidLayerName ;
 							return false ;
 						}
 						for ( int j = 0 ; j < pLayer->nFrameDataNum ; j ++ ) {
@@ -436,7 +439,7 @@ Anm2DObject *CAnm2DBin::search2DObjectFromName(Anm2DHeader *pHeader, QString nam
 	for ( int i = 0 ; i < pHeader->nBlockNum ; i ++ ) {
 		Anm2DObject *p = (Anm2DObject *)LP_ADD(pHeader, pHeader->nBlockOffset[i]) ;
 		if ( p->header.nID != ANM2D_ID_OBJECT ) { continue ; }
-		if ( name != QString(p->objName.name) ) { continue ; }
+		if ( name != QString::fromUtf8(p->objName.name) ) { continue ; }
 
 		return p ;
 	}
@@ -449,7 +452,7 @@ Anm2DLayer *CAnm2DBin::search2DLayerFromName(Anm2DHeader *pHeader, QString name)
 	for ( int i = 0 ; i < pHeader->nBlockNum ; i ++ ) {
 		Anm2DLayer *p = (Anm2DLayer *)LP_ADD(pHeader, pHeader->nBlockOffset[i]) ;
 		if ( p->header.nID != ANM2D_ID_LAYER ) { continue ; }
-		if ( name != QString(p->layerName.name) ) { continue ; }
+		if ( name != QString::fromUtf8(p->layerName.name) ) { continue ; }
 
 		return p ;
 	}
@@ -463,6 +466,7 @@ Anm2DLayer *CAnm2DBin::search2DLayerFromName(Anm2DHeader *pHeader, QString name)
 *
 ************************************************************/
 CAnm2DXml::CAnm2DXml(bool bSaveImage)
+	: CAnm2DBase()
 {
 	m_pProgress = NULL ;
 	m_bSaveImage = bSaveImage ;
