@@ -231,7 +231,8 @@ bool CAnm2DBin::makeImageList( QList<QByteArray> &rData, CEditData &rEditData )
 		pImage->nWidth = img.width() ;
 		pImage->nHeight = img.height() ;
 		pImage->nImageNo = i ;
-		strncpy(pImage->fileName, rEditData.getImageFileName(i).toStdString().c_str(), 255) ;
+		QString relPath = getRelativePath(m_filePath, rEditData.getImageFileName(i)) ;
+		strncpy(pImage->fileName, relPath.toUtf8().data(), 255) ;
 		memcpy(pImage->data, img.bits(), img.width()*img.height()*4) ;
 
 		rData << imgArray ;
@@ -398,7 +399,10 @@ bool CAnm2DBin::addImageData(Anm2DHeader *pHeader, CEditData &rEditData)
 				Anm2DImage *pImage = (Anm2DImage *)p ;
 
 				QImage image ;
-				if ( !image.load(pImage->fileName) ) {
+				QString fileName = QString::fromUtf8(pImage->fileName) ;
+				QString path = getAbsolutePath(m_filePath, fileName) ;
+				if ( !image.load(path) ) {
+					qDebug() << "not load:" << path << fileName ;
 					image = QImage(pImage->nWidth, pImage->nHeight, QImage::Format_ARGB32) ;
 					unsigned int *pCol = (unsigned int *)pImage->data ;
 					for ( int y = 0 ; y < pImage->nHeight ; y ++ ) {
@@ -414,7 +418,7 @@ bool CAnm2DBin::addImageData(Anm2DHeader *pHeader, CEditData &rEditData)
 				CEditData::ImageData ImageData ;
 				ImageData.Image = image ;
 				ImageData.nTexObj = 0 ;
-				ImageData.fileName = pImage->fileName ;
+				ImageData.fileName = path ;
 				ImageData.lastModified = QDateTime::currentDateTimeUtc() ;
 				data.insert(pImage->nImageNo, ImageData);
 			}
@@ -1042,12 +1046,10 @@ bool CAnm2DXml::addImage( QDomNode &node, CEditData::ImageData &data )
 			m_nError = kErrorNo_InvalidFilePath ;
 			return false ;
 		}
-#if 1
 		QString path = getAbsolutePath(m_filePath, data.fileName) ;
 		data.Image = QImage(path) ;
-#else
-		data.Image = QImage(data.fileName) ;
-#endif
+		data.fileName = path ;
+
 		if ( data.Image.isNull() ) {
 			m_nError = kErrorNo_InvalidFilePath ;
 			return false ;
@@ -1056,25 +1058,6 @@ bool CAnm2DXml::addImage( QDomNode &node, CEditData::ImageData &data )
 	return true ;
 }
 
-QString CAnm2DXml::getRelativePath(QString &src, QString &dest)
-{
-	QString path = src ;
-	if ( path.at(path.count()-1) != '/' ) {
-		path.chop(path.count()-path.lastIndexOf("/")-1) ;
-	}
-	QDir dir(path) ;
-	return dir.relativeFilePath(dest) ;
-}
-
-QString CAnm2DXml::getAbsolutePath(QString &src, QString &dest)
-{
-	QString path = src ;
-	if ( path.at(path.count()-1) != '/' ) {
-		path.chop(path.count()-path.lastIndexOf("/")-1) ;
-	}
-	QDir dir(path) ;
-	return dir.absoluteFilePath(dest) ;
-}
 
 
 

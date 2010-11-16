@@ -85,8 +85,36 @@ public:
 		m_nError = kErrorNo_NoError ;
 	}
 
+	void setFilePath( QString &str )
+	{
+		m_filePath = str ;
+	}
+
+	// srcからdestへの相対パスを取得
+	QString getRelativePath(QString &src, QString &dest)
+	{
+		QString path = src ;
+		if ( path.at(path.count()-1) != '/' ) {
+			path.chop(path.count()-path.lastIndexOf("/")-1) ;
+		}
+		QDir dir(path) ;
+		return dir.relativeFilePath(dest) ;
+	}
+
+	// srcからdestへの相対パスを絶対パスに変換
+	QString getAbsolutePath(QString &src, QString &dest)
+	{
+		QString path = src ;
+		if ( path.at(path.count()-1) != '/' ) {
+			path.chop(path.count()-path.lastIndexOf("/")-1) ;
+		}
+		QDir dir(path) ;
+		return dir.absoluteFilePath(dest) ;
+	}
+
 protected:
 	int				m_nError ;
+	QString			m_filePath ;
 };
 
 // binary
@@ -127,7 +155,6 @@ public:
 
 	QDomDocument &getData()					{ return m_Data ; }
 	void setProgress( QProgressDialog *p )	{ m_pProgress = p ; }
-	void setFilePath( QString &str )		{ m_filePath = str ; }
 
 private:
 	bool makeHeader( QDomElement &element, QDomDocument &doc, CEditData &rEditData ) ;
@@ -141,13 +168,9 @@ private:
 	bool addFrameData( QDomNode &node, CObjectModel::FrameDataList &frameDataList, int maxFrameDataNum ) ;
 	bool addImage( QDomNode &node, CEditData::ImageData &data ) ;
 
-	QString getRelativePath(QString &src, QString &dest) ;
-	QString getAbsolutePath(QString &src, QString &dest) ;
-
 private:
 	QDomDocument	m_Data ;
 	QProgressDialog	*m_pProgress ;
-	QString			m_filePath ;
 
 	int				m_ObjNum, m_ImageNum ;
 	bool			m_bSaveImage ;

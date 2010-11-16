@@ -510,6 +510,7 @@ bool MainWindow::fileOpen( QString fileName )
 		QDataStream in(&file) ;
 		dataArray.resize(file.size());
 		in.readRawData(dataArray.data(), file.size()) ;
+		data.setFilePath(fileName);
 		if ( !data.makeFromFile(dataArray, m_EditData) ) {
 			QMessageBox::warning(this, trUtf8("エラー 1"), trUtf8("読み込みに失敗しました:%1").arg(data.getErrorString()) )  ;
 			return false ;
@@ -585,6 +586,7 @@ bool MainWindow::saveFile( QString fileName )
 		qDebug() << "save binary" ;
 
 		CAnm2DBin data ;
+		data.setFilePath(fileName);
 		QApplication::setOverrideCursor(Qt::WaitCursor) ;
 		if ( !data.makeFromEditData(m_EditData) ) {
 			if ( data.getErrorNo() != CAnm2DBase::kErrorNo_Cancel ) {
