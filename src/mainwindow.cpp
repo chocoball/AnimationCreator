@@ -525,7 +525,6 @@ bool MainWindow::fileOpen( QString fileName )
 			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(fileName)) ;
 			return false ;
 		}
-		resizeImage(imageData) ;
 
 		data.Image			= imageData ;
 		data.fileName		= fileName ;
@@ -534,6 +533,10 @@ bool MainWindow::fileOpen( QString fileName )
 		m_EditData.addImageData(data);
 
 		m_StrSaveFileName = QString() ;
+	}
+
+	for ( int i = 0 ; i < m_EditData.getImageDataSize() ; i ++ ) {
+		resizeImage(m_EditData.getImage(i));
 	}
 
 	setWindowTitle(tr("Animation Creator[%1]").arg(m_StrSaveFileName));
