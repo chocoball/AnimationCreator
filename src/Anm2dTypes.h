@@ -8,9 +8,13 @@
 	Block * Anm2DHeader::nBlockNum
 
 	・ブロックが４バイト境界で終了しない場合はパディングで４バイトにそろえる。
+
+	更新履歴
+	2010/11/17	ver 0.0.1	フォーマット作成
+	2011/01/19	ver 0.1.0	ループ回数、フレームデータRGBA追加
  */
 
-#define ANM2D_VERSION	0x00000001				///< バージョン
+#define ANM2D_VERSION	0x00001000				///< バージョン 0x[00][000][000]
 
 #define ANM2D_ID_HEADER		'ANM2'				///< ヘッダID
 #define ANM2D_ID_OBJECT		'OBJE'				///< オブジェクトID
@@ -47,7 +51,7 @@ typedef struct {
 												///< nSize = sizeof(Anm2DObject) + (nLayerNum-1) * unsigned int
 	Anm2DName			objName ;				///< オブジェクト名
 	unsigned short		nLayerNum ;				///< レイヤ数
-	unsigned short		pad[1] ;
+	short				nLoopNum ;				///< アニメーションループ回数(after ver 0.1.0)
 	unsigned int		nLayerNo[1] ;			///< レイヤ番号
 } Anm2DObject ;
 
@@ -74,6 +78,7 @@ typedef struct {
 	short				bFlag ;					///< フラグ 0x0001:UVアニメする
 	short				uv[4] ;					///< UV [0]:left [1]:right [2]:top [3]:bottom
 	float				fScaleX, fScaleY ;		///< スケール
+	unsigned char		rgba[4] ;				///< RGBA(after ver 0.1.0)
 } Anm2DFrameData ;
 
 // @brief イメージブロック

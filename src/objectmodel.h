@@ -22,6 +22,7 @@ public:
 		short			nImage ;					///< Image No.
 		float			fScaleX, fScaleY ;			///< scale
 		bool			bUVAnime ;					///< UVアニメするならtrue
+		unsigned char	rgba[4] ;					///< RGBA
 
 		bool operator == (const struct _tagFrameData &r) const
 		{
@@ -42,6 +43,10 @@ public:
 			if ( fScaleX != r.fScaleX )		{ return false ; }
 			if ( fScaleY != r.fScaleY )		{ return false ; }
 			if ( bUVAnime != r.bUVAnime )	{ return false ; }
+			if ( rgba[0] != r.rgba[0] )		{ return false ; }
+			if ( rgba[1] != r.rgba[1] )		{ return false ; }
+			if ( rgba[2] != r.rgba[2] )		{ return false ; }
+			if ( rgba[3] != r.rgba[3] )		{ return false ; }
 
 			return true ;
 		}
@@ -118,6 +123,10 @@ public:
 
 			data.fScaleX	+= (pNext->fScaleX - fScaleX)*frameNow/frameAll ;
 			data.fScaleY	+= (pNext->fScaleY - fScaleY)*frameNow/frameAll ;
+
+			for ( int i = 0 ; i < 4 ; i ++ ) {
+				data.rgba[i] += (pNext->rgba[i] - rgba[i])*frameNow/frameAll ;
+			}
 			return data ;
 		}
 	} FrameData ;
@@ -126,7 +135,16 @@ public:
 	typedef QList<FrameData>						FrameDataList ;
 	typedef QPair<typeID, FrameDataList>			LayerGroup ;		// レイヤID, フレームデータリスト
 	typedef QList<LayerGroup>						LayerGroupList ;
+#if 1
+	typedef struct {
+		typeID			id ;
+		LayerGroupList	layerGroupList ;
+		int				nLoop ;
+		int				nCurrentLoop ;
+	} ObjectGroup ;
+#else
 	typedef QPair<typeID, LayerGroupList>			ObjectGroup ;		// オブジェクトID, レイヤグループリスト
+#endif
 	typedef QList<ObjectGroup>						ObjectList ;
 
 public:
@@ -138,6 +156,7 @@ public:
 
 	const ObjectList &getObjectList( void ) { return m_ObjectList ; }
 	ObjectList		*getObjectListPtr( void ) { return &m_ObjectList ; }
+	ObjectGroup		*getObjectGroupFromID( typeID objID ) ;
 	LayerGroupList	*getLayerGroupListFromID( typeID objID ) ;
 	FrameDataList	*getFrameDataListFromID( typeID objID, typeID layerID ) ;
 	FrameData		*getFrameDataFromIDAndFrame(typeID objID, typeID layerID, int frame) ;
@@ -152,7 +171,7 @@ public:
 	ObjectGroup *searchObjectGroup( typeID objID )
 	{
 		for ( int i = 0 ; i < m_ObjectList.size() ; i ++ ) {
-			if ( objID != m_ObjectList[i].first ) {
+			if ( objID != m_ObjectList[i].id ) {
 				continue ;
 			}
 			return &m_ObjectList[i] ;
@@ -164,7 +183,7 @@ public:
 	{
 		ObjectGroup *p = searchObjectGroup(objID) ;
 		if ( !p ) { return NULL ; }
-		return &p->second ;
+		return &p->layerGroupList ;
 	}
 
 	LayerGroup *searchLayerGroup( LayerGroupList &layerGroupList, typeID layerID )
@@ -186,7 +205,7 @@ public:
 	void delObjectGroup( typeID objID )
 	{
 		for ( int i = 0 ; i < m_ObjectList.size() ; i ++ ) {
-			if ( m_ObjectList.at(i).first != objID ) { continue ; }
+			if ( m_ObjectList.at(i).id != objID ) { continue ; }
 
 			m_ObjectList.removeAt(i);
 			return ;
@@ -195,9 +214,9 @@ public:
 	void delLayerGroup( typeID objID, typeID layerID )
 	{
 		for ( int i = 0 ; i < m_ObjectList.size() ; i ++ ) {
-			if ( m_ObjectList.at(i).first != objID ) { continue ; }
+			if ( m_ObjectList.at(i).id != objID ) { continue ; }
 
-			LayerGroupList &layerGroupList = m_ObjectList[i].second ;
+			LayerGroupList &layerGroupList = m_ObjectList[i].layerGroupList ;
 			for ( int j = 0 ; j < layerGroupList.size() ; j ++ ) {
 				if ( layerGroupList.at(j).first != layerID ) { continue ; }
 
@@ -219,11 +238,13 @@ public:
 		return false ;
 	}
 
-	int getMaxFrame( void )
+	int getMaxFrameFromSelectObject( typeID objID )
 	{
 		int ret = 0 ;
 		for ( int i = 0 ; i < m_ObjectList.size() ; i ++ ) {
-			const LayerGroupList &layerGroup = m_ObjectList.at(i).second ;
+			if ( objID != m_ObjectList.at(i).id ) { continue ; }
+
+			const LayerGroupList &layerGroup = m_ObjectList.at(i).layerGroupList ;
 			for ( int j = 0 ; j < layerGroup.size() ; j ++ ) {
 				const FrameDataList &dataList = layerGroup.at(j).second ;
 				for ( int k = 0 ; k < dataList.size() ; k ++ ) {

@@ -92,6 +92,12 @@ public slots:
 	void slot_clickedRadioCenter( bool flag ) ;
 	void slot_clickedRadioScale( bool flag ) ;
 
+	void slot_changeLoop( int val ) ;
+	void slot_changeColorR(int val ) ;
+	void slot_changeColorG(int val ) ;
+	void slot_changeColorB(int val ) ;
+	void slot_changeColorA(int val ) ;
+
 protected:
 	QList<CObjectModel::FrameData *> getNowSelectFrameData( void ) ;
 	void addNewObject( QString str ) ;

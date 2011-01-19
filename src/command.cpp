@@ -17,7 +17,9 @@ Command_AddObject::Command_AddObject(CEditData *pEditData, QString &str)
 
 	CObjectModel::ObjectList *pObjList = m_pObjModel->getObjectListPtr() ;
 	m_objListIndex = pObjList->size() ;
-	m_ObjGroup.first = m_pItem ;
+	m_ObjGroup.id = m_pItem ;
+	m_ObjGroup.nLoop = 0 ;
+	m_ObjGroup.nCurrentLoop = 0 ;
 }
 
 void Command_AddObject::undo()
@@ -35,7 +37,7 @@ void Command_AddObject::undo()
 
 	CObjectModel::ObjectList *pObjList = m_pObjModel->getObjectListPtr() ;
 	for ( int i = 0 ; i < pObjList->size() ; i ++ ) {
-		if ( m_pItem != pObjList->at(i).first ) { continue ; }
+		if ( m_pItem != pObjList->at(i).id ) { continue ; }
 		m_objListIndex = i ;
 		m_ObjGroup = pObjList->takeAt(i) ;
 		break ;
@@ -91,7 +93,7 @@ void Command_DelObject::redo()
 	if ( m_ItemIndex.internalPointer() == m_pTreeModel->invisibleRootItem() ) {	// オブジェクト
 		CObjectModel::ObjectList *pList = m_pObjModel->getObjectListPtr() ;
 		for ( int i = 0 ; i < pList->size() ; i ++ ) {
-			if ( m_pTreeModel->itemFromIndex(m_ItemIndex) != pList->at(i).first ) { continue ; }
+			if ( m_pTreeModel->itemFromIndex(m_ItemIndex) != pList->at(i).id ) { continue ; }
 			m_Index = i ;
 			m_ObjGroup = pList->takeAt(i) ;
 			break ;

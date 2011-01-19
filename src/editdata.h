@@ -204,6 +204,23 @@ public:
 							QList<CObjectModel::FrameData>	&datas,
 							QList<QWidget *>				&updateWidget ) ;
 
+	void setCurrLoopNum( int num )
+	{
+		if ( getSelectObject() == 0 ) { return ; }
+		CObjectModel::ObjectGroup *p = m_pObjectModel->getObjectGroupFromID(getSelectObject()) ;
+		if ( !p ) { return ; }
+		p->nCurrentLoop = num ;
+	}
+	bool addCurrLoopNum( int num )
+	{
+		if ( getSelectObject() == 0 ) { return true ; }
+		CObjectModel::ObjectGroup *p = m_pObjectModel->getObjectGroupFromID(getSelectObject()) ;
+		if ( !p ) { return true ; }
+		p->nCurrentLoop += num ;
+		if ( p->nLoop < 0 ) { return false ; }	// 無限ループ
+		return (p->nCurrentLoop > p->nLoop) ;
+	}
+
 private:
 	QList<ImageData>				m_ImageData ;
 

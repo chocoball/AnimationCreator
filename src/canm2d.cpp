@@ -28,8 +28,8 @@ bool CAnm2DBin::makeFromEditData( CEditData &rEditData )
 	const CObjectModel::ObjectList &objList = pModel->getObjectList() ;
 	for ( int i = 0 ; i < objList.size() ; i ++ ) {
 		const CObjectModel::ObjectGroup &objGroup = objList.at(i) ;
-		QStandardItem *pObjItem = (QStandardItem *)objGroup.first ;
-		const CObjectModel::LayerGroupList &layerGroupList = objGroup.second ;
+		QStandardItem *pObjItem = (QStandardItem *)objGroup.id ;
+		const CObjectModel::LayerGroupList &layerGroupList = objGroup.layerGroupList ;
 
 		QByteArray objArray ;
 		objArray.resize(sizeof(Anm2DObject) + (layerGroupList.size()-1)*sizeof(unsigned int)) ;
@@ -39,6 +39,7 @@ bool CAnm2DBin::makeFromEditData( CEditData &rEditData )
 		pObjData->header.nSize = sizeof(Anm2DObject) + (layerGroupList.size()-1)*sizeof(unsigned int) ;
 		strncpy( pObjData->objName.name, pObjItem->text().toUtf8().data(), sizeof(Anm2DName) ) ;	// オブジェクト名
 		pObjData->nLayerNum = layerGroupList.size() ;
+		pObjData->nLoopNum = objGroup.nLoop ;	// ループ回数(after ver 0.1.0)
 
 		for ( int j = 0 ; j < layerGroupList.size() ; j ++ ) {
 			const CObjectModel::LayerGroup &layerGroup = layerGroupList.at(j) ;
@@ -84,6 +85,11 @@ bool CAnm2DBin::makeFromEditData( CEditData &rEditData )
 				pFrameData->fScaleX			= data.fScaleX ;
 				pFrameData->fScaleY			= data.fScaleY ;
 				pFrameData->bFlag			= (data.bUVAnime) ? 1 : 0 ;
+				// 頂点色(after ver 0.1.0)
+				pFrameData->rgba[0]			= data.rgba[0] ;
+				pFrameData->rgba[1]			= data.rgba[1] ;
+				pFrameData->rgba[2]			= data.rgba[2] ;
+				pFrameData->rgba[3]			= data.rgba[3] ;
 
 				pLayerData->nFrameDataNo[k] = pFrameData->nFrameDataNo ;	// レイヤが参照するフレームデータ番号セット
 
@@ -191,7 +197,7 @@ bool CAnm2DBin::makeHeader( QByteArray &rData, CEditData &rEditData )
 
 	blockNum += objList.size() ;	// オブジェクト数
 	for ( int i = 0 ; i < objList.size() ; i ++ ) {
-		const CObjectModel::LayerGroupList &layerGroupList = objList.at(i).second ;
+		const CObjectModel::LayerGroupList &layerGroupList = objList.at(i).layerGroupList ;
 		blockNum += layerGroupList.size() ;	// レイヤ数
 		for ( int j = 0 ; j < layerGroupList.size() ; j ++ ) {
 			const CObjectModel::FrameDataList &frameDataList = layerGroupList.at(j).second ;
@@ -258,7 +264,8 @@ bool CAnm2DBin::addObject(Anm2DHeader *pHeader, CEditData &rEditData)
 				pRoot->appendRow(newItem);
 
 				CObjectModel::ObjectGroup objGroup ;
-				objGroup.first = newItem ;
+				objGroup.id = newItem ;
+				objGroup.nLoop = pObj->nLoopNum ;	// ループ回数(after ver 0.1.0)
 				pModel->addObject(objGroup);
 			}
 			break ;
@@ -289,7 +296,7 @@ bool CAnm2DBin::addLayer(Anm2DHeader *pHeader, CEditData &rEditData)
 
 				CObjectModel::ObjectList &objList = *pModel->getObjectListPtr() ;
 				for ( int j = 0 ; j < objList.size() ; j ++ ) {
-					QStandardItem *pObjItem = (QStandardItem *)objList.at(j).first ;
+					QStandardItem *pObjItem = (QStandardItem *)objList.at(j).id ;
 					Anm2DObject *pObj = search2DObjectFromName(pHeader, pObjItem->text()) ;
 					if ( !pObj ) {
 						qDebug() << pObjItem->text() ;
@@ -304,7 +311,7 @@ bool CAnm2DBin::addLayer(Anm2DHeader *pHeader, CEditData &rEditData)
 						pObjItem->appendRow(newItem);
 
 						CObjectModel::LayerGroup layerGroup = qMakePair(newItem, CObjectModel::FrameDataList()) ;
-						objList[j].second.append(layerGroup);
+						objList[j].layerGroupList.append(layerGroup);
 					}
 				}
 			}
@@ -336,7 +343,7 @@ bool CAnm2DBin::addFrameData(Anm2DHeader *pHeader, CEditData &rEditData)
 
 				CObjectModel::ObjectList &objList = *pModel->getObjectListPtr() ;
 				for ( int objNum = 0 ; objNum < objList.size() ; objNum ++ ) {
-					CObjectModel::LayerGroupList &layerGroupList = objList[objNum].second ;
+					CObjectModel::LayerGroupList &layerGroupList = objList[objNum].layerGroupList ;
 					for ( int layerGroupNum = 0 ; layerGroupNum < layerGroupList.size() ; layerGroupNum ++ ) {
 						QStandardItem *pLayerItem = (QStandardItem *)layerGroupList[layerGroupNum].first ;
 						CObjectModel::FrameDataList &frameDataList = layerGroupList[layerGroupNum].second ;
@@ -367,6 +374,11 @@ bool CAnm2DBin::addFrameData(Anm2DHeader *pHeader, CEditData &rEditData)
 							data.fScaleY	= pFrame->fScaleY ;
 							data.nImage		= pFrame->nImageNo ;
 							data.bUVAnime	= (pFrame->bFlag & 0x01) ;
+							// 頂点色(after ver 0.1.0)
+							data.rgba[0]	= pFrame->rgba[0] ;
+							data.rgba[1]	= pFrame->rgba[1] ;
+							data.rgba[2]	= pFrame->rgba[2] ;
+							data.rgba[3]	= pFrame->rgba[3] ;
 
 							frameDataList.append(data) ;
 						}
@@ -572,13 +584,14 @@ bool CAnm2DXml::makeObject(QDomElement &element, QDomDocument &doc, CEditData &r
 
 	for ( int i = 0 ; i < objList.size() ; i ++ ) {
 		const CObjectModel::ObjectGroup &objGroup = objList.at(i) ;
-		QStandardItem *pObjID = objGroup.first ;
-		const CObjectModel::LayerGroupList &layerGroupList = objGroup.second ;
+		QStandardItem *pObjID = objGroup.id ;
+		const CObjectModel::LayerGroupList &layerGroupList = objGroup.layerGroupList ;
 
 		QDomElement elmObj = doc.createElement(kAnmXML_ID_Object) ;
 		elmObj.setAttribute(kAnmXML_Attr_Name, QString(pObjID->text().toUtf8()));
 		elmObj.setAttribute(kAnmXML_Attr_No, i);
 		elmObj.setAttribute(kAnmXML_Attr_LayerNum, layerGroupList.size());
+		elmObj.setAttribute(kAnmXML_Attr_LoopNum, objGroup.nLoop);	// ループ回数(after ver 0.1.0)
 		element.appendChild(elmObj) ;
 
 		for ( int j = 0 ; j < layerGroupList.size() ; j ++ ) {
@@ -636,6 +649,12 @@ bool CAnm2DXml::makeObject(QDomElement &element, QDomDocument &doc, CEditData &r
 
 				elmTmp = doc.createElement("UVAnime") ;
 				text = doc.createTextNode(QString("%1").arg(data.bUVAnime)) ;
+				elmTmp.appendChild(text) ;
+				elmFrameData.appendChild(elmTmp) ;
+
+				// 頂点色(after ver 0.1.0)
+				elmTmp = doc.createElement("Color") ;
+				text = doc.createTextNode(QString("%1 %2 %3 %4").arg(data.rgba[0]).arg(data.rgba[1]).arg(data.rgba[2]).arg(data.rgba[3])) ;
 				elmTmp.appendChild(text) ;
 				elmFrameData.appendChild(elmTmp) ;
 
@@ -726,7 +745,7 @@ void CAnm2DXml::setProgMaximum( QProgressDialog *pProg, CEditData &rEditData )
 	CObjectModel *pModel = rEditData.getObjectModel() ;
 	const CObjectModel::ObjectList &objList = pModel->getObjectList() ;
 	for ( int i = 0 ; i < objList.size() ; i ++ ) {
-		const CObjectModel::LayerGroupList &layerGroupList = objList.at(i).second ;
+		const CObjectModel::LayerGroupList &layerGroupList = objList.at(i).layerGroupList ;
 		for ( int j = 0 ; j < layerGroupList.size() ; j ++ ) {
 			max += layerGroupList.at(j).second.size() ;
 		}
@@ -759,22 +778,25 @@ bool CAnm2DXml::addElement( QDomNode &node, CEditData &rEditData )
 			QDomNamedNodeMap nodeMap = node.attributes() ;
 			if ( nodeMap.namedItem(kAnmXML_Attr_Name).isNull()
 			  || nodeMap.namedItem(kAnmXML_Attr_LayerNum).isNull()
-			  || nodeMap.namedItem(kAnmXML_Attr_No).isNull() ) {
+			  || nodeMap.namedItem(kAnmXML_Attr_No).isNull()
+			  || nodeMap.namedItem(kAnmXML_Attr_LoopNum).isNull() ) {
 				m_nError = kErrorNo_InvalidNode ;
 				return false ;
 			}
 			name = nodeMap.namedItem(kAnmXML_Attr_Name).toAttr().value() ;
 			layerNum = nodeMap.namedItem(kAnmXML_Attr_LayerNum).toAttr().value().toInt() ;
 			no = nodeMap.namedItem(kAnmXML_Attr_No).toAttr().value().toInt() ;
+			int loopNum = nodeMap.namedItem(kAnmXML_Attr_LoopNum).toAttr().value().toInt() ;
 
 			CObjectModel::ObjectGroup objGroup ;
 			QStandardItem *pObjItem = new QStandardItem(name) ;
 
 			pTreeRoot->insertRow(no, pObjItem);
-			objGroup.first = pObjItem ;
+			objGroup.id = pObjItem ;
+			objGroup.nLoop = loopNum ;		// ループ回数(after ver 0.1.0)
 
 			QDomNode child = node.firstChild() ;
-			if ( !addLayer(child, objGroup.second, pObjItem, layerNum) ) {
+			if ( !addLayer(child, objGroup.layerGroupList, pObjItem, layerNum) ) {
 				return false ;
 			}
 
@@ -968,6 +990,17 @@ bool CAnm2DXml::addFrameData( QDomNode &node, CObjectModel::FrameDataList &frame
 						return false ;
 					}
 					data.bUVAnime = anime.toInt() ? true : false ;
+				}
+				else if ( dataNode.nodeName() == "Color" ) {	// 頂点色(after ver 0.1.0)
+					QStringList color = dataNode.firstChild().toText().nodeValue().split(" ") ;
+					if ( color.size() != 4 ) {
+						m_nError = kErrorNo_InvalidNode ;
+						return false ;
+					}
+					data.rgba[0] = color[0].toInt() ;
+					data.rgba[1] = color[1].toInt() ;
+					data.rgba[2] = color[2].toInt() ;
+					data.rgba[3] = color[3].toInt() ;
 				}
 
 				dataNode = dataNode.nextSibling() ;

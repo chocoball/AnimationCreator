@@ -44,7 +44,7 @@ void AnimeGLWidget::initializeGL()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GEQUAL, 0.5);
+	glAlphaFunc(GL_GREATER, 0);
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -283,6 +283,11 @@ void AnimeGLWidget::drawFrameData( const CObjectModel::FrameData &data, QColor c
 	uvF.setBottom((float)(Image.height()-uv.bottom())/Image.height());
 
 	glBindTexture(GL_TEXTURE_2D, m_pEditData->getTexObj(data.nImage)) ;
+
+	col.setRed( col.red()		* data.rgba[0] / 255 );
+	col.setGreen( col.green()	* data.rgba[1] / 255 );
+	col.setBlue( col.blue()		* data.rgba[2] / 255 );
+	col.setAlpha( col.alpha()	* data.rgba[3] / 255 );
 
 	drawRect(rect, uvF, data.pos_z / 4096.0f, col) ;
 

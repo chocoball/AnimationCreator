@@ -52,6 +52,16 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	ui->spinBox_uv_top->setMaximum(4096);
 	ui->spinBox_uv_bottom->setMinimum(0);
 	ui->spinBox_uv_bottom->setMaximum(4096);
+	ui->spinBox_loop->setMinimum(-1);
+	ui->spinBox_loop->setMaximum(1024);
+	ui->spinBox_r->setMinimum(0);
+	ui->spinBox_r->setMaximum(255);
+	ui->spinBox_g->setMinimum(0);
+	ui->spinBox_g->setMaximum(255);
+	ui->spinBox_b->setMinimum(0);
+	ui->spinBox_b->setMaximum(255);
+	ui->spinBox_a->setMinimum(0);
+	ui->spinBox_a->setMaximum(255);
 	ui->checkBox_grid->setChecked(true);
 	ui->comboBox_fps->addItem(tr("60 fps"));
 	ui->comboBox_fps->addItem(tr("30 fps"));
@@ -151,6 +161,11 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(ui->comboBox_fps,			SIGNAL(activated(int)),			this, SLOT(slot_changeAnimeSpeed(int))) ;
 	connect(ui->comboBox_image_no,		SIGNAL(activated(int)),			this, SLOT(slot_changeImageIndex(int))) ;
 	connect(m_pTimer,					SIGNAL(timeout()),				this, SLOT(slot_timerEvent())) ;
+	connect(ui->spinBox_loop,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changeLoop(int))) ;
+	connect(ui->spinBox_r,				SIGNAL(valueChanged(int)),		this, SLOT(slot_changeColorR(int))) ;
+	connect(ui->spinBox_g,				SIGNAL(valueChanged(int)),		this, SLOT(slot_changeColorG(int))) ;
+	connect(ui->spinBox_b,				SIGNAL(valueChanged(int)),		this, SLOT(slot_changeColorB(int))) ;
+	connect(ui->spinBox_a,				SIGNAL(valueChanged(int)),		this, SLOT(slot_changeColorA(int))) ;
 
 #ifndef LAYOUT_OWN
 	QGridLayout *pLayout = new QGridLayout(this) ;
@@ -194,7 +209,7 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 	ui->comboBox_image_no->move(ui->comboBox_image_no->pos() + QPoint(add.width(), 0));
 	ui->groupBox->move(ui->groupBox->pos() + QPoint(add.width(), 0));
 
-	QLabel *tmpLabel[] = {
+	QWidget *tmp[] = {
 		ui->label_x,
 		ui->label_y,
 		ui->label_z,
@@ -204,13 +219,12 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 		ui->label_uv_top,
 		ui->label_uv_bottom,
 		ui->label_image,
-	} ;
-
-	for ( int i = 0 ; i < ARRAY_NUM(tmpLabel) ; i ++ ) {
-		tmpLabel[i]->move(tmpLabel[i]->pos() + QPoint(add.width(), 0));
-	}
-
-	QSpinBox *tmpBox[] = {
+		ui->label_loop,
+		ui->label_color,
+		ui->label_r,
+		ui->label_g,
+		ui->label_b,
+		ui->label_a,
 		ui->spinBox_pos_x,
 		ui->spinBox_pos_y,
 		ui->spinBox_pos_z,
@@ -223,25 +237,20 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 		ui->spinBox_uv_bottom,
 		ui->spinBox_center_x,
 		ui->spinBox_center_y,
-	} ;
-	for ( int i = 0 ; i < ARRAY_NUM(tmpBox) ; i ++ ) {
-		tmpBox[i]->move(tmpBox[i]->pos()+QPoint(add.width(), 0));
-	}
-	QDoubleSpinBox *tmpBox2[] = {
+		ui->spinBox_loop,
+		ui->spinBox_r,
+		ui->spinBox_g,
+		ui->spinBox_b,
+		ui->spinBox_a,
 		ui->doubleSpinBox_scale_x,
 		ui->doubleSpinBox_scale_y,
-	} ;
-	for ( int i = 0 ; i < ARRAY_NUM(tmpBox2) ; i ++ ) {
-		tmpBox2[i]->move(tmpBox2[i]->pos()+QPoint(add.width(), 0));
-	}
-
-	QCheckBox *tmpCheck[] = {
 		ui->checkBox_uv_anime,
+		ui->line_0,
+		ui->line_1,
 	} ;
-	for ( int i = 0 ; i < ARRAY_NUM(tmpCheck) ; i ++ ) {
-		tmpCheck[i]->move(tmpCheck[i]->pos()+QPoint(add.width(), 0));
+	for ( int i = 0 ; i < ARRAY_NUM(tmp) ; i ++ ) {
+		tmp[i]->move(tmp[i]->pos() + QPoint(add.width(), 0));
 	}
-
 }
 #endif
 
@@ -263,9 +272,9 @@ void AnimationForm::dbgDumpObject( void )
 	qDebug("Deump Object ------------------------") ;
 	const CObjectModel::ObjectList &objList = m_pEditData->getObjectModel()->getObjectList() ;
 	for ( int i = 0 ; i < objList.size() ; i ++ ) {
-		qDebug("Object [%d] ID:%p", i, objList.at(i).first) ;
+		qDebug("Object [%d] ID:%p", i, objList.at(i).id) ;
 
-		const CObjectModel::LayerGroupList &layerGroupList = objList.at(i).second ;
+		const CObjectModel::LayerGroupList &layerGroupList = objList.at(i).layerGroupList ;
 		for ( int j = 0 ; j < layerGroupList.size() ; j ++ ) {
 			qDebug("  LayerGroup [%d] ID:%p", j, layerGroupList.at(j).first ) ;
 
@@ -299,6 +308,8 @@ void AnimationForm::slot_createNewObject( void )
 	QStandardItem *newItem = m_pEditData->cmd_addNewObject(str);
 	ui->treeView->setCurrentIndex(newItem->index());
 	m_pEditData->setSelectObject(newItem);
+
+	ui->spinBox_loop->setValue(0);
 }
 
 // オブジェクト削除
@@ -400,6 +411,10 @@ void AnimationForm::slot_dropedImage( QRect rect, QPoint pos, int imageIndex )
 	frameData.setRect(rect);
 	frameData.nImage = imageIndex ;
 	frameData.bUVAnime = false ;
+	frameData.rgba[0] =
+	frameData.rgba[1] =
+	frameData.rgba[2] =
+	frameData.rgba[3] = 255 ;
 
 	QList<QWidget *> updateWidget ;
 	updateWidget << m_pGlWidget ;
@@ -490,6 +505,10 @@ void AnimationForm::slot_setUI(CObjectModel::FrameData data)
 	ui->spinBox_center_y->setValue(data.center_y);
 	ui->comboBox_image_no->setCurrentIndex(data.nImage);
 	ui->checkBox_uv_anime->setChecked(data.bUVAnime);
+	ui->spinBox_r->setValue(data.rgba[0]);
+	ui->spinBox_g->setValue(data.rgba[1]);
+	ui->spinBox_b->setValue(data.rgba[2]);
+	ui->spinBox_a->setValue(data.rgba[3]);
 	m_bDontSetData = false ;
 
 	if ( data.getRect() != m_pEditData->getCatchRect() ) {
@@ -735,6 +754,8 @@ void AnimationForm::slot_changeSelectObject(QModelIndex index)
 
 	if ( !index.isValid() ) { return ; }
 
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+
 	if ( index.internalPointer() == m_pEditData->getTreeModel()->invisibleRootItem() ) {	// オブジェクト選択
 		qDebug("select Object:%d", index.row()) ;
 		m_pEditData->setSelectObject(m_pEditData->getTreeModel()->itemFromIndex(index));
@@ -745,7 +766,6 @@ void AnimationForm::slot_changeSelectObject(QModelIndex index)
 		m_pEditData->setSelectObject(m_pEditData->getTreeModel()->itemFromIndex(index.parent()));
 		m_pEditData->setSelectLayer(list);
 
-		CObjectModel *pModel = m_pEditData->getObjectModel() ;
 		CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(m_pEditData->getSelectObject(),
 																			m_pEditData->getSelectLayer(),
 																			m_pEditData->getSelectFrame()) ;
@@ -754,6 +774,13 @@ void AnimationForm::slot_changeSelectObject(QModelIndex index)
 		}
 	}
 
+	// ループ回数設定
+	CObjectModel::ObjectGroup *pObjGroup = pModel->getObjectGroupFromID(m_pEditData->getSelectObject()) ;
+	if ( pObjGroup ) {
+		ui->spinBox_loop->setValue(pObjGroup->nLoop);
+	}
+
+	m_pDataMarker->repaint();
 	m_pGlWidget->update();
 }
 
@@ -762,12 +789,13 @@ void AnimationForm::slot_playAnimation( void )
 {
 	if ( !m_pEditData->isPauseAnime() ) {	// ポーズ中じゃなかったら０フレームから再生
 		ui->horizontalSlider_nowSequence->setValue(0);
+		m_pEditData->setCurrLoopNum(0);
 	}
 
 	m_pEditData->setPlayAnime(true) ;
 
 	// 最大フレーム設定
-	m_nMaxFrameNum = m_pEditData->getObjectModel()->getMaxFrame() ;
+	m_nMaxFrameNum = m_pEditData->getObjectModel()->getMaxFrameFromSelectObject(m_pEditData->getSelectObject());
 
 	m_pEditData->setPauseAnime(false);
 	disconnect(ui->pushButton_play, SIGNAL(clicked()), this, SLOT(slot_playAnimation())) ;
@@ -824,6 +852,10 @@ void AnimationForm::slot_timerEvent( void )
 	frame ++ ;
 
 	if ( frame > m_nMaxFrameNum ) {
+		if ( m_pEditData->addCurrLoopNum(1) ) {
+			slot_stopAnimation() ;
+			return ;
+		}
 		frame = 0 ;
 	}
 
@@ -983,6 +1015,7 @@ void AnimationForm::slot_frameDataMoveEnd( void )
 	addCommandEdit(data_ptrs);
 }
 
+// ラジオボタン POS クリック
 void AnimationForm::slot_clickedRadioPos( bool flag )
 {
 	if ( flag ) {
@@ -990,6 +1023,7 @@ void AnimationForm::slot_clickedRadioPos( bool flag )
 	}
 }
 
+// ラジオボタン ROT クリック
 void AnimationForm::slot_clickedRadioRot( bool flag )
 {
 	if ( flag ) {
@@ -997,6 +1031,7 @@ void AnimationForm::slot_clickedRadioRot( bool flag )
 	}
 }
 
+// ラジオボタン CENTER クリック
 void AnimationForm::slot_clickedRadioCenter( bool flag )
 {
 	if ( flag ) {
@@ -1004,12 +1039,74 @@ void AnimationForm::slot_clickedRadioCenter( bool flag )
 	}
 }
 
+// ラジオボタン SCALE クリック
 void AnimationForm::slot_clickedRadioScale( bool flag )
 {
 	if ( flag ) {
 		m_pGlWidget->setEditMode(AnimeGLWidget::kEditMode_Scale) ;
 	}
 }
+
+// ループ回数変更
+void AnimationForm::slot_changeLoop( int val )
+{
+	CObjectModel *pObjModel = m_pEditData->getObjectModel() ;
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	if ( !objID ) { return ; }
+
+	CObjectModel::ObjectGroup *p = pObjModel->getObjectGroupFromID(objID) ;
+	if ( !p ) { return ; }
+	p->nLoop = val ;
+}
+
+// 色R変更
+void AnimationForm::slot_changeColorR( int val )
+{
+	if ( m_bDontSetData ) { return ; }
+
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
+
+	Datas[0]->rgba[0] = val ;
+	addCommandEdit(Datas) ;
+}
+
+// 色G変更
+void AnimationForm::slot_changeColorG( int val )
+{
+	if ( m_bDontSetData ) { return ; }
+
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
+
+	Datas[0]->rgba[1] = val ;
+	addCommandEdit(Datas) ;
+}
+
+// 色B変更
+void AnimationForm::slot_changeColorB( int val )
+{
+	if ( m_bDontSetData ) { return ; }
+
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
+
+	Datas[0]->rgba[2] = val ;
+	addCommandEdit(Datas) ;
+}
+
+// 色A変更
+void AnimationForm::slot_changeColorA( int val )
+{
+	if ( m_bDontSetData ) { return ; }
+
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
+
+	Datas[0]->rgba[3] = val ;
+	addCommandEdit(Datas) ;
+}
+
 
 // 現在選択しているフレームデータ取得
 QList<CObjectModel::FrameData *> AnimationForm::getNowSelectFrameData( void )
@@ -1032,12 +1129,17 @@ void AnimationForm::addNewObject( QString str )
 	item->appendRow(newItem) ;
 	qDebug("addNewObject row:%d col:%d ptr:%p root:%p", newItem->index().row(), newItem->index().column(), newItem->index().internalPointer(), item) ;
 
-	CObjectModel::ObjectGroup obj = qMakePair( newItem, CObjectModel::LayerGroupList()) ;
+	CObjectModel::ObjectGroup obj ;
+	obj.id = newItem ;
+	obj.nCurrentLoop = 0 ;
+	obj.nLoop = 0 ;
 	m_pEditData->getObjectModel()->addObject(obj) ;
 
 	qDebug("newItem valid:%d row:%d col:%d", newItem->index().isValid(), newItem->row(), newItem->column()) ;
 	ui->treeView->setCurrentIndex(newItem->index());
 	m_pEditData->setSelectObject(newItem);
+
+	ui->spinBox_loop->setValue(0);
 }
 
 // フレームデータ編集コマンド

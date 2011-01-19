@@ -114,12 +114,21 @@ bool CObjectModel::isFrameDataInRect( const FrameData &data, QRect rect )
 	return false ;
 }
 
+CObjectModel::ObjectGroup *CObjectModel::getObjectGroupFromID( typeID objID )
+{
+	for ( int i = 0 ; i < m_ObjectList.size() ; i ++ ) {
+		if ( m_ObjectList.at(i).id != objID ) { continue ; }
+		return &m_ObjectList[i] ;
+	}
+	return NULL ;
+}
+
 // pObj のレイヤグループﾘｽﾄを返す
 CObjectModel::LayerGroupList *CObjectModel::getLayerGroupListFromID( typeID objID )
 {
 	for ( int i = 0 ; i < m_ObjectList.size() ; i ++ ) {
-		if ( m_ObjectList.at(i).first != objID ) { continue ; }
-		return &m_ObjectList[i].second ;
+		if ( m_ObjectList.at(i).id != objID ) { continue ; }
+		return &m_ObjectList[i].layerGroupList ;
 	}
 	return NULL ;
 }

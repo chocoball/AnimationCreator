@@ -6,10 +6,17 @@
 
 #include <QDomDocument>
 
-#define kAnmXML_Version			0x00000001
+/*!
+ @brief XMLフォーマット更新履歴
+ 2010/11/17	ver 0.0.1	フォーマット作成
+ 2011/01/19	ver 0.1.0	ループ回数、フレームデータRGBA追加
+ */
+
+#define kAnmXML_Version			0x00001000		///< バージョン 0x[00][000][000]
 
 #define kAnmXML_Attr_Version	"Version"
 #define kAnmXML_Attr_ObjNum		"ObjNum"
+#define kAnmXML_Attr_LoopNum	"LoopNum"
 #define kAnmXML_Attr_LayerNum	"LayerNum"
 #define kAnmXML_Attr_FrameNum	"FrameDataNum"
 #define kAnmXML_Attr_ImageNum	"ImageNum"
