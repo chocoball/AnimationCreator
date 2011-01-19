@@ -104,7 +104,10 @@ void CEditData::cmd_editFrameData( CObjectModel::typeID				objID,
 	m_pUndoStack->push( new Command_EditFrameData(this, objID, layerIDs, frame, datas, updateWidget));
 }
 
-
+void CEditData::cmd_copyObject(CObjectModel::typeID objID, QList<QWidget *> &updateWidget)
+{
+	m_pUndoStack->push( new Command_CopyObject(this, objID, updateWidget) );
+}
 
 
 

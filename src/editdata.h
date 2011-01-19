@@ -203,6 +203,7 @@ public:
 							int								frame,
 							QList<CObjectModel::FrameData>	&datas,
 							QList<QWidget *>				&updateWidget ) ;
+	void cmd_copyObject(CObjectModel::typeID objID, QList<QWidget *> &updateWidget) ;
 
 	void setCurrLoopNum( int num )
 	{

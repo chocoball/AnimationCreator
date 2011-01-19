@@ -100,6 +100,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	}
 
 	m_pActTreeViewAdd		= new QAction(QString("Add Object"), this);
+	m_pActTreeViewCopy		= new QAction(QString("Copy Object"), this) ;
 	m_pActTreeViewDel		= new QAction(QString("Delete"), this);
 	m_pActTreeViewLayerDisp = new QAction(QString("Disp"), this) ;
 
@@ -152,6 +153,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(ui->spinBox_center_x,		SIGNAL(valueChanged(int)),		this, SLOT(slot_changeCenterX(int))) ;
 	connect(ui->spinBox_center_y,		SIGNAL(valueChanged(int)),		this, SLOT(slot_changeCenterY(int))) ;
 	connect(m_pActTreeViewAdd,			SIGNAL(triggered()),			this, SLOT(slot_createNewObject())) ;
+	connect(m_pActTreeViewCopy,			SIGNAL(triggered()),			this, SLOT(slot_copyObject())) ;
 	connect(m_pActTreeViewDel,			SIGNAL(triggered()),			this, SLOT(slot_deleteObject())) ;
 	connect(m_pActTreeViewLayerDisp,	SIGNAL(triggered()),			this, SLOT(slot_changeLayerDisp())) ;
 	connect(ui->pushButton_play,		SIGNAL(clicked()),				this, SLOT(slot_playAnimation())) ;
@@ -724,9 +726,13 @@ void AnimationForm::slot_treeViewMenuReq(QPoint treeViewLocalPos)
 	QMenu menu(this) ;
 	menu.addAction(m_pActTreeViewAdd) ;
 	menu.addAction(m_pActTreeViewDel) ;
-	// レイヤ選択中だったら
 	if ( ui->treeView->currentIndex().internalPointer() != m_pEditData->getTreeModel()->invisibleRootItem() ) {
+		// レイヤ選択中だったら
 		menu.addAction(m_pActTreeViewLayerDisp) ;
+	}
+	else {
+		// オブジェクト選択中だったら
+		menu.addAction(m_pActTreeViewCopy) ;
 	}
 	menu.exec(ui->treeView->mapToGlobal(treeViewLocalPos) + QPoint(0, ui->treeView->header()->height())) ;
 }
@@ -1117,6 +1123,43 @@ QList<CObjectModel::FrameData *> AnimationForm::getNowSelectFrameData( void )
 		ret << m_pEditData->getSelectFrameData(i) ;
 	}
 	return ret ;
+}
+
+// 選択オブジェクトをコピー
+void AnimationForm::slot_copyObject( void )
+{
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	if ( !objID ) { return ; }
+
+#if 1
+	QList<QWidget *> updateWidget ;
+	updateWidget << m_pGlWidget << this ;
+	m_pEditData->cmd_copyObject(objID, updateWidget) ;
+#else
+	QStandardItem *pObjItem = objID ;
+	QString newName = pObjItem->text() + "_copy" ;
+
+	addNewObject(newName) ;
+	CObjectModel::typeID newObjID = m_pEditData->getSelectObject() ;
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	CObjectModel::ObjectGroup *pSrcObj = pModel->getObjectGroupFromID(objID) ;
+	CObjectModel::ObjectGroup *pDstObj = pModel->getObjectGroupFromID(newObjID) ;
+	if ( !pSrcObj || !pDstObj ) {
+		qDebug() << "copy failed!!" ;
+		return ;
+	}
+	for ( int i = 0 ; i < pSrcObj->layerGroupList.size() ; i ++ ) {
+		CObjectModel::FrameDataList *pList = &pSrcObj->layerGroupList[i].second ;
+		CObjectModel::FrameDataList newFrameDataList ;
+		for ( int j = 0 ; j < pList->size() ; j ++ ) {
+			newFrameDataList.append(pList[j]);
+		}
+		QString name = pSrcObj->layerGroupList[i].first->text() ;
+		QStandardItem *pItem = new QStandardItem(name) ;
+		CObjectModel::LayerGroup layerGroup = qMakePair(pItem, newFrameDataList) ;
+		pDstObj->layerGroupList.append(layerGroup);
+	}
+#endif
 }
 
 // オブジェクト追加

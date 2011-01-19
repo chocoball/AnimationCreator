@@ -361,8 +361,74 @@ void Command_EditFrameData::redo()
 	}
 }
 
+/**
+  オブジェクトコピーコマンド
+  */
+Command_CopyObject::Command_CopyObject( CEditData *pEditData, CObjectModel::typeID objID, QList<QWidget *> &updateWidget )
+{
+	m_pEditData			= pEditData ;
+	m_objID				= objID ;
+	m_UpdateWidgetList	= updateWidget ;
 
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	CObjectModel::ObjectGroup *pSrcObj = pModel->getObjectGroupFromID(m_objID) ;
+	if ( !pSrcObj ) {
+		qDebug() << "failed copy object 00" ;
+		return ;
+	}
+	m_objGroup.id = new QStandardItem(objID->text() + "_copy") ;
+	m_objGroup.nCurrentLoop = 0 ;
+	m_objGroup.nLoop = pSrcObj->nLoop ;
 
+	CObjectModel::LayerGroupList addLayerGroupList ;
+	for ( int i = 0 ; i < pSrcObj->layerGroupList.size() ; i ++ ) {
+		CObjectModel::LayerGroup *pLayerGroup = &pSrcObj->layerGroupList[i] ;
+		CObjectModel::LayerGroup newLayerGroup ;
+		newLayerGroup.first = new QStandardItem(pLayerGroup->first->text()) ;
+		newLayerGroup.first->setData(pLayerGroup->first->data(Qt::CheckStateRole), Qt::CheckStateRole) ;
+		newLayerGroup.second = pLayerGroup->second ;
+		addLayerGroupList.append(newLayerGroup) ;
+	}
+	m_objGroup.layerGroupList = addLayerGroupList ;
+}
+
+void Command_CopyObject::undo()
+{
+	QStandardItem *pItem = m_objGroup.id ;
+	QStandardItem *pRootItem = m_pEditData->getTreeModel()->invisibleRootItem() ;
+	if ( !pRootItem ) {
+		qDebug() << "Command_CopyObject::undo pRootItem==NULLpo!!" ;
+		return ;
+	}
+	pRootItem->takeRow(pItem->index().row()) ;
+
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	pModel->delObjectGroup(m_objGroup.id) ;
+
+	m_pEditData->updateSelectData();
+
+	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
+		m_UpdateWidgetList[i]->update();
+	}
+}
+
+void Command_CopyObject::redo()
+{
+	QStandardItem *pRootItem = m_pEditData->getTreeModel()->invisibleRootItem() ;
+	pRootItem->appendRow(m_objGroup.id) ;
+	for ( int i = 0 ; i < m_objGroup.layerGroupList.size() ; i ++ ) {
+		m_objGroup.id->appendRow(m_objGroup.layerGroupList.at(i).first) ;
+	}
+
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	pModel->addObject(m_objGroup) ;
+
+	m_pEditData->updateSelectData();
+
+	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
+		m_UpdateWidgetList[i]->update();
+	}
+}
 
 
 

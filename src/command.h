@@ -146,5 +146,21 @@ private:
 	QList<QWidget *>				m_UpdateWidgetList ;
 };
 
+// オブジェクトコピーコマンド
+class Command_CopyObject : public QUndoCommand
+{
+public:
+	Command_CopyObject( CEditData *pEditData, CObjectModel::typeID objID, QList<QWidget *> &updateWidget ) ;
+
+	void undo() ;
+	void redo() ;
+
+private:
+	CEditData						*m_pEditData ;
+	CObjectModel::typeID			m_objID ;
+	QList<QWidget *>				m_UpdateWidgetList ;
+
+	CObjectModel::ObjectGroup		m_objGroup ;
+} ;
 
 #endif // COMMAND_H

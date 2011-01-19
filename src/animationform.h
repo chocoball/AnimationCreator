@@ -98,6 +98,8 @@ public slots:
 	void slot_changeColorB(int val ) ;
 	void slot_changeColorA(int val ) ;
 
+	void slot_copyObject( void ) ;
+
 protected:
 	QList<CObjectModel::FrameData *> getNowSelectFrameData( void ) ;
 	void addNewObject( QString str ) ;
@@ -113,6 +115,7 @@ private:
 	int					m_ObjIndex ;
 
 	QAction				*m_pActTreeViewAdd ;
+	QAction				*m_pActTreeViewCopy ;
 	QAction				*m_pActTreeViewDel ;
 	QAction				*m_pActTreeViewLayerDisp ;
 	QAction				*m_pActPlay ;
