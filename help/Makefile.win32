@@ -1,4 +1,4 @@
-EXE	= qcollectiongenerator.exe
+EXEC	= D:\Qt\2010.05\qt\bin\qcollectiongenerator.exe
 
 COPY = copy
 DEL = del
@@ -6,7 +6,7 @@ DEL = del
 all: default install
 
 default:
-	$(EXE) AnimationCreator.qhcp -o AnimationCreator.qhc
+	$(EXEC) AnimationCreator.qhcp -o AnimationCreator.qhc
 
 install:
 	if not exist ..\..\AnimationCreator-build-desktop\debug\help mkdir ..\..\AnimationCreator-build-desktop\debug\help
