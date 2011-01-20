@@ -859,7 +859,11 @@ void AnimationForm::slot_timerEvent( void )
 
 	if ( frame > m_nMaxFrameNum ) {
 		if ( m_pEditData->addCurrLoopNum(1) ) {
+			// ループ終了
 			slot_stopAnimation() ;
+			ui->horizontalSlider_nowSequence->setValue(frame-1);
+			m_pEditData->setPlayAnime(true) ;
+			m_pEditData->setPauseAnime(false);
 			return ;
 		}
 		frame = 0 ;
