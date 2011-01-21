@@ -148,7 +148,10 @@ private:
 	Anm2DLayer	*search2DLayerFromName(Anm2DHeader *pHeader, QString name) ;
 
 private:
-	QByteArray		m_Data ;
+	QByteArray				m_Data ;
+	QList<Anm2DObject *>	m_ObjPtrList ;
+	QList<Anm2DLayer *>		m_LayerPtrList ;
+	QList<Anm2DFrameData *>	m_FrameDataPtrList ;
 };
 
 // XML形式

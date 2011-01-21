@@ -267,6 +267,8 @@ bool CAnm2DBin::addObject(Anm2DHeader *pHeader, CEditData &rEditData)
 				objGroup.id = newItem ;
 				objGroup.nLoop = pObj->nLoopNum ;	// ループ回数(after ver 0.1.0)
 				pModel->addObject(objGroup);
+
+				m_ObjPtrList.append(pObj) ;
 			}
 			break ;
 		case ANM2D_ID_LAYER:
@@ -295,6 +297,30 @@ bool CAnm2DBin::addLayer(Anm2DHeader *pHeader, CEditData &rEditData)
 				Anm2DLayer *pLayer = (Anm2DLayer *)p ;
 
 				CObjectModel::ObjectList &objList = *pModel->getObjectListPtr() ;
+#if 1
+				if ( m_ObjPtrList.size() != objList.size() ) {
+					qDebug() << "ObjPtrList != objList" ;
+					m_nError = kErrorNo_InvalidObjNum ;
+					return false ;
+				}
+				for ( int j = 0 ; j < objList.size() ; j ++ ) {
+					QStandardItem *pObjItem = (QStandardItem *)objList.at(j).id ;
+					Anm2DObject *pObj = m_ObjPtrList[j] ;
+					if ( !pObj ) {
+					}
+					for ( int k = 0 ; k < pObj->nLayerNum ; k ++ ) {
+						if ( pObj->nLayerNo[k] != pLayer->nLayerNo ) { continue ; }
+
+						QStandardItem *newItem = new QStandardItem(QString::fromUtf8(pLayer->layerName.name)) ;
+						newItem->setData(true, Qt::CheckStateRole);
+						pObjItem->appendRow(newItem);
+
+						CObjectModel::LayerGroup layerGroup = qMakePair(newItem, CObjectModel::FrameDataList()) ;
+						objList[j].layerGroupList.append(layerGroup);
+					}
+				}
+				m_LayerPtrList.append(pLayer) ;
+#else
 				for ( int j = 0 ; j < objList.size() ; j ++ ) {
 					QStandardItem *pObjItem = (QStandardItem *)objList.at(j).id ;
 					Anm2DObject *pObj = search2DObjectFromName(pHeader, pObjItem->text()) ;
@@ -314,6 +340,7 @@ bool CAnm2DBin::addLayer(Anm2DHeader *pHeader, CEditData &rEditData)
 						objList[j].layerGroupList.append(layerGroup);
 					}
 				}
+#endif
 			}
 			break ;
 		case ANM2D_ID_OBJECT:
@@ -342,6 +369,57 @@ bool CAnm2DBin::addFrameData(Anm2DHeader *pHeader, CEditData &rEditData)
 				Anm2DFrameData *pFrame = (Anm2DFrameData *)p ;
 
 				CObjectModel::ObjectList &objList = *pModel->getObjectListPtr() ;
+#if 1
+				if ( m_ObjPtrList.size() != objList.size() ) {
+					qDebug() << "ObjPtrList != objList" ;
+					m_nError = kErrorNo_InvalidObjNum ;
+					return false ;
+				}
+				for ( int objNum = 0 ; objNum < objList.size() ; objNum ++ ) {
+					Anm2DObject *pObj = m_ObjPtrList[objNum] ;
+					CObjectModel::LayerGroupList &layerGroupList = objList[objNum].layerGroupList ;
+					for ( int layerNum = 0 ; layerNum < pObj->nLayerNum ; layerNum ++ ) {
+						Anm2DLayer *pLayer = m_LayerPtrList[ pObj->nLayerNo[layerNum] ] ;
+						if ( !pLayer ) {
+							qDebug() << "pLayer == NULLpo" ;
+							m_nError = kErrorNo_InvalidLayerNum ;
+							return false ;
+						}
+
+						CObjectModel::FrameDataList &frameDataList = layerGroupList[layerNum].second ;
+						for ( int frameNum = 0 ; frameNum < pLayer->nFrameDataNum ; frameNum ++ ) {
+							if ( pLayer->nFrameDataNo[frameNum] != pFrame->nFrameDataNo ) { continue ; }
+
+							CObjectModel::FrameData data ;
+							data.frame		= pFrame->nFrame ;
+							data.pos_x		= pFrame->pos_x ;
+							data.pos_y		= pFrame->pos_y ;
+							data.pos_z		= pFrame->pos_z ;
+							data.rot_x		= pFrame->rot_x ;
+							data.rot_y		= pFrame->rot_y ;
+							data.rot_z		= pFrame->rot_z ;
+							data.center_x	= pFrame->cx ;
+							data.center_y	= pFrame->cy ;
+							data.left		= pFrame->uv[0] ;
+							data.right		= pFrame->uv[1] ;
+							data.top		= pFrame->uv[2] ;
+							data.bottom		= pFrame->uv[3] ;
+							data.fScaleX	= pFrame->fScaleX ;
+							data.fScaleY	= pFrame->fScaleY ;
+							data.nImage		= pFrame->nImageNo ;
+							data.bUVAnime	= (pFrame->bFlag & 0x01) ;
+							// 頂点色(after ver 0.1.0)
+							data.rgba[0]	= pFrame->rgba[0] ;
+							data.rgba[1]	= pFrame->rgba[1] ;
+							data.rgba[2]	= pFrame->rgba[2] ;
+							data.rgba[3]	= pFrame->rgba[3] ;
+
+							frameDataList.append(data) ;
+						}
+					}
+				}
+				m_FrameDataPtrList.append(pFrame) ;
+#else
 				for ( int objNum = 0 ; objNum < objList.size() ; objNum ++ ) {
 					CObjectModel::LayerGroupList &layerGroupList = objList[objNum].layerGroupList ;
 					for ( int layerGroupNum = 0 ; layerGroupNum < layerGroupList.size() ; layerGroupNum ++ ) {
@@ -384,6 +462,7 @@ bool CAnm2DBin::addFrameData(Anm2DHeader *pHeader, CEditData &rEditData)
 						}
 					}
 				}
+#endif
 			}
 			break ;
 		case ANM2D_ID_OBJECT:
