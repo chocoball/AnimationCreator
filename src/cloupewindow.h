@@ -19,6 +19,11 @@ public slots:
 	void slot_cursorScreenShort() ;
 	void slot_changeScale(QString str) ;
 
+protected:
+	void resizeEvent( QResizeEvent *event ) ;
+
+	void fixImage( QSize &size ) ;
+
 private:
 	CEditData		*m_pEditData ;
 	QLabel			*m_pLabel ;

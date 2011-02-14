@@ -46,45 +46,8 @@ void CLoupeWindow::slot_cursorScreenShort()
 		return ;
 	}
 
-	int rowSize = 200/m_Scale ;
-	QPoint pos = QApplication::desktop()->cursor().pos() ;
-	QPixmap pix = QPixmap::grabWindow(QApplication::desktop()->winId(), pos.x()-rowSize/2-(rowSize%2), pos.y()-rowSize/2-(rowSize%2), rowSize+(rowSize%2), rowSize+(rowSize%2)) ;
-	int i, j ;
-	QImage image = pix.scaled(QSize(200, 200)).toImage() ;
-
-	// ウィンドウからはみ出した場合、色を0に
-	for ( i = 0 ; i < -(pos.x()-50)*2 ; i ++ ) {
-		for ( j = 0 ; j < 200 ; j ++ ) {
-			image.setPixel(i, j, 0);
-		}
-	}
-	for ( i = 0 ; i < -(pos.y()-50)*2 ; i ++ ) {
-		for ( j = 0 ; j < 200 ; j ++ ) {
-			image.setPixel(j, i, 0);
-		}
-	}
-
-	for ( i = 199 ; i >= (200-(pos.x()+50-QApplication::desktop()->width())*2) ; i -- ) {
-		for ( j = 0 ; j < 200 ; j ++ ) {
-			image.setPixel(i, j, 0);
-		}
-	}
-	for ( i = 199 ; i >= (200-(pos.y()+50-QApplication::desktop()->height())*2) ; i -- ) {
-		for ( j = 0 ; j < 200 ; j ++ ) {
-			image.setPixel(j, i, 0);
-		}
-	}
-
-	// 中心
-	for ( i = 100-m_Scale*3 ; i <= 100+m_Scale*3 ; i ++ ) {
-		for ( j = 0 ; j < m_Scale ; j ++ ) {
-			image.setPixel(i, 100+j, QColor(255, 0, 0).rgba()) ;
-			image.setPixel(100+j, i, QColor(255, 0, 0).rgba()) ;
-		}
-	}
-
-	pix = QPixmap::fromImage(image) ;
-	m_pLabel->setPixmap(pix);
+	QSize size = m_pLabel->size() ;
+	fixImage(size) ;
 }
 
 void CLoupeWindow::slot_changeScale(QString str)
@@ -95,3 +58,61 @@ void CLoupeWindow::slot_changeScale(QString str)
 
 	m_Scale = val ;
 }
+
+void CLoupeWindow::resizeEvent( QResizeEvent *event )
+{
+	QSize size = m_pLabel->size() ;
+	fixImage(size) ;
+}
+
+void CLoupeWindow::fixImage( QSize &size )
+{
+	int imgWidth = size.width() ;
+	int imgHeight = size.height() ;
+	QPoint pos = QApplication::desktop()->cursor().pos() ;
+	int width = imgWidth / m_Scale ;
+	int height = imgHeight / m_Scale ;
+	int x = pos.x() - width/2 ;
+	int y = pos.y() - height/2 ;
+	QPixmap pix = QPixmap::grabWindow(QApplication::desktop()->winId(),
+									  x,
+									  y,
+									  width,
+									  height) ;
+	QImage image = pix.toImage() ;
+	int i, j ;
+	// デスクトップ範囲外を黒に。
+	for ( i = x ; i < 0 ; i ++ ) {
+		for ( j = 0 ; j < height ; j ++ ) {
+			image.setPixel(i-x, j, 0);
+		}
+	}
+	for ( i = y ; i < 0 ; i ++ ) {
+		for ( j = 0 ; j < width ; j ++ ) {
+			image.setPixel(j, i-y, 0);
+		}
+	}
+	for ( i = x+width ; i > QApplication::desktop()->width() ; i -- ) {
+		for ( j = 0 ; j < height ; j ++ ) {
+			image.setPixel(width-(i-QApplication::desktop()->width()), j, 0);
+		}
+	}
+	for ( i = y+height ; i > QApplication::desktop()->height() ; i -- ) {
+		for ( j = 0 ; j < width ; j ++ ) {
+			image.setPixel(j, height-(i-QApplication::desktop()->height()), 0);
+		}
+	}
+
+	// 中心
+	for ( i = width/2-3 ; i <= width/2+3 ; i ++ ) {
+		image.setPixel(i, height/2, QColor(255, 0, 0).rgba()) ;
+	}
+	for ( i = height/2-3 ; i <= height/2+3 ; i ++ ) {
+		image.setPixel(width/2, i, QColor(255, 0, 0).rgba()) ;
+	}
+
+	image = image.scaled(imgWidth, imgHeight) ;
+	pix = QPixmap::fromImage(image) ;
+	m_pLabel->setPixmap(pix);
+}
+
