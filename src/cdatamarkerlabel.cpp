@@ -21,7 +21,7 @@ void CDataMarkerLabel::paintEvent(QPaintEvent */*event*/)
 		const CObjectModel::FrameDataList &frameDataList = pLayerGroupList->at(i).second ;
 		for ( int j = 0 ; j < frameDataList.size() ; j ++ ) {
 			const CObjectModel::FrameData data = frameDataList.at(j) ;
-			int x = (width()-1) * data.frame / 180 ;
+			int x = (width()-1) * data.frame / CEditData::kMaxFrame ;
 			painter.drawLine(x, 0, x, height());
 		}
 	}

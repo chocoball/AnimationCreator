@@ -137,10 +137,10 @@ public:
 	typedef QList<LayerGroup>						LayerGroupList ;
 #if 1
 	typedef struct {
-		typeID			id ;
-		LayerGroupList	layerGroupList ;
-		int				nLoop ;
-		int				nCurrentLoop ;
+		typeID			id ;						// オブジェクトID
+		LayerGroupList	layerGroupList ;			// レイヤグループリスト
+		int				nLoop ;						// ループ回数
+		int				nCurrentLoop ;				// 現在のループ回数(アニメーション再生中)
 	} ObjectGroup ;
 #else
 	typedef QPair<typeID, LayerGroupList>			ObjectGroup ;		// オブジェクトID, レイヤグループリスト

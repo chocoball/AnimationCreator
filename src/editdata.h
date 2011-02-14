@@ -16,6 +16,10 @@ public:
 		QDateTime		lastModified ;	// fileNameの最終更新時間
 	} ImageData ;
 
+	enum {
+		kMaxFrame	= 180,		// 最大アニメーションフレーム数
+	} ;
+
 public:
 	CEditData() ;
 	~CEditData() ;

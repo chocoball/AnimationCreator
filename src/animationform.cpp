@@ -20,8 +20,8 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	m_pGlWidget->show();
 
 	ui->radioButton_pos->setChecked(true);
-	ui->spinBox_nowSequence->setMaximum(180);
-	ui->horizontalSlider_nowSequence->setMaximum(180);
+	ui->spinBox_nowSequence->setMaximum(CEditData::kMaxFrame);
+	ui->horizontalSlider_nowSequence->setMaximum(CEditData::kMaxFrame);
 	ui->spinBox_pos_x->setMinimum(-1028);
 	ui->spinBox_pos_x->setMaximum(1028);
 	ui->spinBox_pos_y->setMinimum(-1028);
@@ -158,6 +158,8 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(m_pActTreeViewLayerDisp,	SIGNAL(triggered()),			this, SLOT(slot_changeLayerDisp())) ;
 	connect(ui->pushButton_play,		SIGNAL(clicked()),				this, SLOT(slot_playAnimation())) ;
 	connect(ui->pushButton_stop,		SIGNAL(clicked()),				this, SLOT(slot_stopAnimation())) ;
+	connect(ui->pushButton_backward,	SIGNAL(clicked()),				this, SLOT(slot_backwardFrameData())) ;
+	connect(ui->pushButton_forward,		SIGNAL(clicked()),				this, SLOT(slot_forwardFrameData())) ;
 	connect(ui->checkBox_grid,			SIGNAL(clicked(bool)),			m_pGlWidget, SLOT(slot_setDrawGrid(bool))) ;
 	connect(ui->checkBox_uv_anime,		SIGNAL(clicked(bool)),			this, SLOT(slot_changeUVAnime(bool))) ;
 	connect(ui->comboBox_fps,			SIGNAL(activated(int)),			this, SLOT(slot_changeAnimeSpeed(int))) ;
@@ -852,6 +854,38 @@ void AnimationForm::slot_stopAnimation( void )
 	m_pGlWidget->update();
 }
 
+// 前フレームのフレームデータに変更
+void AnimationForm::slot_backwardFrameData( void )
+{
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	if ( !objID ) { return ; }
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	const CObjectModel::LayerGroupList *pLayerGroupList = pModel->getLayerGroupListFromID(objID) ;
+	if ( !pLayerGroupList ) { return ; }
+
+	for ( int i = m_pEditData->getSelectFrame()-1 ; i >= 0 ; i -- ) {
+		if ( setSelectFrameDataFromFrame(i, *pLayerGroupList) ) {
+			break ;
+		}
+	}
+}
+
+// 次フレームのフレームデータに変更
+void AnimationForm::slot_forwardFrameData( void )
+{
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	if ( !objID ) { return ; }
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	const CObjectModel::LayerGroupList *pLayerGroupList = pModel->getLayerGroupListFromID(objID) ;
+	if ( !pLayerGroupList ) { return ; }
+
+	for ( int i = m_pEditData->getSelectFrame()+1 ; i <= CEditData::kMaxFrame ; i ++ ) {
+		if ( setSelectFrameDataFromFrame(i, *pLayerGroupList) ) {
+			break ;
+		}
+	}
+}
+
 // タイマイベント。フレームを進める
 void AnimationForm::slot_timerEvent( void )
 {
@@ -1207,5 +1241,32 @@ void AnimationForm::addCommandEdit( QList<CObjectModel::FrameData *> &rData )
 
 	update << m_pGlWidget << this ;
 	m_pEditData->cmd_editFrameData(objID, m_pEditData->getSelectLayers(), frame, datas, update);
+}
+
+// 指定フレームのフレームデータを選択する
+bool AnimationForm::setSelectFrameDataFromFrame( int frame, const CObjectModel::LayerGroupList &layerGroupList )
+{
+	for ( int i = 0 ; i < layerGroupList.size() ; i ++ ) {
+		const CObjectModel::LayerGroup &layerGroup = layerGroupList.at(i) ;
+		CObjectModel::typeID layerID = layerGroup.first ;
+		const CObjectModel::FrameDataList &frameDataList = layerGroup.second ;
+		for ( int j = 0 ; j < frameDataList.size() ; j ++ ) {
+			if ( frame == frameDataList[j].frame ) {
+				QList<CObjectModel::typeID> layers ;
+				layers << layerID ;
+				m_pEditData->setSelectFrame(frame) ;
+				m_pEditData->setSelectLayer(layers);
+				ui->spinBox_nowSequence->setValue(frame);
+				QList<CObjectModel::FrameData *> datas = getNowSelectFrameData() ;
+				if ( datas.size() <= 0 ) {
+					qDebug() << "setSelectFrameDataFromFrame:frame data not found!!" ;
+				}
+				slot_setUI(*(datas[0]));
+				m_pGlWidget->update();
+				return true ;
+			}
+		}
+	}
+	return false ;
 }
 

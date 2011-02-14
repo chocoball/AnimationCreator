@@ -67,6 +67,9 @@ public slots:
 	void slot_pauseAnimation( void ) ;
 	void slot_stopAnimation( void ) ;
 
+	void slot_backwardFrameData( void ) ;
+	void slot_forwardFrameData( void ) ;
+
 	void slot_timerEvent( void ) ;
 	void slot_addNewFrameData( CObjectModel::typeID objID, CObjectModel::typeID layerID, int frame, CObjectModel::FrameData data ) ;
 	void slot_changeLayerDisp( void ) ;
@@ -105,6 +108,8 @@ protected:
 	void addNewObject( QString str ) ;
 
 	void addCommandEdit( QList<CObjectModel::FrameData *> &rData ) ;
+
+	bool setSelectFrameDataFromFrame( int frame, const CObjectModel::LayerGroupList &layerGroupList ) ;
 
 private:
 	Ui::AnimationForm	*ui;

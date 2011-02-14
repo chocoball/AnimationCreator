@@ -1,4 +1,5 @@
 #include "objectmodel.h"
+#include "editdata.h"
 
 // ---------------------------------------------------------------------------------
 //
@@ -227,7 +228,7 @@ CObjectModel::FrameData *CObjectModel::getFrameDataFromNextFrame( typeID objID, 
 		nowFrame ++ ;
 		pRet = getFrameDataFromIDAndFrame(objID, layerID, nowFrame) ;
 		if ( pRet ) { return pRet ; }
-	} while ( nowFrame < 180 ) ;
+	} while ( nowFrame < CEditData::kMaxFrame ) ;
 
 	return NULL ;
 }
