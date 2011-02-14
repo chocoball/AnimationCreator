@@ -479,7 +479,7 @@ bool MainWindow::fileOpen( QString fileName )
 	m_EditData.resetData();
 	m_UndoIndex = 0 ;
 
-	// テキスト アニメファイル
+	// XML アニメファイル
 	if ( fileName.indexOf(FILE_EXT_ANM2D_XML) > 0 ) {
 		CAnm2DXml data(setting.getSaveImage()) ;
 

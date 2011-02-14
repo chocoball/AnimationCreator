@@ -285,8 +285,9 @@ void AnimationForm::dbgDumpObject( void )
 				const CObjectModel::FrameData data = frameDataList.at(k) ;
 				qDebug("    FrameData [%d] x:%d y:%d z:%d", k, data.pos_x, data.pos_y, data.pos_z) ;
 				qDebug("              cx:%d cy:%d frame:%d", data.center_x, data.center_y, data.frame) ;
-				qDebug("　　　　　　　　　　　　　　scaX:%f scaY:%f", data.fScaleX, data.fScaleY) ;
-				qDebug("　　　　　　　　　　　　　　l:%d r:%d t:%d b:%d", data.left, data.right, data.top, data.bottom) ;
+				qDebug("              scaX:%f scaY:%f", data.fScaleX, data.fScaleY) ;
+				qDebug("              l:%d r:%d t:%d b:%d", data.left, data.right, data.top, data.bottom) ;
+				qDebug("              bUVAnime:%d", data.bUVAnime) ;
 			}
 		}
 	}
@@ -981,6 +982,7 @@ void AnimationForm::slot_changeUVAnime( bool flag )
 	for ( int i = 0 ; i < Datas.size() ; i ++ ) {
 		Datas[i]->bUVAnime = flag ;
 	}
+	addCommandEdit(Datas) ;
 }
 
 // イメージ更新
