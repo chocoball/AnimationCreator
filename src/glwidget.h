@@ -104,6 +104,9 @@ private:
 	int								m_dragMode ;				///< ドラッグモード kDragMode_~
 
 	float							m_rotStart ;				///< 回転変更時の開始ラジアン
+
+	bool							m_bDrawCenter ;
+	QPoint							m_centerPos ;
 };
 
 #endif // GLWIDGET_H

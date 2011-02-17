@@ -74,6 +74,8 @@ void AnimeGLWidget::paintGL()
 	glMatrixMode(GL_MODELVIEW) ;
 	glLoadIdentity() ;
 
+	m_bDrawCenter = false ;
+
 	if ( m_pEditData ) {
 		drawLayers() ;
 	}
@@ -118,34 +120,14 @@ void AnimeGLWidget::drawLayers_Normal()
 	for ( i = 0 ; i < layerGroupList.size() ; i ++ ) {
 		QStandardItem *pLayerItem = layerGroupList[i].first ;
 		if ( !pLayerItem->data(Qt::CheckStateRole).toBool() ) { continue ; }	// 非表示
-#if 1
 		CObjectModel::FrameDataList &frameDataList = layerGroupList[i].second ;
 		for ( j = 0 ; j < frameDataList.size() ; j ++ ) {
 			CObjectModel::FrameData *data = &frameDataList[j] ;
 			if ( data->frame != selFrame ) { continue ; }
 			sort.append(data);
 		}
-#else
-		for ( j = 0 ; j < m_pEditData->getSelectLayerNum() ; j ++ ) {
-			if ( pLayerItem != m_pEditData->getSelectLayer(j) ) { continue ; }
-			const CObjectModel::FrameData *data = m_pEditData->getSelectFrameData(j) ;
-			if ( !data ) { continue ; }
-			if ( data->frame != selFrame ) { continue ; }
-			drawFrameData(*data) ;
-			break ;
-		}
-		if ( j != m_pEditData->getSelectLayerNum() ) { continue ; }
-
-		const CObjectModel::FrameDataList &frameDataList = layerGroupList[i].second ;
-		for ( j = 0 ; j < frameDataList.size() ; j ++ ) {
-			const CObjectModel::FrameData &data = frameDataList.at(j) ;
-			if ( data.frame != selFrame ) { continue ; }
-
-			drawFrameData(data);
-		}
-#endif
 	}
-#if 1
+
 	for ( int i = 0 ; i < sort.size() ; i ++ ) {
 		for ( int j = i + 1 ; j < sort.size() ; j ++ ) {
 			if ( sort[i]->pos_z > sort[j]->pos_z ) {
@@ -156,7 +138,7 @@ void AnimeGLWidget::drawLayers_Normal()
 	for ( int i = 0 ; i < sort.size() ; i ++ ) {
 		drawFrameData(*sort[i]);
 	}
-#endif
+
 	// 前フレームのレイヤ
 	for ( i = 0 ; i < layerGroupList.size() ; i ++ ) {
 		QStandardItem *pLayerItem = layerGroupList[i].first ;
@@ -230,8 +212,10 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 			drawLine(QPoint(v.x0, v.y1), QPoint(v.x1, v.y1), col, 0);
 		glPopMatrix();
 
-		if ( (m_dragMode != kDragMode_Edit) || m_bPressCtrl ) {
-			continue ;
+		if ( m_editMode != kEditMode_Center ) {
+			if ( (m_dragMode != kDragMode_Edit) || m_bPressCtrl ) {
+				continue ;
+			}
 		}
 
 		switch ( m_editMode ) {
@@ -255,6 +239,12 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 			}
 
 			glDisable(GL_LINE_STIPPLE);
+			break ;
+		case kEditMode_Center:
+			{
+				m_bDrawCenter = true ;
+				m_centerPos = QPoint(pData->pos_x, pData->pos_y) ;
+			}
 			break ;
 		}
 	}
@@ -331,6 +321,14 @@ void AnimeGLWidget::drawGrid( void )
 	QColor colHalfYellow = QColor(255, 255, 0, 128) ;
 	drawLine(QPoint(0, -m_DrawHeight/2), QPoint(0, m_DrawHeight/2), colHalfYellow) ;
 	drawLine(QPoint(-m_DrawWidth/2, 0), QPoint(m_DrawWidth/2, 0), colHalfYellow) ;
+
+	if ( m_bDrawCenter ) {
+		glDisable(GL_DEPTH_TEST) ;
+		QColor col = QColor(0, 0, 255, 255) ;
+		drawLine(QPoint(-512, m_centerPos.y()), QPoint(512, m_centerPos.y()), col, 1.0) ;
+		drawLine(QPoint(m_centerPos.x(), -512), QPoint(m_centerPos.x(), 512), col, 1.0) ;
+		glEnable(GL_DEPTH_TEST) ;
+	}
 
 	glPopMatrix();
 }

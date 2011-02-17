@@ -103,29 +103,31 @@ public:
 		struct _tagFrameData getInterpolation(const struct _tagFrameData *pNext, int nowFrame) const
 		{
 			struct _tagFrameData data = *this ;
-			int frameNow = nowFrame - frame ;
-			int frameAll = pNext->frame - frame ;
-			data.pos_x		+= (pNext->pos_x - pos_x)*frameNow/frameAll ;
-			data.pos_y		+= (pNext->pos_y - pos_y)*frameNow/frameAll ;
-			data.pos_z		+= (pNext->pos_z - pos_z)*frameNow/frameAll ;
-			data.rot_x		+= (pNext->rot_x - rot_x)*frameNow/frameAll ;
-			data.rot_y		+= (pNext->rot_y - rot_y)*frameNow/frameAll ;
-			data.rot_z		+= (pNext->rot_z - rot_z)*frameNow/frameAll ;
-			data.center_x	+= (pNext->center_x - center_x)*frameNow/frameAll ;
-			data.center_y	+= (pNext->center_y - center_y)*frameNow/frameAll ;
+			if ( pNext ) {
+				int frameNow = nowFrame - frame ;
+				int frameAll = pNext->frame - frame ;
+				data.pos_x		+= (pNext->pos_x - pos_x)*frameNow/frameAll ;
+				data.pos_y		+= (pNext->pos_y - pos_y)*frameNow/frameAll ;
+				data.pos_z		+= (pNext->pos_z - pos_z)*frameNow/frameAll ;
+				data.rot_x		+= (pNext->rot_x - rot_x)*frameNow/frameAll ;
+				data.rot_y		+= (pNext->rot_y - rot_y)*frameNow/frameAll ;
+				data.rot_z		+= (pNext->rot_z - rot_z)*frameNow/frameAll ;
+				data.center_x	+= (pNext->center_x - center_x)*frameNow/frameAll ;
+				data.center_y	+= (pNext->center_y - center_y)*frameNow/frameAll ;
 
-			if ( pNext->bUVAnime ) {
-				data.left		+= (pNext->left - left)*frameNow/frameAll ;
-				data.right		+= (pNext->right - right)*frameNow/frameAll ;
-				data.top		+= (pNext->top - top)*frameNow/frameAll ;
-				data.bottom		+= (pNext->bottom - bottom)*frameNow/frameAll ;
-			}
+				if ( pNext->bUVAnime ) {
+					data.left		+= (pNext->left - left)*frameNow/frameAll ;
+					data.right		+= (pNext->right - right)*frameNow/frameAll ;
+					data.top		+= (pNext->top - top)*frameNow/frameAll ;
+					data.bottom		+= (pNext->bottom - bottom)*frameNow/frameAll ;
+				}
 
-			data.fScaleX	+= (pNext->fScaleX - fScaleX)*frameNow/frameAll ;
-			data.fScaleY	+= (pNext->fScaleY - fScaleY)*frameNow/frameAll ;
+				data.fScaleX	+= (pNext->fScaleX - fScaleX)*frameNow/frameAll ;
+				data.fScaleY	+= (pNext->fScaleY - fScaleY)*frameNow/frameAll ;
 
-			for ( int i = 0 ; i < 4 ; i ++ ) {
-				data.rgba[i] += (pNext->rgba[i] - rgba[i])*frameNow/frameAll ;
+				for ( int i = 0 ; i < 4 ; i ++ ) {
+					data.rgba[i] += (pNext->rgba[i] - rgba[i])*frameNow/frameAll ;
+				}
 			}
 			return data ;
 		}

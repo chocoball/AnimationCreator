@@ -467,7 +467,7 @@ void AnimationForm::slot_frameChanged(int frame)
 		if ( Datas.size() ) {
 			slot_setUI(*(Datas[0]));
 		}
-#if 0
+#if 1
 		else {
 			if ( m_pEditData->getSelectLayerNum() ) {
 				CObjectModel::typeID objID		= m_pEditData->getSelectObject() ;
@@ -477,6 +477,8 @@ void AnimationForm::slot_frameChanged(int frame)
 					CObjectModel::FrameData *pPrev = pModel->getFrameDataFromPrevFrame(objID, layerID, frame, false) ;
 					CObjectModel::FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
 					if ( pPrev ) {
+						CObjectModel::FrameData data = pPrev->getInterpolation(pNext, frame) ;
+						slot_setUI(data) ;
 					}
 				}
 			}
@@ -963,8 +965,6 @@ void AnimationForm::slot_timerEvent( void )
 			// ループ終了
 			slot_stopAnimation() ;
 			ui->horizontalSlider_nowSequence->setValue(frame-1);
-			m_pEditData->setPlayAnime(true) ;
-			m_pEditData->setPauseAnime(false);
 			return ;
 		}
 		frame = 0 ;
@@ -1139,6 +1139,7 @@ void AnimationForm::slot_clickedRadioPos( bool flag )
 	if ( flag ) {
 		m_pGlWidget->setEditMode(AnimeGLWidget::kEditMode_Pos) ;
 	}
+	m_pGlWidget->update();
 }
 
 // ラジオボタン ROT クリック
@@ -1147,6 +1148,7 @@ void AnimationForm::slot_clickedRadioRot( bool flag )
 	if ( flag ) {
 		m_pGlWidget->setEditMode(AnimeGLWidget::kEditMode_Rot) ;
 	}
+	m_pGlWidget->update();
 }
 
 // ラジオボタン CENTER クリック
@@ -1155,6 +1157,7 @@ void AnimationForm::slot_clickedRadioCenter( bool flag )
 	if ( flag ) {
 		m_pGlWidget->setEditMode(AnimeGLWidget::kEditMode_Center) ;
 	}
+	m_pGlWidget->update();
 }
 
 // ラジオボタン SCALE クリック
@@ -1163,6 +1166,7 @@ void AnimationForm::slot_clickedRadioScale( bool flag )
 	if ( flag ) {
 		m_pGlWidget->setEditMode(AnimeGLWidget::kEditMode_Scale) ;
 	}
+	m_pGlWidget->update();
 }
 
 // ループ回数変更
@@ -1383,10 +1387,12 @@ void AnimationForm::addNowSelectLayerAndFrame( void )
 		if ( !layerID ) { continue ; }
 		if ( pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ) { continue ; }	// すでにデータある
 
-		CObjectModel::FrameData *pData = pModel->getFrameDataFromPrevFrame(objID, layerID, frame, true) ;
-		if ( !pData ) { continue ; }
+		CObjectModel::FrameData *pPrev = pModel->getFrameDataFromPrevFrame(objID, layerID, frame, true) ;
+		if ( !pPrev ) { continue ; }
+		CObjectModel::FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
+		CObjectModel::FrameData data = pPrev->getInterpolation(pNext, frame) ;
 
-		slot_addNewFrameData(objID, layerID, frame, *pData) ;	// フレームデータ追加
+		slot_addNewFrameData(objID, layerID, frame, data) ;	// フレームデータ追加
 	}
 	m_pEditData->updateSelectData();
 }
