@@ -113,10 +113,19 @@ void AnimeGLWidget::drawLayers_Normal()
 
 	if ( pModel->getLayerGroupListFromID(objID) == NULL ) { return ; }
 
-	const CObjectModel::LayerGroupList &layerGroupList = *pModel->getLayerGroupListFromID(objID) ;
+	QList<CObjectModel::FrameData *> sort ;
+	CObjectModel::LayerGroupList &layerGroupList = *pModel->getLayerGroupListFromID(objID) ;
 	for ( i = 0 ; i < layerGroupList.size() ; i ++ ) {
 		QStandardItem *pLayerItem = layerGroupList[i].first ;
 		if ( !pLayerItem->data(Qt::CheckStateRole).toBool() ) { continue ; }	// 非表示
+#if 1
+		CObjectModel::FrameDataList &frameDataList = layerGroupList[i].second ;
+		for ( j = 0 ; j < frameDataList.size() ; j ++ ) {
+			CObjectModel::FrameData *data = &frameDataList[j] ;
+			if ( data->frame != selFrame ) { continue ; }
+			sort.append(data);
+		}
+#else
 		for ( j = 0 ; j < m_pEditData->getSelectLayerNum() ; j ++ ) {
 			if ( pLayerItem != m_pEditData->getSelectLayer(j) ) { continue ; }
 			const CObjectModel::FrameData *data = m_pEditData->getSelectFrameData(j) ;
@@ -134,8 +143,20 @@ void AnimeGLWidget::drawLayers_Normal()
 
 			drawFrameData(data);
 		}
+#endif
 	}
-
+#if 1
+	for ( int i = 0 ; i < sort.size() ; i ++ ) {
+		for ( int j = i + 1 ; j < sort.size() ; j ++ ) {
+			if ( sort[i]->pos_z > sort[j]->pos_z ) {
+				sort.swap(i, j);
+			}
+		}
+	}
+	for ( int i = 0 ; i < sort.size() ; i ++ ) {
+		drawFrameData(*sort[i]);
+	}
+#endif
 	// 前フレームのレイヤ
 	for ( i = 0 ; i < layerGroupList.size() ; i ++ ) {
 		QStandardItem *pLayerItem = layerGroupList[i].first ;
@@ -148,7 +169,6 @@ void AnimeGLWidget::drawLayers_Normal()
 			drawFrameData(data, QColor(255, 255, 255, 128));
 		}
 	}
-
 }
 
 // アニメ再生中
@@ -196,7 +216,7 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 		const CObjectModel::FrameData *pData = m_pEditData->getSelectFrameData(i) ;
 		if ( !pData ) { continue ; }
 
-		const Vertex v = pData->getVertex() ;
+		Vertex v = pData->getVertex() ;
 
 		glPushMatrix();
 			glTranslatef(pData->pos_x, pData->pos_y, pData->pos_z / 4096.0f);
@@ -392,13 +412,14 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 
 	if ( event->button() == Qt::LeftButton ) {	// 左ボタン
 		QPoint localPos = event->pos() - QPoint(512, 512) ;
+		m_DragOffset = event->pos() ;
 
 		CObjectModel *pModel = m_pEditData->getObjectModel() ;
 		CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
 		int frame = m_pEditData->getSelectFrame() ;
+
 		CObjectModel::typeID layerID = pModel->getLayerIDFromFrameAndPos(objID, frame, localPos) ;
 
-		m_DragOffset = event->pos() ;
 		if ( !layerID ) {
 			// 前フレームを調べる
 			CObjectModel::LayerGroupList *pLGList = pModel->getLayerGroupListFromID(objID) ;
@@ -418,6 +439,7 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 				}
 			}
 		}
+
 		if ( layerID ) {
 			CObjectModel::FrameData *p = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
 			if ( p ) {

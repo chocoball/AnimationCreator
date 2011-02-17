@@ -109,7 +109,8 @@ protected:
 
 	void addCommandEdit( QList<CObjectModel::FrameData *> &rData ) ;
 
-	bool setSelectFrameDataFromFrame( int frame, const CObjectModel::LayerGroupList &layerGroupList ) ;
+//	bool setSelectFrameDataFromFrame( int frame, const CObjectModel::LayerGroupList &layerGroupList ) ;
+	bool setSelectFrameDataFromFrame( int frame, CObjectModel::typeID layerID, const CObjectModel::FrameDataList &frameDataList ) ;
 
 	void addNowSelectLayerAndFrame( void ) ;
 

@@ -75,7 +75,6 @@ void CGridLabel::paintEvent(QPaintEvent *event)
 		painter.setPen(pen);
 
 		QRect rect = m_pImageData->getCatchRect() ;
-		qDebug("l:%d r:%d t:%d b:%d", rect.left(), rect.right(), rect.top(), rect.bottom()) ;
 		rect.setLeft(rect.left());
 		rect.setRight(rect.right()-1);
 		rect.setTop(rect.top());
@@ -220,10 +219,6 @@ void CGridLabel::mouseReleaseEvent(QMouseEvent *ev)
 
 void CGridLabel::keyPressEvent(QKeyEvent *ev)
 {
-	if ( m_pImageData->getSelectLayer() == 0 ) {
-		return ;
-	}
-
 	if ( ev->key() == Qt::Key_Control ) {
 		m_bPressCtrl = true ;
 		update() ;

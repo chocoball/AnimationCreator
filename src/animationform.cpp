@@ -467,6 +467,21 @@ void AnimationForm::slot_frameChanged(int frame)
 		if ( Datas.size() ) {
 			slot_setUI(*(Datas[0]));
 		}
+#if 0
+		else {
+			if ( m_pEditData->getSelectLayerNum() ) {
+				CObjectModel::typeID objID		= m_pEditData->getSelectObject() ;
+				CObjectModel::typeID layerID	= m_pEditData->getSelectLayer() ;
+				if ( objID && layerID ) {
+					CObjectModel *pModel = m_pEditData->getObjectModel() ;
+					CObjectModel::FrameData *pPrev = pModel->getFrameDataFromPrevFrame(objID, layerID, frame, false) ;
+					CObjectModel::FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
+					if ( pPrev ) {
+					}
+				}
+			}
+		}
+#endif
 		m_pEditData->updateSelectData();
 	}
 	m_pGlWidget->update();
@@ -518,7 +533,6 @@ void AnimationForm::slot_setUI(CObjectModel::FrameData data)
 
 	if ( data.getRect() != m_pEditData->getCatchRect() ) {
 		QRect rect = data.getRect() ;
-qDebug("slot_setUI l:%d r:%d t:%d b:%d", rect.left(), rect.right(), rect.top(), rect.bottom()) ;
 		m_pEditData->setCatchRect(rect);
 		emit sig_imageRepaint() ;
 	}
@@ -872,8 +886,26 @@ void AnimationForm::slot_stopAnimation( void )
 // 前フレームのフレームデータに変更
 void AnimationForm::slot_backwardFrameData( void )
 {
+#if 1
+	// 選択中のレイヤだけ
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
+	if ( !objID || !layerID ) { return ; }
+
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	const CObjectModel::FrameDataList *pFrameDataList = pModel->getFrameDataListFromID(objID, layerID) ;
+	if ( !pFrameDataList ) {
+		return ;
+	}
+	for ( int i = m_pEditData->getSelectFrame()-1 ; i >= 0 ; i -- ) {
+		if ( setSelectFrameDataFromFrame(i, layerID, *pFrameDataList) ) {
+			break ;
+		}
+	}
+#else
 	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
 	if ( !objID ) { return ; }
+
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
 	const CObjectModel::LayerGroupList *pLayerGroupList = pModel->getLayerGroupListFromID(objID) ;
 	if ( !pLayerGroupList ) { return ; }
@@ -883,11 +915,29 @@ void AnimationForm::slot_backwardFrameData( void )
 			break ;
 		}
 	}
+#endif
 }
 
 // 次フレームのフレームデータに変更
 void AnimationForm::slot_forwardFrameData( void )
 {
+#if 1
+	// 選択中のレイヤだけ
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
+	if ( !objID || !layerID ) { return ; }
+
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	const CObjectModel::FrameDataList *pFrameDataList = pModel->getFrameDataListFromID(objID, layerID) ;
+	if ( !pFrameDataList ) {
+		return ;
+	}
+	for ( int i = m_pEditData->getSelectFrame()+1 ; i <= CEditData::kMaxFrame ; i ++ ) {
+		if ( setSelectFrameDataFromFrame(i, layerID, *pFrameDataList) ) {
+			break ;
+		}
+	}
+#else
 	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
 	if ( !objID ) { return ; }
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
@@ -899,6 +949,7 @@ void AnimationForm::slot_forwardFrameData( void )
 			break ;
 		}
 	}
+#endif
 }
 
 // タイマイベント。フレームを進める
@@ -1269,6 +1320,28 @@ void AnimationForm::addCommandEdit( QList<CObjectModel::FrameData *> &rData )
 }
 
 // 指定フレームのフレームデータを選択する
+#if 1
+bool AnimationForm::setSelectFrameDataFromFrame( int frame, CObjectModel::typeID layerID, const CObjectModel::FrameDataList &frameDataList )
+{
+	for ( int i = 0 ; i < frameDataList.size() ; i ++ ) {
+		if ( frame == frameDataList[i].frame ) {
+			QList<CObjectModel::typeID> layers ;
+			layers << layerID ;
+			m_pEditData->setSelectFrame(frame) ;
+			m_pEditData->setSelectLayer(layers);
+			ui->spinBox_nowSequence->setValue(frame);
+			QList<CObjectModel::FrameData *> datas = getNowSelectFrameData() ;
+			if ( datas.size() <= 0 ) {
+				qDebug() << "setSelectFrameDataFromFrame:frame data not found!!" ;
+			}
+			slot_setUI(*(datas[0]));
+			m_pGlWidget->update();
+			return true ;
+		}
+	}
+	return false ;
+}
+#else
 bool AnimationForm::setSelectFrameDataFromFrame( int frame, const CObjectModel::LayerGroupList &layerGroupList )
 {
 	for ( int i = 0 ; i < layerGroupList.size() ; i ++ ) {
@@ -1294,6 +1367,7 @@ bool AnimationForm::setSelectFrameDataFromFrame( int frame, const CObjectModel::
 	}
 	return false ;
 }
+#endif
 
 // 選択レイヤの選択フレームにフレームデータを追加
 void AnimationForm::addNowSelectLayerAndFrame( void )
