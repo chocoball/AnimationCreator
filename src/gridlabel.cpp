@@ -75,6 +75,7 @@ void CGridLabel::paintEvent(QPaintEvent *event)
 		painter.setPen(pen);
 
 		QRect rect = m_pImageData->getCatchRect() ;
+		qDebug("l:%d r:%d t:%d b:%d", rect.left(), rect.right(), rect.top(), rect.bottom()) ;
 		rect.setLeft(rect.left());
 		rect.setRight(rect.right()-1);
 		rect.setTop(rect.top());
@@ -159,10 +160,10 @@ void CGridLabel::mouseMoveEvent(QMouseEvent *ev)
 	}
 	else {
 		if ( x < 0 ) { x = 0 ; }
-		if ( x >= img_w ) { x = img_w-1 ; }
+		if ( x >= img_w ) { x = img_w ; }
 		if ( x < r.left() ) { x = r.left() ; }
 		if ( y < 0 ) { y = 0 ; }
-		if ( y >= img_h ) { y = img_h-1 ; }
+		if ( y >= img_h ) { y = img_h ; }
 		if ( y < r.top() ) { y = r.top() ; }
 
 		r.setRight(x);
@@ -197,10 +198,10 @@ void CGridLabel::mouseReleaseEvent(QMouseEvent *ev)
 	int y = ev->pos().y() / mScale ;
 
 	if ( x < 0 ) { x = 0 ; }
-	if ( x >= img_w ) { x = img_w-1 ; }
+	if ( x > img_w ) { x = img_w ; }
 	if ( x < r.left() ) { x = r.left() ; }
 	if ( y < 0 ) { y = 0 ; }
-	if ( y >= img_h ) { y = img_h-1 ; }
+	if ( y > img_h ) { y = img_h ; }
 	if ( y < r.top() ) { y = r.top() ; }
 
 	r.setRight(x);
@@ -212,9 +213,38 @@ void CGridLabel::mouseReleaseEvent(QMouseEvent *ev)
 		r.setBottom(-1);
 	}
 	m_pImageData->setCatchRect(r);
+	emit sig_changeCatchRect(r) ;
 
 	repaint() ;
+}
 
+void CGridLabel::keyPressEvent(QKeyEvent *ev)
+{
+	if ( m_pImageData->getSelectLayer() == 0 ) {
+		return ;
+	}
+
+	if ( ev->key() == Qt::Key_Control ) {
+		m_bPressCtrl = true ;
+		update() ;
+	}
+
+	if ( m_bPressCtrl ) {
+		if ( ev->key() == Qt::Key_A ) {
+			selectAll() ;
+		}
+		else if ( ev->key() == Qt::Key_D ) {
+			deselect() ;
+		}
+	}
+}
+
+void CGridLabel::keyReleaseEvent(QKeyEvent *ev)
+{
+	if ( ev->key() == Qt::Key_Control ) {
+		m_bPressCtrl = false ;
+		update() ;
+	}
 }
 
 // ドラッグアンドドロップ開始
@@ -250,23 +280,29 @@ void CGridLabel::startDragAndDrop( QMouseEvent *ev )
 	m_pImageData->setDraggingImage(false);
 }
 
-void CGridLabel::keyPressEvent(QKeyEvent *ev)
+void CGridLabel::selectAll( void )
 {
-	if ( m_pImageData->getSelectLayer() == 0 ) {
-		return ;
-	}
+	QRect r ;
+	int img_w = m_pImageData->getImage(m_Index).width() ;
+	int img_h = m_pImageData->getImage(m_Index).height() ;
 
-	if ( ev->key() == Qt::Key_Control ) {
-		m_bPressCtrl = true ;
-		update() ;
-	}
+	r.setLeft(0);
+	r.setRight(img_w);
+	r.setTop(0);
+	r.setBottom(img_h);
+	m_pImageData->setCatchRect(r);
+	update() ;
 }
 
-void CGridLabel::keyReleaseEvent(QKeyEvent *ev)
+void CGridLabel::deselect( void )
 {
-	if ( ev->key() == Qt::Key_Control ) {
-		m_bPressCtrl = false ;
-		update() ;
-	}
+	QRect r ;
+	r.setLeft(-2);
+	r.setRight(-2);
+	r.setTop(-1);
+	r.setBottom(-1);
+	m_pImageData->setCatchRect(r);
+	update() ;
 }
+
 

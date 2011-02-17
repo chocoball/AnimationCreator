@@ -123,7 +123,7 @@
         </LAYER>
     </OBJECT>
     <IMAGE No="0">
-        <FilePath>ほげ.bmp</FilePath>
+        <FilePath>test.bmp</FilePath>
         <Size>256 256</Size>
     </IMAGE>
 </ROOT>

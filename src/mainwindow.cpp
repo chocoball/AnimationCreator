@@ -536,6 +536,7 @@ bool MainWindow::fileOpen( QString fileName )
 	}
 
 	for ( int i = 0 ; i < m_EditData.getImageDataSize() ; i ++ ) {
+		m_EditData.setOriginalImageSize(i, m_EditData.getImage(i).size().width(), m_EditData.getImage(i).size().height()) ;
 		resizeImage(m_EditData.getImage(i));
 	}
 

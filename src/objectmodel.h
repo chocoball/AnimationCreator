@@ -67,7 +67,7 @@ public:
 		}
 		QRect getRect() const
 		{
-			return QRect(left, top, right-left, bottom-top) ;
+			return QRect(left, top, right-left+1, bottom-top+1) ;
 		}
 		int width() const { return right - left ; }
 		int height() const { return bottom - top ; }

@@ -43,6 +43,9 @@ signals:
 private:
 	void startDragAndDrop( QMouseEvent *ev ) ;
 
+	void selectAll( void ) ;
+	void deselect( void ) ;
+
 private:
 	int				mScale ;			// 倍率
 	bool			bCatching ;			// 範囲選択中ならtrue

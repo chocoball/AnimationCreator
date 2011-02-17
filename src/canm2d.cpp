@@ -776,9 +776,18 @@ bool CAnm2DXml::makeImage( QDomElement &element, QDomDocument &doc, CEditData &r
 #endif
 		elmTmp.appendChild(text) ;
 		elmImage.appendChild(elmTmp) ;
+		
+		int w, h ;
+		if ( m_bSaveImage ) {
+			w = image.width() ;
+			h = image.height() ;
+		}
+		else {
+			rEditData.getOriginalImageSize(i, w, h) ;
+		}
 
 		elmTmp = doc.createElement("Size") ;
-		text = doc.createTextNode(QString("%1 %2").arg(image.width()).arg(image.height())) ;
+		text = doc.createTextNode(QString("%1 %2").arg(w).arg(h)) ;
 		elmTmp.appendChild(text) ;
 		elmImage.appendChild(elmTmp) ;
 

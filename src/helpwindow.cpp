@@ -8,7 +8,7 @@ HelpWindow::HelpWindow(QWidget *parent)
 	QString helpPath = qApp->applicationDirPath()+"/help/AnimationCreator.qhc" ;
 	m_pEngine = new QHelpEngine(helpPath, this) ;
 	if ( !m_pEngine->setupData() ) {
-		QMessageBox::warning(this, trUtf8("エラー"), trUtf8("ヘルプファイルを開けません:%1").arg(helpPath)) ;
+		QMessageBox::warning(this, trUtf8("エラー:%1").arg(m_pEngine->error()), trUtf8("ヘルプファイルを開けません:%1").arg(helpPath)) ;
 
 		delete m_pEngine ;
 		m_pEngine = NULL ;

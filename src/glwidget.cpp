@@ -399,7 +399,6 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 		CObjectModel::typeID layerID = pModel->getLayerIDFromFrameAndPos(objID, frame, localPos) ;
 
 		m_DragOffset = event->pos() ;
-
 		if ( !layerID ) {
 			// 前フレームを調べる
 			CObjectModel::LayerGroupList *pLGList = pModel->getLayerGroupListFromID(objID) ;
@@ -419,7 +418,6 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 				}
 			}
 		}
-
 		if ( layerID ) {
 			CObjectModel::FrameData *p = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
 			if ( p ) {
@@ -433,10 +431,12 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 
 			m_dragMode = kDragMode_Edit ;
 		}
+#if 0
 		else {
 			m_dragMode = kDragMode_SelPlural ;
 			m_SelPluralStartPos = m_SelPluralEndPos = event->pos() - QPoint(512, 512) ;
 		}
+#endif
 	}
 }
 

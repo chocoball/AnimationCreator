@@ -111,6 +111,8 @@ protected:
 
 	bool setSelectFrameDataFromFrame( int frame, const CObjectModel::LayerGroupList &layerGroupList ) ;
 
+	void addNowSelectLayerAndFrame( void ) ;
+
 private:
 	Ui::AnimationForm	*ui;
 

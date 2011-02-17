@@ -518,6 +518,7 @@ void AnimationForm::slot_setUI(CObjectModel::FrameData data)
 
 	if ( data.getRect() != m_pEditData->getCatchRect() ) {
 		QRect rect = data.getRect() ;
+qDebug("slot_setUI l:%d r:%d t:%d b:%d", rect.left(), rect.right(), rect.top(), rect.bottom()) ;
 		m_pEditData->setCatchRect(rect);
 		emit sig_imageRepaint() ;
 	}
@@ -529,6 +530,7 @@ void AnimationForm::slot_changePosX( int val )
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
 
+	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) { return ; }
 
@@ -542,6 +544,7 @@ void AnimationForm::slot_changePosY( int val )
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
 
+	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) { return ; }
 
@@ -555,6 +558,7 @@ void AnimationForm::slot_changePosZ( int val )
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
 
+	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) { return ; }
 
@@ -568,6 +572,7 @@ void AnimationForm::slot_changeRotX( int val )
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
 
+	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) { return ; }
 
@@ -581,6 +586,7 @@ void AnimationForm::slot_changeRotY( int val )
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
 
+	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) { return ; }
 
@@ -594,6 +600,7 @@ void AnimationForm::slot_changeRotZ( int val )
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
 
+	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) { return ; }
 
@@ -607,6 +614,7 @@ void AnimationForm::slot_changeScaleX( double val )
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
 
+	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) { return ; }
 
@@ -620,6 +628,7 @@ void AnimationForm::slot_changeScaleY( double val )
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
 
+	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) { return ; }
 
@@ -633,6 +642,7 @@ void AnimationForm::slot_changeUvLeft( int val )
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
 
+	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) { return ; }
 
@@ -650,6 +660,7 @@ void AnimationForm::slot_changeUvRight( int val )
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
 
+	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) { return ; }
 
@@ -667,6 +678,7 @@ void AnimationForm::slot_changeUvTop( int val )
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
 
+	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) { return ; }
 
@@ -684,6 +696,7 @@ void AnimationForm::slot_changeUvBottom( int val )
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
 
+	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) { return ; }
 
@@ -701,6 +714,7 @@ void AnimationForm::slot_changeCenterX( int val )
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
 
+	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) { return ; }
 
@@ -715,6 +729,7 @@ void AnimationForm::slot_changeCenterY( int val )
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
 
+	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) { return ; }
 
@@ -944,6 +959,7 @@ void AnimationForm::slot_changeLayerDisp( void )
 // 選択中レイヤのUV変更
 void AnimationForm::slot_changeSelectLayerUV( QRect rect )
 {
+	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) {
 		return ;
@@ -996,19 +1012,23 @@ void AnimationForm::slot_delImage( int imageNo )
 // イメージ番号変更
 void AnimationForm::slot_changeImageIndex(int index)
 {
+	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) {
 		return ;
 	}
+
 	for ( int i = 0 ; i < Datas.size() ; i ++ ) {
 		Datas[i]->nImage = index ;
 	}
 	m_pGlWidget->update();
+	addCommandEdit(Datas) ;
 }
 
 // UVアニメON/OFF
 void AnimationForm::slot_changeUVAnime( bool flag )
 {
+	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) {
 		return ;
@@ -1037,6 +1057,7 @@ void AnimationForm::slot_endedOption( void )
 	m_pGlWidget->update();
 }
 
+// マウスでのデータ編集終了時
 void AnimationForm::slot_frameDataMoveEnd( void )
 {
 	int i ;
@@ -1110,6 +1131,7 @@ void AnimationForm::slot_changeColorR( int val )
 {
 	if ( m_bDontSetData ) { return ; }
 
+	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) { return ; }
 
@@ -1122,6 +1144,7 @@ void AnimationForm::slot_changeColorG( int val )
 {
 	if ( m_bDontSetData ) { return ; }
 
+	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) { return ; }
 
@@ -1134,6 +1157,7 @@ void AnimationForm::slot_changeColorB( int val )
 {
 	if ( m_bDontSetData ) { return ; }
 
+	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) { return ; }
 
@@ -1146,6 +1170,7 @@ void AnimationForm::slot_changeColorA( int val )
 {
 	if ( m_bDontSetData ) { return ; }
 
+	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) { return ; }
 
@@ -1270,3 +1295,24 @@ bool AnimationForm::setSelectFrameDataFromFrame( int frame, const CObjectModel::
 	return false ;
 }
 
+// 選択レイヤの選択フレームにフレームデータを追加
+void AnimationForm::addNowSelectLayerAndFrame( void )
+{
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	int frame = m_pEditData->getSelectFrame() ;
+
+	if ( !objID ) { return ; }
+
+	for ( int i = 0 ; i < m_pEditData->getSelectLayerNum() ; i ++ ) {
+		CObjectModel::typeID layerID = m_pEditData->getSelectLayer(i) ;
+		if ( !layerID ) { continue ; }
+		if ( pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ) { continue ; }	// すでにデータある
+
+		CObjectModel::FrameData *pData = pModel->getFrameDataFromPrevFrame(objID, layerID, frame, true) ;
+		if ( !pData ) { continue ; }
+
+		slot_addNewFrameData(objID, layerID, frame, *pData) ;	// フレームデータ追加
+	}
+	m_pEditData->updateSelectData();
+}

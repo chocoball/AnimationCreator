@@ -11,6 +11,7 @@ class CEditData
 public:
 	typedef struct {
 		QImage			Image ;
+		int				origImageW, origImageH ;
 		GLuint			nTexObj ;
 		QString			fileName ;
 		QDateTime		lastModified ;	// fileNameの最終更新時間
@@ -111,6 +112,25 @@ public:
 	{
 		if ( index < 0 || index >= m_ImageData.size() ) { return 0 ; }
 		return m_ImageData[index].nTexObj ;
+	}
+	
+	void setOriginalImageSize( int index, int w, int h )
+	{
+		if ( index < 0 || index >= m_ImageData.size() ) {
+			return ;
+		}
+		m_ImageData[index].origImageW = w ;
+		m_ImageData[index].origImageH = h ;
+	}
+	void getOriginalImageSize( int index, int &w, int &h )
+	{
+		w = 0 ;
+		h = 0 ;
+		if ( index < 0 || index >= m_ImageData.size() ) {
+			return ;
+		}
+		w = m_ImageData[index].origImageW ;
+		h = m_ImageData[index].origImageH ;
 	}
 
 	void	setCatchRect( QRect &rect )	{ m_CatchRect = rect ; }
