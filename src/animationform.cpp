@@ -958,11 +958,20 @@ void AnimationForm::slot_forwardFrameData( void )
 void AnimationForm::slot_timerEvent( void )
 {
 	int frame = ui->horizontalSlider_nowSequence->value() ;
+
+	// PNG吐き出し中
+	if ( m_pEditData->isExportPNG() ) {
+		if ( m_pEditData->getExportEndFrame() < frame ) {
+			return ;
+		}
+	}
+
 	frame ++ ;
 
 	if ( frame > m_nMaxFrameNum ) {
-		if ( m_pEditData->addCurrLoopNum(1) ) {
+		if ( m_pEditData->isExportPNG() || m_pEditData->addCurrLoopNum(1) ) {
 			// ループ終了
+			m_pEditData->endExportPNG() ;
 			slot_stopAnimation() ;
 			ui->horizontalSlider_nowSequence->setValue(frame-1);
 			return ;

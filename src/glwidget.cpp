@@ -20,6 +20,10 @@ AnimeGLWidget::AnimeGLWidget(CEditData *editData, CSettings *pSetting, QWidget *
 
 	m_editMode = kEditMode_Pos ;
 	m_dragMode = kDragMode_None ;
+
+	QGLFormat f = format() ;
+	f.setAlpha(true) ;
+	setFormat(f);
 }
 
 GLuint AnimeGLWidget::bindTexture(QImage &image)
@@ -64,6 +68,9 @@ void AnimeGLWidget::resizeGL(int w, int h)
 void AnimeGLWidget::paintGL()
 {
 	QColor col = m_pSetting->getAnimeBGColor() ;
+	if ( m_pEditData->isExportPNG() ) {
+		col.setAlphaF(0);
+	}
 	glClearColor(col.redF(), col.greenF(), col.blueF(), col.alphaF()) ;
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT) ;
 
@@ -83,6 +90,19 @@ void AnimeGLWidget::paintGL()
 	if ( m_bDrawGrid ) {
 		drawGrid() ;
 	}
+
+	// PNG吐き出しモード
+	if ( m_pEditData->getEditMode() == CEditData::kEditMode_ExportPNG && !m_pEditData->isExportPNG() ) {
+		int rect[4] ;
+		QColor col = QColor(255, 0, 0, 255) ;
+		m_pEditData->getExportPNGRect(rect);
+		glDisable(GL_DEPTH_TEST);
+		drawLine(QPoint(rect[0], rect[1]), QPoint(rect[2], rect[1]), col, 1.0) ;
+		drawLine(QPoint(rect[2], rect[1]), QPoint(rect[2], rect[3]), col, 1.0) ;
+		drawLine(QPoint(rect[2], rect[3]), QPoint(rect[0], rect[3]), col, 1.0) ;
+		drawLine(QPoint(rect[0], rect[3]), QPoint(rect[0], rect[1]), col, 1.0) ;
+		glEnable(GL_DEPTH_TEST);
+	}
 }
 
 void AnimeGLWidget::drawLayers( void )
@@ -91,11 +111,24 @@ void AnimeGLWidget::drawLayers( void )
 
 	glEnable(GL_TEXTURE_2D) ;
 
-	if ( m_pEditData->isPlayAnime() || m_pEditData->isPauseAnime() ) {
-		drawLayers_Anime() ;
-	}
-	else {
-		drawLayers_Normal() ;
+	switch ( m_pEditData->getEditMode() ) {
+	case CEditData::kEditMode_Animation:
+		if ( m_pEditData->isPlayAnime() || m_pEditData->isPauseAnime() ) {
+			drawLayers_Anime() ;
+		}
+		else {
+			drawLayers_Normal() ;
+		}
+		break ;
+	case CEditData::kEditMode_ExportPNG:
+		if ( m_pEditData->isExportPNG() ) {
+			drawLayers_Anime() ;
+			writePNGFromFrameBuffer() ;
+		}
+		else {
+			drawLayers_All() ;
+		}
+		break ;
 	}
 
 	if ( !m_pEditData->isPlayAnime() || m_pEditData->isPauseAnime() ) {
@@ -161,6 +194,8 @@ void AnimeGLWidget::drawLayers_Anime()
 	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
 	if ( !pModel->getLayerGroupListFromID(objID) ) { return ; }
 
+	QList<CObjectModel::FrameData> sort ;
+
 	const CObjectModel::LayerGroupList &layerGroupList = *pModel->getLayerGroupListFromID(objID) ;
 	for ( int i = 0 ; i < layerGroupList.size() ; i ++ ) {
 		CObjectModel::typeID layerID = layerGroupList[i].first ;
@@ -168,10 +203,47 @@ void AnimeGLWidget::drawLayers_Anime()
 		const CObjectModel::FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
 
 		if ( !pNow ) { continue ; }
+#if 1
+		const CObjectModel::FrameData data = pNow->getInterpolation(pNext, frame) ;
+		sort.append(data);
+#else
 		if ( !pNext ) {	// 次フレームのデータがない
 			drawFrameData(*pNow);
 		}
 		else {
+			drawFrameData(data);
+		}
+#endif
+	}
+	for ( int i = 0 ; i < sort.size() ; i ++ ) {
+		for ( int j = i + 1 ; j < sort.size() ; j ++ ) {
+			if ( sort[i].pos_z > sort[j].pos_z ) {
+				sort.swap(i, j);
+			}
+		}
+	}
+	for ( int i = 0 ; i < sort.size() ; i ++ ) {
+		drawFrameData(sort[i]);
+	}
+}
+
+// 全フレーム描画
+void AnimeGLWidget::drawLayers_All( void )
+{
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	if ( !objID ) { return ; }
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	const CObjectModel::LayerGroupList *pLayerGroupList = pModel->getLayerGroupListFromID(objID) ;
+	if ( !pLayerGroupList ) { return ; }
+
+	int maxFrame = pModel->getMaxFrameFromSelectObject(objID) ;
+	for ( int frame = 0 ; frame <= maxFrame ; frame ++ ) {
+		for ( int i = 0 ; i < pLayerGroupList->size() ; i ++ ) {
+			CObjectModel::typeID layerID = pLayerGroupList->at(i).first ;
+			const CObjectModel::FrameData *pNow = pModel->getFrameDataFromPrevFrame(objID, layerID, frame+1) ;
+			const CObjectModel::FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
+
+			if ( !pNow ) { continue ; }
 			const CObjectModel::FrameData data = pNow->getInterpolation(pNext, frame) ;
 			drawFrameData(data);
 		}
@@ -322,13 +394,13 @@ void AnimeGLWidget::drawGrid( void )
 	drawLine(QPoint(0, -m_DrawHeight/2), QPoint(0, m_DrawHeight/2), colHalfYellow) ;
 	drawLine(QPoint(-m_DrawWidth/2, 0), QPoint(m_DrawWidth/2, 0), colHalfYellow) ;
 
+	glDisable(GL_DEPTH_TEST) ;
 	if ( m_bDrawCenter ) {
-		glDisable(GL_DEPTH_TEST) ;
 		QColor col = QColor(0, 0, 255, 255) ;
 		drawLine(QPoint(-512, m_centerPos.y()), QPoint(512, m_centerPos.y()), col, 1.0) ;
 		drawLine(QPoint(m_centerPos.x(), -512), QPoint(m_centerPos.x(), 512), col, 1.0) ;
-		glEnable(GL_DEPTH_TEST) ;
 	}
+	glEnable(GL_DEPTH_TEST) ;
 
 	glPopMatrix();
 }
@@ -409,6 +481,18 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 	if ( m_pEditData->isPlayAnime() ) { return ; }
 
 	if ( event->button() == Qt::LeftButton ) {	// 左ボタン
+
+		// 連番PNG吐き出し時
+		if ( m_pEditData->getEditMode() == CEditData::kEditMode_ExportPNG ) {
+			int rect[4] = { 0, 0, 0, 0 } ;
+			rect[0] = rect[2] = event->pos().x()-512 ;
+			rect[1] = rect[3] = event->pos().y()-512+1 ;
+			m_pEditData->setExportPNGRect(rect);
+			emit sig_exportPNGRectChange() ;
+			update() ;
+			return ;
+		}
+
 		QPoint localPos = event->pos() - QPoint(512, 512) ;
 		m_DragOffset = event->pos() ;
 
@@ -466,6 +550,18 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
 	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
 	int frame = m_pEditData->getSelectFrame() ;
+
+	// 連番PNG吐き出し時
+	if ( m_pEditData->getEditMode() == CEditData::kEditMode_ExportPNG ) {
+		int rect[4] = { 0, 0, 0, 0 } ;
+		m_pEditData->getExportPNGRect(rect);
+		rect[2] = event->pos().x()-512 ;
+		rect[3] = event->pos().y()-512+1 ;
+		m_pEditData->setExportPNGRect(rect);
+		emit sig_exportPNGRectChange() ;
+		update() ;
+		return ;
+	}
 
 	switch ( m_dragMode ) {
 	case kDragMode_Edit:
@@ -639,6 +735,41 @@ QPoint AnimeGLWidget::editData(CObjectModel::FrameData *pData, QPoint nowPos, QP
 		}
 	}
 	return ret ;
+}
+
+// フレームバッファをPNGに吐き出す
+void AnimeGLWidget::writePNGFromFrameBuffer( void )
+{
+	QString dir = m_pEditData->getExportPNGDir() ;
+	int frame = m_pEditData->getSelectFrame() ;
+	QString name = dir + "/" + QVariant(frame).toString() + ".png" ;
+	int rect[4] ;
+	m_pEditData->getExportPNGRect(rect);
+	rect[0] += 512 ;
+	rect[1] += 512 ;
+	rect[2] += 512 ;
+	rect[3] += 512 ;
+	if ( rect[0] > rect[2] ) {
+		int tmp = rect[0] ;
+		rect[0] = rect[2] ;
+		rect[2] = tmp ;
+	}
+	if ( rect[1] > rect[3] ) {
+		int tmp = rect[1] ;
+		rect[1] = rect[3] ;
+		rect[3] = tmp ;
+	}
+
+	qDebug("l:%d t:%d r:%d b:%d", rect[0], rect[1], rect[2], rect[3]) ;
+	qDebug() << "name:" << name ;
+	int x = rect[0] ;
+	int y = rect[1] ;
+	int w = rect[2]-x ;
+	int h = rect[3]-y ;
+
+	QImage img = grabFrameBuffer(true).copy(x, y, w, h) ;
+	img.save(name) ;
+	m_pEditData->setExportEndFrame(frame) ;
 }
 
 // 描画エリア設定

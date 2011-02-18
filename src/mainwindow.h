@@ -9,6 +9,8 @@
 #include "cdropablemdiarea.h"
 #include "cloupewindow.h"
 #include "helpwindow.h"
+#include "exportpngform.h"
+
 
 QT_BEGIN_NAMESPACE
 class QMdiArea ;
@@ -42,6 +44,9 @@ public slots:
 	void slot_triggeredAnimeWindow( bool flag ) ;
 
 	void slot_option( void ) ;
+
+	void slot_exportPNG( void ) ;
+	void slot_closeExportPNGForm( void ) ;
 
 #ifndef QT_NO_DEBUG
 	void slot_dbgObjectDump( void ) ;
@@ -78,6 +83,8 @@ private:
 	ImageWindow			*m_pImageWindow ;		// イメージウィンドウ
 	CLoupeWindow		*m_pLoupeWindow ;		// ルーペウィンドウ
 	AnimationForm		*m_pAnimationForm ;		// アニメーションフォーム
+	ExportPNGForm		*m_pExportPNGForm ;		// PNG吐き出しフォーム
+	QMdiSubWindow		*m_pExpngSubWindow ;
 
 	// 編集データ ----
 	QString				m_StrSaveFileName ;		// 保存ファイル名
@@ -92,6 +99,7 @@ private:
 	QAction				*m_pActOpen ;			// ファイルを開く
 	QAction				*m_pActSave ;			// 保存
 	QAction				*m_pActSaveAs ;			// 名前を付けて保存
+	QAction				*m_pActExportPNG ;		// 連番PNGにエクスポート
 	QAction				*m_pActExit ;			// 終了
 	QAction				*m_pActUndo ;			// 戻す
 	QAction				*m_pActRedo ;			// やり直す

@@ -39,6 +39,7 @@ void CEditData::resetData( void )
 
 void CEditData::initData( void )
 {
+	m_editMode = kEditMode_Animation ;
 	m_ImageData.clear();
 
 	m_CatchRect			= QRect(0, 0, 0, 0) ;
@@ -60,6 +61,14 @@ void CEditData::initData( void )
 	m_bPlayAnime		= false ;
 	m_bPauseAnime		= false ;
 	m_bDraggingImage	= false ;
+	m_bExportPNG		= false ;
+
+	m_strExportPNGDir	= QString() ;
+
+	m_exPngRect[0] =
+	m_exPngRect[1] =
+	m_exPngRect[2] =
+	m_exPngRect[3] = 0 ;
 }
 
 // オブジェクト追加コマンド
@@ -108,6 +117,4 @@ void CEditData::cmd_copyObject(CObjectModel::typeID objID, QList<QWidget *> &upd
 {
 	m_pUndoStack->push( new Command_CopyObject(this, objID, updateWidget) );
 }
-
-
 

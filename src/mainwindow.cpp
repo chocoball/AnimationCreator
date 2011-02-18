@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
 	m_pImageWindow = NULL ;
 	m_pLoupeWindow = NULL ;
 	m_pAnimationForm = NULL ;
+	m_pExportPNGForm = NULL ;
 
 	setObjectName("AnimationCreator MainWindow");
 }
@@ -206,6 +207,34 @@ void MainWindow::slot_option( void )
 	emit sig_endedOption() ;
 }
 
+// 連番PNG保存
+void MainWindow::slot_exportPNG( void )
+{
+	if ( !m_pMdiArea->findChild<ExportPNGForm *>(trUtf8("ExportPNGForm")) ) {
+		if ( !m_pMdiArea->findChild<AnimationForm *>(trUtf8("AnimationForm")) ) {
+			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("アニメーションウィンドウがありません")) ;
+			return ;
+		}
+		m_pExportPNGForm = new ExportPNGForm(&m_EditData, &setting, this) ;
+		m_pExpngSubWindow = m_pMdiArea->addSubWindow( m_pExportPNGForm ) ;
+		m_pExportPNGForm->show() ;
+		connect(m_pAnimationForm->m_pGlWidget, SIGNAL(sig_exportPNGRectChange()), m_pExportPNGForm, SLOT(slot_changeRect())) ;
+		connect(m_pExportPNGForm, SIGNAL(sig_changeRect()), m_pAnimationForm->m_pGlWidget, SLOT(update())) ;
+		connect(m_pExportPNGForm, SIGNAL(sig_startExport()), m_pAnimationForm, SLOT(slot_playAnimation())) ;
+		connect(m_pExportPNGForm, SIGNAL(sig_cancel()), this, SLOT(slot_closeExportPNGForm())) ;
+
+		m_pAnimationForm->m_pGlWidget->update();
+	}
+}
+
+void MainWindow::slot_closeExportPNGForm( void )
+{
+	m_pMdiArea->removeSubWindow(m_pExpngSubWindow);
+	delete m_pExportPNGForm ;
+	m_pExportPNGForm = NULL ;
+	m_pExpngSubWindow = NULL ;
+}
+
 #ifndef QT_NO_DEBUG
 void MainWindow::slot_dbgObjectDump( void )
 {
@@ -225,13 +254,18 @@ void MainWindow::readRootSetting( void )
 	QSettings settings("Editor", "rootSettings") ;
 #endif
 	settings.beginGroup("Global");
-	QString dir =
 #if defined(Q_OS_WIN32)
-	settings.value("cur_dir", QString(".\\")).toString() ;
+	QString dir = settings.value("cur_dir", QString(".\\")).toString() ;
+	QString save_dir = settings.value("save_dir", dir).toString() ;
+	QString png_dir = settings.value("png_dir", dir).toString() ;
 #elif defined(Q_OS_MAC)
-	settings.value("cur_dir", QString("/Users/")).toString() ;
+	QString dir = settings.value("cur_dir", QString("/Users/")).toString() ;
+	QString save_dir = settings.value("save_dir", QString("/Users/")).toString() ;
+	QString png_dir = settings.value("png_dir", QString("/Users/")).toString() ;
 #elif defined(Q_OS_LINUX)
-	settings.value("cur_dir", QString("/home/")).toString() ;
+	QString dir = settings.value("cur_dir", QString("/home/")).toString() ;
+	QString save_dir = settings.value("save_dir", QString("/home/")).toString() ;
+	QString png_dir = settings.value("png_dir", QString("/home/")).toString() ;
 #else
 	#error OSが定義されてないよ
 #endif
@@ -251,6 +285,8 @@ void MainWindow::readRootSetting( void )
 	move(pos) ;
 	resize(size) ;
 	setting.setCurrentDir(dir) ;
+	setting.setCurrentSaveDir(save_dir);
+	setting.setCurrentPNGDir(png_dir);
 	setting.setAnimeBGColor(animeCol);
 	setting.setImageBGColor(imageCol);
 	setting.setSaveImage(bSaveImage);
@@ -268,6 +304,8 @@ void MainWindow::writeRootSetting( void )
 #endif
 	settings.beginGroup("Global");
 	settings.setValue("cur_dir", setting.getCurrentDir()) ;
+	settings.setValue("save_dir", setting.getCurrentSaveDir()) ;
+	settings.setValue("png_dir", setting.getCurrentPNGDir()) ;
 	settings.setValue("anime_color", setting.getAnimeBGColor().rgba());
 	settings.setValue("image_color", setting.getImageBGColor().rgba());
 	settings.setValue("save_image", setting.getSaveImage());
@@ -300,6 +338,10 @@ void MainWindow::createActions( void )
 	m_pActSaveAs->setShortcuts(QKeySequence::SaveAs) ;
 	m_pActSaveAs->setStatusTip(trUtf8("ファイルを保存します")) ;
 	connect(m_pActSaveAs, SIGNAL(triggered()), this, SLOT(slot_saveAs())) ;
+
+	// 連番PNG保存
+	m_pActExportPNG = new QAction(trUtf8("連番PNG"), this) ;
+	connect(m_pActExportPNG, SIGNAL(triggered()), this, SLOT(slot_exportPNG())) ;
 
 	// 終了
 	m_pActExit = new QAction(trUtf8("E&xit"), this) ;
@@ -362,6 +404,11 @@ void MainWindow::createMenus( void )
 	pMenu->addAction(m_pActOpen) ;
 	pMenu->addAction(m_pActSave) ;
 	pMenu->addAction(m_pActSaveAs) ;
+	pMenu->addSeparator() ;
+	{
+		QMenu *p = pMenu->addMenu(trUtf8("Export")) ;
+		p->addAction(m_pActExportPNG) ;
+	}
 	pMenu->addSeparator() ;
 	pMenu->addAction(m_pActExit) ;
 

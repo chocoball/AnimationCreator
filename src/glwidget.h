@@ -36,6 +36,7 @@ signals:
 	void sig_deleteFrameData( void ) ;
 	void sig_selectPrevLayer( CObjectModel::typeID objID, CObjectModel::typeID layerID, int frame, CObjectModel::FrameData data ) ;
 	void sig_frameDataMoveEnd( void ) ;
+	void sig_exportPNGRectChange( void ) ;
 
 public slots:
 	void slot_actDel( void ) ;
@@ -49,6 +50,7 @@ protected:
 	void drawLayers( void ) ;
 	void drawLayers_Normal( void ) ;
 	void drawLayers_Anime( void ) ;
+	void drawLayers_All( void ) ;
 	void drawSelFrameInfo( void ) ;
 	void drawFrameData( const CObjectModel::FrameData &data, QColor col = QColor(255, 255, 255, 255) ) ;
 	void drawGrid( void ) ;
@@ -69,6 +71,8 @@ protected:
 	void keyReleaseEvent(QKeyEvent *event);
 
 	QPoint editData(CObjectModel::FrameData *pData, QPoint nowPos, QPoint oldPos) ;
+
+	void writePNGFromFrameBuffer( void ) ;
 
 public:
 	void setDrawArea( int w, int h ) ;

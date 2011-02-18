@@ -114,10 +114,11 @@ protected:
 
 	void addNowSelectLayerAndFrame( void ) ;
 
+public:
+	AnimeGLWidget		*m_pGlWidget ;
+
 private:
 	Ui::AnimationForm	*ui;
-
-	AnimeGLWidget		*m_pGlWidget ;
 
 	CEditData			*m_pEditData ;
 	int					m_ObjIndex ;

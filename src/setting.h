@@ -12,6 +12,9 @@ public:
 	void setCurrentSaveDir( QString &str )	{ mCurrSaveDir = str ; }
 	QString &getCurrentSaveDir()			{ return mCurrSaveDir ; }
 
+	void setCurrentPNGDir( QString &str )	{ mCurrPngDir = str ; }
+	QString &getCurrentPNGDir()				{ return mCurrPngDir ; }
+
 	void setSaveImage(bool flag)			{ m_bSaveImage = flag ; }
 	bool getSaveImage()						{ return m_bSaveImage ; }
 
@@ -24,6 +27,7 @@ public:
 private:
 	QString		mCurrDir ;
 	QString		mCurrSaveDir ;
+	QString		mCurrPngDir ;
 
 	bool		m_bSaveImage ;		///< XML保存時、画像データも保存するならtrue
 	QColor		m_AnimeBGColor ;	///< アニメーションウィンドウのBG色

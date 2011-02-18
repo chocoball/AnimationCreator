@@ -26,7 +26,8 @@ SOURCES		+=								\
 				src/mainwindow.cpp			\
 				src/main.cpp				\
 				src/objectmodel.cpp			\
-				src/optiondialog.cpp
+				src/optiondialog.cpp \
+    src/exportpngform.cpp
 
 HEADERS		+=								\
 				src/Anm2dTypes.h			\
@@ -46,11 +47,13 @@ HEADERS		+=								\
 				src/mainwindow.h			\
 				src/objectmodel.h			\
 				src/optiondialog.h			\
-				src/setting.h
+				src/setting.h \
+    src/exportpngform.h
 
 RESOURCES	+=	Resource.qrc
 
 FORMS		+= 	ui/animationform.ui			\
-				ui/imagewindow.ui
+				ui/imagewindow.ui \
+    ui/exportpngform.ui
 
 CONFIG		+=	help

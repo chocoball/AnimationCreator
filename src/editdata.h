@@ -21,9 +21,26 @@ public:
 		kMaxFrame	= 180,		// 最大アニメーションフレーム数
 	} ;
 
+	// edit mode
+	enum {
+		kEditMode_Animation = 0,
+		kEditMode_ExportPNG,
+
+		kEditMode_Num,
+	} ;
+
 public:
 	CEditData() ;
 	~CEditData() ;
+	
+	void setEditMode( int mode )
+	{
+		m_editMode = mode ;
+	}
+	int getEditMode( void )
+	{
+		return m_editMode ;
+	}
 
 	void setImageData( QList<ImageData> &data )
 	{
@@ -246,7 +263,59 @@ public:
 		return (p->nCurrentLoop > p->nLoop) ;
 	}
 
+	// 連番PNG保存関連 ----------------------
+	void startExportPNG( QString dir )
+	{
+		m_nExportEndFrame = 0 ;
+		m_strExportPNGDir = dir ;
+		m_bExportPNG = true ;
+	}
+
+	void endExportPNG( void )
+	{
+		m_bExportPNG = false ;
+	}
+
+	QString getExportPNGDir( void )
+	{
+		return m_strExportPNGDir ;
+	}
+
+	bool isExportPNG( void )
+	{
+		return m_bExportPNG ;
+	}
+
+	void getExportPNGRect( int ret[4] )
+	{
+		ret[0] = m_exPngRect[0] ;
+		ret[1] = m_exPngRect[1] ;
+		ret[2] = m_exPngRect[2] ;
+		ret[3] = m_exPngRect[3] ;
+	}
+
+	void setExportPNGRect( int rect[4] )
+	{
+		m_exPngRect[0] = rect[0] ;
+		m_exPngRect[1] = rect[1] ;
+		m_exPngRect[2] = rect[2] ;
+		m_exPngRect[3] = rect[3] ;
+	}
+
+	int getExportEndFrame( void )
+	{
+		return m_nExportEndFrame ;
+	}
+	void setExportEndFrame( int frame )
+	{
+		m_nExportEndFrame = frame ;
+	}
+	// --------------------------------------
+
+
 private:
+	int								m_editMode ;
+
 	QList<ImageData>				m_ImageData ;
 
 	QRect							m_CatchRect ;
@@ -265,6 +334,11 @@ private:
 	bool							m_bPlayAnime ;
 	bool							m_bPauseAnime ;
 	bool							m_bDraggingImage ;
+
+	bool							m_bExportPNG ;
+	QString							m_strExportPNGDir ;
+	int								m_exPngRect[4] ;	// [0]left, [1]top, [2]right, [3]bottom
+	int								m_nExportEndFrame ;	// 吐き出し終わったフレーム
 } ;
 
 #endif // EDITDATA_H
