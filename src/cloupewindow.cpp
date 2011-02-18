@@ -22,10 +22,18 @@ CLoupeWindow::CLoupeWindow(CEditData *pEditData, MainWindow *pMainWindow, QWidge
 	m_pLabel->setScaledContents(true);
 	m_pLabel->setMinimumSize(200, 200);
 
+	m_pLabelCheck = new QLabel(this) ;
+	m_pLabelCheck->setText(trUtf8("カーソルの移動にあわせる"));
+
+	m_pCheckBox = new QCheckBox(this) ;
+	m_pCheckBox->setChecked(true);
+
 	QGridLayout *layout = new QGridLayout(this) ;
-	layout->addWidget(pLabelScale, 0, 0);
-	layout->addWidget(pComboBox, 0, 1);
-	layout->addWidget(m_pLabel, 1, 0, 2, 2) ;
+	layout->addWidget(m_pCheckBox, 0, 0);
+	layout->addWidget(m_pLabelCheck, 0, 1);
+	layout->addWidget(pLabelScale, 1, 0);
+	layout->addWidget(pComboBox, 1, 1);
+	layout->addWidget(m_pLabel, 2, 0, 2, 2) ;
 	setLayout(layout);
 
 	m_pTimer = new QTimer(this) ;
@@ -38,12 +46,18 @@ CLoupeWindow::CLoupeWindow(CEditData *pEditData, MainWindow *pMainWindow, QWidge
 	m_Scale = 2 ;
 
 	setWindowTitle(trUtf8("ルーペ"));
+
+	m_CenterPos = QApplication::desktop()->cursor().pos() ;
 }
 
 void CLoupeWindow::slot_cursorScreenShort()
 {
 	if ( m_pEditData->isDraggingImage() ) {
 		return ;
+	}
+
+	if ( m_pCheckBox->isChecked() ) {
+		m_CenterPos = QApplication::desktop()->cursor().pos() ;
 	}
 
 	QSize size = m_pLabel->size() ;
@@ -69,7 +83,7 @@ void CLoupeWindow::fixImage( QSize &size )
 {
 	int imgWidth = size.width() ;
 	int imgHeight = size.height() ;
-	QPoint pos = QApplication::desktop()->cursor().pos() ;
+	QPoint pos = m_CenterPos ;
 	int width = imgWidth / m_Scale ;
 	int height = imgHeight / m_Scale ;
 	int x = pos.x() - width/2 ;

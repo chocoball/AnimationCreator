@@ -113,12 +113,16 @@ void AnimeGLWidget::drawLayers( void )
 
 	switch ( m_pEditData->getEditMode() ) {
 	case CEditData::kEditMode_Animation:
+#if 1
+		drawLayers_Anime() ;
+#else
 		if ( m_pEditData->isPlayAnime() || m_pEditData->isPauseAnime() ) {
 			drawLayers_Anime() ;
 		}
 		else {
 			drawLayers_Normal() ;
 		}
+#endif
 		break ;
 	case CEditData::kEditMode_ExportPNG:
 		if ( m_pEditData->isExportPNG() ) {
@@ -507,16 +511,19 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 			CObjectModel::LayerGroupList *pLGList = pModel->getLayerGroupListFromID(objID) ;
 			if ( pLGList ) {
 				for ( int i = 0 ; i < pLGList->size() ; i ++ ) {
+					const CObjectModel::typeID tmpLayerID = pLGList->at(i).first ;
 					// 既に現在のフレームにデータがあったら調べない
-					if ( pModel->getFrameDataFromIDAndFrame(objID, pLGList->at(i).first, frame) ) { continue ; }
+					if ( pModel->getFrameDataFromIDAndFrame(objID, tmpLayerID, frame) ) { continue ; }
 
-					CObjectModel::FrameData *data = pModel->getFrameDataFromPrevFrame(objID, pLGList->at(i).first, frame, true) ;
-					if ( !data ) { continue ; }
-					if ( !pModel->isFrameDataInPos(*data, localPos) ) { continue ; }
+					CObjectModel::FrameData *pPrev = pModel->getFrameDataFromPrevFrame(objID, tmpLayerID, frame, false) ;
+					if ( !pPrev ) { continue ; }
+					CObjectModel::FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, tmpLayerID, frame) ;
+					CObjectModel::FrameData data = pPrev->getInterpolation(pNext, frame) ;
+					if ( !pModel->isFrameDataInPos(data, localPos) ) { continue ; }
 
-					layerID = pLGList->at(i).first ;
+					layerID = tmpLayerID ;
 
-					emit sig_selectPrevLayer(objID, layerID, frame, *data) ;
+					emit sig_selectPrevLayer(objID, layerID, frame, data) ;
 					break ;
 				}
 			}

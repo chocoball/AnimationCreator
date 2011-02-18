@@ -28,9 +28,13 @@ private:
 	CEditData		*m_pEditData ;
 	QLabel			*m_pLabel ;
 	MainWindow		*m_pMainWindow ;
+	QLabel			*m_pLabelCheck ;
+	QCheckBox		*m_pCheckBox ;
 
 	QTimer			*m_pTimer ;
 	int				m_Scale ;
+
+	QPoint			m_CenterPos ;
 };
 
 #endif // CLOUPEWINDOW_H
