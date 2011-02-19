@@ -73,7 +73,7 @@ void CLoupeWindow::slot_changeScale(QString str)
 	m_Scale = val ;
 }
 
-void CLoupeWindow::resizeEvent( QResizeEvent *event )
+void CLoupeWindow::resizeEvent( QResizeEvent */*event*/ )
 {
 	QSize size = m_pLabel->size() ;
 	fixImage(size) ;
@@ -95,6 +95,11 @@ void CLoupeWindow::fixImage( QSize &size )
 									  height) ;
 	QImage image = pix.toImage() ;
 	int i, j ;
+	QPoint cursorPos = QPoint(0, 0) ;
+	if ( !m_pCheckBox->isChecked() ) {
+		cursorPos = pos - QApplication::desktop()->cursor().pos() ;
+	}
+
 	// デスクトップ範囲外を黒に。
 	for ( i = x ; i < 0 ; i ++ ) {
 		for ( j = 0 ; j < height ; j ++ ) {
@@ -118,11 +123,17 @@ void CLoupeWindow::fixImage( QSize &size )
 	}
 
 	// 中心
-	for ( i = width/2-3 ; i <= width/2+3 ; i ++ ) {
-		image.setPixel(i, height/2, QColor(255, 0, 0).rgba()) ;
+	for ( i = width/2-3-cursorPos.x() ; i <= width/2+3-cursorPos.x() ; i ++ ) {
+		j = height/2 - cursorPos.y() ;
+		if ( i >= 0 && i < width && j >= 0 && j < height ) {
+			image.setPixel(i, j, QColor(255, 0, 0).rgba()) ;
+		}
 	}
-	for ( i = height/2-3 ; i <= height/2+3 ; i ++ ) {
-		image.setPixel(width/2, i, QColor(255, 0, 0).rgba()) ;
+	for ( i = height/2-3-cursorPos.y() ; i <= height/2+3-cursorPos.y() ; i ++ ) {
+		j = width/2 - cursorPos.x() ;
+		if ( i >= 0 && i < height && j >= 0 && j < width ) {
+			image.setPixel(j, i, QColor(255, 0, 0).rgba()) ;
+		}
 	}
 
 	image = image.scaled(imgWidth, imgHeight) ;
