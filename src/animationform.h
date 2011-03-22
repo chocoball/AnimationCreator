@@ -29,6 +29,11 @@ public:
 	void setBarCenter() ;
 	void dbgDumpObject() ;
 
+	AnimeGLWidget *getGLWidget( void )
+	{
+		return m_pGlWidget ;
+	}
+
 signals:
 	void sig_imageRepaint( void ) ;
 
@@ -102,6 +107,10 @@ public slots:
 	void slot_changeColorA(int val ) ;
 
 	void slot_copyObject( void ) ;
+//	void slot_copyFrameData( void ) ;
+//	void slot_pasteFrameData( void ) ;
+
+	void slot_changeDrawFrame(bool flag) ;
 
 protected:
 	QList<CObjectModel::FrameData *> getNowSelectFrameData( void ) ;
@@ -114,13 +123,17 @@ protected:
 
 	void addNowSelectLayerAndFrame( void ) ;
 
-public:
-	AnimeGLWidget		*m_pGlWidget ;
+	void keyPressEvent(QKeyEvent *event) ;
+	void keyReleaseEvent(QKeyEvent *event);
+	void copyFrameData( void ) ;
+	void pasteFrameData( void ) ;
 
 private:
 	Ui::AnimationForm	*ui;
 
+	AnimeGLWidget		*m_pGlWidget ;
 	CEditData			*m_pEditData ;
+	CSettings			*m_pSetting ;
 	int					m_ObjIndex ;
 
 	QAction				*m_pActTreeViewAdd ;

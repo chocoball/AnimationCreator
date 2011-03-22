@@ -24,6 +24,15 @@ public:
 	void setImageBGColor(QColor col)		{ m_ImageBGColor = col ; }
 	QColor getImageBGColor()				{ return m_ImageBGColor ; }
 
+	void setBackImagePath(QString &str)		{ m_BackImagePath = str ; }
+	QString getBackImagePath()				{ return m_BackImagePath ; }
+
+	void setUseBackImage(bool flag)			{ m_bUseBackImage = flag ; }
+	bool getUseBackImage()					{ return m_bUseBackImage ; }
+
+	void setDrawFrame(bool flag)			{ m_bDrawFrame = flag ; }
+	bool getDrawFrame()						{ return m_bDrawFrame ; }
+
 private:
 	QString		mCurrDir ;
 	QString		mCurrSaveDir ;
@@ -32,6 +41,9 @@ private:
 	bool		m_bSaveImage ;		///< XML保存時、画像データも保存するならtrue
 	QColor		m_AnimeBGColor ;	///< アニメーションウィンドウのBG色
 	QColor		m_ImageBGColor ;	///< イメージウィンドウのBG色
+	QString		m_BackImagePath ;
+	bool		m_bUseBackImage ;
+	bool		m_bDrawFrame ;
 };
 
 #endif // SETTING_H

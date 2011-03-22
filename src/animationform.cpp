@@ -8,10 +8,13 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
     QWidget(parent),
     ui(new Ui::AnimationForm)
 {
-	m_pEditData = pImageData ;
-	m_bDontSetData = false ;
+	m_pEditData		= pImageData ;
+	m_pSetting		= pSetting ;
+	m_bDontSetData	= false ;
 
 	ui->setupUi(this);
+
+	setFocusPolicy(Qt::StrongFocus);
 
 	m_pGlWidget = new AnimeGLWidget(pImageData, pSetting, this) ;
 	ui->scrollArea_anime->setWidget(m_pGlWidget);
@@ -67,6 +70,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	ui->comboBox_fps->addItem(tr("30 fps"));
 	ui->comboBox_fps->addItem(tr("15 fps"));
 	ui->comboBox_fps->setCurrentIndex(0);
+	ui->checkBox_frame->setChecked(pSetting->getDrawFrame());
 
 	for ( int i = 0 ; i < m_pEditData->getImageDataSize() ; i ++ ) {
 		ui->comboBox_image_no->addItem(tr("%1").arg(i));
@@ -136,6 +140,8 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 			this,		SLOT(slot_addNewFrameData(CObjectModel::typeID, CObjectModel::typeID, int, CObjectModel::FrameData))) ;
 	connect(m_pGlWidget, SIGNAL(sig_frameDataMoveEnd()),
 			this,		SLOT(slot_frameDataMoveEnd())) ;
+//	connect(m_pGlWidget, SIGNAL(sig_copyFrameData()), this, SLOT(slot_copyFrameData())) ;
+//	connect(m_pGlWidget, SIGNAL(sig_pasteFrameData()), this, SLOT(slot_pasteFrameData())) ;
 
 	connect(ui->horizontalSlider_nowSequence, SIGNAL(valueChanged(int)), this, SLOT(slot_frameChanged(int))) ;
 	connect(ui->spinBox_pos_x,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changePosX(int))) ;
@@ -170,6 +176,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(ui->spinBox_g,				SIGNAL(valueChanged(int)),		this, SLOT(slot_changeColorG(int))) ;
 	connect(ui->spinBox_b,				SIGNAL(valueChanged(int)),		this, SLOT(slot_changeColorB(int))) ;
 	connect(ui->spinBox_a,				SIGNAL(valueChanged(int)),		this, SLOT(slot_changeColorA(int))) ;
+	connect(ui->checkBox_frame,			SIGNAL(clicked(bool)),			this, SLOT(slot_changeDrawFrame(bool))) ;
 
 #ifndef LAYOUT_OWN
 	QGridLayout *pLayout = new QGridLayout(this) ;
@@ -429,7 +436,8 @@ void AnimationForm::slot_dropedImage( QRect rect, QPoint pos, int imageIndex )
 	QList<CObjectModel::typeID> list ;
 	list << newItem ;
 	m_pEditData->setSelectLayer(list);
-	slot_setUI(frameData);
+	slot_selectLayerChanged(list) ;
+//	slot_setUI(frameData);
 #else
 	pParentItem->appendRow(newItem);
 
@@ -1114,6 +1122,7 @@ void AnimationForm::slot_modifiedImage(int index)
 // オプションダイアログ終了時
 void AnimationForm::slot_endedOption( void )
 {
+	m_pGlWidget->setBackImage(m_pEditData->getBackImagePath()) ;
 	m_pGlWidget->update();
 }
 
@@ -1291,6 +1300,12 @@ void AnimationForm::slot_copyObject( void )
 #endif
 }
 
+void AnimationForm::slot_changeDrawFrame(bool flag)
+{
+	m_pSetting->setDrawFrame(flag);
+	m_pGlWidget->update();
+}
+
 // オブジェクト追加
 void AnimationForm::addNewObject( QString str )
 {
@@ -1405,3 +1420,84 @@ void AnimationForm::addNowSelectLayerAndFrame( void )
 	}
 	m_pEditData->updateSelectData();
 }
+
+// キー押しイベント
+void AnimationForm::keyPressEvent(QKeyEvent *event)
+{
+	if ( event->key() == Qt::Key_Control ) {
+		m_pGlWidget->setPressCtrl(true) ;
+		m_pGlWidget->update() ;
+	}
+
+	if ( m_pGlWidget->getPressCtrl() ) {
+		if ( event->key() == Qt::Key_C ) {	// copy
+			copyFrameData() ;
+		}
+		if ( event->key() == Qt::Key_V ) {	// paste
+			pasteFrameData() ;
+		}
+	}
+}
+
+// キー離しイベント
+void AnimationForm::keyReleaseEvent(QKeyEvent *event)
+{
+	if ( event->key() == Qt::Key_Control ) {
+		m_pGlWidget->setPressCtrl(false) ;
+		m_pGlWidget->update() ;
+	}
+}
+
+// フレームデータ コピー
+void AnimationForm::copyFrameData( void )
+{
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
+
+	if ( !objID || !layerID ) {
+		return ;
+	}
+
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	int frame = m_pEditData->getSelectFrame() ;
+	CObjectModel::FrameData data ;
+	CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
+	if ( pData ) {
+		data = *pData ;
+	}
+	else {
+		pData = pModel->getFrameDataFromPrevFrame(objID, layerID, frame, false) ;
+		CObjectModel::FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
+		if ( !pData ) { return ; }
+		data = pData->getInterpolation(pNext, frame) ;
+	}
+	m_pEditData->setCopyFrameData(data);
+}
+
+// フレームデータ ペースト
+void AnimationForm::pasteFrameData( void )
+{
+	if ( !m_pEditData->isCopyData() ) {
+		return ;
+	}
+
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
+
+	if ( !objID || !layerID ) {
+		return ;
+	}
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	int frame = m_pEditData->getSelectFrame() ;
+	CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
+	if ( pData ) {
+		QList<CObjectModel::FrameData *> data ;
+		*pData = m_pEditData->getCopyFrameData() ;
+		data << pData ;
+		addCommandEdit( data ) ;
+	}
+	else {
+		slot_addNewFrameData(objID, layerID, frame, m_pEditData->getCopyFrameData()) ;	// フレームデータ追加
+	}
+}
+

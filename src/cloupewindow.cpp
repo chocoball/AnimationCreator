@@ -22,15 +22,20 @@ CLoupeWindow::CLoupeWindow(CEditData *pEditData, MainWindow *pMainWindow, QWidge
 	m_pLabel->setScaledContents(true);
 	m_pLabel->setMinimumSize(200, 200);
 
-	m_pLabelCheck = new QLabel(this) ;
-	m_pLabelCheck->setText(trUtf8("カーソルの移動にあわせる"));
+//	m_pLabelCheck = new QLabel(this) ;
+//	m_pLabelCheck->setText(trUtf8("カーソルの移動にあわせる"));
 
-	m_pCheckBox = new QCheckBox(this) ;
-	m_pCheckBox->setChecked(true);
+	m_pCheckBox_Cursor = new QCheckBox(this) ;
+	m_pCheckBox_Cursor->setChecked(true);
+	m_pCheckBox_Cursor->setText(trUtf8("カーソルの移動にあわせる"));
+
+	m_pCheckBox_Center = new QCheckBox(this) ;
+	m_pCheckBox_Center->setChecked(true);
+	m_pCheckBox_Center->setText(trUtf8("センター表示"));
 
 	QGridLayout *layout = new QGridLayout(this) ;
-	layout->addWidget(m_pCheckBox, 0, 0);
-	layout->addWidget(m_pLabelCheck, 0, 1);
+	layout->addWidget(m_pCheckBox_Cursor, 0, 0);
+	layout->addWidget(m_pCheckBox_Center, 0, 1);
 	layout->addWidget(pLabelScale, 1, 0);
 	layout->addWidget(pComboBox, 1, 1);
 	layout->addWidget(m_pLabel, 2, 0, 2, 2) ;
@@ -56,7 +61,7 @@ void CLoupeWindow::slot_cursorScreenShort()
 		return ;
 	}
 
-	if ( m_pCheckBox->isChecked() ) {
+	if ( m_pCheckBox_Cursor->isChecked() ) {
 		m_CenterPos = QApplication::desktop()->cursor().pos() ;
 	}
 
@@ -96,7 +101,7 @@ void CLoupeWindow::fixImage( QSize &size )
 	QImage image = pix.toImage() ;
 	int i, j ;
 	QPoint cursorPos = QPoint(0, 0) ;
-	if ( !m_pCheckBox->isChecked() ) {
+	if ( !m_pCheckBox_Cursor->isChecked() ) {
 		cursorPos = pos - QApplication::desktop()->cursor().pos() ;
 	}
 
@@ -123,16 +128,18 @@ void CLoupeWindow::fixImage( QSize &size )
 	}
 
 	// 中心
-	for ( i = width/2-3-cursorPos.x() ; i <= width/2+3-cursorPos.x() ; i ++ ) {
-		j = height/2 - cursorPos.y() ;
-		if ( i >= 0 && i < width && j >= 0 && j < height ) {
-			image.setPixel(i, j, QColor(255, 0, 0).rgba()) ;
+	if ( m_pCheckBox_Center->isChecked() ) {
+		for ( i = width/2-3-cursorPos.x() ; i <= width/2+3-cursorPos.x() ; i ++ ) {
+			j = height/2 - cursorPos.y() ;
+			if ( i >= 0 && i < width && j >= 0 && j < height ) {
+				image.setPixel(i, j, QColor(255, 0, 0).rgba()) ;
+			}
 		}
-	}
-	for ( i = height/2-3-cursorPos.y() ; i <= height/2+3-cursorPos.y() ; i ++ ) {
-		j = width/2 - cursorPos.x() ;
-		if ( i >= 0 && i < height && j >= 0 && j < width ) {
-			image.setPixel(j, i, QColor(255, 0, 0).rgba()) ;
+		for ( i = height/2-3-cursorPos.y() ; i <= height/2+3-cursorPos.y() ; i ++ ) {
+			j = width/2 - cursorPos.x() ;
+			if ( i >= 0 && i < height && j >= 0 && j < width ) {
+				image.setPixel(j, i, QColor(255, 0, 0).rgba()) ;
+			}
 		}
 	}
 

@@ -4,6 +4,7 @@
 #include "imagewindow.h"
 #include "canm2d.h"
 #include "optiondialog.h"
+#include "util.h"
 
 #define FILE_EXT_ANM2D_XML	".xml"
 #define FILE_EXT_ANM2D_BIN	".anm2"
@@ -204,6 +205,10 @@ void MainWindow::slot_option( void )
 {
 	OptionDialog dialog(&setting, this) ;
 	dialog.exec() ;
+
+	if ( setting.getUseBackImage() )	{ m_EditData.setBackImagePath(setting.getBackImagePath()) ; }
+	else								{ m_EditData.setBackImagePath(QString()) ; }
+
 	emit sig_endedOption() ;
 }
 
@@ -218,12 +223,12 @@ void MainWindow::slot_exportPNG( void )
 		m_pExportPNGForm = new ExportPNGForm(&m_EditData, &setting, this) ;
 		m_pExpngSubWindow = m_pMdiArea->addSubWindow( m_pExportPNGForm ) ;
 		m_pExportPNGForm->show() ;
-		connect(m_pAnimationForm->m_pGlWidget, SIGNAL(sig_exportPNGRectChange()), m_pExportPNGForm, SLOT(slot_changeRect())) ;
-		connect(m_pExportPNGForm, SIGNAL(sig_changeRect()), m_pAnimationForm->m_pGlWidget, SLOT(update())) ;
+		connect(m_pAnimationForm->getGLWidget(), SIGNAL(sig_exportPNGRectChange()), m_pExportPNGForm, SLOT(slot_changeRect())) ;
+		connect(m_pExportPNGForm, SIGNAL(sig_changeRect()), m_pAnimationForm->getGLWidget(), SLOT(update())) ;
 		connect(m_pExportPNGForm, SIGNAL(sig_startExport()), m_pAnimationForm, SLOT(slot_playAnimation())) ;
 		connect(m_pExportPNGForm, SIGNAL(sig_cancel()), this, SLOT(slot_closeExportPNGForm())) ;
 
-		m_pAnimationForm->m_pGlWidget->update();
+		m_pAnimationForm->getGLWidget()->update();
 	}
 }
 
@@ -282,6 +287,12 @@ void MainWindow::readRootSetting( void )
 	QSize size = settings.value("size", QSize(400, 400)).toSize() ;
 	settings.endGroup();
 
+	settings.beginGroup("AnimationWindow");
+	bool bBackImage = settings.value("use_back_image", false).toBool() ;
+	QString strBackImage = settings.value("back_image", "").toString() ;
+	bool bFrame = settings.value("disp_frame", true).toBool() ;
+	settings.endGroup();
+
 	move(pos) ;
 	resize(size) ;
 	setting.setCurrentDir(dir) ;
@@ -290,6 +301,13 @@ void MainWindow::readRootSetting( void )
 	setting.setAnimeBGColor(animeCol);
 	setting.setImageBGColor(imageCol);
 	setting.setSaveImage(bSaveImage);
+	setting.setBackImagePath(strBackImage) ;
+	setting.setUseBackImage(bBackImage) ;
+	setting.setDrawFrame(bFrame) ;
+
+	if ( bBackImage ) {
+		m_EditData.setBackImagePath(strBackImage);
+	}
 }
 
 // 設定を保存
@@ -303,19 +321,24 @@ void MainWindow::writeRootSetting( void )
 	QSettings settings("Editor", "rootSettings") ;
 #endif
 	settings.beginGroup("Global");
-	settings.setValue("cur_dir", setting.getCurrentDir()) ;
-	settings.setValue("save_dir", setting.getCurrentSaveDir()) ;
-	settings.setValue("png_dir", setting.getCurrentPNGDir()) ;
-	settings.setValue("anime_color", setting.getAnimeBGColor().rgba());
-	settings.setValue("image_color", setting.getImageBGColor().rgba());
-	settings.setValue("save_image", setting.getSaveImage());
+	settings.setValue("cur_dir",		setting.getCurrentDir()) ;
+	settings.setValue("save_dir",		setting.getCurrentSaveDir()) ;
+	settings.setValue("png_dir",		setting.getCurrentPNGDir()) ;
+	settings.setValue("anime_color",	setting.getAnimeBGColor().rgba());
+	settings.setValue("image_color",	setting.getImageBGColor().rgba());
+	settings.setValue("save_image",		setting.getSaveImage());
 	settings.endGroup();
 
 	settings.beginGroup("MainWindow");
-	settings.setValue("pos", pos()) ;
-	settings.setValue("size", size()) ;
+	settings.setValue("pos",	pos()) ;
+	settings.setValue("size",	size()) ;
 	settings.endGroup();
 
+	settings.beginGroup("AnimationWindow");
+	settings.setValue("use_back_image",	setting.getUseBackImage());
+	settings.setValue("back_image",		setting.getBackImagePath());
+	settings.setValue("disp_frame", setting.getDrawFrame());
+	settings.endGroup();
 }
 
 // アクションを作成
@@ -456,54 +479,7 @@ void MainWindow::createWindows( void )
 // imageDataのサイズを2の累乗に修正
 void MainWindow::resizeImage( QImage &imageData )
 {
-	int origW = imageData.width() ;
-	int origH = imageData.height() ;
-	int fixW = 0, fixH = 0 ;
-
-	int i = 1 ;
-
-	while ( i < 1024 ) {
-		if ( origW > i ) {
-			i <<= 1 ;
-		}
-		else {
-			fixW = i ;
-			break ;
-		}
-	}
-	if ( fixW == 0 ) { fixW = 1024 ; }
-
-	i = 1 ;
-	while ( i < 1024 ) {
-		if ( origH > i ) {
-			i <<= 1 ;
-		}
-		else {
-			fixH = i ;
-			break ;
-		}
-	}
-	if ( fixH == 0 ) { fixH = 1024 ; }
-
-	qDebug("orig %d/%d fix %d/%d", origW, origH, fixW, fixH) ;
-
-	if ( fixW == origW && fixH == origH ) { return ; }
-
-	if ( origW > 1024 ) { origW = 1024 ; }
-	if ( origH > 1024 ) { origH = 1024 ; }
-
-	QImage tmp = QImage(fixW, fixH, imageData.format()) ;
-	for ( int y = 0 ; y < fixH ; y ++ ) {
-		for ( int x = 0 ; x < fixW ; x ++ ) {
-			tmp.setPixel(x, y, qRgba(0, 0, 0, 0));
-		}
-	}
-	for ( int y = 0 ; y < origH ; y ++ ) {
-		for ( int x = 0 ; x < origW ; x ++ ) {
-			tmp.setPixel(x, y, imageData.pixel(x, y));
-		}
-	}
-	imageData = tmp ;
+	util::resizeImage(imageData) ;
 }
 
 // ファイル開く
@@ -719,6 +695,7 @@ void MainWindow::makeAnimeWindow( void )
 	m_pMdiArea->addSubWindow( m_pAnimationForm ) ;
 	m_pAnimationForm->show();
 	m_pAnimationForm->setBarCenter();
+	m_pAnimationForm->slot_endedOption();
 
 	m_pActAnimeWindow->setEnabled(true);
 	m_pActAnimeWindow->setChecked(true);

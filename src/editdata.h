@@ -312,6 +312,30 @@ public:
 	}
 	// --------------------------------------
 
+	// フレームデータ コピー関連 ------------
+	void setCopyFrameData( CObjectModel::FrameData data )
+	{
+		m_CopyData = data ;
+		m_bCopyData = true ;
+	}
+	CObjectModel::FrameData getCopyFrameData( void )
+	{
+		return m_CopyData ;
+	}
+	bool isCopyData( void )
+	{
+		return m_bCopyData ;
+	}
+	// --------------------------------------
+
+	void setBackImagePath(QString path)
+	{
+		m_BackImagePath = path ;
+	}
+	QString getBackImagePath( void )
+	{
+		return m_BackImagePath ;
+	}
 
 private:
 	int								m_editMode ;
@@ -339,6 +363,11 @@ private:
 	QString							m_strExportPNGDir ;
 	int								m_exPngRect[4] ;	// [0]left, [1]top, [2]right, [3]bottom
 	int								m_nExportEndFrame ;	// 吐き出し終わったフレーム
+
+	bool							m_bCopyData ;
+	CObjectModel::FrameData			m_CopyData ;
+
+	QString							m_BackImagePath ;
 } ;
 
 #endif // EDITDATA_H

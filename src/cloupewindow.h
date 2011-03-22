@@ -28,8 +28,7 @@ private:
 	CEditData		*m_pEditData ;
 	QLabel			*m_pLabel ;
 	MainWindow		*m_pMainWindow ;
-	QLabel			*m_pLabelCheck ;
-	QCheckBox		*m_pCheckBox ;
+	QCheckBox		*m_pCheckBox_Cursor, *m_pCheckBox_Center ;
 
 	QTimer			*m_pTimer ;
 	int				m_Scale ;

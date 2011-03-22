@@ -3,6 +3,11 @@
 
 #include <QDialog>
 #include "setting.h"
+#include "ui_OptionAnimationTab.h"
+
+namespace Ui {
+	class OptionAnimationTab ;
+}
 
 // ファイル タブ
 class FileTab : public QWidget
@@ -24,12 +29,16 @@ class AnimeWindowTab : public QWidget
 	Q_OBJECT
 public:
 	explicit AnimeWindowTab(CSettings *pSetting, QWidget *parent = 0) ;
+	~AnimeWindowTab() ;
 
 public slots:
 	void slot_changeBGColor(QString) ;
+	void slot_changeUseBackImage( bool ) ;
+	void slot_openFileDialog( void ) ;
 
 private:
-	CSettings		*m_pSetting ;
+	Ui::OptionAnimationTab	*ui ;
+	CSettings				*m_pSetting ;
 };
 
 // イメージウィンドウ タブ

@@ -39,13 +39,14 @@ void FileTab::slot_clickedCheckBox(bool flag)
 
 // アニメーションウィンドウ タブ
 AnimeWindowTab::AnimeWindowTab(CSettings *pSetting, QWidget *parent)
-	: QWidget(parent)
+	: QWidget(parent),
+	ui(new Ui::OptionAnimationTab)
 {
+	ui->setupUi(this);
+
 	m_pSetting = pSetting ;
 
-	QLabel *pLabel = new QLabel(trUtf8("BG Color")) ;
-
-	QComboBox *pComboBox = new QComboBox(this) ;
+	QComboBox *pComboBox = ui->comboBox_bgColor ;
 	QStringList colors = QColor::colorNames() ;
 	for ( int i = 0 ; i < colors.size() ; i ++ ) {
 		QColor color(colors[i]) ;
@@ -56,17 +57,48 @@ AnimeWindowTab::AnimeWindowTab(CSettings *pSetting, QWidget *parent)
 			pComboBox->setCurrentIndex(i);
 		}
 	}
-	connect(pComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(slot_changeBGColor(QString))) ;
 
-	QGridLayout *pLayout = new QGridLayout(this) ;
-	pLayout->addWidget(pLabel, 0, 0);
-	pLayout->addWidget(pComboBox, 0, 1);
+	QCheckBox *pCheckBox = ui->checkBox_useImage ;
+	pCheckBox->setChecked(pSetting->getUseBackImage());
+	QLineEdit *pTextEdit = ui->lineEdit_imagePath ;
+	pTextEdit->setEnabled(pSetting->getUseBackImage());
+	pTextEdit->setText(pSetting->getBackImagePath());
+
+	connect(pComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(slot_changeBGColor(QString))) ;
+	connect(pCheckBox, SIGNAL(clicked(bool)), this, SLOT(slot_changeUseBackImage(bool))) ;
+	connect(ui->pushButton_imagePath, SIGNAL(clicked()), this, SLOT(slot_openFileDialog())) ;
+}
+
+AnimeWindowTab::~AnimeWindowTab()
+{
+	delete ui ;
 }
 
 void AnimeWindowTab::slot_changeBGColor(QString colorName)
 {
 	QColor color(colorName) ;
 	m_pSetting->setAnimeBGColor(color) ;
+}
+
+void AnimeWindowTab::slot_changeUseBackImage( bool flag )
+{
+	m_pSetting->setUseBackImage(flag) ;
+	ui->lineEdit_imagePath->setEnabled(flag);
+}
+
+void AnimeWindowTab::slot_openFileDialog( void )
+{
+	QString dir = m_pSetting->getBackImagePath() ;
+	QString fileName = QFileDialog::getOpenFileName(
+											this,
+											tr("Open File"),
+											dir,
+											tr("Image Files (*.png *.bmp *.jpg);;")) ;
+	if ( fileName.isEmpty() ) {
+		return ;
+	}
+	m_pSetting->setBackImagePath(fileName) ;
+	ui->lineEdit_imagePath->setText(fileName);
 }
 
 // イメージウィンドウ タブ

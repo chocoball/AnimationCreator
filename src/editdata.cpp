@@ -48,7 +48,7 @@ void CEditData::initData( void )
 	m_pObjectModel		= new CObjectModel ;
 	m_pTreeModel		= new QStandardItemModel ;
 	if ( !m_pUndoStack ) {
-		m_pUndoStack		= new QUndoStack ;
+		m_pUndoStack	= new QUndoStack ;
 	}
 	else {
 		m_pUndoStack->clear();
@@ -69,6 +69,8 @@ void CEditData::initData( void )
 	m_exPngRect[1] =
 	m_exPngRect[2] =
 	m_exPngRect[3] = 0 ;
+
+	m_bCopyData = false ;
 }
 
 // オブジェクト追加コマンド

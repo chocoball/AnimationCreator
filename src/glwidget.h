@@ -37,6 +37,8 @@ signals:
 	void sig_selectPrevLayer( CObjectModel::typeID objID, CObjectModel::typeID layerID, int frame, CObjectModel::FrameData data ) ;
 	void sig_frameDataMoveEnd( void ) ;
 	void sig_exportPNGRectChange( void ) ;
+//	void sig_copyFrameData( void ) ;
+//	void sig_pasteFrameData( void ) ;
 
 public slots:
 	void slot_actDel( void ) ;
@@ -53,6 +55,7 @@ protected:
 	void drawLayers_All( void ) ;
 	void drawSelFrameInfo( void ) ;
 	void drawFrameData( const CObjectModel::FrameData &data, QColor col = QColor(255, 255, 255, 255) ) ;
+	void drawFrame( const CObjectModel::FrameData &data, QColor col) ;
 	void drawGrid( void ) ;
 
 	void drawLine( QPoint pos0, QPoint pos1, QColor col, float z = 1.0f ) ;
@@ -67,8 +70,8 @@ protected:
 
 	void contextMenuEvent(QContextMenuEvent *event) ;
 
-	void keyPressEvent(QKeyEvent *event) ;
-	void keyReleaseEvent(QKeyEvent *event);
+//	void keyPressEvent(QKeyEvent *event) ;
+//	void keyReleaseEvent(QKeyEvent *event);
 
 	QPoint editData(CObjectModel::FrameData *pData, QPoint nowPos, QPoint oldPos) ;
 
@@ -85,32 +88,45 @@ public:
 	{
 		m_editMode = mode ;
 	}
+	void setPressCtrl( bool flag )
+	{
+		m_bPressCtrl = flag ;
+	}
+	bool getPressCtrl( void )
+	{
+		return m_bPressCtrl ;
+	}
 
 	int getDragMode( void ) { return m_dragMode ; }
 
+	void setBackImage( QString path ) ;
+
 private:
-	CEditData						*m_pEditData ;
-	CSettings						*m_pSetting ;
-	GLint							m_DrawWidth, m_DrawHeight ;
-	GLint							m_GridWidth, m_GridHeight ;
+	CEditData			*m_pEditData ;
+	CSettings			*m_pSetting ;
+	GLint				m_DrawWidth, m_DrawHeight ;
+	GLint				m_GridWidth, m_GridHeight ;
 
-	bool							m_bDrawGrid ;				///< グリッド描画するならtrue
-	bool							m_bPressCtrl ;				///< Ctrlが押されてたらtrue
-	bool							m_bPressShift ;				///< Shiftが押されてたらtrue
+	bool				m_bDrawGrid ;				///< グリッド描画するならtrue
+	bool				m_bPressCtrl ;				///< Ctrlが押されてたらtrue
 
-	QPoint							m_DragOffset ;
-	QPoint							m_SelPluralStartPos ;		///< レイヤ複数選択開始位置
-	QPoint							m_SelPluralEndPos ;			///< レイヤ複数選択終了位置
+	QPoint				m_DragOffset ;
+	QPoint				m_SelPluralStartPos ;		///< レイヤ複数選択開始位置
+	QPoint				m_SelPluralEndPos ;			///< レイヤ複数選択終了位置
 
-	QAction							*m_pActDel ;
+	QAction				*m_pActDel ;
 
-	int								m_editMode ;				///< 編集モード kEditMode_~
-	int								m_dragMode ;				///< ドラッグモード kDragMode_~
+	int					m_editMode ;				///< 編集モード kEditMode_~
+	int					m_dragMode ;				///< ドラッグモード kDragMode_~
 
-	float							m_rotStart ;				///< 回転変更時の開始ラジアン
+	float				m_rotStart ;				///< 回転変更時の開始ラジアン
 
-	bool							m_bDrawCenter ;
-	QPoint							m_centerPos ;
+	bool				m_bDrawCenter ;
+	QPoint				m_centerPos ;
+
+	unsigned int		m_backImageTex ;
+	QImage				m_BackImage ;
+	int					m_backImageW, m_backImageH ;
 };
 
 #endif // GLWIDGET_H
