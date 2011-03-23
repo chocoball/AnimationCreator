@@ -71,6 +71,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	ui->comboBox_fps->addItem(tr("15 fps"));
 	ui->comboBox_fps->setCurrentIndex(0);
 	ui->checkBox_frame->setChecked(pSetting->getDrawFrame());
+	ui->checkBox_center->setChecked(pSetting->getDrawCenter());
 
 	for ( int i = 0 ; i < m_pEditData->getImageDataSize() ; i ++ ) {
 		ui->comboBox_image_no->addItem(tr("%1").arg(i));
@@ -107,6 +108,8 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	m_pActTreeViewCopy		= new QAction(QString("Copy Object"), this) ;
 	m_pActTreeViewDel		= new QAction(QString("Delete"), this);
 	m_pActTreeViewLayerDisp = new QAction(QString("Disp"), this) ;
+	m_pActCopyLayer			= new QAction(QString("Copy Layer"), this) ;
+	m_pActPasteLayer		= new QAction(QString("Paste Layer"), this) ;
 
 	m_pTimer = new QTimer(this) ;
 	m_pTimer->setInterval((int)(100.0f/6.0f));
@@ -140,10 +143,12 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 			this,		SLOT(slot_addNewFrameData(CObjectModel::typeID, CObjectModel::typeID, int, CObjectModel::FrameData))) ;
 	connect(m_pGlWidget, SIGNAL(sig_frameDataMoveEnd()),
 			this,		SLOT(slot_frameDataMoveEnd())) ;
+	connect(m_pGlWidget, SIGNAL(sig_dragedImage(CObjectModel::FrameData)),
+			this,		SLOT(slot_portDragedImage(CObjectModel::FrameData))) ;
 //	connect(m_pGlWidget, SIGNAL(sig_copyFrameData()), this, SLOT(slot_copyFrameData())) ;
 //	connect(m_pGlWidget, SIGNAL(sig_pasteFrameData()), this, SLOT(slot_pasteFrameData())) ;
 
-	connect(ui->horizontalSlider_nowSequence, SIGNAL(valueChanged(int)), this, SLOT(slot_frameChanged(int))) ;
+	connect(ui->horizontalSlider_nowSequence, SIGNAL(valueChanged(int)),this, SLOT(slot_frameChanged(int))) ;
 	connect(ui->spinBox_pos_x,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changePosX(int))) ;
 	connect(ui->spinBox_pos_y,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changePosY(int))) ;
 	connect(ui->spinBox_pos_z,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changePosZ(int))) ;
@@ -158,10 +163,14 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(ui->spinBox_uv_bottom,		SIGNAL(valueChanged(int)),		this, SLOT(slot_changeUvBottom(int))) ;
 	connect(ui->spinBox_center_x,		SIGNAL(valueChanged(int)),		this, SLOT(slot_changeCenterX(int))) ;
 	connect(ui->spinBox_center_y,		SIGNAL(valueChanged(int)),		this, SLOT(slot_changeCenterY(int))) ;
+
 	connect(m_pActTreeViewAdd,			SIGNAL(triggered()),			this, SLOT(slot_createNewObject())) ;
 	connect(m_pActTreeViewCopy,			SIGNAL(triggered()),			this, SLOT(slot_copyObject())) ;
 	connect(m_pActTreeViewDel,			SIGNAL(triggered()),			this, SLOT(slot_deleteObject())) ;
 	connect(m_pActTreeViewLayerDisp,	SIGNAL(triggered()),			this, SLOT(slot_changeLayerDisp())) ;
+	connect(m_pActCopyLayer,			SIGNAL(triggered()),			this, SLOT(slot_copyLayer())) ;
+	connect(m_pActPasteLayer,			SIGNAL(triggered()),			this, SLOT(slot_pasteLayer())) ;
+
 	connect(ui->pushButton_play,		SIGNAL(clicked()),				this, SLOT(slot_playAnimation())) ;
 	connect(ui->pushButton_stop,		SIGNAL(clicked()),				this, SLOT(slot_stopAnimation())) ;
 	connect(ui->pushButton_backward,	SIGNAL(clicked()),				this, SLOT(slot_backwardFrameData())) ;
@@ -177,6 +186,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(ui->spinBox_b,				SIGNAL(valueChanged(int)),		this, SLOT(slot_changeColorB(int))) ;
 	connect(ui->spinBox_a,				SIGNAL(valueChanged(int)),		this, SLOT(slot_changeColorA(int))) ;
 	connect(ui->checkBox_frame,			SIGNAL(clicked(bool)),			this, SLOT(slot_changeDrawFrame(bool))) ;
+	connect(ui->checkBox_center,		SIGNAL(clicked(bool)),			this, SLOT(slot_changeDrawCenter(bool))) ;
 
 #ifndef LAYOUT_OWN
 	QGridLayout *pLayout = new QGridLayout(this) ;
@@ -431,7 +441,10 @@ void AnimationForm::slot_dropedImage( QRect rect, QPoint pos, int imageIndex )
 	QList<QWidget *> updateWidget ;
 	updateWidget << m_pGlWidget ;
 	updateWidget << m_pDataMarker ;
-	m_pEditData->cmd_addNewLayer(index, newItem, frameData, updateWidget) ;
+	CObjectModel::LayerGroup layerGroup ;
+	layerGroup.first = newItem ;
+	layerGroup.second.append(frameData) ;
+	m_pEditData->cmd_addNewLayer(index, newItem, layerGroup, updateWidget) ;
 
 	QList<CObjectModel::typeID> list ;
 	list << newItem ;
@@ -771,10 +784,14 @@ void AnimationForm::slot_treeViewMenuReq(QPoint treeViewLocalPos)
 	if ( ui->treeView->currentIndex().internalPointer() != m_pEditData->getTreeModel()->invisibleRootItem() ) {
 		// レイヤ選択中だったら
 		menu.addAction(m_pActTreeViewLayerDisp) ;
+		menu.addAction(m_pActCopyLayer) ;
 	}
 	else {
 		// オブジェクト選択中だったら
 		menu.addAction(m_pActTreeViewCopy) ;
+	}
+	if ( m_pEditData->isCopyLayer() ) {
+		menu.addAction(m_pActPasteLayer) ;
 	}
 	menu.exec(ui->treeView->mapToGlobal(treeViewLocalPos) + QPoint(0, ui->treeView->header()->height())) ;
 }
@@ -1122,7 +1139,11 @@ void AnimationForm::slot_modifiedImage(int index)
 // オプションダイアログ終了時
 void AnimationForm::slot_endedOption( void )
 {
-	m_pGlWidget->setBackImage(m_pEditData->getBackImagePath()) ;
+	QString path = QString() ;
+	if ( m_pSetting->getUseBackImage() ) {
+		path = m_pSetting->getBackImagePath() ;
+	}
+	m_pGlWidget->setBackImage(path) ;
 	m_pGlWidget->update();
 }
 
@@ -1304,6 +1325,19 @@ void AnimationForm::slot_changeDrawFrame(bool flag)
 {
 	m_pSetting->setDrawFrame(flag);
 	m_pGlWidget->update();
+}
+
+void AnimationForm::slot_changeDrawCenter(bool flag)
+{
+	m_pSetting->setDrawCenter(flag);
+	m_pGlWidget->update();
+
+	emit sig_portCheckDrawCenter(flag) ;
+}
+
+void AnimationForm::slot_portDragedImage(CObjectModel::FrameData data)
+{
+	emit sig_portDragedImage(data) ;
 }
 
 // オブジェクト追加
@@ -1499,5 +1533,54 @@ void AnimationForm::pasteFrameData( void )
 	else {
 		slot_addNewFrameData(objID, layerID, frame, m_pEditData->getCopyFrameData()) ;	// フレームデータ追加
 	}
+}
+
+void AnimationForm::slot_copyLayer( void )
+{
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
+	CObjectModel::LayerGroupList *pLayerGroupList = pModel->getLayerGroupListFromID(objID) ;
+
+	if ( !pLayerGroupList ) { return ; }
+
+	for ( int i = 0 ; i < pLayerGroupList->size() ; i ++ ) {
+		CObjectModel::LayerGroup *p = &(*pLayerGroupList)[i] ;
+		if ( p->first != layerID ) { continue ; }
+
+		m_pEditData->setCopyLayer(*p);
+		break ;
+	}
+
+}
+
+void AnimationForm::slot_pasteLayer( void )
+{
+	if ( !m_pEditData->isCopyLayer() ) { return ; }
+	CObjectModel::LayerGroup layerGroup = m_pEditData->getCopyLayer() ;
+	QModelIndex index = ui->treeView->currentIndex() ;
+
+	if ( !index.isValid() ) {
+		qWarning() << "slot_dropedImage current index invalid 0" ;
+		return ;
+	}
+
+	while ( index.internalPointer() != m_pEditData->getTreeModel()->invisibleRootItem() ) {
+		index = index.parent() ;
+		if ( !index.isValid() ) {
+			qWarning() << "slot_dropedImage current index invalid 1" ;
+			return ;
+		}
+	}
+	QStandardItem *pSrc = layerGroup.first ;
+	QStandardItem *newItem = new QStandardItem(pSrc->text() + "_copy") ;
+	newItem->setData(true, Qt::CheckStateRole) ;
+
+	QList<QWidget *> updateWidget ;
+	updateWidget << m_pGlWidget ;
+	updateWidget << m_pDataMarker ;
+
+	layerGroup.first = newItem ;
+	m_pEditData->cmd_addNewLayer(index, newItem, layerGroup, updateWidget) ;
 }
 

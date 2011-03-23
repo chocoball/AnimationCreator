@@ -58,7 +58,7 @@ public:
 	Command_AddLayer(CEditData *pEditData,
 					 QModelIndex parentIndex,
 					 QStandardItem *pAddItem,
-					 CObjectModel::FrameData frameData,
+					 CObjectModel::LayerGroup &layerGroup,
 					 QList<QWidget *> &updateWidget) ;
 
 	void undo() ;

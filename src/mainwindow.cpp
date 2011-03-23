@@ -206,9 +206,6 @@ void MainWindow::slot_option( void )
 	OptionDialog dialog(&setting, this) ;
 	dialog.exec() ;
 
-	if ( setting.getUseBackImage() )	{ m_EditData.setBackImagePath(setting.getBackImagePath()) ; }
-	else								{ m_EditData.setBackImagePath(QString()) ; }
-
 	emit sig_endedOption() ;
 }
 
@@ -238,6 +235,16 @@ void MainWindow::slot_closeExportPNGForm( void )
 	delete m_pExportPNGForm ;
 	m_pExportPNGForm = NULL ;
 	m_pExpngSubWindow = NULL ;
+}
+
+void MainWindow::slot_portCheckDrawCenter(bool flag)
+{
+	emit sig_portCheckDrawCenter(flag) ;
+}
+
+void MainWindow::slot_portDragedImage(CObjectModel::FrameData data)
+{
+	emit sig_portDragedImage(data) ;
 }
 
 #ifndef QT_NO_DEBUG
@@ -291,6 +298,7 @@ void MainWindow::readRootSetting( void )
 	bool bBackImage = settings.value("use_back_image", false).toBool() ;
 	QString strBackImage = settings.value("back_image", "").toString() ;
 	bool bFrame = settings.value("disp_frame", true).toBool() ;
+	bool bCenter = settings.value("disp_center", false).toBool() ;
 	settings.endGroup();
 
 	move(pos) ;
@@ -304,10 +312,7 @@ void MainWindow::readRootSetting( void )
 	setting.setBackImagePath(strBackImage) ;
 	setting.setUseBackImage(bBackImage) ;
 	setting.setDrawFrame(bFrame) ;
-
-	if ( bBackImage ) {
-		m_EditData.setBackImagePath(strBackImage);
-	}
+	setting.setDrawCenter(bCenter) ;
 }
 
 // 設定を保存
@@ -337,7 +342,8 @@ void MainWindow::writeRootSetting( void )
 	settings.beginGroup("AnimationWindow");
 	settings.setValue("use_back_image",	setting.getUseBackImage());
 	settings.setValue("back_image",		setting.getBackImagePath());
-	settings.setValue("disp_frame", setting.getDrawFrame());
+	settings.setValue("disp_frame",		setting.getDrawFrame());
+	settings.setValue("disp_center",	setting.getDrawCenter()) ;
 	settings.endGroup();
 }
 
@@ -675,6 +681,8 @@ void MainWindow::makeImageWindow( void )
 
 	connect(this, SIGNAL(sig_modifiedImageFile(int)), m_pImageWindow, SLOT(slot_modifiedImage(int))) ;
 	connect(this, SIGNAL(sig_endedOption()), m_pImageWindow, SLOT(slot_endedOption())) ;
+	connect(this, SIGNAL(sig_portCheckDrawCenter(bool)), m_pImageWindow, SLOT(slot_changeDrawCenter(bool))) ;
+	connect(this, SIGNAL(sig_portDragedImage(CObjectModel::FrameData)), m_pImageWindow, SLOT(slot_dragedImage(CObjectModel::FrameData))) ;
 }
 
 // ルーペウィンドウ作成
@@ -702,5 +710,7 @@ void MainWindow::makeAnimeWindow( void )
 
 	connect(this, SIGNAL(sig_modifiedImageFile(int)), m_pAnimationForm, SLOT(slot_modifiedImage(int))) ;
 	connect(this, SIGNAL(sig_endedOption()), m_pAnimationForm, SLOT(slot_endedOption())) ;
+	connect(m_pAnimationForm, SIGNAL(sig_portCheckDrawCenter(bool)), this, SLOT(slot_portCheckDrawCenter(bool))) ;
+	connect(m_pAnimationForm, SIGNAL(sig_portDragedImage(CObjectModel::FrameData)), this, SLOT(slot_portDragedImage(CObjectModel::FrameData))) ;
 }
 

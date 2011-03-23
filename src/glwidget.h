@@ -57,6 +57,7 @@ protected:
 	void drawFrameData( const CObjectModel::FrameData &data, QColor col = QColor(255, 255, 255, 255) ) ;
 	void drawFrame( const CObjectModel::FrameData &data, QColor col) ;
 	void drawGrid( void ) ;
+	void drawCenter( void ) ;
 
 	void drawLine( QPoint pos0, QPoint pos1, QColor col, float z = 1.0f ) ;
 	void drawRect( QRectF rc, QRectF uv, float z, QColor col ) ;
@@ -121,7 +122,6 @@ private:
 
 	float				m_rotStart ;				///< 回転変更時の開始ラジアン
 
-	bool				m_bDrawCenter ;
 	QPoint				m_centerPos ;
 
 	unsigned int		m_backImageTex ;

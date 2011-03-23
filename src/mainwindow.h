@@ -48,6 +48,9 @@ public slots:
 	void slot_exportPNG( void ) ;
 	void slot_closeExportPNGForm( void ) ;
 
+	void slot_portCheckDrawCenter(bool flag) ;
+	void slot_portDragedImage(CObjectModel::FrameData data) ;
+
 #ifndef QT_NO_DEBUG
 	void slot_dbgObjectDump( void ) ;
 #endif
@@ -76,6 +79,8 @@ private:
 signals:
 	void sig_modifiedImageFile(int index) ;
 	void sig_endedOption( void ) ;
+	void sig_portCheckDrawCenter(bool) ;
+	void sig_portDragedImage(CObjectModel::FrameData) ;
 
 private:
 	CDropableMdiArea	*m_pMdiArea ;

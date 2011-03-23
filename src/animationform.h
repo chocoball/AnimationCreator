@@ -36,6 +36,8 @@ public:
 
 signals:
 	void sig_imageRepaint( void ) ;
+	void sig_portCheckDrawCenter(bool) ;
+	void sig_portDragedImage(CObjectModel::FrameData) ;
 
 public slots:
 	void slot_createNewObject( void ) ;
@@ -111,6 +113,12 @@ public slots:
 //	void slot_pasteFrameData( void ) ;
 
 	void slot_changeDrawFrame(bool flag) ;
+	void slot_changeDrawCenter(bool flag) ;
+
+	void slot_portDragedImage(CObjectModel::FrameData data) ;
+
+	void slot_copyLayer( void ) ;
+	void slot_pasteLayer( void ) ;
 
 protected:
 	QList<CObjectModel::FrameData *> getNowSelectFrameData( void ) ;
@@ -142,6 +150,8 @@ private:
 	QAction				*m_pActTreeViewLayerDisp ;
 	QAction				*m_pActPlay ;
 	QAction				*m_pActStop ;
+	QAction				*m_pActCopyLayer ;
+	QAction				*m_pActPasteLayer ;
 
 	QTimer				*m_pTimer ;
 	int					m_nMaxFrameNum ;

@@ -70,7 +70,8 @@ void CEditData::initData( void )
 	m_exPngRect[2] =
 	m_exPngRect[3] = 0 ;
 
-	m_bCopyData = false ;
+	m_bCopyFrameData = false ;
+	m_bCopyLayerGroup = false ;
 }
 
 // オブジェクト追加コマンド
@@ -88,9 +89,9 @@ void CEditData::cmd_delObject(QModelIndex index, QLabel *pMarkerLabel)
 }
 
 // レイヤ追加コマンド
-void CEditData::cmd_addNewLayer( QModelIndex index, QStandardItem *newItem, CObjectModel::FrameData data, QList<QWidget *> &updateWidget )
+void CEditData::cmd_addNewLayer( QModelIndex index, QStandardItem *newItem, CObjectModel::LayerGroup &layerGroup, QList<QWidget *> &updateWidget )
 {
-	m_pUndoStack->push(new Command_AddLayer(this, index, newItem, data, updateWidget));
+	m_pUndoStack->push(new Command_AddLayer(this, index, newItem, layerGroup, updateWidget));
 }
 
 // フレームデータ追加コマンド
@@ -120,3 +121,18 @@ void CEditData::cmd_copyObject(CObjectModel::typeID objID, QList<QWidget *> &upd
 	m_pUndoStack->push( new Command_CopyObject(this, objID, updateWidget) );
 }
 
+bool CEditData::getNowSelectFrameData(CObjectModel::FrameData &data)
+{
+	CObjectModel::typeID objID = getSelectObject() ;
+	CObjectModel::typeID layerID = getSelectLayer() ;
+	int frame = getSelectFrame() ;
+
+	CObjectModel::FrameData *pPrev = m_pObjectModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
+	if ( !pPrev ) {
+		pPrev = m_pObjectModel->getFrameDataFromPrevFrame(objID, layerID, frame) ;
+		if ( !pPrev ) { return false ; }
+	}
+	CObjectModel::FrameData *pNext = m_pObjectModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
+	data = pPrev->getInterpolation(pNext, frame) ;
+	return true ;
+}

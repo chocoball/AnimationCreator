@@ -804,6 +804,19 @@
     <string>枠</string>
    </property>
   </widget>
+  <widget class="QCheckBox" name="checkBox_center">
+   <property name="geometry">
+    <rect>
+     <x>750</x>
+     <y>50</y>
+     <width>61</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>センター</string>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>pushButton_play</tabstop>

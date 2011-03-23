@@ -11,13 +11,15 @@ class CGridLabel : public QLabel
 	Q_OBJECT
 
 public:
-	explicit CGridLabel(CEditData *pImage, int nTabIndex, QWidget *parent = 0) ;
+	explicit CGridLabel(CEditData *pEditData, int nTabIndex, QWidget *parent = 0) ;
 
 	void setScale( int scale )			{ mScale		= scale ;	repaint() ; }
 	void setGridSize( QPoint &size )	{ m_GridSize	= size ;	repaint() ; }
 	void setCatchable( bool flag )		{ m_bCatchable = flag ; }
 
 	bool IsRectMove( void )				{ return m_bRectMove ; }
+
+	void setDrawCenter( bool flag ) ;
 
 public slots:
 	void slot_gridOnOff( bool flag ) ;
@@ -51,7 +53,7 @@ private:
 	bool			bCatching ;			// 範囲選択中ならtrue
 	bool			m_bRectMove ;		// 範囲移動してるならtrue
 	QPoint			m_MovePos ;			// 範囲移動中の座標
-	CEditData	*m_pImageData ;		// 編集データ
+	CEditData		*m_pEditData ;		// 編集データ
 
 	QPoint			m_GridSize ;		// グリッドのサイズ
 	bool			m_bCatchable ;		// 範囲選択できるならtrue
@@ -60,6 +62,8 @@ private:
 	bool			m_bPressCtrl ;		// Ctrlキー押してたらtrue
 
 	int				m_Index ;			// タブのインデックス
+
+	bool			m_bDrawCenter ;		// 選択フレームデータのセンターを表示するならtrue
 } ;
 
 #endif // GRIDLABEL_H

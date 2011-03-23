@@ -125,15 +125,14 @@ void Command_DelObject::redo()
 Command_AddLayer::Command_AddLayer(CEditData				*pEditData,
 								   QModelIndex				objIndex,
 								   QStandardItem			*pAddItem,
-								   CObjectModel::FrameData	frameData,
+								   CObjectModel::LayerGroup	&layerGroup,
 								   QList<QWidget *>			&updateWidget)
 {
 	m_pObjModel = pEditData->getObjectModel() ;
 	m_pTreeModel = pEditData->getTreeModel() ;
 	m_ObjIndex = objIndex ;
 	m_pAddItem = pAddItem ;
-	m_LayerGroup.first = pAddItem ;
-	m_LayerGroup.second.append(frameData) ;
+	m_LayerGroup = layerGroup ;
 	m_UpdateWidgetList = updateWidget ;
 }
 

@@ -233,7 +233,7 @@ public:
 
 	CObjectModel::typeID cmd_addNewObject( QString &str ) ;
 	void cmd_delObject(QModelIndex index, QLabel *pMarkerLabel) ;
-	void cmd_addNewLayer( QModelIndex index, QStandardItem *newItem, CObjectModel::FrameData data, QList<QWidget *> &updateWidget ) ;
+	void cmd_addNewLayer( QModelIndex index, QStandardItem *newItem, CObjectModel::LayerGroup &layerGroup, QList<QWidget *> &updateWidget ) ;
 	void cmd_addNewFrameData( CObjectModel::typeID objID, CObjectModel::typeID layerID, CObjectModel::FrameData &data, QList<QWidget *> &updateWidget ) ;
 	void cmd_delFrameData( CObjectModel::typeID	objID,
 						   CObjectModel::typeID	layerID,
@@ -315,27 +315,36 @@ public:
 	// フレームデータ コピー関連 ------------
 	void setCopyFrameData( CObjectModel::FrameData data )
 	{
-		m_CopyData = data ;
-		m_bCopyData = true ;
+		m_CopyFrameData = data ;
+		m_bCopyFrameData = true ;
 	}
 	CObjectModel::FrameData getCopyFrameData( void )
 	{
-		return m_CopyData ;
+		return m_CopyFrameData ;
 	}
 	bool isCopyData( void )
 	{
-		return m_bCopyData ;
+		return m_bCopyFrameData ;
 	}
 	// --------------------------------------
 
-	void setBackImagePath(QString path)
+	// レイヤコピー関連 ----------------------
+	void setCopyLayer( CObjectModel::LayerGroup layerGroup )
 	{
-		m_BackImagePath = path ;
+		m_CopyLayerGroup = layerGroup ;
+		m_bCopyLayerGroup = true ;
 	}
-	QString getBackImagePath( void )
+	CObjectModel::LayerGroup getCopyLayer( void )
 	{
-		return m_BackImagePath ;
+		return m_CopyLayerGroup ;
 	}
+	bool isCopyLayer( void )
+	{
+		return m_bCopyLayerGroup ;
+	}
+	// --------------------------------------
+
+	bool getNowSelectFrameData(CObjectModel::FrameData &data) ;
 
 private:
 	int								m_editMode ;
@@ -364,10 +373,11 @@ private:
 	int								m_exPngRect[4] ;	// [0]left, [1]top, [2]right, [3]bottom
 	int								m_nExportEndFrame ;	// 吐き出し終わったフレーム
 
-	bool							m_bCopyData ;
-	CObjectModel::FrameData			m_CopyData ;
+	bool							m_bCopyFrameData ;
+	CObjectModel::FrameData			m_CopyFrameData ;
 
-	QString							m_BackImagePath ;
+	bool							m_bCopyLayerGroup ;
+	CObjectModel::LayerGroup		m_CopyLayerGroup ;
 } ;
 
 #endif // EDITDATA_H

@@ -2,10 +2,10 @@
 #include "gridlabel.h"
 
 
-CGridLabel::CGridLabel(CEditData *pImage, int nTabIndex, QWidget *parent)
+CGridLabel::CGridLabel(CEditData *pEditData, int nTabIndex, QWidget *parent)
 	: QLabel(parent)
 {
-	m_pImageData = pImage ;
+	m_pEditData = pEditData ;
 	mScale = 1 ;
 	bCatching = false ;
 	if ( parent ) {
@@ -16,8 +16,15 @@ CGridLabel::CGridLabel(CEditData *pImage, int nTabIndex, QWidget *parent)
 	m_bDrawGrid		= true ;
 	m_bPressCtrl	= false ;
 	m_Index			= nTabIndex ;
+	m_bDrawCenter	= false ;
 
 	setFocusPolicy(Qt::StrongFocus);
+}
+
+void CGridLabel::setDrawCenter( bool flag )
+{
+	m_bDrawCenter = flag ;
+	update() ;
 }
 
 void CGridLabel::slot_gridOnOff( bool flag )
@@ -36,8 +43,8 @@ void CGridLabel::paintEvent(QPaintEvent *event)
 	penCenter.setColor(QColor(255, 255, 0, 255));
 	penCenter.setWidth(mScale);
 
-	if ( m_pImageData ) {
-		QSize size = m_pImageData->getImage(m_Index).size()*mScale ;
+	if ( m_pEditData ) {
+		QSize size = m_pEditData->getImage(m_Index).size()*mScale ;
 		size += QSize(mScale, mScale) ;
 		resize(size) ;
 	}
@@ -65,7 +72,7 @@ void CGridLabel::paintEvent(QPaintEvent *event)
 	}
 
 	// 選択中範囲
-	if ( m_pImageData && m_bCatchable ) {
+	if ( m_pEditData && m_bCatchable ) {
 		if ( m_bPressCtrl ) {
 			pen.setColor(QColor(0, 255, 0, 255));
 		}
@@ -74,25 +81,45 @@ void CGridLabel::paintEvent(QPaintEvent *event)
 		}
 		painter.setPen(pen);
 
-		QRect rect = m_pImageData->getCatchRect() ;
+		QRect rect = m_pEditData->getCatchRect() ;
 		rect.setLeft(rect.left());
 		rect.setRight(rect.right()-1);
 		rect.setTop(rect.top());
 		rect.setBottom(rect.bottom()-1);
 		painter.drawRect(rect) ;
 	}
+
+	CObjectModel::FrameData data ;
+	if ( m_pEditData->getNowSelectFrameData(data) ) {
+		if ( data.nImage != m_Index ) { return ; }
+	}
+	else {
+		return ;
+	}
+
+	// センター表示
+	if ( m_bDrawCenter ) {
+		pen.setColor(QColor(0, 0, 255, 255));
+		painter.setPen(pen);
+
+		int x = data.center_x + data.left ;
+		int y = data.center_y + data.top - 1 ;
+		QSize size = m_pEditData->getImage(m_Index).size() ;
+		painter.drawLine(QPointF(0, y), QPointF(size.width(), y));
+		painter.drawLine(QPointF(x, 0), QPointF(x, size.height()));
+	}
 }
 
 // 範囲選択開始
 void CGridLabel::mousePressEvent(QMouseEvent *ev)
 {
-	if ( !m_pImageData || !m_bCatchable ) { return ; }
+	if ( !m_pEditData || !m_bCatchable ) { return ; }
 	if ( ev->button() != Qt::LeftButton ) { return ; }
 
 	bCatching = true ;
 	m_bRectMove = false ;
 
-	if ( m_pImageData->getCatchRect().contains( ev->pos() / mScale ) ) {	// 範囲内選択した場合
+	if ( m_pEditData->getCatchRect().contains( ev->pos() / mScale ) ) {	// 範囲内選択した場合
 		m_bRectMove = true ;
 
 		if ( m_bPressCtrl ) {	// Ctrl押してたら
@@ -107,7 +134,7 @@ void CGridLabel::mousePressEvent(QMouseEvent *ev)
 		int x = ev->pos().x() / mScale ;
 		int y = ev->pos().y() / mScale ;
 		QRect r = QRect(x, y, 1, 1) ;
-		m_pImageData->setCatchRect(r);
+		m_pEditData->setCatchRect(r);
 		repaint() ;
 
 		emit sig_changeCatchRect(r) ;
@@ -117,13 +144,13 @@ void CGridLabel::mousePressEvent(QMouseEvent *ev)
 // 範囲選択中
 void CGridLabel::mouseMoveEvent(QMouseEvent *ev)
 {
-	if ( !m_pImageData || !m_bCatchable ) { return ; }
+	if ( !m_pEditData || !m_bCatchable ) { return ; }
 	if ( !bCatching ) { return ; }
 
-	QRect r = m_pImageData->getCatchRect() ;
+	QRect r = m_pEditData->getCatchRect() ;
 
-	int img_w = m_pImageData->getImage(m_Index).width() ;
-	int img_h = m_pImageData->getImage(m_Index).height() ;
+	int img_w = m_pEditData->getImage(m_Index).width() ;
+	int img_h = m_pEditData->getImage(m_Index).height() ;
 	int x = ev->pos().x() / mScale ;
 	int y = ev->pos().y() / mScale ;
 
@@ -169,7 +196,7 @@ void CGridLabel::mouseMoveEvent(QMouseEvent *ev)
 		r.setBottom(y);
 	}
 
-	m_pImageData->setCatchRect(r);
+	m_pEditData->setCatchRect(r);
 	emit sig_changeCatchRect(r) ;
 
 	repaint() ;
@@ -178,7 +205,7 @@ void CGridLabel::mouseMoveEvent(QMouseEvent *ev)
 // 範囲選択終了
 void CGridLabel::mouseReleaseEvent(QMouseEvent *ev)
 {
-	if ( !m_pImageData || !m_bCatchable ) { return ; }
+	if ( !m_pEditData || !m_bCatchable ) { return ; }
 	if ( !bCatching ) { return ; }
 
 	bCatching = false ;
@@ -188,10 +215,10 @@ void CGridLabel::mouseReleaseEvent(QMouseEvent *ev)
 	}
 	m_bRectMove = false ;
 
-	int img_w = m_pImageData->getImage(m_Index).width() ;
-	int img_h = m_pImageData->getImage(m_Index).height() ;
+	int img_w = m_pEditData->getImage(m_Index).width() ;
+	int img_h = m_pEditData->getImage(m_Index).height() ;
 
-	QRect r = m_pImageData->getCatchRect() ;
+	QRect r = m_pEditData->getCatchRect() ;
 
 	int x = ev->pos().x() / mScale ;
 	int y = ev->pos().y() / mScale ;
@@ -211,7 +238,7 @@ void CGridLabel::mouseReleaseEvent(QMouseEvent *ev)
 		r.setTop(-1);
 		r.setBottom(-1);
 	}
-	m_pImageData->setCatchRect(r);
+	m_pEditData->setCatchRect(r);
 	emit sig_changeCatchRect(r) ;
 
 	repaint() ;
@@ -247,12 +274,12 @@ void CGridLabel::startDragAndDrop( QMouseEvent *ev )
 {
 	Q_UNUSED(ev) ;
 
-	QImage img = m_pImageData->getImage(m_Index).copy(m_pImageData->getCatchRect()) ;
+	QImage img = m_pEditData->getImage(m_Index).copy(m_pEditData->getCatchRect()) ;
 	QPixmap pix = QPixmap::fromImage(img);
 
 	QByteArray itemData ;
 	QDataStream stream(&itemData, QIODevice::WriteOnly) ;
-	QRect rect = m_pImageData->getCatchRect() ;
+	QRect rect = m_pEditData->getCatchRect() ;
 	stream << rect << mScale << m_Index ;
 
 	QMimeData *mimeData = new QMimeData ;
@@ -270,22 +297,22 @@ void CGridLabel::startDragAndDrop( QMouseEvent *ev )
 
 //	qDebug() << "x:" << ev->pos().x() << " y:" << ev->pos().y() ;
 
-	m_pImageData->setDraggingImage(true);
+	m_pEditData->setDraggingImage(true);
 	drag->exec(Qt::CopyAction | Qt::MoveAction, Qt::CopyAction) ;
-	m_pImageData->setDraggingImage(false);
+	m_pEditData->setDraggingImage(false);
 }
 
 void CGridLabel::selectAll( void )
 {
 	QRect r ;
-	int img_w = m_pImageData->getImage(m_Index).width() ;
-	int img_h = m_pImageData->getImage(m_Index).height() ;
+	int img_w = m_pEditData->getImage(m_Index).width() ;
+	int img_h = m_pEditData->getImage(m_Index).height() ;
 
 	r.setLeft(0);
 	r.setRight(img_w);
 	r.setTop(0);
 	r.setBottom(img_h);
-	m_pImageData->setCatchRect(r);
+	m_pEditData->setCatchRect(r);
 	update() ;
 }
 
@@ -296,7 +323,7 @@ void CGridLabel::deselect( void )
 	r.setRight(-2);
 	r.setTop(-1);
 	r.setBottom(-1);
-	m_pImageData->setCatchRect(r);
+	m_pEditData->setCatchRect(r);
 	update() ;
 }
 

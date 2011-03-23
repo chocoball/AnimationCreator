@@ -250,4 +250,3 @@ QList<CObjectModel::typeID> CObjectModel::getFrameDatasFromRect( typeID objID, i
 	}
 	return list ;
 }
-

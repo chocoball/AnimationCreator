@@ -33,6 +33,9 @@ public:
 	void setDrawFrame(bool flag)			{ m_bDrawFrame = flag ; }
 	bool getDrawFrame()						{ return m_bDrawFrame ; }
 
+	void setDrawCenter(bool flag)			{ m_bDrawCenter = flag ; }
+	bool getDrawCenter()					{ return m_bDrawCenter ; }
+
 private:
 	QString		mCurrDir ;
 	QString		mCurrSaveDir ;
@@ -44,6 +47,7 @@ private:
 	QString		m_BackImagePath ;
 	bool		m_bUseBackImage ;
 	bool		m_bDrawFrame ;
+	bool		m_bDrawCenter ;
 };
 
 #endif // SETTING_H

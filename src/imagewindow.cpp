@@ -92,7 +92,9 @@ void ImageWindow::addTab(int imageIndex)
 	pLabel->setPalette(palette);
 
 	CGridLabel *pGridLabel = new CGridLabel(m_pEditData, imageIndex, pLabel) ;
+	pGridLabel->setObjectName("CGridLabel");
 	pGridLabel->show() ;
+	pGridLabel->setDrawCenter(m_pSetting->getDrawCenter());
 
 	QScrollArea *pScrollArea = new QScrollArea(ui->tabWidget) ;
 	pScrollArea->setWidget(pLabel) ;
@@ -235,5 +237,31 @@ void ImageWindow::slot_endedOption( void )
 	}
 }
 
+void ImageWindow::slot_changeDrawCenter( bool flag )
+{
+	for ( int i = 0 ; i < ui->tabWidget->count() ; i ++ ) {
+		QScrollArea *pScrollArea = (QScrollArea *)ui->tabWidget->widget(i) ;
 
+		CGridLabel *pGrid = pScrollArea->findChild<CGridLabel *>("CGridLabel") ;
+		if ( !pGrid ) {
+			qDebug() << "pGrid not found" ;
+			continue ;
+		}
+		qDebug("slot_changeDrawCenter[%d]:%d", i, flag) ;
+		pGrid->setDrawCenter(flag) ;
+	}
+}
 
+void ImageWindow::slot_dragedImage(CObjectModel::FrameData /*data*/)
+{
+	for ( int i = 0 ; i < ui->tabWidget->count() ; i ++ ) {
+		QScrollArea *pScrollArea = (QScrollArea *)ui->tabWidget->widget(i) ;
+
+		CGridLabel *pGrid = pScrollArea->findChild<CGridLabel *>("CGridLabel") ;
+		if ( !pGrid ) {
+			qDebug() << "pGrid not found" ;
+			continue ;
+		}
+		pGrid->update();
+	}
+}

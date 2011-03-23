@@ -83,8 +83,6 @@ void AnimeGLWidget::paintGL()
 	glMatrixMode(GL_MODELVIEW) ;
 	glLoadIdentity() ;
 
-	m_bDrawCenter = false ;
-
 	// 背景画像描画
 	if ( m_backImageTex ) {
 		QRect rect ;
@@ -111,6 +109,18 @@ void AnimeGLWidget::paintGL()
 		drawGrid() ;
 	}
 
+	// センター
+	if ( m_pSetting->getDrawCenter() ) {
+		drawCenter() ;
+#if 0
+		QColor col = QColor(0, 0, 255, 255) ;
+		glDisable(GL_DEPTH_TEST);
+		drawLine(QPoint(-512, m_centerPos.y()), QPoint(512, m_centerPos.y()), col, 1.0) ;
+		drawLine(QPoint(m_centerPos.x(), -512), QPoint(m_centerPos.x(), 512), col, 1.0) ;
+		glEnable(GL_DEPTH_TEST);
+#endif
+	}
+
 	// PNG吐き出しモード
 	if ( m_pEditData->getEditMode() == CEditData::kEditMode_ExportPNG && !m_pEditData->isExportPNG() ) {
 		int rect[4] ;
@@ -133,16 +143,7 @@ void AnimeGLWidget::drawLayers( void )
 
 	switch ( m_pEditData->getEditMode() ) {
 	case CEditData::kEditMode_Animation:
-#if 1
 		drawLayers_Anime() ;
-#else
-		if ( m_pEditData->isPlayAnime() || m_pEditData->isPauseAnime() ) {
-			drawLayers_Anime() ;
-		}
-		else {
-			drawLayers_Normal() ;
-		}
-#endif
 		break ;
 	case CEditData::kEditMode_ExportPNG:
 		if ( m_pEditData->isExportPNG() ) {
@@ -154,13 +155,9 @@ void AnimeGLWidget::drawLayers( void )
 		}
 		break ;
 	}
-#if 1
+
 	drawSelFrameInfo();
-#else
-	if ( !m_pEditData->isPlayAnime() || m_pEditData->isPauseAnime() ) {
-		drawSelFrameInfo();
-	}
-#endif
+
 	glDisable(GL_TEXTURE_2D) ;
 	glBindTexture(GL_TEXTURE_2D, 0) ;
 }
@@ -230,19 +227,10 @@ void AnimeGLWidget::drawLayers_Anime()
 		const CObjectModel::FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
 
 		if ( !pNow ) { continue ; }
-#if 1
 		const CObjectModel::FrameData data = pNow->getInterpolation(pNext, frame) ;
 		sort.append(data);
 
 		select.append(m_pEditData->getSelectLayer() == layerID) ;
-#else
-		if ( !pNext ) {	// 次フレームのデータがない
-			drawFrameData(*pNow);
-		}
-		else {
-			drawFrameData(data);
-		}
-#endif
 	}
 	for ( int i = 0 ; i < sort.size() ; i ++ ) {
 		for ( int j = i + 1 ; j < sort.size() ; j ++ ) {
@@ -302,32 +290,13 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 	else {
 		col = QColor(255, 0, 0, 255) ;
 	}
-#if 0	// 選択レイヤの枠描画
-	{
-		CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
-		if ( layerID ) {
 
-		}
-	}
-#endif
 	for ( int i = 0 ; i < m_pEditData->getSelectFrameDataNum() ; i ++ ) {
 		const CObjectModel::FrameData *pData = m_pEditData->getSelectFrameData(i) ;
 		if ( !pData ) { continue ; }
-#if 0
-		Vertex v = pData->getVertex() ;
 
-		glPushMatrix();
-			glTranslatef(pData->pos_x, pData->pos_y, pData->pos_z / 4096.0f);
-			glRotatef(pData->rot_x, 1, 0, 0);
-			glRotatef(pData->rot_y, 0, 1, 0);
-			glRotatef(pData->rot_z, 0, 0, 1);
+		m_centerPos = QPoint(pData->pos_x, pData->pos_y) ;
 
-			drawLine(QPoint(v.x0, v.y0), QPoint(v.x0, v.y1), col, 0);
-			drawLine(QPoint(v.x1, v.y0), QPoint(v.x1, v.y1), col, 0);
-			drawLine(QPoint(v.x0, v.y0), QPoint(v.x1, v.y0), col, 0);
-			drawLine(QPoint(v.x0, v.y1), QPoint(v.x1, v.y1), col, 0);
-		glPopMatrix();
-#endif
 		if ( m_editMode != kEditMode_Center ) {
 			if ( (m_dragMode != kDragMode_Edit) || m_bPressCtrl ) {
 				continue ;
@@ -356,12 +325,14 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 
 			glDisable(GL_LINE_STIPPLE);
 			break ;
+#if 0
 		case kEditMode_Center:
 			{
 				m_bDrawCenter = true ;
 				m_centerPos = QPoint(pData->pos_x, pData->pos_y) ;
 			}
 			break ;
+#endif
 		}
 	}
 
@@ -376,7 +347,6 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 		drawLine(QPoint(m_SelPluralEndPos.x(), m_SelPluralEndPos.y()),
 				 QPoint(m_SelPluralStartPos.x(), m_SelPluralEndPos.y()), col, 0);
 	}
-
 
 	glEnable(GL_ALPHA_TEST);
 	glEnable(GL_DEPTH_TEST);
@@ -464,15 +434,19 @@ void AnimeGLWidget::drawGrid( void )
 	drawLine(QPoint(0, -m_DrawHeight/2), QPoint(0, m_DrawHeight/2), colHalfYellow) ;
 	drawLine(QPoint(-m_DrawWidth/2, 0), QPoint(m_DrawWidth/2, 0), colHalfYellow) ;
 
-	glDisable(GL_DEPTH_TEST) ;
-	if ( m_bDrawCenter ) {
-		QColor col = QColor(0, 0, 255, 255) ;
-		drawLine(QPoint(-512, m_centerPos.y()), QPoint(512, m_centerPos.y()), col, 1.0) ;
-		drawLine(QPoint(m_centerPos.x(), -512), QPoint(m_centerPos.x(), 512), col, 1.0) ;
-	}
-	glEnable(GL_DEPTH_TEST) ;
-
 	glPopMatrix();
+}
+
+void AnimeGLWidget::drawCenter( void )
+{
+	CObjectModel::FrameData data ;
+	if ( !m_pEditData->getNowSelectFrameData(data) ) { return ; }
+
+	QColor col = QColor(0, 0, 255, 255) ;
+	glDisable(GL_DEPTH_TEST);
+	drawLine(QPoint(-512, data.pos_y), QPoint(512, data.pos_y), col, 1.0) ;
+	drawLine(QPoint(data.pos_x, -512), QPoint(data.pos_x, 512), col, 1.0) ;
+	glEnable(GL_DEPTH_TEST);
 }
 
 // ライン描画
@@ -654,13 +628,11 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 				}
 			}
 
-#if 1
 			if ( pData ) {
 				CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
 				CObjectModel::FrameData *p = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
 				*p = *pData ;
 			}
-#endif
 		}
 
 		update() ;
@@ -724,34 +696,7 @@ void AnimeGLWidget::contextMenuEvent(QContextMenuEvent *event)
 	menu.addAction(m_pActDel) ;
 	menu.exec(event->globalPos()) ;
 }
-#if 0
-// キー押しイベント
-void AnimeGLWidget::keyPressEvent(QKeyEvent *event)
-{
-	if ( event->key() == Qt::Key_Control ) {
-		m_bPressCtrl = true ;
-		update() ;
-	}
 
-	if ( m_bPressCtrl ) {
-		if ( event->key() == Qt::Key_C ) {	// copy
-			emit sig_copyFrameData() ;
-		}
-		if ( event->key() == Qt::Key_V ) {	// paste
-			emit sig_pasteFrameData() ;
-		}
-	}
-}
-
-// キー離しイベント
-void AnimeGLWidget::keyReleaseEvent(QKeyEvent *event)
-{
-	if ( event->key() == Qt::Key_Control ) {
-		m_bPressCtrl = false ;
-		update() ;
-	}
-}
-#endif
 /**
   データ編集
   */
@@ -868,6 +813,7 @@ void AnimeGLWidget::setDrawArea(int w, int h)
 	m_DrawHeight = h ;
 }
 
+// 背景画像設定
 void AnimeGLWidget::setBackImage( QString path )
 {
 	if ( m_backImageTex ) {

@@ -55,6 +55,8 @@ public slots:
 	void slot_setUI( QRect rect ) ;
 
 	void slot_endedOption( void ) ;
+	void slot_changeDrawCenter( bool flag ) ;
+	void slot_dragedImage(CObjectModel::FrameData data) ;
 
 private:
 	Ui::ImageWindow	*ui ;
