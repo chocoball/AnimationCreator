@@ -188,6 +188,8 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(ui->checkBox_frame,			SIGNAL(clicked(bool)),			this, SLOT(slot_changeDrawFrame(bool))) ;
 	connect(ui->checkBox_center,		SIGNAL(clicked(bool)),			this, SLOT(slot_changeDrawCenter(bool))) ;
 
+	connect(ui->toolButton_picker,		SIGNAL(clicked()),				this, SLOT(slot_clickPicker())) ;
+
 #ifndef LAYOUT_OWN
 	QGridLayout *pLayout = new QGridLayout(this) ;
 	pLayout->addWidget(ui->listWidget, 0, 0, 5, 1);
@@ -532,26 +534,26 @@ void AnimationForm::slot_selectLayerChanged( QList<CObjectModel::typeID> layerID
 void AnimationForm::slot_setUI(CObjectModel::FrameData data)
 {
 	m_bDontSetData = true ;
-	ui->spinBox_pos_x->setValue(data.pos_x);
-	ui->spinBox_pos_y->setValue(data.pos_y);
-	ui->spinBox_pos_z->setValue(data.pos_z);
-	ui->spinBox_rot_x->setValue(data.rot_x);
-	ui->spinBox_rot_y->setValue(data.rot_y);
-	ui->spinBox_rot_z->setValue(data.rot_z);
-	ui->doubleSpinBox_scale_x->setValue(data.fScaleX) ;
-	ui->doubleSpinBox_scale_y->setValue(data.fScaleY) ;
-	ui->spinBox_uv_left->setValue(data.left);
-	ui->spinBox_uv_right->setValue(data.right);
-	ui->spinBox_uv_top->setValue(data.top);
-	ui->spinBox_uv_bottom->setValue(data.bottom);
-	ui->spinBox_center_x->setValue(data.center_x);
-	ui->spinBox_center_y->setValue(data.center_y);
-	ui->comboBox_image_no->setCurrentIndex(data.nImage);
-	ui->checkBox_uv_anime->setChecked(data.bUVAnime);
-	ui->spinBox_r->setValue(data.rgba[0]);
-	ui->spinBox_g->setValue(data.rgba[1]);
-	ui->spinBox_b->setValue(data.rgba[2]);
-	ui->spinBox_a->setValue(data.rgba[3]);
+	if ( data.pos_x != ui->spinBox_pos_x->value() ) { ui->spinBox_pos_x->setValue(data.pos_x); }
+	if ( data.pos_y != ui->spinBox_pos_y->value() ) { ui->spinBox_pos_y->setValue(data.pos_y); }
+	if ( data.pos_z != ui->spinBox_pos_z->value() ) { ui->spinBox_pos_z->setValue(data.pos_z); }
+	if ( data.rot_x != ui->spinBox_rot_x->value() ) { ui->spinBox_rot_x->setValue(data.rot_x); }
+	if ( data.rot_y != ui->spinBox_rot_y->value() ) { ui->spinBox_rot_y->setValue(data.rot_y); }
+	if ( data.rot_z != ui->spinBox_rot_z->value() ) { ui->spinBox_rot_z->setValue(data.rot_z); }
+	if ( data.fScaleX != (float)ui->doubleSpinBox_scale_x->value() ) { ui->doubleSpinBox_scale_x->setValue(data.fScaleX) ; }
+	if ( data.fScaleY != (float)ui->doubleSpinBox_scale_y->value() ) { ui->doubleSpinBox_scale_y->setValue(data.fScaleY) ; }
+	if ( data.left != ui->spinBox_uv_left->value() ) { ui->spinBox_uv_left->setValue(data.left); }
+	if ( data.right != ui->spinBox_uv_right->value() ) { ui->spinBox_uv_right->setValue(data.right); }
+	if ( data.top != ui->spinBox_uv_top->value() ) { ui->spinBox_uv_top->setValue(data.top); }
+	if ( data.bottom != ui->spinBox_uv_bottom->value() ) { ui->spinBox_uv_bottom->setValue(data.bottom); }
+	if ( data.center_x != ui->spinBox_center_x->value() ) { ui->spinBox_center_x->setValue(data.center_x); }
+	if ( data.center_y != ui->spinBox_center_y->value() ) { ui->spinBox_center_y->setValue(data.center_y); }
+	if ( data.nImage != ui->comboBox_image_no->currentIndex() ) { ui->comboBox_image_no->setCurrentIndex(data.nImage); }
+	if ( data.bUVAnime != ui->checkBox_uv_anime->isChecked() ) { ui->checkBox_uv_anime->setChecked(data.bUVAnime); }
+	if ( data.rgba[0] != ui->spinBox_r->value() ) { ui->spinBox_r->setValue(data.rgba[0]); }
+	if ( data.rgba[1] != ui->spinBox_g->value() ) { ui->spinBox_g->setValue(data.rgba[1]); }
+	if ( data.rgba[2] != ui->spinBox_b->value() ) { ui->spinBox_b->setValue(data.rgba[2]); }
+	if ( data.rgba[3] != ui->spinBox_a->value() ) { ui->spinBox_a->setValue(data.rgba[3]); }
 	m_bDontSetData = false ;
 
 	if ( data.getRect() != m_pEditData->getCatchRect() ) {
@@ -1338,6 +1340,10 @@ void AnimationForm::slot_changeDrawCenter(bool flag)
 void AnimationForm::slot_portDragedImage(CObjectModel::FrameData data)
 {
 	emit sig_portDragedImage(data) ;
+}
+
+void AnimationForm::slot_clickPicker( void )
+{
 }
 
 // オブジェクト追加

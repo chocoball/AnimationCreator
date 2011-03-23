@@ -26,7 +26,7 @@ void CDataMarkerLabel::paintEvent(QPaintEvent */*event*/)
 	else {	// レイヤ選択中
 #if 1
 		// 非選択のレイヤ
-		painter.setPen(QPen(QColor(0, 0, 255)));
+		painter.setPen(QPen(QColor(0, 0, 255, 128)));
 		for ( i = 0 ; i < pLayerGroupList->size() ; i ++ ) {
 			for( j = 0 ; j < m_pEditData->getSelectLayerNum() ; j ++ ) {
 				if ( pLayerGroupList->at(i).first == m_pEditData->getSelectLayer(j) ) {

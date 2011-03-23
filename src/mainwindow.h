@@ -29,6 +29,8 @@ public:
 
 protected:
 	void closeEvent(QCloseEvent *event) ;
+	void keyPressEvent(QKeyEvent *event) ;
+	void keyReleaseEvent(QKeyEvent *event);
 
 public slots:
 	void slot_open( void ) ;
@@ -124,6 +126,7 @@ private:
 
 	bool				m_bSaveImage ;			// 画像データ保存するならtrue
 
+	bool				m_bCtrl ;
 #ifndef QT_NO_DEBUG
 	// デバッグ用 ----
 	QAction				*m_pActDbgDump ;

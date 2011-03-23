@@ -120,6 +120,7 @@ public slots:
 	void slot_copyLayer( void ) ;
 	void slot_pasteLayer( void ) ;
 
+	void slot_clickPicker( void ) ;
 protected:
 	QList<CObjectModel::FrameData *> getNowSelectFrameData( void ) ;
 	void addNewObject( QString str ) ;

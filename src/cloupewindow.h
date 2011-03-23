@@ -13,6 +13,8 @@ class CLoupeWindow : public QWidget
 public:
 	explicit CLoupeWindow(CEditData *pEditData, MainWindow *pMainWindow, QWidget *parent = 0);
 
+	void toggleLock( void ) ;
+
 signals:
 
 public slots:

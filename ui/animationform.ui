@@ -319,6 +319,9 @@
      <height>22</height>
     </rect>
    </property>
+   <property name="autoFillBackground">
+    <bool>true</bool>
+   </property>
   </widget>
   <widget class="QDoubleSpinBox" name="doubleSpinBox_scale_y">
    <property name="geometry">
@@ -815,6 +818,19 @@
    </property>
    <property name="text">
     <string>センター</string>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="toolButton_picker">
+   <property name="geometry">
+    <rect>
+     <x>760</x>
+     <y>410</y>
+     <width>21</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>...</string>
    </property>
   </widget>
  </widget>

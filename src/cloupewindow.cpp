@@ -55,6 +55,11 @@ CLoupeWindow::CLoupeWindow(CEditData *pEditData, MainWindow *pMainWindow, QWidge
 	m_CenterPos = QApplication::desktop()->cursor().pos() ;
 }
 
+void CLoupeWindow::toggleLock( void )
+{
+	m_pCheckBox_Cursor->setChecked( !m_pCheckBox_Cursor->isChecked() );
+}
+
 void CLoupeWindow::slot_cursorScreenShort()
 {
 	if ( m_pEditData->isDraggingImage() ) {

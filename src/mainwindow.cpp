@@ -41,6 +41,8 @@ MainWindow::MainWindow(QWidget *parent)
 	m_pAnimationForm = NULL ;
 	m_pExportPNGForm = NULL ;
 
+	m_bCtrl = false ;
+
 	setObjectName("AnimationCreator MainWindow");
 }
 
@@ -65,6 +67,27 @@ void MainWindow::closeEvent(QCloseEvent *event)
 	else {
 		writeRootSetting() ;
 		event->accept() ;
+	}
+}
+
+// キー押しイベント
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+	if ( event->key() == Qt::Key_Control ) {
+		m_bCtrl = true ;
+	}
+	if ( m_bCtrl ) {
+		if ( event->key() == Qt::Key_L ) {
+			m_pLoupeWindow->toggleLock() ;
+		}
+	}
+}
+
+// キー放しイベント
+void MainWindow::keyReleaseEvent(QKeyEvent *event)
+{
+	if ( event->key() == Qt::Key_Control ) {
+		m_bCtrl = false ;
 	}
 }
 
@@ -713,4 +736,3 @@ void MainWindow::makeAnimeWindow( void )
 	connect(m_pAnimationForm, SIGNAL(sig_portCheckDrawCenter(bool)), this, SLOT(slot_portCheckDrawCenter(bool))) ;
 	connect(m_pAnimationForm, SIGNAL(sig_portDragedImage(CObjectModel::FrameData)), this, SLOT(slot_portDragedImage(CObjectModel::FrameData))) ;
 }
-
