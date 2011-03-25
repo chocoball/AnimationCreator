@@ -10,6 +10,7 @@ class CEditData
 {
 public:
 	typedef struct {
+		int				nNo ;
 		QImage			Image ;
 		int				origImageW, origImageH ;
 		GLuint			nTexObj ;
@@ -44,18 +45,58 @@ public:
 
 	void setImageData( QList<ImageData> &data )
 	{
-		m_ImageData = data ;
+		m_ImageDataList = data ;
 	}
+
+	void addImageData(ImageData &data)
+	{
+		m_ImageDataList.append(data) ;
+	}
+
+	int getImageDataListSize( void ) { return m_ImageDataList.size() ; }
+
+	ImageData *getImageData(int index)
+	{
+		if ( index < 0 || index >= m_ImageDataList.size() ) {
+			return NULL ;
+		}
+		return &m_ImageDataList[index] ;
+	}
+	ImageData *getImageDataFromNo(int no)
+	{
+		for ( int i = 0 ; i < m_ImageDataList.size() ; i ++ ) {
+			if ( m_ImageDataList[i].nNo == no ) {
+				return &m_ImageDataList[i] ;
+			}
+		}
+		return NULL ;
+	}
+	void removeImageDataByNo(int no)
+	{
+		for ( int i = 0 ; i < m_ImageDataList.size() ; i ++ ) {
+			if ( m_ImageDataList[i].nNo != no ) { continue ; }
+
+			if ( m_ImageDataList[i].nTexObj ) {
+				glDeleteTextures(1, &m_ImageDataList[i].nTexObj) ;
+			}
+			m_ImageDataList.removeAt(i) ;
+			return ;
+		}
+	}
+
+#if 0
+	void setImageDataByIndex( int index, ImageData &data )
+	{
+		data.nNo = index ;
+		m_ImageData.insert(index, data);
+	}
+
 	void addImageData( ImageData &data )
 	{
+		data.nNo = m_ImageData.size() ;
 		m_ImageData.append(data) ;
 	}
 
-	void	addImage( QImage &image )
-	{
-		m_ImageData.append(ImageData());
-		m_ImageData.last().Image = image ;
-	}
 	void	setImage( int index, QImage &image )
 	{
 		if ( index < 0 || index >= m_ImageData.size() ) {
@@ -72,6 +113,16 @@ public:
 		}
 
 		return m_ImageData[index].Image ;
+	}
+	QImage &getImageFromNo( int no )
+	{
+		for ( int i = 0 ; i < m_ImageData.size() ; i ++ ) {
+			if ( m_ImageData[i].nNo == no ) {
+				return m_ImageData[i].Image ;
+			}
+		}
+		static QImage image ;
+		return image ;
 	}
 	void setImageFileName( int index, QString &name )
 	{
@@ -105,8 +156,6 @@ public:
 		return m_ImageData[index].lastModified ;
 	}
 
-	int getImageDataSize( void ) { return m_ImageData.size() ; }
-
 	void removeImageData( int index )
 	{
 		if ( index < 0 || index >= m_ImageData.size() ) {
@@ -127,10 +176,27 @@ public:
 	}
 	GLuint	getTexObj( int index )
 	{
+#if 1
+		for ( int i = 0 ; i < m_ImageData.size() ; i ++ ) {
+			if ( m_ImageData[i].nNo == no ) {
+				return m_ImageData[i].nTexObj ;
+			}
+		}
+		return 0 ;
+#else
 		if ( index < 0 || index >= m_ImageData.size() ) { return 0 ; }
 		return m_ImageData[index].nTexObj ;
+#endif
 	}
-	
+	GLuint	getTexObjFormNo( int no )
+	{
+		for ( int i = 0 ; i < m_ImageData.size() ; i ++ ) {
+			if ( m_ImageData[i].nNo == no ) {
+				return m_ImageData[i].nTexObj ;
+			}
+		}
+		return 0 ;
+	}
 	void setOriginalImageSize( int index, int w, int h )
 	{
 		if ( index < 0 || index >= m_ImageData.size() ) {
@@ -149,7 +215,7 @@ public:
 		w = m_ImageData[index].origImageW ;
 		h = m_ImageData[index].origImageH ;
 	}
-
+#endif
 	void	setCatchRect( QRect &rect )	{ m_CatchRect = rect ; }
 	QRect	&getCatchRect( void )		{ return m_CatchRect ; }
 
@@ -349,7 +415,7 @@ public:
 private:
 	int								m_editMode ;
 
-	QList<ImageData>				m_ImageData ;
+	QList<ImageData>				m_ImageDataList ;
 
 	QRect							m_CatchRect ;
 	QPoint							m_Center ;

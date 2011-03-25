@@ -38,6 +38,7 @@ signals:
 	void sig_imageRepaint( void ) ;
 	void sig_portCheckDrawCenter(bool) ;
 	void sig_portDragedImage(CObjectModel::FrameData) ;
+	void sig_pushColorToolButton( void ) ;
 
 public slots:
 	void slot_createNewObject( void ) ;
@@ -87,7 +88,7 @@ public slots:
 	void slot_addImage( int imageNo ) ;
 	void slot_delImage( int imageNo ) ;
 
-	void slot_changeImageIndex(int index) ;
+	void slot_changeImageIndex(QString index) ;
 
 	void slot_changeUVAnime( bool flag ) ;
 
@@ -121,6 +122,8 @@ public slots:
 	void slot_pasteLayer( void ) ;
 
 	void slot_clickPicker( void ) ;
+	void slot_setColorFromPicker(QRgb rgba) ;
+
 protected:
 	QList<CObjectModel::FrameData *> getNowSelectFrameData( void ) ;
 	void addNewObject( QString str ) ;

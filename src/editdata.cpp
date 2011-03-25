@@ -18,11 +18,11 @@ CEditData::~CEditData()
 
 void CEditData::resetData( void )
 {
-	for ( int i = 0 ; i < m_ImageData.size() ; i ++ ) {
-		if ( !m_ImageData[i].nTexObj ) { continue ; }
+	for ( int i = 0 ; i < m_ImageDataList.size() ; i ++ ) {
+		if ( !m_ImageDataList[i].nTexObj ) { continue ; }
 
-		glDeleteTextures(1, &m_ImageData[i].nTexObj) ;
-		m_ImageData[i].nTexObj = 0 ;
+		glDeleteTextures(1, &m_ImageDataList[i].nTexObj) ;
+		m_ImageDataList[i].nTexObj = 0 ;
 	}
 	if ( m_pObjectModel ) {
 		delete m_pObjectModel ;
@@ -40,7 +40,7 @@ void CEditData::resetData( void )
 void CEditData::initData( void )
 {
 	m_editMode = kEditMode_Animation ;
-	m_ImageData.clear();
+	m_ImageDataList.clear();
 
 	m_CatchRect			= QRect(0, 0, 0, 0) ;
 	m_Center			= QPoint(0, 0) ;

@@ -40,6 +40,8 @@ protected:
 
 	void resizeEvent(QResizeEvent *event) ;
 
+	int getFreeTabIndex( void ) ;
+
 signals:
 	void sig_addImage(int imageNo) ;
 	void sig_delImage(int imageNo) ;

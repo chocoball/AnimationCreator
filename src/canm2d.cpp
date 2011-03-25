@@ -204,7 +204,7 @@ bool CAnm2DBin::makeHeader( QByteArray &rData, CEditData &rEditData )
 			blockNum += frameDataList.size() ;	// フレームデータ数
 		}
 	}
-	blockNum += rEditData.getImageDataSize() ;	// イメージデータ数
+	blockNum += rEditData.getImageDataListSize() ;	// イメージデータ数
 
 	rData.resize(sizeof(Anm2DHeader) + (blockNum-1) * sizeof(unsigned int));
 	Anm2DHeader *pHeader = (Anm2DHeader *)rData.data() ;
@@ -221,9 +221,30 @@ bool CAnm2DBin::makeHeader( QByteArray &rData, CEditData &rEditData )
 // イメージデータ作成
 bool CAnm2DBin::makeImageList( QList<QByteArray> &rData, CEditData &rEditData )
 {
-	int imageNum = rEditData.getImageDataSize() ;
+	int imageNum = rEditData.getImageDataListSize() ;
 
 	for ( int i = 0 ; i < imageNum ; i ++ ) {
+#if 1
+		CEditData::ImageData *p = rEditData.getImageData(i) ;
+		if ( !p ) { continue ; }
+
+		QImage img = p->Image ;
+		unsigned int size = sizeof(Anm2DImage) + img.width() * img.height() * 4 * sizeof(unsigned char) - 1 ;
+		size = (size+0x03) & ~0x03 ;
+
+		QByteArray imgArray ;
+		imgArray.resize(size);
+		Anm2DImage *pImage = (Anm2DImage *)imgArray.data() ;
+		memset( pImage, 0, size ) ;
+		pImage->header.nID = ANM2D_ID_IMAGE ;
+		pImage->header.nSize = size ;
+		pImage->nWidth = img.width() ;
+		pImage->nHeight = img.height() ;
+		pImage->nImageNo = p->nNo ;
+		QString relPath = getRelativePath(m_filePath, p->fileName) ;
+		strncpy(pImage->fileName, relPath.toUtf8().data(), 255) ;
+		memcpy(pImage->data, img.bits(), img.width()*img.height()*4) ;
+#else
 		QImage img = rEditData.getImage(i) ;
 		unsigned int size = sizeof(Anm2DImage) + img.width() * img.height() * 4 * sizeof(unsigned char) - 1 ;
 		size = (size+0x03) & ~0x03 ;
@@ -240,7 +261,7 @@ bool CAnm2DBin::makeImageList( QList<QByteArray> &rData, CEditData &rEditData )
 		QString relPath = getRelativePath(m_filePath, rEditData.getImageFileName(i)) ;
 		strncpy(pImage->fileName, relPath.toUtf8().data(), 255) ;
 		memcpy(pImage->data, img.bits(), img.width()*img.height()*4) ;
-
+#endif
 		rData << imgArray ;
 	}
 	return true ;
@@ -511,6 +532,7 @@ bool CAnm2DBin::addImageData(Anm2DHeader *pHeader, CEditData &rEditData)
 				ImageData.nTexObj = 0 ;
 				ImageData.fileName = path ;
 				ImageData.lastModified = QDateTime::currentDateTimeUtc() ;
+				ImageData.nNo = pImage->nImageNo ;
 				data.insert(pImage->nImageNo, ImageData);
 			}
 			break ;
@@ -651,7 +673,7 @@ Q_UNUSED(doc) ;
 
 	element.setAttribute(kAnmXML_Attr_Version, kAnmXML_Version);
 	element.setAttribute(kAnmXML_Attr_ObjNum, objList.size());
-	element.setAttribute(kAnmXML_Attr_ImageNum, rEditData.getImageDataSize());
+	element.setAttribute(kAnmXML_Attr_ImageNum, rEditData.getImageDataListSize());
 	return true ;
 }
 
@@ -757,23 +779,25 @@ bool CAnm2DXml::makeObject(QDomElement &element, QDomDocument &doc, CEditData &r
 // イメージエレメント作成
 bool CAnm2DXml::makeImage( QDomElement &element, QDomDocument &doc, CEditData &rEditData )
 {
-	for ( int i = 0 ; i < rEditData.getImageDataSize() ; i ++ ) {
+	for ( int i = 0 ; i < rEditData.getImageDataListSize() ; i ++ ) {
+#if 1
+		CEditData::ImageData *p = rEditData.getImageData(i) ;
+		if ( !p ) { continue ; }
+		QString imgFilePath = p->fileName ;
+		QImage image = p->Image ;
+#else
 		QString imgFilePath = rEditData.getImageFileName(i) ;
 		QImage image = rEditData.getImage(i) ;
-
+#endif
 		QDomElement elmImage = doc.createElement(kAnmXML_ID_Image) ;
-		elmImage.setAttribute(kAnmXML_Attr_No, i);
+		elmImage.setAttribute(kAnmXML_Attr_No, p->nNo);
 
 		QDomElement elmTmp ;
 		QDomText text ;
 
 		elmTmp = doc.createElement("FilePath") ;
-#if 1
 		QString relPath = getRelativePath(m_filePath, imgFilePath) ;
 		text = doc.createTextNode(relPath.toUtf8()) ;
-#else
-		text = doc.createTextNode(imgFilePath.toUtf8()) ;
-#endif
 		elmTmp.appendChild(text) ;
 		elmImage.appendChild(elmTmp) ;
 		
@@ -783,7 +807,12 @@ bool CAnm2DXml::makeImage( QDomElement &element, QDomDocument &doc, CEditData &r
 			h = image.height() ;
 		}
 		else {
+#if 1
+			w = p->origImageW ;
+			h = p->origImageH ;
+#else
 			rEditData.getOriginalImageSize(i, w, h) ;
+#endif
 		}
 
 		elmTmp = doc.createElement("Size") ;
@@ -840,8 +869,14 @@ void CAnm2DXml::setProgMaximum( QProgressDialog *pProg, CEditData &rEditData )
 	}
 
 	if ( m_bSaveImage ) {
-		for ( int i = 0 ; i < rEditData.getImageDataSize() ; i ++ ) {
+		for ( int i = 0 ; i < rEditData.getImageDataListSize() ; i ++ ) {
+#if 1
+			CEditData::ImageData *p = rEditData.getImageData(i) ;
+			if ( !p ) { continue ; }
+			max += p->Image.height() * p->Image.width() ;
+#else
 			max += rEditData.getImage(i).height() * rEditData.getImage(i).width() ;
+#endif
 		}
 	}
 	qDebug() << "max:" << max ;
@@ -905,6 +940,7 @@ bool CAnm2DXml::addElement( QDomNode &node, CEditData &rEditData )
 			}
 			data.lastModified = QDateTime::currentDateTimeUtc() ;
 			data.nTexObj = 0 ;
+			data.nNo = no ;
 			ImageData.insert(no, data);
 		}
 		node = node.nextSibling() ;

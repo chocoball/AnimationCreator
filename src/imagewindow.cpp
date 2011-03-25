@@ -5,6 +5,7 @@
 #include "gridlabel.h"
 #include "animationform.h"
 #include "mainwindow.h"
+#include "util.h"
 
 ImageWindow::ImageWindow(CSettings *p, CEditData *pEditImage, AnimationForm *pAnimForm, MainWindow *pMainWindow, QWidget *parent)
 	: QWidget(parent),
@@ -36,8 +37,10 @@ ImageWindow::ImageWindow(CSettings *p, CEditData *pEditImage, AnimationForm *pAn
 	connect(ui->spinBox_uv_right,	SIGNAL(valueChanged(int)), this, SLOT(slot_changeUVRight(int))) ;
 
 	ui->tabWidget->clear();
-	for ( int i = 0 ; i < m_pEditData->getImageDataSize() ; i ++ ) {
-		addTab(i);
+	for ( int i = 0 ; i < m_pEditData->getImageDataListSize() ; i ++ ) {
+		CEditData::ImageData *p = m_pEditData->getImageData(i) ;
+		if ( !p ) { continue ; }
+		addTab(p->nNo);
 	}
 
 	setWindowTitle(tr("Image Window")) ;
@@ -48,18 +51,22 @@ ImageWindow::~ImageWindow()
 	delete ui ;
 }
 
+// ドラッグ進入イベント
 void ImageWindow::dragEnterEvent(QDragEnterEvent *event)
 {
 	event->accept();
 }
 
+// ドロップイベント
 void ImageWindow::dropEvent(QDropEvent *event)
 {
 	QList<QUrl> urls = event->mimeData()->urls() ;
-	int index = m_pEditData->getImageDataSize() ;
+	int index = 0 ;
 
 	for ( int i = 0 ; i < urls.size() ; i ++ ) {
 		QString fileName = urls[i].toLocalFile() ;
+
+		index = getFreeTabIndex() ;
 
 		CEditData::ImageData data ;
 		QImage image ;
@@ -67,10 +74,15 @@ void ImageWindow::dropEvent(QDropEvent *event)
 			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(fileName)) ;
 			continue ;
 		}
+		data.origImageW = image.width() ;
+		data.origImageH = image.height() ;
+		util::resizeImage(image) ;
+
 		data.fileName		= fileName ;
 		data.Image			= image ;
 		data.lastModified	= QDateTime::currentDateTimeUtc() ;
 		data.nTexObj		= 0 ;
+		data.nNo			= index ;
 		m_pEditData->addImageData(data);
 		addTab(index) ;
 
@@ -80,10 +92,17 @@ void ImageWindow::dropEvent(QDropEvent *event)
 	}
 }
 
+// タブ追加
 void ImageWindow::addTab(int imageIndex)
 {
+	CEditData::ImageData *p = m_pEditData->getImageDataFromNo(imageIndex) ;
+	if ( !p ) {
+		qDebug("not found ImageData[%d]", imageIndex) ;
+		return ;
+	}
+
 	QLabel *pLabel = new QLabel(ui->tabWidget) ;
-	pLabel->setPixmap(QPixmap::fromImage(m_pEditData->getImage(imageIndex))) ;
+	pLabel->setPixmap(QPixmap::fromImage(p->Image)) ;
 	pLabel->setObjectName("ImageLabel");
 	pLabel->setScaledContents(true) ;
 	pLabel->setAutoFillBackground(true);
@@ -99,7 +118,8 @@ void ImageWindow::addTab(int imageIndex)
 	QScrollArea *pScrollArea = new QScrollArea(ui->tabWidget) ;
 	pScrollArea->setWidget(pLabel) ;
 
-	ui->tabWidget->addTab(pScrollArea, tr("%1").arg(imageIndex)) ;
+//	ui->tabWidget->addTab(pScrollArea, tr("%1").arg(imageIndex)) ;
+	ui->tabWidget->insertTab(imageIndex, pScrollArea, QIcon(), tr("%1").arg(imageIndex)) ;
 
 	connect(ui->checkBox, SIGNAL(clicked(bool)), pGridLabel, SLOT(slot_gridOnOff(bool))) ;
 	connect(pGridLabel, SIGNAL(sig_changeSelectLayerUV(QRect)), m_pAnimationForm, SLOT(slot_changeSelectLayerUV(QRect))) ;
@@ -107,6 +127,7 @@ void ImageWindow::addTab(int imageIndex)
 	connect(m_pAnimationForm, SIGNAL(sig_imageRepaint()), pGridLabel, SLOT(update())) ;
 }
 
+// メニュー
 void ImageWindow::contextMenuEvent(QContextMenuEvent *event)
 {
 	QMenu menu(this) ;
@@ -114,6 +135,7 @@ void ImageWindow::contextMenuEvent(QContextMenuEvent *event)
 	menu.exec(event->globalPos()) ;
 }
 
+// グリッドアップデート
 void ImageWindow::updateGridLabel( void )
 {
 	QScrollArea *pScrollArea = (QScrollArea *)ui->tabWidget->widget(ui->tabWidget->currentIndex()) ;
@@ -124,6 +146,7 @@ void ImageWindow::updateGridLabel( void )
 	}
 }
 
+// リサイズイベント
 void ImageWindow::resizeEvent(QResizeEvent *event)
 {
 	QSize add = event->size() - event->oldSize() ;
@@ -158,18 +181,33 @@ void ImageWindow::resizeEvent(QResizeEvent *event)
 	}
 }
 
+// 未使用タブ取得
+int ImageWindow::getFreeTabIndex( void )
+{
+	for ( int i = 0 ; i < ui->tabWidget->count() ; i ++ ) {
+		int idx = ui->tabWidget->tabText(i).toInt() ;
+		if ( idx != i ) {
+			return i ;
+		}
+	}
+	return ui->tabWidget->count() ;
+}
+
+// 画像削除
 void ImageWindow::slot_delImage( void )
 {
 	int index = ui->tabWidget->currentIndex() ;
+	int no = ui->tabWidget->tabText(index).toInt() ;
 	ui->tabWidget->removeTab(index);
-
+#if 0
 	for ( int i = 0 ; i < ui->tabWidget->count() ; i ++ ) {
 		ui->tabWidget->setTabText(i, tr("%1").arg(i));
 	}
-
-	emit sig_delImage(index) ;
+#endif
+	emit sig_delImage(no) ;
 }
 
+// 画像更新
 void ImageWindow::slot_modifiedImage( int index )
 {
 	QScrollArea *pScrollArea = (QScrollArea *)ui->tabWidget->widget(index) ;
@@ -179,13 +217,20 @@ void ImageWindow::slot_modifiedImage( int index )
 		qDebug() << "ERROR:ImageLabel not found!!!!!" ;
 		return ;
 	}
-	label->setPixmap(QPixmap::fromImage(m_pEditData->getImage(index))) ;
+	CEditData::ImageData *p = m_pEditData->getImageData(index) ;
+	if ( !p ) {
+		qDebug() << "ERROR:ImageData not found!!!!!" ;
+		return ;
+	}
+
+	label->setPixmap(QPixmap::fromImage(p->Image)) ;
 	QPalette palette = label->palette() ;
 	palette.setColor(QPalette::Background, m_pSetting->getImageBGColor()) ;
 	label->setPalette(palette);
 	label->update();
 }
 
+// UV 下 変更
 void ImageWindow::slot_changeUVBottom( int val )
 {
 	QRect r = m_pEditData->getCatchRect() ;
@@ -195,6 +240,7 @@ void ImageWindow::slot_changeUVBottom( int val )
 	updateGridLabel() ;
 }
 
+// UV 上 変更
 void ImageWindow::slot_changeUVTop( int val )
 {
 	QRect r = m_pEditData->getCatchRect() ;
@@ -204,6 +250,7 @@ void ImageWindow::slot_changeUVTop( int val )
 	updateGridLabel() ;
 }
 
+// UV 左 変更
 void ImageWindow::slot_changeUVLeft( int val )
 {
 	QRect r = m_pEditData->getCatchRect() ;
@@ -213,6 +260,7 @@ void ImageWindow::slot_changeUVLeft( int val )
 	updateGridLabel() ;
 }
 
+// UV 右 変更
 void ImageWindow::slot_changeUVRight( int val )
 {
 	QRect r = m_pEditData->getCatchRect() ;
@@ -222,14 +270,16 @@ void ImageWindow::slot_changeUVRight( int val )
 	updateGridLabel() ;
 }
 
+// UI セット
 void ImageWindow::slot_setUI( QRect rect )
 {
-	ui->spinBox_uv_bottom->setValue(rect.bottom());
-	ui->spinBox_uv_top->setValue(rect.top());
-	ui->spinBox_uv_left->setValue(rect.left());
-	ui->spinBox_uv_right->setValue(rect.right());
+	if ( rect.bottom() != ui->spinBox_uv_bottom->value() ) { ui->spinBox_uv_bottom->setValue(rect.bottom()); }
+	if ( rect.top() != ui->spinBox_uv_top->value() ) { ui->spinBox_uv_top->setValue(rect.top()); }
+	if ( rect.left() != ui->spinBox_uv_left->value() ) { ui->spinBox_uv_left->setValue(rect.left()); }
+	if ( rect.right() != ui->spinBox_uv_right->value() ) { ui->spinBox_uv_right->setValue(rect.right()); }
 }
 
+// オプション終了時
 void ImageWindow::slot_endedOption( void )
 {
 	for ( int i = 0 ; i < ui->tabWidget->count() ; i ++ ) {
@@ -237,6 +287,7 @@ void ImageWindow::slot_endedOption( void )
 	}
 }
 
+// センター表示変更
 void ImageWindow::slot_changeDrawCenter( bool flag )
 {
 	for ( int i = 0 ; i < ui->tabWidget->count() ; i ++ ) {
@@ -252,6 +303,7 @@ void ImageWindow::slot_changeDrawCenter( bool flag )
 	}
 }
 
+// フレームデータドラッグ中
 void ImageWindow::slot_dragedImage(CObjectModel::FrameData /*data*/)
 {
 	for ( int i = 0 ; i < ui->tabWidget->count() ; i ++ ) {

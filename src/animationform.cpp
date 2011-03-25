@@ -73,8 +73,10 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	ui->checkBox_frame->setChecked(pSetting->getDrawFrame());
 	ui->checkBox_center->setChecked(pSetting->getDrawCenter());
 
-	for ( int i = 0 ; i < m_pEditData->getImageDataSize() ; i ++ ) {
-		ui->comboBox_image_no->addItem(tr("%1").arg(i));
+	for ( int i = 0 ; i < m_pEditData->getImageDataListSize() ; i ++ ) {
+		CEditData::ImageData *p = m_pEditData->getImageData(i) ;
+		if ( !p ) { continue ; }
+		ui->comboBox_image_no->addItem(tr("%1").arg(p->nNo));
 	}
 
 	m_pSplitter = new QSplitter(this) ;
@@ -178,7 +180,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(ui->checkBox_grid,			SIGNAL(clicked(bool)),			m_pGlWidget, SLOT(slot_setDrawGrid(bool))) ;
 	connect(ui->checkBox_uv_anime,		SIGNAL(clicked(bool)),			this, SLOT(slot_changeUVAnime(bool))) ;
 	connect(ui->comboBox_fps,			SIGNAL(activated(int)),			this, SLOT(slot_changeAnimeSpeed(int))) ;
-	connect(ui->comboBox_image_no,		SIGNAL(activated(int)),			this, SLOT(slot_changeImageIndex(int))) ;
+	connect(ui->comboBox_image_no,		SIGNAL(activated(QString)),		this, SLOT(slot_changeImageIndex(QString))) ;
 	connect(m_pTimer,					SIGNAL(timeout()),				this, SLOT(slot_timerEvent())) ;
 	connect(ui->spinBox_loop,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changeLoop(int))) ;
 	connect(ui->spinBox_r,				SIGNAL(valueChanged(int)),		this, SLOT(slot_changeColorR(int))) ;
@@ -548,7 +550,14 @@ void AnimationForm::slot_setUI(CObjectModel::FrameData data)
 	if ( data.bottom != ui->spinBox_uv_bottom->value() ) { ui->spinBox_uv_bottom->setValue(data.bottom); }
 	if ( data.center_x != ui->spinBox_center_x->value() ) { ui->spinBox_center_x->setValue(data.center_x); }
 	if ( data.center_y != ui->spinBox_center_y->value() ) { ui->spinBox_center_y->setValue(data.center_y); }
-	if ( data.nImage != ui->comboBox_image_no->currentIndex() ) { ui->comboBox_image_no->setCurrentIndex(data.nImage); }
+	if ( data.nImage != ui->comboBox_image_no->currentText().toInt() ) {
+		for ( int i = 0 ; i < ui->comboBox_image_no->count() ; i ++ ) {
+			if ( ui->comboBox_image_no->itemText(i).toInt() == data.nImage ) {
+				ui->comboBox_image_no->setCurrentIndex(i);
+				break ;
+			}
+		}
+	}
 	if ( data.bUVAnime != ui->checkBox_uv_anime->isChecked() ) { ui->checkBox_uv_anime->setChecked(data.bUVAnime); }
 	if ( data.rgba[0] != ui->spinBox_r->value() ) { ui->spinBox_r->setValue(data.rgba[0]); }
 	if ( data.rgba[1] != ui->spinBox_g->value() ) { ui->spinBox_g->setValue(data.rgba[1]); }
@@ -1076,37 +1085,54 @@ void AnimationForm::slot_addImage( int imageNo )
 {
 	qDebug() << "AnimationForm::slot_addImage:" << imageNo ;
 
-	ui->comboBox_image_no->addItem(tr("%1").arg(imageNo));
+//	ui->comboBox_image_no->addItem(tr("%1").arg(imageNo));
+	ui->comboBox_image_no->insertItem(imageNo, tr("%1").arg(imageNo));
 
+#if 1
+	for ( int i = 0 ; i < m_pEditData->getImageDataListSize() ; i ++ ) {
+		CEditData::ImageData *p = m_pEditData->getImageData(i) ;
+		if ( !p ) { continue ; }
+		if ( p->nNo != imageNo ) { continue ; }
+		if ( p->nTexObj ) { continue ; }
+		p->nTexObj = m_pGlWidget->bindTexture(p->Image) ;
+	}
+#else
 	if ( !m_pEditData->getTexObj(imageNo) ) {
 		GLuint obj = m_pGlWidget->bindTexture(m_pEditData->getImage(imageNo)) ;
 		m_pEditData->setTexObj(imageNo, obj);
 	}
+#endif
 }
 
 // イメージ削除
 void AnimationForm::slot_delImage( int imageNo )
 {
 	ui->comboBox_image_no->removeItem(imageNo);
+#if 0
 	for ( int i = 0 ; i < ui->comboBox_image_no->count() ; i ++ ) {
 		ui->comboBox_image_no->setItemText(i, tr("%1").arg(i));
 	}
-
+#endif
+#if 1
+	m_pEditData->removeImageDataByNo(imageNo) ;
+#else
 	m_pEditData->removeImageData(imageNo) ;
+#endif
 	m_pGlWidget->update();
 }
 
 // イメージ番号変更
-void AnimationForm::slot_changeImageIndex(int index)
+void AnimationForm::slot_changeImageIndex(QString index)
 {
 	addNowSelectLayerAndFrame();
 	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
 	if ( !Datas.size() ) {
 		return ;
 	}
+	qDebug() << "changeImageIndex:" << index ;
 
 	for ( int i = 0 ; i < Datas.size() ; i ++ ) {
-		Datas[i]->nImage = index ;
+		Datas[i]->nImage = index.toInt() ;
 	}
 	m_pGlWidget->update();
 	addCommandEdit(Datas) ;
@@ -1129,12 +1155,21 @@ void AnimationForm::slot_changeUVAnime( bool flag )
 // イメージ更新
 void AnimationForm::slot_modifiedImage(int index)
 {
+#if 1
+	CEditData::ImageData *p = m_pEditData->getImageData(index) ;
+	if ( !p ) { return ; }
+	if ( p->nTexObj ) {
+		m_pGlWidget->deleteTexture(p->nTexObj);
+	}
+	p->nTexObj = m_pGlWidget->bindTexture(p->Image) ;
+#else
 	QImage &image = m_pEditData->getImage(index) ;
 	if ( m_pEditData->getTexObj(index) ) {
 		m_pGlWidget->deleteTexture(m_pEditData->getTexObj(index)) ;
 	}
 	GLuint obj = m_pGlWidget->bindTexture(image) ;
 	m_pEditData->setTexObj(index, obj);
+#endif
 	m_pGlWidget->update();
 }
 
@@ -1344,6 +1379,38 @@ void AnimationForm::slot_portDragedImage(CObjectModel::FrameData data)
 
 void AnimationForm::slot_clickPicker( void )
 {
+	emit sig_pushColorToolButton() ;
+}
+
+void AnimationForm::slot_setColorFromPicker(QRgb rgba)
+{
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
+	int frame = m_pEditData->getSelectFrame() ;
+	if ( !objID || !layerID ) {
+		return ;
+	}
+
+	CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
+	if ( !pData ) {	// 新規追加
+		pData = pModel->getFrameDataFromPrevFrame(objID, layerID, frame) ;
+		CObjectModel::FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
+		CObjectModel::FrameData data = pData->getInterpolation(pNext, frame) ;
+		data.rgba[0] = qRed(rgba) ;
+		data.rgba[1] = qGreen(rgba) ;
+		data.rgba[2] = qBlue(rgba) ;
+		slot_addNewFrameData(objID, layerID, frame, data);
+	}
+	else {
+		pData->rgba[0] = qRed(rgba) ;
+		pData->rgba[1] = qGreen(rgba) ;
+		pData->rgba[2] = qBlue(rgba) ;
+
+		QList<CObjectModel::FrameData *> datas ;
+		datas << pData ;
+		addCommandEdit(datas);
+	}
 }
 
 // オブジェクト追加

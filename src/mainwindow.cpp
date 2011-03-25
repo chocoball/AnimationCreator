@@ -5,6 +5,7 @@
 #include "canm2d.h"
 #include "optiondialog.h"
 #include "util.h"
+#include "colorpickerform.h"
 
 #define FILE_EXT_ANM2D_XML	".xml"
 #define FILE_EXT_ANM2D_BIN	".anm2"
@@ -151,7 +152,38 @@ void MainWindow::slot_dropFiles(QString fileName)
 // 読み込んでるイメージデータの最終更新日時をチェック
 void MainWindow::slot_checkFileModified( void )
 {
-	for ( int i = 0 ; i < m_EditData.getImageDataSize() ; i ++ ) {
+	for ( int i = 0 ; i < m_EditData.getImageDataListSize() ; i ++ ) {
+#if 1
+		CEditData::ImageData *p = m_EditData.getImageData(i) ;
+
+		QString fullPath = p->fileName ;
+		QFileInfo info(fullPath) ;
+		if ( !info.isFile() ) { continue ; }
+		if ( !info.lastModified().isValid() ) { continue ; }
+		if ( info.lastModified().toUTC() <= p->lastModified ) { continue ; }
+
+		QDateTime time = info.lastModified().toUTC() ;
+		p->lastModified = time ;
+
+		QMessageBox::StandardButton reply = QMessageBox::question(this,
+																  trUtf8("質問"),
+																  trUtf8("%1が更新されています。読み込みますか？").arg(info.fileName()),
+																  QMessageBox::Yes | QMessageBox::No) ;
+		if ( reply != QMessageBox::Yes ) {
+			continue ;
+		}
+
+		QImage image ;
+		if ( !image.load(fullPath) ) {
+			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(info.fileName())) ;
+			continue ;
+		}
+		p->origImageW = image.width() ;
+		p->origImageH = image.height() ;
+		util::resizeImage(image) ;
+		p->Image = image ;
+		emit sig_modifiedImageFile(i) ;
+#else
 		QString fullPath = m_EditData.getImageFileName(i) ;
 		QFileInfo info(fullPath) ;
 		if ( !info.isFile() ) { continue ; }
@@ -176,6 +208,7 @@ void MainWindow::slot_checkFileModified( void )
 		}
 		m_EditData.setImage(i, image) ;
 		emit sig_modifiedImageFile(i) ;
+#endif
 	}
 }
 
@@ -268,6 +301,16 @@ void MainWindow::slot_portCheckDrawCenter(bool flag)
 void MainWindow::slot_portDragedImage(CObjectModel::FrameData data)
 {
 	emit sig_portDragedImage(data) ;
+}
+
+void MainWindow::slot_pushColorToolButton( void )
+{
+	if ( !m_pMdiArea->findChild<ColorPickerForm *>(trUtf8("ColorPickerForm")) ) {
+		ColorPickerForm *p = new ColorPickerForm(&m_EditData, m_pMdiArea) ;
+		m_pMdiArea->addSubWindow( p ) ;
+		p->show();
+		connect(p, SIGNAL(sig_setColorToFrameData(QRgb)), m_pAnimationForm, SLOT(slot_setColorFromPicker(QRgb))) ;
+	}
 }
 
 #ifndef QT_NO_DEBUG
@@ -582,14 +625,18 @@ bool MainWindow::fileOpen( QString fileName )
 		data.fileName		= fileName ;
 		data.nTexObj		= 0 ;
 		data.lastModified	= QDateTime::currentDateTimeUtc() ;
+		data.nNo			= m_EditData.getImageDataListSize() ;
 		m_EditData.addImageData(data);
 
 		m_StrSaveFileName = QString() ;
 	}
 
-	for ( int i = 0 ; i < m_EditData.getImageDataSize() ; i ++ ) {
-		m_EditData.setOriginalImageSize(i, m_EditData.getImage(i).size().width(), m_EditData.getImage(i).size().height()) ;
-		resizeImage(m_EditData.getImage(i));
+	for ( int i = 0 ; i < m_EditData.getImageDataListSize() ; i ++ ) {
+		CEditData::ImageData *p = m_EditData.getImageData(i) ;
+		if ( !p ) { continue ; }
+		p->origImageW = p->Image.width() ;
+		p->origImageH = p->Image.height() ;
+		resizeImage(p->Image);
 	}
 
 	setWindowTitle(tr("Animation Creator[%1]").arg(m_StrSaveFileName));
@@ -735,4 +782,5 @@ void MainWindow::makeAnimeWindow( void )
 	connect(this, SIGNAL(sig_endedOption()), m_pAnimationForm, SLOT(slot_endedOption())) ;
 	connect(m_pAnimationForm, SIGNAL(sig_portCheckDrawCenter(bool)), this, SLOT(slot_portCheckDrawCenter(bool))) ;
 	connect(m_pAnimationForm, SIGNAL(sig_portDragedImage(CObjectModel::FrameData)), this, SLOT(slot_portDragedImage(CObjectModel::FrameData))) ;
+	connect(m_pAnimationForm, SIGNAL(sig_pushColorToolButton()), this, SLOT(slot_pushColorToolButton())) ;
 }

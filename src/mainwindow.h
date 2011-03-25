@@ -53,6 +53,8 @@ public slots:
 	void slot_portCheckDrawCenter(bool flag) ;
 	void slot_portDragedImage(CObjectModel::FrameData data) ;
 
+	void slot_pushColorToolButton( void ) ;
+
 #ifndef QT_NO_DEBUG
 	void slot_dbgObjectDump( void ) ;
 #endif

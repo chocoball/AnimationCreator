@@ -43,8 +43,11 @@ void CGridLabel::paintEvent(QPaintEvent *event)
 	penCenter.setColor(QColor(255, 255, 0, 255));
 	penCenter.setWidth(mScale);
 
+	CEditData::ImageData *p = m_pEditData->getImageDataFromNo(m_Index) ;
+	if ( !p ) { return ; }
+
 	if ( m_pEditData ) {
-		QSize size = m_pEditData->getImage(m_Index).size()*mScale ;
+		QSize size = p->Image.size()*mScale ;
 		size += QSize(mScale, mScale) ;
 		resize(size) ;
 	}
@@ -104,7 +107,7 @@ void CGridLabel::paintEvent(QPaintEvent *event)
 
 		int x = data.center_x + data.left ;
 		int y = data.center_y + data.top - 1 ;
-		QSize size = m_pEditData->getImage(m_Index).size() ;
+		QSize size = p->Image.size() ;
 		painter.drawLine(QPointF(0, y), QPointF(size.width(), y));
 		painter.drawLine(QPointF(x, 0), QPointF(x, size.height()));
 	}
@@ -148,9 +151,11 @@ void CGridLabel::mouseMoveEvent(QMouseEvent *ev)
 	if ( !bCatching ) { return ; }
 
 	QRect r = m_pEditData->getCatchRect() ;
+	CEditData::ImageData *p = m_pEditData->getImageDataFromNo(m_Index) ;
+	if ( !p ) { return ; }
 
-	int img_w = m_pEditData->getImage(m_Index).width() ;
-	int img_h = m_pEditData->getImage(m_Index).height() ;
+	int img_w = p->Image.width() ;
+	int img_h = p->Image.height() ;
 	int x = ev->pos().x() / mScale ;
 	int y = ev->pos().y() / mScale ;
 
@@ -215,8 +220,11 @@ void CGridLabel::mouseReleaseEvent(QMouseEvent *ev)
 	}
 	m_bRectMove = false ;
 
-	int img_w = m_pEditData->getImage(m_Index).width() ;
-	int img_h = m_pEditData->getImage(m_Index).height() ;
+	CEditData::ImageData *p = m_pEditData->getImageDataFromNo(m_Index) ;
+	if ( !p ) { return ; }
+
+	int img_w = p->Image.width() ;
+	int img_h = p->Image.height() ;
 
 	QRect r = m_pEditData->getCatchRect() ;
 
@@ -274,7 +282,10 @@ void CGridLabel::startDragAndDrop( QMouseEvent *ev )
 {
 	Q_UNUSED(ev) ;
 
-	QImage img = m_pEditData->getImage(m_Index).copy(m_pEditData->getCatchRect()) ;
+	CEditData::ImageData *p = m_pEditData->getImageDataFromNo(m_Index) ;
+	if ( !p ) { return ; }
+
+	QImage img = p->Image.copy(m_pEditData->getCatchRect()) ;
 	QPixmap pix = QPixmap::fromImage(img);
 
 	QByteArray itemData ;
@@ -305,8 +316,11 @@ void CGridLabel::startDragAndDrop( QMouseEvent *ev )
 void CGridLabel::selectAll( void )
 {
 	QRect r ;
-	int img_w = m_pEditData->getImage(m_Index).width() ;
-	int img_h = m_pEditData->getImage(m_Index).height() ;
+	CEditData::ImageData *p = m_pEditData->getImageDataFromNo(m_Index) ;
+	if ( !p ) { return ; }
+
+	int img_w = p->Image.width() ;
+	int img_h = p->Image.height() ;
 
 	r.setLeft(0);
 	r.setRight(img_w);

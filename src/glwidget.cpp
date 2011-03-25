@@ -53,12 +53,20 @@ void AnimeGLWidget::initializeGL()
 	glAlphaFunc(GL_GREATER, 0);
 
 	glEnable(GL_DEPTH_TEST);
-
+#if 1
+	for ( int i = 0 ; i < m_pEditData->getImageDataListSize() ; i ++ ) {
+		CEditData::ImageData *p = m_pEditData->getImageData(i) ;
+		if ( !p ) { continue ; }
+		if ( p->nTexObj ) { continue ; }
+		p->nTexObj = bindTexture(p->Image) ;
+	}
+#else
 	for ( int i = 0 ; i < m_pEditData->getImageDataSize() ; i ++ ) {
 		if ( m_pEditData->getTexObj(i) ) { continue ; }
 		GLuint obj = bindTexture(m_pEditData->getImage(i)) ;
 		m_pEditData->setTexObj(i, obj) ;
 	}
+#endif
 }
 
 void AnimeGLWidget::resizeGL(int w, int h)
@@ -356,7 +364,10 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 // フレームデータ描画
 void AnimeGLWidget::drawFrameData( const CObjectModel::FrameData &data, QColor col )
 {
-	QImage &Image = m_pEditData->getImage(data.nImage) ;
+	CEditData::ImageData *p = m_pEditData->getImageDataFromNo(data.nImage) ;
+	if ( !p ) { return ; }
+
+	QImage &Image = p->Image ;
 	QRectF rect ;
 	QRect uv = data.getRect() ;
 	QRectF uvF ;
@@ -378,7 +389,7 @@ void AnimeGLWidget::drawFrameData( const CObjectModel::FrameData &data, QColor c
 	uvF.setTop((float)(Image.height()-uv.top())/Image.height());
 	uvF.setBottom((float)(Image.height()-uv.bottom())/Image.height());
 
-	glBindTexture(GL_TEXTURE_2D, m_pEditData->getTexObj(data.nImage)) ;
+	glBindTexture(GL_TEXTURE_2D, p->nTexObj) ;
 
 	col.setRed( col.red()		* data.rgba[0] / 255 );
 	col.setGreen( col.green()	* data.rgba[1] / 255 );
@@ -706,8 +717,13 @@ QPoint AnimeGLWidget::editData(CObjectModel::FrameData *pData, QPoint nowPos, QP
 		return QPoint(0, 0) ;
 	}
 
+	CEditData::ImageData *p = m_pEditData->getImageDataFromNo(pData->nImage) ;
+	if ( !p ) {
+		return QPoint(0, 0) ;
+	}
+
 	QPoint sub = nowPos - oldPos ;
-	QSize imageSize = m_pEditData->getImage(pData->nImage).size() ;
+	QSize imageSize = p->Image.size() ;
 	QPoint ret = oldPos ;
 	if ( m_bPressCtrl ) {	// UV操作
 		pData->left		+= sub.x() ;
