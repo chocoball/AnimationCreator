@@ -28,9 +28,9 @@ SOURCES		+=								\
 				src/objectmodel.cpp			\
 				src/optiondialog.cpp		\
 				src/exportpngform.cpp		\
-				src/util.cpp \
-    src/colorpickerform.cpp \
-    src/CBrightLabel.cpp
+				src/util.cpp				\
+				src/colorpickerform.cpp		\
+				src/CBrightLabel.cpp
 
 HEADERS		+=								\
 				src/Anm2dTypes.h			\
@@ -52,16 +52,16 @@ HEADERS		+=								\
 				src/optiondialog.h			\
 				src/setting.h				\
 				src/exportpngform.h			\
-				src/util.h \
-    src/colorpickerform.h \
-    src/CBrightLabel.h
+				src/util.h					\
+				src/colorpickerform.h		\
+				src/CBrightLabel.h
 
 RESOURCES	+=	Resource.qrc
 
 FORMS		+= 	ui/animationform.ui			\
 				ui/imagewindow.ui			\
 				ui/exportpngform.ui			\
-				ui/OptionAnimationTab.ui \
-    ui/colorpickerform.ui
+				ui/OptionAnimationTab.ui	\
+				ui/colorpickerform.ui
 
 CONFIG		+=	help

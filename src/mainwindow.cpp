@@ -135,6 +135,13 @@ void MainWindow::slot_saveAs( void )
 
 	if ( saveFile(str) ) {
 		m_StrSaveFileName = str ;
+
+		QString tmp(str) ;
+		int index = tmp.lastIndexOf( '/' ) ;
+		if ( index < 0 ) { return ; }
+
+		tmp.remove( index + 1, tmp.size() ) ;
+		setting.setCurrentSaveDir(tmp);
 	}
 }
 
