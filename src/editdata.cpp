@@ -116,11 +116,13 @@ void CEditData::cmd_editFrameData( CObjectModel::typeID				objID,
 	m_pUndoStack->push( new Command_EditFrameData(this, objID, layerIDs, frame, datas, updateWidget));
 }
 
+// オブジェクトコピー コマンド
 void CEditData::cmd_copyObject(CObjectModel::typeID objID, QList<QWidget *> &updateWidget)
 {
 	m_pUndoStack->push( new Command_CopyObject(this, objID, updateWidget) );
 }
 
+// 選択しているフレームデータ取得
 bool CEditData::getNowSelectFrameData(CObjectModel::FrameData &data)
 {
 	CObjectModel::typeID objID = getSelectObject() ;
@@ -135,4 +137,25 @@ bool CEditData::getNowSelectFrameData(CObjectModel::FrameData &data)
 	CObjectModel::FrameData *pNext = m_pObjectModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
 	data = pPrev->getInterpolation(pNext, frame) ;
 	return true ;
+}
+
+// フレームデータをフレーム数順に並び替え
+void CEditData::sortFrameDatas( void )
+{
+	CObjectModel::ObjectList &objList = *m_pObjectModel->getObjectListPtr() ;
+	for ( int i = 0 ; i < objList.size() ; i ++ ) {
+		CObjectModel::ObjectGroup &objGroup = objList[i] ;
+
+		for ( int j = 0 ; j < objGroup.layerGroupList.size() ; j ++ ) {
+			CObjectModel::FrameDataList &frameDataList = objGroup.layerGroupList[j].second ;
+
+			for ( int k = 0 ; k < frameDataList.size() ; k ++ ) {
+				for ( int l = 0 ; l < k ; l ++ ) {
+					if ( frameDataList[k].frame < frameDataList[l].frame ) {
+						frameDataList.swap(k, l) ;
+					}
+				}
+			}
+		}
+	}
 }

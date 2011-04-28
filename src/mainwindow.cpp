@@ -658,6 +658,8 @@ bool MainWindow::saveFile( QString fileName )
 {
 	qDebug() << "SaveFile:" << fileName ;
 
+	m_EditData.sortFrameDatas() ;
+
 	if ( fileName.indexOf(FILE_EXT_ANM2D_XML) > 0 ) {
 		CAnm2DXml data(setting.getSaveImage()) ;
 		QProgressDialog prog(trUtf8("保存しています"), trUtf8("&Cancel"), 0, 100, this) ;

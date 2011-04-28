@@ -272,6 +272,10 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 		ui->checkBox_uv_anime,
 		ui->line_0,
 		ui->line_1,
+		ui->checkBox_center,
+		ui->checkBox_frame,
+		ui->checkBox_grid,
+		ui->toolButton_picker
 	} ;
 	for ( int i = 0 ; i < ARRAY_NUM(tmp) ; i ++ ) {
 		tmp[i]->move(tmp[i]->pos() + QPoint(add.width(), 0));

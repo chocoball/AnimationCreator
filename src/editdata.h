@@ -412,6 +412,8 @@ public:
 
 	bool getNowSelectFrameData(CObjectModel::FrameData &data) ;
 
+	void sortFrameDatas( void ) ;
+
 private:
 	int								m_editMode ;
 
