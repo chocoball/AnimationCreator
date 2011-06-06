@@ -6,6 +6,7 @@
 #include "editdata.h"
 #include "glwidget.h"
 #include "cdatamarkerlabel.h"
+#include "AnimationWindowSplitter.h"
 
 #define LAYOUT_OWN
 
@@ -22,9 +23,6 @@ class AnimationForm : public QWidget
 public:
 	explicit AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget *parent = 0);
     ~AnimationForm();
-#ifdef LAYOUT_OWN
-	void resizeEvent(QResizeEvent *event) ;
-#endif
 
 	void setBarCenter() ;
 	void dbgDumpObject() ;
@@ -33,6 +31,8 @@ public:
 	{
 		return m_pGlWidget ;
 	}
+
+	void setSplitterPos(int pos, int index) ;
 
 signals:
 	void sig_imageRepaint( void ) ;
@@ -125,6 +125,8 @@ public slots:
 	void slot_clickPicker( void ) ;
 	void slot_setColorFromPicker(QRgb rgba) ;
 
+	void slot_splitterMoved(int pos, int index) ;
+
 protected:
 	QList<CObjectModel::FrameData *> getNowSelectFrameData( void ) ;
 	void addNewObject( QString str ) ;
@@ -140,34 +142,37 @@ protected:
 	void keyReleaseEvent(QKeyEvent *event);
 	void copyFrameData( void ) ;
 	void pasteFrameData( void ) ;
+#ifdef LAYOUT_OWN
+	void resizeEvent(QResizeEvent *event) ;
+#endif
 
 private:
-	Ui::AnimationForm	*ui;
+	Ui::AnimationForm		*ui;
 
-	AnimeGLWidget		*m_pGlWidget ;
-	CEditData			*m_pEditData ;
-	CSettings			*m_pSetting ;
-	int					m_ObjIndex ;
+	AnimeGLWidget			*m_pGlWidget ;
+	CEditData				*m_pEditData ;
+	CSettings				*m_pSetting ;
+	int						m_ObjIndex ;
 
-	QAction				*m_pActTreeViewAdd ;
-	QAction				*m_pActTreeViewCopy ;
-	QAction				*m_pActTreeViewDel ;
-	QAction				*m_pActTreeViewLayerDisp ;
-	QAction				*m_pActPlay ;
-	QAction				*m_pActStop ;
-	QAction				*m_pActCopyLayer ;
-	QAction				*m_pActPasteLayer ;
-	QAction				*m_pActTreeViewLayerLock ;
+	QAction					*m_pActTreeViewAdd ;
+	QAction					*m_pActTreeViewCopy ;
+	QAction					*m_pActTreeViewDel ;
+	QAction					*m_pActTreeViewLayerDisp ;
+	QAction					*m_pActPlay ;
+	QAction					*m_pActStop ;
+	QAction					*m_pActCopyLayer ;
+	QAction					*m_pActPasteLayer ;
+	QAction					*m_pActTreeViewLayerLock ;
 
-	QTimer				*m_pTimer ;
-	int					m_nMaxFrameNum ;
+	QTimer					*m_pTimer ;
+	int						m_nMaxFrameNum ;
 
-	CDataMarkerLabel	*m_pDataMarker ;
+	CDataMarkerLabel		*m_pDataMarker ;
 
-	QSplitter			*m_pSplitter ;
-	bool				m_bDontSetData ;
+	AnimationWindowSplitter	*m_pSplitter ;
+	bool					m_bDontSetData ;
 
-	QSize				m_oldWinSize ;
+	QSize					m_oldWinSize ;
 };
 
 #endif // ANIMATIONFORM_H

@@ -530,7 +530,8 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 		}
 
 		if ( layerID ) {
-			if ( !(layerID->data(Qt::CheckStateRole).toInt() & 0x01) ) {	// 非表示
+			int flag = layerID->data(Qt::CheckStateRole).toInt() ;
+			if ( !(flag & 0x01) || (flag & 0x02) ) {	// 非表示
 				event->ignore();
 				return ;
 			}

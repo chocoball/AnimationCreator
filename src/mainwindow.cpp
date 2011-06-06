@@ -13,13 +13,17 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+	m_pSubWindow_Anm = NULL ;
+	m_pSubWindow_Img = NULL ;
+	m_pSubWindow_Loupe = NULL ;
+
 	m_pMdiArea = new CDropableMdiArea ;
 	m_pMdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 	m_pMdiArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 	setCentralWidget(m_pMdiArea);
 
 	m_pTimer = new QTimer(this) ;
-	m_pTimer->start(1000);
+	m_pTimer->start(10*1000);
 
 	createActions() ;
 	createMenus() ;
@@ -320,6 +324,36 @@ void MainWindow::slot_pushColorToolButton( void )
 	}
 }
 
+void MainWindow::slot_destroyAnmWindow( void )
+{
+	if ( m_pSubWindow_Anm ) {
+		qDebug("destroyAnmWindow save setting");
+		setting.setAnmWindowPos(m_pSubWindow_Anm->pos());
+		setting.setAnmWindowSize(m_pSubWindow_Anm->size());
+	}
+	m_pSubWindow_Anm = NULL ;
+}
+
+void MainWindow::slot_destroyImgWindow( void )
+{
+	if ( m_pSubWindow_Img ) {
+		qDebug("destroyImgWindow save setting");
+		setting.setImgWindowPos(m_pSubWindow_Img->pos());
+		setting.setImgWindowSize(m_pSubWindow_Img->size());
+	}
+	m_pSubWindow_Img = NULL ;
+}
+
+void MainWindow::slot_destroyLoupeWindow( void )
+{
+	if ( m_pSubWindow_Loupe ) {
+		qDebug("destroyLoupeWindow save setting");
+		setting.setLoupeWindowPos(m_pSubWindow_Loupe->pos());
+		setting.setLoupeWindowSize(m_pSubWindow_Loupe->size());
+	}
+	m_pSubWindow_Loupe = NULL ;
+}
+
 #ifndef QT_NO_DEBUG
 void MainWindow::slot_dbgObjectDump( void )
 {
@@ -368,10 +402,24 @@ void MainWindow::readRootSetting( void )
 	settings.endGroup();
 
 	settings.beginGroup("AnimationWindow");
+	QPoint aw_pos = settings.value("pos", QPoint(-1, -1)).toPoint() ;
+	QSize aw_size = settings.value("size", QSize(-1, -1)).toSize() ;
 	bool bBackImage = settings.value("use_back_image", false).toBool() ;
 	QString strBackImage = settings.value("back_image", "").toString() ;
 	bool bFrame = settings.value("disp_frame", true).toBool() ;
 	bool bCenter = settings.value("disp_center", false).toBool() ;
+	int treeWidth = settings.value("tree_width", -1).toInt() ;
+	int treeWidthIdx = settings.value("tree_width_idx", -1).toInt() ;
+	settings.endGroup();
+
+	settings.beginGroup("ImageWindow");
+	QPoint img_pos = settings.value("pos", QPoint(-1, -1)).toPoint() ;
+	QSize img_size = settings.value("size", QSize(-1, -1)).toSize() ;
+	settings.endGroup();
+
+	settings.beginGroup("LoupeWindow");
+	QPoint loupe_pos = settings.value("pos", QPoint(-1, -1)).toPoint() ;
+	QSize loupe_size = settings.value("size", QSize(-1, -1)).toSize() ;
 	settings.endGroup();
 
 	move(pos) ;
@@ -386,6 +434,17 @@ void MainWindow::readRootSetting( void )
 	setting.setUseBackImage(bBackImage) ;
 	setting.setDrawFrame(bFrame) ;
 	setting.setDrawCenter(bCenter) ;
+
+	setting.setAnmWindowPos(aw_pos) ;
+	setting.setAnmWindowSize(aw_size) ;
+
+	setting.setImgWindowPos(img_pos) ;
+	setting.setImgWindowSize(img_size) ;
+
+	setting.setLoupeWindowPos(loupe_pos) ;
+	setting.setLoupeWindowSize(loupe_size) ;
+
+	setting.setAnmWindowTreeWidth(treeWidth, treeWidthIdx) ;
 }
 
 // 設定を保存
@@ -412,11 +471,53 @@ void MainWindow::writeRootSetting( void )
 	settings.setValue("size",	size()) ;
 	settings.endGroup();
 
+	QPoint pos ;
+	QSize size ;
+
+	if ( m_pSubWindow_Anm ) {
+		pos = m_pSubWindow_Anm->pos() ;
+		size = m_pSubWindow_Anm->size() ;
+	}
+	else {
+		pos = setting.getAnmWindowPos() ;
+		size = setting.getAnmWindowSize() ;
+	}
+
 	settings.beginGroup("AnimationWindow");
+	settings.setValue("pos",			pos) ;
+	settings.setValue("size",			size) ;
 	settings.setValue("use_back_image",	setting.getUseBackImage());
 	settings.setValue("back_image",		setting.getBackImagePath());
 	settings.setValue("disp_frame",		setting.getDrawFrame());
 	settings.setValue("disp_center",	setting.getDrawCenter()) ;
+	settings.setValue("tree_width",		setting.getAnmWindowTreeWidth());
+	settings.setValue("tree_width_idx",	setting.getAnmWindowTreeWidthIndex());
+	settings.endGroup();
+
+	if ( m_pSubWindow_Img ) {
+		pos = m_pSubWindow_Img->pos() ;
+		size = m_pSubWindow_Img->size() ;
+	}
+	else {
+		pos = setting.getImgWindowPos() ;
+		size = setting.getImgWindowSize() ;
+	}
+	settings.beginGroup("ImageWindow");
+	settings.setValue("pos",			pos) ;
+	settings.setValue("size",			size) ;
+	settings.endGroup();
+
+	if ( m_pSubWindow_Loupe ) {
+		pos = m_pSubWindow_Loupe->pos() ;
+		size = m_pSubWindow_Loupe->size() ;
+	}
+	else {
+		pos = setting.getLoupeWindowPos() ;
+		size = setting.getLoupeWindowSize() ;
+	}
+	settings.beginGroup("LoupeWindow");
+	settings.setValue("pos",			pos) ;
+	settings.setValue("size",			size) ;
 	settings.endGroup();
 }
 
@@ -576,6 +677,9 @@ bool MainWindow::fileOpen( QString fileName )
 	}
 
 	if ( m_pMdiArea->currentSubWindow() ) {
+		slot_destroyAnmWindow();
+		slot_destroyImgWindow();
+		slot_destroyLoupeWindow();
 		m_pMdiArea->closeAllSubWindows() ;	// 全部閉じる
 	}
 	m_EditData.resetData();
@@ -752,8 +856,17 @@ bool MainWindow::checkChangedFileSave( void )
 void MainWindow::makeImageWindow( void )
 {
 	m_pImageWindow = new ImageWindow( &setting, &m_EditData, m_pAnimationForm, this, m_pMdiArea ) ;
-	m_pMdiArea->addSubWindow(m_pImageWindow) ;
+	m_pSubWindow_Img = m_pMdiArea->addSubWindow(m_pImageWindow) ;
 	m_pImageWindow->show();
+
+	QPoint pos = setting.getImgWindowPos();
+	if ( pos.x() >= 0 && pos.y() >= 0 ) {
+		m_pSubWindow_Img->move(pos);
+	}
+	QSize size = setting.getImgWindowSize();
+	if ( size.width() >= 0 && size.height() >= 0 ) {
+		m_pSubWindow_Img->resize(size);
+	}
 
 	m_pActImageWindow->setEnabled(true);
 	m_pActImageWindow->setChecked(true);
@@ -762,27 +875,48 @@ void MainWindow::makeImageWindow( void )
 	connect(this, SIGNAL(sig_endedOption()), m_pImageWindow, SLOT(slot_endedOption())) ;
 	connect(this, SIGNAL(sig_portCheckDrawCenter(bool)), m_pImageWindow, SLOT(slot_changeDrawCenter(bool))) ;
 	connect(this, SIGNAL(sig_portDragedImage(CObjectModel::FrameData)), m_pImageWindow, SLOT(slot_dragedImage(CObjectModel::FrameData))) ;
+
+	connect(m_pSubWindow_Img, SIGNAL(destroyed()), this, SLOT(slot_destroyImgWindow())) ;
 }
 
 // ルーペウィンドウ作成
 void MainWindow::makeLoupeWindow( void )
 {
 	m_pLoupeWindow = new CLoupeWindow(&m_EditData, this, m_pMdiArea) ;
-	m_pMdiArea->addSubWindow( m_pLoupeWindow ) ;
+	m_pSubWindow_Loupe = m_pMdiArea->addSubWindow( m_pLoupeWindow ) ;
 	m_pLoupeWindow->show();
+
+	QPoint pos = setting.getLoupeWindowPos();
+	if ( pos.x() >= 0 && pos.y() >= 0 ) {
+		m_pSubWindow_Loupe->move(pos);
+	}
+	QSize size = setting.getLoupeWindowSize();
+	if ( size.width() >= 0 && size.height() >= 0 ) {
+		m_pSubWindow_Loupe->resize(size);
+	}
 
 	m_pActLoupeWindow->setEnabled(true);
 	m_pActLoupeWindow->setChecked(true);
+
+	connect(m_pSubWindow_Loupe, SIGNAL(destroyed()), this, SLOT(slot_destroyLoupeWindow())) ;
 }
 
 // アニメーションフォーム作成
 void MainWindow::makeAnimeWindow( void )
 {
 	m_pAnimationForm = new AnimationForm( &m_EditData, &setting, m_pMdiArea ) ;
-	m_pMdiArea->addSubWindow( m_pAnimationForm ) ;
+	m_pSubWindow_Anm = m_pMdiArea->addSubWindow( m_pAnimationForm ) ;
 	m_pAnimationForm->show();
 	m_pAnimationForm->setBarCenter();
 	m_pAnimationForm->slot_endedOption();
+	QPoint pos = setting.getAnmWindowPos() ;
+	if ( pos.x() >= 0 && pos.y() >= 0 ) {
+		m_pSubWindow_Anm->move(pos) ;
+	}
+	QSize size = setting.getAnmWindowSize() ;
+	if ( size.width() >= 0 && size.height() >= 0 ) {
+		m_pSubWindow_Anm->resize(size) ;
+	}
 
 	m_pActAnimeWindow->setEnabled(true);
 	m_pActAnimeWindow->setChecked(true);
@@ -792,4 +926,6 @@ void MainWindow::makeAnimeWindow( void )
 	connect(m_pAnimationForm, SIGNAL(sig_portCheckDrawCenter(bool)), this, SLOT(slot_portCheckDrawCenter(bool))) ;
 	connect(m_pAnimationForm, SIGNAL(sig_portDragedImage(CObjectModel::FrameData)), this, SLOT(slot_portDragedImage(CObjectModel::FrameData))) ;
 	connect(m_pAnimationForm, SIGNAL(sig_pushColorToolButton()), this, SLOT(slot_pushColorToolButton())) ;
+
+	connect(m_pSubWindow_Anm, SIGNAL(destroyed()), this, SLOT(slot_destroyAnmWindow())) ;
 }

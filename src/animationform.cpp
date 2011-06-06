@@ -81,7 +81,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 		ui->comboBox_image_no->addItem(tr("%1").arg(p->nNo));
 	}
 
-	m_pSplitter = new QSplitter(this) ;
+	m_pSplitter = new AnimationWindowSplitter(this) ;
 	m_pSplitter->addWidget(ui->treeView) ;
 	m_pSplitter->addWidget(ui->scrollArea_anime) ;
 	m_pSplitter->setGeometry(ui->treeView->pos().x(),
@@ -196,6 +196,8 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 
 	connect(ui->toolButton_picker,		SIGNAL(clicked()),				this, SLOT(slot_clickPicker())) ;
 
+	connect(m_pSplitter,				SIGNAL(splitterMoved(int,int)), this, SLOT(slot_splitterMoved(int, int))) ;
+
 #ifndef LAYOUT_OWN
 	QGridLayout *pLayout = new QGridLayout(this) ;
 	pLayout->addWidget(ui->listWidget, 0, 0, 5, 1);
@@ -238,6 +240,7 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 	ui->treeView->resize(ui->treeView->size()+add_h);
 	ui->scrollArea_anime->resize(ui->scrollArea_anime->size()+add);
 	m_pSplitter->resize(m_pSplitter->size()+add);
+	setSplitterPos(m_pSetting->getAnmWindowTreeWidth(), m_pSetting->getAnmWindowTreeWidthIndex());
 
 	ui->comboBox_image_no->move(ui->comboBox_image_no->pos() + QPoint(add.width(), 0));
 	ui->groupBox->move(ui->groupBox->pos() + QPoint(add.width(), 0));
@@ -288,6 +291,8 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 	for ( int i = 0 ; i < ARRAY_NUM(tmp) ; i ++ ) {
 		tmp[i]->move(tmp[i]->pos() + QPoint(add.width(), 0));
 	}
+
+	m_pSetting->setAnmWindowSize(parentWidget()->size()) ;
 }
 #endif
 
@@ -327,6 +332,12 @@ void AnimationForm::dbgDumpObject( void )
 		}
 	}
 	qDebug("end ---------------------------------") ;
+}
+
+void AnimationForm::setSplitterPos(int pos, int index)
+{
+	if ( !m_pSplitter ) { return ; }
+	m_pSplitter->MoveSplitter(pos, index) ;
 }
 
 // オブジェクト新規作成
@@ -810,7 +821,7 @@ void AnimationForm::slot_treeViewMenuReq(QPoint treeViewLocalPos)
 		// レイヤ選択中だったら
 		menu.addAction(m_pActTreeViewLayerDisp) ;
 		menu.addAction(m_pActCopyLayer) ;
-//		menu.addAction(m_pActTreeViewLayerLock) ;
+		menu.addAction(m_pActTreeViewLayerLock) ;
 	}
 	else {
 		// オブジェクト選択中だったら
@@ -1084,9 +1095,17 @@ void AnimationForm::slot_changeLayerLock( void )
 
 	QVariant flag = pItem->data(Qt::CheckStateRole) ;
 	int f = flag.toInt() ;
-	if ( f & 0x02 )	{ f &= ~0x02 ; }
-	else			{ f |= 0x02 ; }
+	QBrush brush ;
+	if ( f & 0x02 )	{
+		f &= ~0x02 ;
+		brush.setColor(QColor(0, 0, 0));
+	}
+	else {
+		f |= 0x02 ;
+		brush.setColor(QColor(255, 0, 0));
+	}
 	pItem->setData(f, Qt::CheckStateRole);
+	pItem->setData(brush, Qt::ForegroundRole) ;
 	m_pGlWidget->update();
 }
 
@@ -1451,6 +1470,12 @@ void AnimationForm::slot_setColorFromPicker(QRgb rgba)
 	}
 }
 
+void AnimationForm::slot_splitterMoved(int pos, int index)
+{
+	qDebug("splitterMoved pos:%d index:%d", pos, index) ;
+	m_pSetting->setAnmWindowTreeWidth(pos, index) ;
+}
+
 // オブジェクト追加
 void AnimationForm::addNewObject( QString str )
 {
@@ -1472,6 +1497,7 @@ void AnimationForm::addNewObject( QString str )
 	m_pEditData->setSelectObject(newItem);
 
 	ui->spinBox_loop->setValue(0);
+
 }
 
 // フレームデータ編集コマンド
@@ -1564,6 +1590,7 @@ void AnimationForm::addNowSelectLayerAndFrame( void )
 		slot_addNewFrameData(objID, layerID, frame, data) ;	// フレームデータ追加
 	}
 	m_pEditData->updateSelectData();
+
 }
 
 // キー押しイベント

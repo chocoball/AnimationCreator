@@ -55,6 +55,10 @@ public slots:
 
 	void slot_pushColorToolButton( void ) ;
 
+	void slot_destroyAnmWindow( void ) ;
+	void slot_destroyImgWindow( void ) ;
+	void slot_destroyLoupeWindow( void ) ;
+
 #ifndef QT_NO_DEBUG
 	void slot_dbgObjectDump( void ) ;
 #endif
@@ -133,6 +137,10 @@ private:
 	// デバッグ用 ----
 	QAction				*m_pActDbgDump ;
 #endif
+
+	QMdiSubWindow		*m_pSubWindow_Anm ;
+	QMdiSubWindow		*m_pSubWindow_Img ;
+	QMdiSubWindow		*m_pSubWindow_Loupe ;
 };
 
 #endif // MAINWINDOW_H

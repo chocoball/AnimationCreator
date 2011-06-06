@@ -36,6 +36,32 @@ public:
 	void setDrawCenter(bool flag)			{ m_bDrawCenter = flag ; }
 	bool getDrawCenter()					{ return m_bDrawCenter ; }
 
+	void setAnmWindowPos(QPoint pos)		{ m_anmWindowPos = pos ; }
+	QPoint getAnmWindowPos()				{ return m_anmWindowPos ; }
+	void setAnmWindowSize(QSize size)		{ m_anmWindowSize = size ; }
+	QSize getAnmWindowSize()				{ return m_anmWindowSize ; }
+
+	void setImgWindowPos(QPoint pos)		{ m_imgWindowPos = pos ; }
+	QPoint getImgWindowPos()				{ return m_imgWindowPos ; }
+	void setImgWindowSize(QSize size)		{ m_imgWindowSize = size ; }
+	QSize getImgWindowSize()				{ return m_imgWindowSize ; }
+
+	void setLoupeWindowPos(QPoint pos)		{ m_loupeWindowPos = pos ; }
+	QPoint getLoupeWindowPos()				{ return m_loupeWindowPos ; }
+	void setLoupeWindowSize(QSize size)		{ m_loupeWindowSize = size ; }
+	QSize getLoupeWindowSize()				{ return m_loupeWindowSize ; }
+
+	void setAnmWindowTreeWidth(int w, int idx) {
+		m_anmWindowTreeWidth = w ;
+		m_anmWindowTreeWidthIndex = idx ;
+	}
+	int getAnmWindowTreeWidth() {
+		return m_anmWindowTreeWidth ;
+	}
+	int getAnmWindowTreeWidthIndex() {
+		return m_anmWindowTreeWidthIndex ;
+	}
+
 private:
 	QString		mCurrDir ;
 	QString		mCurrSaveDir ;
@@ -48,6 +74,18 @@ private:
 	bool		m_bUseBackImage ;
 	bool		m_bDrawFrame ;
 	bool		m_bDrawCenter ;
+
+	QPoint		m_anmWindowPos ;
+	QSize		m_anmWindowSize ;
+
+	QPoint		m_imgWindowPos ;
+	QSize		m_imgWindowSize ;
+
+	QPoint		m_loupeWindowPos ;
+	QSize		m_loupeWindowSize ;
+
+	int			m_anmWindowTreeWidth ;
+	int			m_anmWindowTreeWidthIndex ;
 };
 
 #endif // SETTING_H
