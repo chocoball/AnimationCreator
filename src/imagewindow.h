@@ -71,6 +71,8 @@ private:
 	QAction			*m_pActDelImage ;
 
 	MainWindow		*m_pMainWindow ;
+
+	QSize			m_oldWinSize ;
 };
 
 #endif // IMAGEWINDOW_H

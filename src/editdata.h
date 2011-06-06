@@ -19,7 +19,8 @@ public:
 	} ImageData ;
 
 	enum {
-		kMaxFrame	= 180,		// 最大アニメーションフレーム数
+		kMaxFrame	= 1024,		// 最大アニメーションフレーム数
+		kGLWidgetSize = 2048,	// アニメーションのGLWidgetのサイズ
 	} ;
 
 	// edit mode
@@ -33,7 +34,7 @@ public:
 public:
 	CEditData() ;
 	~CEditData() ;
-	
+
 	void setEditMode( int mode )
 	{
 		m_editMode = mode ;

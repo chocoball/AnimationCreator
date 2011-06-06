@@ -81,6 +81,7 @@ public slots:
 	void slot_timerEvent( void ) ;
 	void slot_addNewFrameData( CObjectModel::typeID objID, CObjectModel::typeID layerID, int frame, CObjectModel::FrameData data ) ;
 	void slot_changeLayerDisp( void ) ;
+	void slot_changeLayerLock( void ) ;
 
 	void slot_changeSelectLayerUV( QRect rect ) ;
 	void slot_changeAnimeSpeed(int index) ;
@@ -156,6 +157,7 @@ private:
 	QAction				*m_pActStop ;
 	QAction				*m_pActCopyLayer ;
 	QAction				*m_pActPasteLayer ;
+	QAction				*m_pActTreeViewLayerLock ;
 
 	QTimer				*m_pTimer ;
 	int					m_nMaxFrameNum ;
@@ -164,6 +166,8 @@ private:
 
 	QSplitter			*m_pSplitter ;
 	bool				m_bDontSetData ;
+
+	QSize				m_oldWinSize ;
 };
 
 #endif // ANIMATIONFORM_H

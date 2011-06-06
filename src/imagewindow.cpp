@@ -17,6 +17,7 @@ ImageWindow::ImageWindow(CSettings *p, CEditData *pEditImage, AnimationForm *pAn
 	m_pEditData = pEditImage ;
 	setAnimationForm(pAnimForm);
 	m_pMainWindow = pMainWindow ;
+	m_oldWinSize = QSize(-1, -1) ;
 
 	setAcceptDrops(true) ;
 
@@ -149,13 +150,16 @@ void ImageWindow::updateGridLabel( void )
 // リサイズイベント
 void ImageWindow::resizeEvent(QResizeEvent *event)
 {
-	QSize add = event->size() - event->oldSize() ;
+	if ( m_oldWinSize.width() < 0 || m_oldWinSize.height() < 0 ) {
+		m_oldWinSize = event->size() ;
+		return ;
+	}
+
+	QSize add = event->size() - m_oldWinSize ;
 	QSize add_h = QSize(0, add.height()) ;
 	QSize add_w = QSize(add.width(), 0) ;
 
-	if ( event->oldSize().width() < 0 || event->oldSize().height() < 0 ) {
-		return ;
-	}
+	m_oldWinSize = event->size() ;
 
 	ui->tabWidget->resize(ui->tabWidget->size()+add);
 

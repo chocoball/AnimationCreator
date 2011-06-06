@@ -120,13 +120,6 @@ void AnimeGLWidget::paintGL()
 	// センター
 	if ( m_pSetting->getDrawCenter() ) {
 		drawCenter() ;
-#if 0
-		QColor col = QColor(0, 0, 255, 255) ;
-		glDisable(GL_DEPTH_TEST);
-		drawLine(QPoint(-512, m_centerPos.y()), QPoint(512, m_centerPos.y()), col, 1.0) ;
-		drawLine(QPoint(m_centerPos.x(), -512), QPoint(m_centerPos.x(), 512), col, 1.0) ;
-		glEnable(GL_DEPTH_TEST);
-#endif
 	}
 
 	// PNG吐き出しモード
@@ -170,53 +163,6 @@ void AnimeGLWidget::drawLayers( void )
 	glBindTexture(GL_TEXTURE_2D, 0) ;
 }
 
-void AnimeGLWidget::drawLayers_Normal()
-{
-	int i, j ;
-	CObjectModel			*pModel		= m_pEditData->getObjectModel() ;
-	CObjectModel::typeID	objID		= m_pEditData->getSelectObject() ;
-	int						selFrame	= m_pEditData->getSelectFrame() ;
-
-	if ( pModel->getLayerGroupListFromID(objID) == NULL ) { return ; }
-
-	QList<CObjectModel::FrameData *> sort ;
-	CObjectModel::LayerGroupList &layerGroupList = *pModel->getLayerGroupListFromID(objID) ;
-	for ( i = 0 ; i < layerGroupList.size() ; i ++ ) {
-		QStandardItem *pLayerItem = layerGroupList[i].first ;
-		if ( !pLayerItem->data(Qt::CheckStateRole).toBool() ) { continue ; }	// 非表示
-		CObjectModel::FrameDataList &frameDataList = layerGroupList[i].second ;
-		for ( j = 0 ; j < frameDataList.size() ; j ++ ) {
-			CObjectModel::FrameData *data = &frameDataList[j] ;
-			if ( data->frame != selFrame ) { continue ; }
-			sort.append(data);
-		}
-	}
-
-	for ( int i = 0 ; i < sort.size() ; i ++ ) {
-		for ( int j = i + 1 ; j < sort.size() ; j ++ ) {
-			if ( sort[i]->pos_z > sort[j]->pos_z ) {
-				sort.swap(i, j);
-			}
-		}
-	}
-	for ( int i = 0 ; i < sort.size() ; i ++ ) {
-		drawFrameData(*sort[i]);
-	}
-
-	// 前フレームのレイヤ
-	for ( i = 0 ; i < layerGroupList.size() ; i ++ ) {
-		QStandardItem *pLayerItem = layerGroupList[i].first ;
-		if ( !pLayerItem->data(Qt::CheckStateRole).toBool() ) { continue ; }	// 非表示
-
-		CObjectModel::FrameData *pData = pModel->getFrameDataFromPrevFrame(objID, layerGroupList[i].first, selFrame, !(pModel->getFrameDataFromIDAndFrame(objID, layerGroupList[i].first, selFrame))) ;
-		if ( pData ) {
-			CObjectModel::FrameData data = *pData ;
-			data.pos_z -= 2048.0f ;
-			drawFrameData(data, QColor(255, 255, 255, 128));
-		}
-	}
-}
-
 // アニメ再生中
 void AnimeGLWidget::drawLayers_Anime()
 {
@@ -231,6 +177,9 @@ void AnimeGLWidget::drawLayers_Anime()
 	const CObjectModel::LayerGroupList &layerGroupList = *pModel->getLayerGroupListFromID(objID) ;
 	for ( int i = 0 ; i < layerGroupList.size() ; i ++ ) {
 		CObjectModel::typeID layerID = layerGroupList[i].first ;
+		QStandardItem *pLayerItem = layerID ;
+		if ( !(pLayerItem->data(Qt::CheckStateRole).toInt() & 0x01) ) { continue ; }	// 非表示
+
 		const CObjectModel::FrameData *pNow = pModel->getFrameDataFromPrevFrame(objID, layerID, frame+1) ;
 		const CObjectModel::FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
 
@@ -317,7 +266,7 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 			glLineStipple(2, 0x3333);
 			{
 				QPoint c = QPoint(pData->pos_x, pData->pos_y) ;
-				QPoint p0 = m_DragOffset - QPoint(512, 512) ;
+				QPoint p0 = m_DragOffset - QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) ;
 
 				float len = QVector2D(p0-c).length() ;
 				drawLine(c, p0, col, 0);
@@ -455,8 +404,8 @@ void AnimeGLWidget::drawCenter( void )
 
 	QColor col = QColor(0, 0, 255, 255) ;
 	glDisable(GL_DEPTH_TEST);
-	drawLine(QPoint(-512, data.pos_y), QPoint(512, data.pos_y), col, 1.0) ;
-	drawLine(QPoint(data.pos_x, -512), QPoint(data.pos_x, 512), col, 1.0) ;
+	drawLine(QPoint(-(CEditData::kGLWidgetSize/2), data.pos_y), QPoint((CEditData::kGLWidgetSize/2), data.pos_y), col, 1.0) ;
+	drawLine(QPoint(data.pos_x, -(CEditData::kGLWidgetSize/2)), QPoint(data.pos_x, (CEditData::kGLWidgetSize/2)), col, 1.0) ;
 	glEnable(GL_DEPTH_TEST);
 }
 
@@ -540,15 +489,15 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 		// 連番PNG吐き出し時
 		if ( m_pEditData->getEditMode() == CEditData::kEditMode_ExportPNG ) {
 			int rect[4] = { 0, 0, 0, 0 } ;
-			rect[0] = rect[2] = event->pos().x()-512 ;
-			rect[1] = rect[3] = event->pos().y()-512+1 ;
+			rect[0] = rect[2] = event->pos().x()-(CEditData::kGLWidgetSize/2) ;
+			rect[1] = rect[3] = event->pos().y()-(CEditData::kGLWidgetSize/2)+1 ;
 			m_pEditData->setExportPNGRect(rect);
 			emit sig_exportPNGRectChange() ;
 			update() ;
 			return ;
 		}
 
-		QPoint localPos = event->pos() - QPoint(512, 512) ;
+		QPoint localPos = event->pos() - QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) ;
 		m_DragOffset = event->pos() ;
 
 		CObjectModel *pModel = m_pEditData->getObjectModel() ;
@@ -581,6 +530,11 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 		}
 
 		if ( layerID ) {
+			if ( !(layerID->data(Qt::CheckStateRole).toInt() & 0x01) ) {	// 非表示
+				event->ignore();
+				return ;
+			}
+
 			CObjectModel::FrameData *p = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
 			if ( p ) {
 				m_rotStart = (float)p->rot_z*M_PI/180.0f ;
@@ -593,12 +547,6 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 
 			m_dragMode = kDragMode_Edit ;
 		}
-#if 0
-		else {
-			m_dragMode = kDragMode_SelPlural ;
-			m_SelPluralStartPos = m_SelPluralEndPos = event->pos() - QPoint(512, 512) ;
-		}
-#endif
 	}
 }
 
@@ -613,8 +561,8 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 	if ( m_pEditData->getEditMode() == CEditData::kEditMode_ExportPNG ) {
 		int rect[4] = { 0, 0, 0, 0 } ;
 		m_pEditData->getExportPNGRect(rect);
-		rect[2] = event->pos().x()-512 ;
-		rect[3] = event->pos().y()-512+1 ;
+		rect[2] = event->pos().x()-(CEditData::kGLWidgetSize/2) ;
+		rect[3] = event->pos().y()-(CEditData::kGLWidgetSize/2)+1 ;
 		m_pEditData->setExportPNGRect(rect);
 		emit sig_exportPNGRectChange() ;
 		update() ;
@@ -650,7 +598,7 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 		break ;
 	case kDragMode_SelPlural:
 		{
-			m_SelPluralEndPos = event->pos() - QPoint(512, 512) ;
+			m_SelPluralEndPos = event->pos() - QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) ;
 			QRect rc ;
 			rc.setLeft(m_SelPluralStartPos.x()<m_SelPluralEndPos.x()?m_SelPluralStartPos.x():m_SelPluralEndPos.x());
 			rc.setRight(m_SelPluralStartPos.x()<m_SelPluralEndPos.x()?m_SelPluralEndPos.x():m_SelPluralStartPos.x());
@@ -680,7 +628,7 @@ void AnimeGLWidget::mouseReleaseEvent(QMouseEvent *event)
 		break ;
 	case kDragMode_SelPlural:
 		{
-			m_SelPluralEndPos = event->pos() - QPoint(512, 512) ;
+			m_SelPluralEndPos = event->pos() - QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) ;
 			QRect rc ;
 			rc.setLeft(m_SelPluralStartPos.x()<m_SelPluralEndPos.x()?m_SelPluralStartPos.x():m_SelPluralEndPos.x());
 			rc.setRight(m_SelPluralStartPos.x()<m_SelPluralEndPos.x()?m_SelPluralEndPos.x():m_SelPluralStartPos.x());
@@ -756,8 +704,8 @@ QPoint AnimeGLWidget::editData(CObjectModel::FrameData *pData, QPoint nowPos, QP
 				break ;
 			case kEditMode_Rot:
 				{
-					QVector2D vOld = QVector2D(oldPos-QPoint(512, 512) - QPoint(pData->pos_x, pData->pos_y)) ;
-					QVector2D vNow = QVector2D(nowPos-QPoint(512, 512) - QPoint(pData->pos_x, pData->pos_y)) ;
+					QVector2D vOld = QVector2D(oldPos-QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) - QPoint(pData->pos_x, pData->pos_y)) ;
+					QVector2D vNow = QVector2D(nowPos-QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) - QPoint(pData->pos_x, pData->pos_y)) ;
 					vOld.normalize();
 					vNow.normalize();
 					float old = atan2(vOld.y(), vOld.x()) ;
@@ -795,10 +743,10 @@ void AnimeGLWidget::writePNGFromFrameBuffer( void )
 	QString name = dir + "/" + QVariant(frame).toString() + ".png" ;
 	int rect[4] ;
 	m_pEditData->getExportPNGRect(rect);
-	rect[0] += 512 ;
-	rect[1] += 512 ;
-	rect[2] += 512 ;
-	rect[3] += 512 ;
+	rect[0] += (CEditData::kGLWidgetSize/2) ;
+	rect[1] += (CEditData::kGLWidgetSize/2) ;
+	rect[2] += (CEditData::kGLWidgetSize/2) ;
+	rect[3] += (CEditData::kGLWidgetSize/2) ;
 	if ( rect[0] > rect[2] ) {
 		int tmp = rect[0] ;
 		rect[0] = rect[2] ;

@@ -12,14 +12,16 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	m_pSetting		= pSetting ;
 	m_bDontSetData	= false ;
 
+	m_oldWinSize = QSize(-1, -1) ;
+
 	ui->setupUi(this);
 
 	setFocusPolicy(Qt::StrongFocus);
 
 	m_pGlWidget = new AnimeGLWidget(pImageData, pSetting, this) ;
 	ui->scrollArea_anime->setWidget(m_pGlWidget);
-	m_pGlWidget->resize(1024, 1024);
-	m_pGlWidget->setDrawArea(1024, 1024);
+	m_pGlWidget->resize(CEditData::kGLWidgetSize, CEditData::kGLWidgetSize);
+	m_pGlWidget->setDrawArea(CEditData::kGLWidgetSize, CEditData::kGLWidgetSize);
 	m_pGlWidget->show();
 
 	ui->radioButton_pos->setChecked(true);
@@ -110,6 +112,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	m_pActTreeViewCopy		= new QAction(QString("Copy Object"), this) ;
 	m_pActTreeViewDel		= new QAction(QString("Delete"), this);
 	m_pActTreeViewLayerDisp = new QAction(QString("Disp"), this) ;
+	m_pActTreeViewLayerLock = new QAction(QString("Lock"), this) ;
 	m_pActCopyLayer			= new QAction(QString("Copy Layer"), this) ;
 	m_pActPasteLayer		= new QAction(QString("Paste Layer"), this) ;
 
@@ -170,6 +173,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(m_pActTreeViewCopy,			SIGNAL(triggered()),			this, SLOT(slot_copyObject())) ;
 	connect(m_pActTreeViewDel,			SIGNAL(triggered()),			this, SLOT(slot_deleteObject())) ;
 	connect(m_pActTreeViewLayerDisp,	SIGNAL(triggered()),			this, SLOT(slot_changeLayerDisp())) ;
+	connect(m_pActTreeViewLayerLock,	SIGNAL(triggered()),			this, SLOT(slot_changeLayerLock())) ;
 	connect(m_pActCopyLayer,			SIGNAL(triggered()),			this, SLOT(slot_copyLayer())) ;
 	connect(m_pActPasteLayer,			SIGNAL(triggered()),			this, SLOT(slot_pasteLayer())) ;
 
@@ -219,13 +223,17 @@ AnimationForm::~AnimationForm()
 // サイズ変更イベント
 void AnimationForm::resizeEvent(QResizeEvent *event)
 {
-	QSize add = event->size() - event->oldSize() ;
-	QSize add_h = QSize(0, add.height()) ;
 //	QSize add_w = QSize(add.width(), 0) ;
 
-	if ( event->oldSize().width() < 0 || event->oldSize().height() < 0 ) {
+	if ( m_oldWinSize.width() < 0 || m_oldWinSize.height() < 0 ) {
+		m_oldWinSize = event->size() ;
 		return ;
 	}
+
+	QSize add = event->size() - m_oldWinSize ;
+	QSize add_h = QSize(0, add.height()) ;
+
+	m_oldWinSize = event->size() ;
 
 	ui->treeView->resize(ui->treeView->size()+add_h);
 	ui->scrollArea_anime->resize(ui->scrollArea_anime->size()+add);
@@ -421,11 +429,11 @@ void AnimationForm::slot_dropedImage( QRect rect, QPoint pos, int imageIndex )
 		return ;
 	}
 
-	pos -= QPoint(512, 512) ;	// GLWidgetのローカルポスに変換
+	pos -= QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) ;	// GLWidgetのローカルポスに変換
 
 	// ツリービューに追加
 	QStandardItem *newItem = new QStandardItem(QString("Layer %1").arg(pLayerGroupList->size())) ;
-	newItem->setData(true, Qt::CheckStateRole);
+	newItem->setData(1, Qt::CheckStateRole);
 #if 1
 	CObjectModel::FrameData frameData ;
 	frameData.pos_x = pos.x() ;
@@ -548,10 +556,12 @@ void AnimationForm::slot_setUI(CObjectModel::FrameData data)
 	if ( data.rot_z != ui->spinBox_rot_z->value() ) { ui->spinBox_rot_z->setValue(data.rot_z); }
 	if ( data.fScaleX != (float)ui->doubleSpinBox_scale_x->value() ) { ui->doubleSpinBox_scale_x->setValue(data.fScaleX) ; }
 	if ( data.fScaleY != (float)ui->doubleSpinBox_scale_y->value() ) { ui->doubleSpinBox_scale_y->setValue(data.fScaleY) ; }
+
 	if ( data.left != ui->spinBox_uv_left->value() ) { ui->spinBox_uv_left->setValue(data.left); }
 	if ( data.right != ui->spinBox_uv_right->value() ) { ui->spinBox_uv_right->setValue(data.right); }
 	if ( data.top != ui->spinBox_uv_top->value() ) { ui->spinBox_uv_top->setValue(data.top); }
 	if ( data.bottom != ui->spinBox_uv_bottom->value() ) { ui->spinBox_uv_bottom->setValue(data.bottom); }
+
 	if ( data.center_x != ui->spinBox_center_x->value() ) { ui->spinBox_center_x->setValue(data.center_x); }
 	if ( data.center_y != ui->spinBox_center_y->value() ) { ui->spinBox_center_y->setValue(data.center_y); }
 	if ( data.nImage != ui->comboBox_image_no->currentText().toInt() ) {
@@ -800,6 +810,7 @@ void AnimationForm::slot_treeViewMenuReq(QPoint treeViewLocalPos)
 		// レイヤ選択中だったら
 		menu.addAction(m_pActTreeViewLayerDisp) ;
 		menu.addAction(m_pActCopyLayer) ;
+//		menu.addAction(m_pActTreeViewLayerLock) ;
 	}
 	else {
 		// オブジェクト選択中だったら
@@ -821,7 +832,10 @@ void AnimationForm::slot_treeViewDoubleClicked(QModelIndex index)
 	if ( index.internalPointer() == pTreeModel->invisibleRootItem() ) { return ; }	// オブジェクト選択中
 
 	QVariant flag = pItem->data(Qt::CheckStateRole) ;
-	pItem->setData(!flag.toBool(), Qt::CheckStateRole);
+	int f = flag.toInt() ;
+	if ( f & 0x01 )	{ f &= ~0x01 ; }
+	else			{ f |= 0x01 ; }
+	pItem->setData(f, Qt::CheckStateRole);
 	m_pGlWidget->update();
 }
 
@@ -1054,6 +1068,26 @@ void AnimationForm::slot_changeLayerDisp( void )
 	if ( index.internalPointer() == m_pEditData->getTreeModel()->invisibleRootItem() ) { return ; }	// オブジェクト選択中
 
 	slot_treeViewDoubleClicked(index) ;
+}
+
+// レイヤロック ON/OFF
+void AnimationForm::slot_changeLayerLock( void )
+{
+	QStandardItemModel *pTreeModel = m_pEditData->getTreeModel() ;
+	QModelIndex index = ui->treeView->currentIndex() ;
+
+	if ( !index.isValid() ) { return ; }
+	if ( index.internalPointer() == pTreeModel->invisibleRootItem() ) { return ; }	// オブジェクト選択中
+	QStandardItem *pItem = pTreeModel->itemFromIndex(index) ;
+
+	if ( !pItem ) { return ; }
+
+	QVariant flag = pItem->data(Qt::CheckStateRole) ;
+	int f = flag.toInt() ;
+	if ( f & 0x02 )	{ f &= ~0x02 ; }
+	else			{ f |= 0x02 ; }
+	pItem->setData(f, Qt::CheckStateRole);
+	m_pGlWidget->update();
 }
 
 // 選択中レイヤのUV変更

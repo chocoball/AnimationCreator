@@ -50,7 +50,6 @@ protected:
 	void paintGL() ;
 
 	void drawLayers( void ) ;
-	void drawLayers_Normal( void ) ;
 	void drawLayers_Anime( void ) ;
 	void drawLayers_All( void ) ;
 	void drawSelFrameInfo( void ) ;
