@@ -114,12 +114,16 @@ void AnimeGLWidget::paintGL()
 	}
 
 	if ( m_bDrawGrid ) {
-		drawGrid() ;
+		if ( !m_pEditData->isExportPNG() ) {
+			drawGrid() ;
+		}
 	}
 
 	// センター
 	if ( m_pSetting->getDrawCenter() ) {
-		drawCenter() ;
+		if ( !m_pEditData->isExportPNG() ) {
+			drawCenter() ;
+		}
 	}
 
 	// PNG吐き出しモード
@@ -200,7 +204,7 @@ void AnimeGLWidget::drawLayers_Anime()
 	for ( int i = 0 ; i < sort.size() ; i ++ ) {
 		drawFrameData(sort[i]);
 
-		if ( m_pSetting->getDrawFrame() ) {
+		if ( m_pSetting->getDrawFrame() && !m_pEditData->isExportPNG() ) {
 			QColor col ;
 			if ( select[i] )	{ col = QColor(255, 0, 0, 255) ; }
 			else				{ col = QColor(64, 64, 64, 255) ; }
@@ -741,7 +745,16 @@ void AnimeGLWidget::writePNGFromFrameBuffer( void )
 {
 	QString dir = m_pEditData->getExportPNGDir() ;
 	int frame = m_pEditData->getSelectFrame() ;
-	QString name = dir + "/" + QVariant(frame).toString() + ".png" ;
+	QString name = "" ;
+	int allDigit = 4 ;
+	int currDigit = getDigit(frame) ;
+
+	for ( int i = 0 ; i < allDigit-currDigit ; i ++ ) {
+		name += "0" ;
+	}
+	name += QVariant(frame).toString() ;
+
+	name = dir + "/" + name + ".png" ;
 	int rect[4] ;
 	m_pEditData->getExportPNGRect(rect);
 	rect[0] += (CEditData::kGLWidgetSize/2) ;
@@ -769,6 +782,18 @@ void AnimeGLWidget::writePNGFromFrameBuffer( void )
 	QImage img = grabFrameBuffer(true).copy(x, y, w, h) ;
 	img.save(name) ;
 	m_pEditData->setExportEndFrame(frame) ;
+}
+
+int AnimeGLWidget::getDigit(int num)
+{
+	if ( num == 0 ) { return 1 ; }
+
+	int ret = 0 ;
+	while ( num ) {
+		ret ++ ;
+		num /= 10 ;
+	}
+	return ret ;
 }
 
 // 描画エリア設定

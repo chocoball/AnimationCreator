@@ -76,6 +76,7 @@ protected:
 	QPoint editData(CObjectModel::FrameData *pData, QPoint nowPos, QPoint oldPos) ;
 
 	void writePNGFromFrameBuffer( void ) ;
+	int getDigit(int num) ;
 
 public:
 	void setDrawArea( int w, int h ) ;
