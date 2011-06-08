@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QtNetwork/QNetworkReply>
 #include "imagewindow.h"
 #include "setting.h"
 #include "editdata.h"
@@ -58,6 +59,8 @@ public slots:
 	void slot_destroyAnmWindow( void ) ;
 	void slot_destroyImgWindow( void ) ;
 	void slot_destroyLoupeWindow( void ) ;
+
+	void slot_reqFinished(QNetworkReply *reply) ;
 
 #ifndef QT_NO_DEBUG
 	void slot_dbgObjectDump( void ) ;

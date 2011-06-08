@@ -1,5 +1,6 @@
 #include <qglobal.h>
 #include <QtGui>
+//#include <QtNetwork/QNetworkAccessManager>
 #include "mainwindow.h"
 #include "imagewindow.h"
 #include "canm2d.h"
@@ -9,6 +10,8 @@
 
 #define FILE_EXT_ANM2D_XML	".xml"
 #define FILE_EXT_ANM2D_BIN	".anm2"
+
+#define kVersion	"1.1.0"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -49,6 +52,11 @@ MainWindow::MainWindow(QWidget *parent)
 	m_bCtrl = false ;
 
 	setObjectName("AnimationCreator MainWindow");
+/*
+	QNetworkAccessManager *pManager = new QNetworkAccessManager(this) ;
+	connect(pManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(slot_reqFinished(QNetworkReply *))) ;
+	pManager->get(QNetworkRequest(QUrl("http://chocobowl.biz:8800/AnimationCreator/version.txt"))) ;
+*/
 }
 
 MainWindow::~MainWindow()
@@ -352,6 +360,20 @@ void MainWindow::slot_destroyLoupeWindow( void )
 		setting.setLoupeWindowSize(m_pSubWindow_Loupe->size());
 	}
 	m_pSubWindow_Loupe = NULL ;
+}
+
+void MainWindow::slot_reqFinished(QNetworkReply *reply)
+{
+	if ( reply->error() ) {
+		qDebug() << "request error:" << reply->errorString() ;
+		return ;
+	}
+
+	QString str = reply->readAll() ;
+	qDebug() << "version:" << str ;
+	if ( str == kVersion ) {
+		return ;
+	}
 }
 
 #ifndef QT_NO_DEBUG

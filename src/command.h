@@ -90,6 +90,7 @@ public:
 	void redo() ;
 
 private:
+	CEditData					*m_pEditData ;
 	CObjectModel				*m_pObjModel ;
 	CObjectModel::typeID		m_objID ;
 	CObjectModel::typeID		m_layerID ;

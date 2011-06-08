@@ -1,10 +1,12 @@
 #include "command.h"
 #include "animationform.h"
+#include "debug.h"
 
 /**
   オブジェクト追加コマンド
   */
-Command_AddObject::Command_AddObject(CEditData *pEditData, QString &str)
+Command_AddObject::Command_AddObject(CEditData *pEditData, QString &str) :
+	QUndoCommand("Command_AddObject")
 {
 	m_strObjName = str ;
 	m_pObjModel = pEditData->getObjectModel() ;
@@ -59,7 +61,8 @@ void Command_AddObject::redo()
 /**
   オブジェクト削除コマンド
   */
-Command_DelObject::Command_DelObject(CEditData *pEditData, QModelIndex index, QLabel *pDataMakerLabel)
+Command_DelObject::Command_DelObject(CEditData *pEditData, QModelIndex index, QLabel *pDataMakerLabel) :
+	QUndoCommand("Command_DelObject")
 {
 	m_pObjModel = pEditData->getObjectModel() ;
 	m_pTreeModel = pEditData->getTreeModel() ;
@@ -126,7 +129,8 @@ Command_AddLayer::Command_AddLayer(CEditData				*pEditData,
 								   QModelIndex				objIndex,
 								   QStandardItem			*pAddItem,
 								   CObjectModel::LayerGroup	&layerGroup,
-								   QList<QWidget *>			&updateWidget)
+								   QList<QWidget *>			&updateWidget) :
+	QUndoCommand("Command_AddLayer")
 {
 	m_pObjModel = pEditData->getObjectModel() ;
 	m_pTreeModel = pEditData->getTreeModel() ;
@@ -189,8 +193,12 @@ Command_AddFrameData::Command_AddFrameData(CEditData				*pEditData,
 										   CObjectModel::typeID		objID,
 										   CObjectModel::typeID		layerID,
 										   CObjectModel::FrameData	&data,
-										   QList<QWidget *>			&updateWidget)
+										   QList<QWidget *>			&updateWidget) :
+	QUndoCommand("Command_AddFrameData")
 {
+	qDebug() << "Command_AddFrameData" ;
+
+	m_pEditData = pEditData ;
 	m_pObjModel = pEditData->getObjectModel() ;
 	m_objID = objID ;
 	m_layerID = layerID ;
@@ -219,6 +227,18 @@ void Command_AddFrameData::redo()
 		qDebug() << "ERROR:Command_AddFrameData::redo" ;
 		return ;
 	}
+	for ( int i = 0 ; i < pFrameDataList->size() ; i ++ ) {
+		if ( pFrameDataList->at(i).frame == m_FrameData.frame ) {
+			QUndoStack *pStack = m_pEditData->getUndoStack() ;
+			for ( int j = 0 ; j < pStack->count() ; j ++ ) {
+				const QUndoCommand *cmd = pStack->command(j) ;
+				QString str = "[" + QVariant(j).toString() + "]:" + cmd->text() + "\n" ;
+				WriteLogFile(str) ;
+			}
+			QMessageBox::warning(NULL, QObject::tr("Error"), QObject::trUtf8("同じフレームデータがあります。プログラマに報告してください") ) ;
+			return ;
+		}
+	}
 	pFrameDataList->append(m_FrameData) ;
 
 	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
@@ -234,8 +254,11 @@ Command_DelFrameData::Command_DelFrameData(CEditData			*pEditData,
 										   CObjectModel::typeID	objID,
 										   CObjectModel::typeID	layerID,
 										   int					frame,
-										   QList<QWidget *>		&updateWidget)
+										   QList<QWidget *>		&updateWidget) :
+	QUndoCommand("Command_DelFrameData")
 {
+	qDebug() << "Command_DelFrameData" ;
+
 	m_pEditData = pEditData ;
 	m_pObjModel = pEditData->getObjectModel() ;
 	m_objID = objID ;
@@ -254,6 +277,18 @@ void Command_DelFrameData::undo()
 	if ( m_Index < 0 ) {
 		qDebug() << "ERROR:Command_DelFrameData::undo 1" ;
 		return ;
+	}
+	for ( int i = 0 ; i < pFrameDataList->size() ; i ++ ) {
+		if ( pFrameDataList->at(i).frame == m_FrameData.frame ) {
+			QUndoStack *pStack = m_pEditData->getUndoStack() ;
+			for ( int j = 0 ; j < pStack->count() ; j ++ ) {
+				const QUndoCommand *cmd = pStack->command(j) ;
+				QString str = "[" + QVariant(j).toString() + "]:" + cmd->text() + "\n" ;
+				WriteLogFile(str) ;
+			}
+			QMessageBox::warning(NULL, QObject::tr("Error"), QObject::trUtf8("同じフレームデータがあります。プログラマに報告してください") ) ;
+			return ;
+		}
 	}
 	pFrameDataList->insert(m_Index, m_FrameData) ;
 
@@ -298,8 +333,11 @@ Command_EditFrameData::Command_EditFrameData(CEditData						*pEditData,
 											 QList<CObjectModel::typeID>	&layerIDs,
 											 int							frame,
 											 QList<CObjectModel::FrameData>	&datas,
-											 QList<QWidget *>				&updateWidget)
+											 QList<QWidget *>				&updateWidget) :
+	QUndoCommand("Command_EditFrameData")
 {
+	qDebug() << "Command_EditFrameData" ;
+
 	m_pEditData = pEditData ;
 	m_pObjModel = pEditData->getObjectModel() ;
 	m_objID		= objID ;
@@ -363,7 +401,8 @@ void Command_EditFrameData::redo()
 /**
   オブジェクトコピーコマンド
   */
-Command_CopyObject::Command_CopyObject( CEditData *pEditData, CObjectModel::typeID objID, QList<QWidget *> &updateWidget )
+Command_CopyObject::Command_CopyObject( CEditData *pEditData, CObjectModel::typeID objID, QList<QWidget *> &updateWidget ) :
+	QUndoCommand("Command_CopyObject")
 {
 	m_pEditData			= pEditData ;
 	m_objID				= objID ;

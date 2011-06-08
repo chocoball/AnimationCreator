@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui opengl xml
+QT       += core gui opengl xml network
 
 TARGET = AnimationCreator
 TEMPLATE = app
@@ -31,7 +31,8 @@ SOURCES		+=									\
 				src/util.cpp					\
 				src/colorpickerform.cpp			\
 				src/CBrightLabel.cpp			\
-				src/AnimationWindowSplitter.cpp
+				src/AnimationWindowSplitter.cpp	\
+				src/debug.cpp
 
 HEADERS		+=									\
 				src/Anm2dTypes.h				\
@@ -56,7 +57,8 @@ HEADERS		+=									\
 				src/util.h						\
 				src/colorpickerform.h			\
 				src/CBrightLabel.h				\
-				src/AnimationWindowSplitter.h
+				src/AnimationWindowSplitter.h	\
+				src/debug.h
 
 RESOURCES	+=	Resource.qrc
 

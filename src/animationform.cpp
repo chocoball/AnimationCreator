@@ -1244,6 +1244,7 @@ void AnimationForm::slot_endedOption( void )
 // マウスでのデータ編集終了時
 void AnimationForm::slot_frameDataMoveEnd( void )
 {
+/*
 	int i ;
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
 	for ( i = 0 ; i < m_pEditData->getSelectLayerNum() ; i ++ ) {
@@ -1257,7 +1258,7 @@ void AnimationForm::slot_frameDataMoveEnd( void )
 		}
 	}
 	if ( i == m_pEditData->getSelectLayerNum() ) { return ; }	// データが変わっていない
-
+*/
 	QList<CObjectModel::FrameData *> data_ptrs ;
 	for ( int i = 0 ; i < m_pEditData->getSelectFrameDataNum() ; i ++ ) {
 		data_ptrs.insert(i, m_pEditData->getSelectFrameData(i));
