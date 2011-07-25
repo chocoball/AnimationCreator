@@ -107,10 +107,10 @@
     </rect>
    </property>
    <property name="minimum">
-    <number>-512</number>
+    <number>-99999</number>
    </property>
    <property name="maximum">
-    <number>512</number>
+    <number>99999</number>
    </property>
   </widget>
   <widget class="QLabel" name="label_left">
@@ -139,10 +139,10 @@
     </rect>
    </property>
    <property name="minimum">
-    <number>-512</number>
+    <number>-99999</number>
    </property>
    <property name="maximum">
-    <number>512</number>
+    <number>99999</number>
    </property>
   </widget>
   <widget class="QSpinBox" name="spinBox_right">
@@ -155,10 +155,10 @@
     </rect>
    </property>
    <property name="minimum">
-    <number>-512</number>
+    <number>-99999</number>
    </property>
    <property name="maximum">
-    <number>512</number>
+    <number>99999</number>
    </property>
   </widget>
   <widget class="QLabel" name="label_right">
@@ -203,10 +203,10 @@
     </rect>
    </property>
    <property name="minimum">
-    <number>-512</number>
+    <number>-99999</number>
    </property>
    <property name="maximum">
-    <number>512</number>
+    <number>99999</number>
    </property>
   </widget>
  </widget>

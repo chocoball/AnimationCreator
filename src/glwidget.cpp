@@ -814,7 +814,10 @@ void AnimeGLWidget::setBackImage( QString path )
 	m_backImageTex = 0 ;
 	if ( path.isEmpty() ) { return ; }
 
-	if ( !m_BackImage.load(path) ) { return ; }
+	if ( !m_BackImage.load(path) ) {
+		qDebug() << path << " load failed" ;
+		return ;
+	}
 	m_backImageW = m_BackImage.width() ;
 	m_backImageH = m_BackImage.height() ;
 

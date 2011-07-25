@@ -244,6 +244,7 @@ void Command_AddFrameData::redo()
 	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
 		m_UpdateWidgetList[i]->update();
 	}
+
 }
 
 
