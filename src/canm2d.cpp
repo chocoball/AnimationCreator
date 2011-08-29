@@ -1216,5 +1216,101 @@ bool CAnm2DXml::addImage( QDomNode &node, CEditData::ImageData &data )
 }
 
 
+/************************************************************
+*
+* CAnm2DJson
+*
+************************************************************/
+CAnm2DJson::CAnm2DJson()
+	: CAnm2DBase()
+{
+}
+
+bool CAnm2DJson::makeFromEditData( CEditData &rEditData )
+{
+	addString("{\n") ;
+	if ( !makeObject(rEditData) ) { return false ; }
+	if ( !makeImage(rEditData) ) { return false ; }
+	addString("}") ;
+	return true ;
+}
+
+bool CAnm2DJson::makeObject( CEditData &rEditData )
+{
+	CObjectModel *pModel = rEditData.getObjectModel() ;
+	const CObjectModel::ObjectList &objList = pModel->getObjectList() ;
+
+	for ( int i = 0 ; i < objList.size() ; i ++ ) {
+		const CObjectModel::ObjectGroup &objGroup = objList.at(i) ;
+		QStandardItem *pObjID = objGroup.id ;
+		const CObjectModel::LayerGroupList &layerGroupList = objGroup.layerGroupList ;
+
+		addString("  \"" + QString(pObjID->text().toUtf8()) + "\": {\n") ;
+		addString("    \"animeTime\": " + QVariant((int)(pModel->getMaxFrameFromSelectObject(pObjID)*(100.0/6.0))).toString() + ",\n") ;
+		addString("    \"loopNum\": " + QVariant(objGroup.nLoop).toString() + ",\n") ;
+		addString("    \"layer\": [\n") ;
+
+		for ( int j = 0 ; j < layerGroupList.size() ; j ++ ) {
+			const CObjectModel::LayerGroup &layerGroup = layerGroupList.at(j) ;
+			QStandardItem *pLayerID = layerGroup.first ;
+			const CObjectModel::FrameDataList &frameDataList = layerGroup.second ;
+
+			addString("      {\n") ;
+			addString("        \"frame\": [\n") ;
+			for ( int k = 0 ; k < frameDataList.size() ; k ++ ) {
+				const CObjectModel::FrameData &data = frameDataList.at(k) ;
+				CEditData::ImageData *pImageData = rEditData.getImageDataFromNo(data.nImage) ;
+				int extPos = pImageData->fileName.lastIndexOf("/") ;
+				QString path ;
+				path = pImageData->fileName.right(pImageData->fileName.size() - extPos - 1) ;
+				float anchor[2], uv[4] ;
+				anchor[0] = (float)data.center_x / (float)(data.right-data.left) ;
+				anchor[1] = (float)data.center_y / (float)(data.bottom-data.top) ;
+				uv[0] = (float)data.left / (float)pImageData->origImageW ;
+				uv[1] = (float)data.top / (float)pImageData->origImageW ;
+				uv[2] = (float)(data.right-data.left) / (float)pImageData->origImageW ;
+				uv[3] = (float)(data.bottom-data.top) / (float)pImageData->origImageW ;
+
+				addString("          {\n") ;
+				addString("            \"frame\": " + QVariant((int)(data.frame*(100.0/6.0))).toString() + ",\n") ;
+				addString("            \"pos\": [" + QVariant(data.pos_x).toString() + ", " + QVariant(data.pos_y).toString() + ", " + QVariant(data.pos_z).toString() + "],\n") ;
+				addString("            \"rot\": [" + QVariant(data.rot_x).toString() + ", " + QVariant(data.rot_y).toString() + ", " + QVariant(data.rot_z).toString() + "],\n") ;
+				addString("            \"sca\": [" + QVariant(data.fScaleX).toString() + ", " + QVariant(data.fScaleY).toString() + "],\n") ;
+				addString("            \"color\": [" + QVariant((float)data.rgba[0]/255.0f).toString() + ", " + QVariant((float)data.rgba[1]/255.0f).toString() + ", " + QVariant((float)data.rgba[2]/255.0f).toString() + ", " + QVariant((float)data.rgba[3]/255.0f).toString() + "],\n") ;
+				addString("            \"uvAnime\": " + QVariant((int)data.bUVAnime).toString() + ",\n") ;
+				addString("            \"image\": {\n") ;
+				addString("              \"path\": \"" + path + "\",\n") ;
+				addString("              \"size\": [" + QVariant(pImageData->origImageW).toString() + ", " + QVariant(pImageData->origImageH).toString() + "],\n") ;
+				addString("              \"center\": [" + QVariant(anchor[0]).toString() + ", " + QVariant(anchor[1]).toString() + "],\n") ;
+				addString("              \"uvrect\": [" + QVariant(uv[0]).toString() + ", " + QVariant(uv[1]).toString() + ", " + QVariant(uv[2]).toString() + ", " + QVariant(uv[3]).toString() + "]\n") ;
+				addString("            }\n") ;
+				addString("          }") ;
+				if ( k < frameDataList.size()-1 ) { addString(",") ; }
+				addString("\n") ;
+			}
+			addString("        ]\n") ;
+			addString("      }") ;
+			if ( j < layerGroupList.size()-1 ) { addString(",") ; }
+			addString("\n") ;
+		}
+		addString("    ]\n") ;
+		addString("  }") ;
+		if ( i < objList.size()-1 ) { addString(",") ; }
+		addString("\n") ;
+	}
+
+	return true ;
+}
+
+bool CAnm2DJson::makeImage( CEditData &rEditData )
+{
+	return true ;
+}
+
+
+
+bool CAnm2DJson::makeFromFile(QString &str, CEditData &rEditData)
+{
+}
 
 

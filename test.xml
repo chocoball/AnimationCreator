@@ -1,129 +1,44 @@
 <!DOCTYPE ANM2D>
-<ROOT ObjNum="2" Version="4096" ImageNum="1">
-    <OBJECT Name="idle" LayerNum="2" LoopNum="-1" No="0">
-        <LAYER Name="顔" FrameDataNum="3" No="0">
+<ROOT ObjNum="1" Version="4096" ImageNum="1">
+    <OBJECT Name="New Object" LayerNum="1" LoopNum="-1" No="0">
+        <LAYER Name="Layer 0" FrameDataNum="3" No="0">
             <FRAMEDATA>
                 <frame>0</frame>
-                <pos>3 -133 0</pos>
+                <pos>-1 -22 0</pos>
                 <rot>0 0 0</rot>
-                <center>54 45</center>
-                <UV>1 12 108 101</UV>
+                <center>51 73</center>
+                <UV>76 105 178 251</UV>
                 <ImageNo>0</ImageNo>
                 <scale>1 1</scale>
                 <UVAnime>0</UVAnime>
                 <Color>255 255 255 255</Color>
             </FRAMEDATA>
             <FRAMEDATA>
-                <frame>30</frame>
-                <pos>3 -124 0</pos>
-                <rot>0 0 0</rot>
-                <center>54 45</center>
-                <UV>1 12 108 101</UV>
+                <frame>100</frame>
+                <pos>-1 -22 0</pos>
+                <rot>0 0 180</rot>
+                <center>51 73</center>
+                <UV>76 105 178 251</UV>
                 <ImageNo>0</ImageNo>
                 <scale>1 1</scale>
                 <UVAnime>0</UVAnime>
                 <Color>255 255 255 255</Color>
             </FRAMEDATA>
             <FRAMEDATA>
-                <frame>60</frame>
-                <pos>3 -133 0</pos>
-                <rot>0 0 0</rot>
-                <center>54 45</center>
-                <UV>1 12 108 101</UV>
+                <frame>200</frame>
+                <pos>-1 -22 0</pos>
+                <rot>0 0 360</rot>
+                <center>51 73</center>
+                <UV>76 105 178 251</UV>
                 <ImageNo>0</ImageNo>
                 <scale>1 1</scale>
                 <UVAnime>0</UVAnime>
                 <Color>255 255 255 255</Color>
-            </FRAMEDATA>
-        </LAYER>
-        <LAYER Name="体" FrameDataNum="3" No="1">
-            <FRAMEDATA>
-                <frame>0</frame>
-                <pos>4 -37 0</pos>
-                <rot>0 0 0</rot>
-                <center>57 51</center>
-                <UV>6 95 119 196</UV>
-                <ImageNo>0</ImageNo>
-                <scale>1 1</scale>
-                <UVAnime>0</UVAnime>
-                <Color>255 255 255 255</Color>
-            </FRAMEDATA>
-            <FRAMEDATA>
-                <frame>60</frame>
-                <pos>4 -37 0</pos>
-                <rot>0 0 0</rot>
-                <center>57 51</center>
-                <UV>6 95 119 196</UV>
-                <ImageNo>0</ImageNo>
-                <scale>1 1</scale>
-                <UVAnime>0</UVAnime>
-                <Color>255 255 255 255</Color>
-            </FRAMEDATA>
-            <FRAMEDATA>
-                <frame>30</frame>
-                <pos>4 -35 0</pos>
-                <rot>0 0 0</rot>
-                <center>57 51</center>
-                <UV>6 95 119 196</UV>
-                <ImageNo>0</ImageNo>
-                <scale>1 1</scale>
-                <UVAnime>0</UVAnime>
-                <Color>255 255 255 255</Color>
-            </FRAMEDATA>
-        </LAYER>
-    </OBJECT>
-    <OBJECT Name="move" LayerNum="2" LoopNum="0" No="1">
-        <LAYER Name="顔" FrameDataNum="2" No="0">
-            <FRAMEDATA>
-                <frame>0</frame>
-                <pos>3 -133 0</pos>
-                <rot>0 0 0</rot>
-                <center>53 44</center>
-                <UV>1 12 107 100</UV>
-                <ImageNo>0</ImageNo>
-                <scale>1 1</scale>
-                <UVAnime>0</UVAnime>
-                <Color>255 255 255 255</Color>
-            </FRAMEDATA>
-            <FRAMEDATA>
-                <frame>36</frame>
-                <pos>62 -129 0</pos>
-                <rot>0 0 0</rot>
-                <center>53 44</center>
-                <UV>1 12 107 100</UV>
-                <ImageNo>0</ImageNo>
-                <scale>1 1</scale>
-                <UVAnime>0</UVAnime>
-                <Color>255 255 255 0</Color>
-            </FRAMEDATA>
-        </LAYER>
-        <LAYER Name="体" FrameDataNum="2" No="1">
-            <FRAMEDATA>
-                <frame>0</frame>
-                <pos>3 -39 0</pos>
-                <rot>0 0 0</rot>
-                <center>56 50</center>
-                <UV>6 95 118 195</UV>
-                <ImageNo>0</ImageNo>
-                <scale>1 1</scale>
-                <UVAnime>0</UVAnime>
-                <Color>255 255 255 255</Color>
-            </FRAMEDATA>
-            <FRAMEDATA>
-                <frame>36</frame>
-                <pos>65 -38 0</pos>
-                <rot>0 0 0</rot>
-                <center>56 50</center>
-                <UV>6 95 118 195</UV>
-                <ImageNo>0</ImageNo>
-                <scale>1 1</scale>
-                <UVAnime>0</UVAnime>
-                <Color>255 255 255 0</Color>
             </FRAMEDATA>
         </LAYER>
     </OBJECT>
     <IMAGE No="0">
-        <FilePath>test.bmp</FilePath>
+        <FilePath>../STD/STD_Source/trunk/Smartphone/Content/chara/c0000.png</FilePath>
         <Size>256 256</Size>
     </IMAGE>
 </ROOT>

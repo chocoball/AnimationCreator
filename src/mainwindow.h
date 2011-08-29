@@ -61,6 +61,7 @@ public slots:
 	void slot_destroyLoupeWindow( void ) ;
 
 	void slot_reqFinished(QNetworkReply *reply) ;
+	void slot_exportJSON() ;
 
 #ifndef QT_NO_DEBUG
 	void slot_dbgObjectDump( void ) ;
@@ -125,6 +126,7 @@ private:
 	QAction				*m_pActOption ;			// オプション
 	QAction				*m_pActHelp ;			// ヘルプ
 	QAction				*m_pActAboutQt ;		// Qtについて
+	QAction				*m_pActExportJson ;		// JSON吐き出し
 	// ---- アクション
 
 	QStringList			m_DragFileList ;

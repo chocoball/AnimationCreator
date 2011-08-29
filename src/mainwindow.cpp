@@ -10,6 +10,7 @@
 
 #define FILE_EXT_ANM2D_XML	".xml"
 #define FILE_EXT_ANM2D_BIN	".anm2"
+#define FILE_EXT_JSON		".json"
 
 #define kVersion	"1.1.0"
 
@@ -376,6 +377,39 @@ void MainWindow::slot_reqFinished(QNetworkReply *reply)
 	}
 }
 
+void MainWindow::slot_exportJSON()
+{
+	if ( m_StrSaveFileName.isEmpty() ) {
+		QMessageBox::warning(this, trUtf8("エラー"), trUtf8("1度保存してください")) ;
+		return ;
+	}
+	int extPos = m_StrSaveFileName.lastIndexOf(".") ;
+	if ( extPos < 0 ) {
+		QMessageBox::warning(this, trUtf8("エラー"), trUtf8("1度保存してください")) ;
+		return ;
+	}
+	QString fileName = m_StrSaveFileName.left(extPos) + ".json" ;
+
+	CAnm2DJson data ;
+	if ( !data.makeFromEditData(m_EditData) ) {
+		if ( data.getErrorNo() != CAnm2DBase::kErrorNo_Cancel ) {
+			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("コンバート失敗 %1:\n%2").arg(fileName).arg(data.getErrorNo())) ;
+		}
+		return ;
+	}
+
+	QFile file(fileName) ;
+	if ( !file.open(QFile::WriteOnly) ) {
+		QMessageBox::warning(this, trUtf8("エラー"), trUtf8("保存失敗 %1:\n%2").arg(fileName).arg(file.errorString())) ;
+		return ;
+	}
+	file.write(data.getData().toAscii()) ;
+
+	QMessageBox msgBox ;
+	msgBox.setText(trUtf8("JSON吐き出し終了:")+fileName) ;
+	msgBox.exec() ;
+}
+
 #ifndef QT_NO_DEBUG
 void MainWindow::slot_dbgObjectDump( void )
 {
@@ -568,6 +602,10 @@ void MainWindow::createActions( void )
 	m_pActExportPNG = new QAction(trUtf8("連番PNG"), this) ;
 	connect(m_pActExportPNG, SIGNAL(triggered()), this, SLOT(slot_exportPNG())) ;
 
+	// JSON吐き出し
+	m_pActExportJson = new QAction(trUtf8("JSON"), this) ;
+	connect(m_pActExportJson, SIGNAL(triggered()), this, SLOT(slot_exportJSON())) ;
+
 	// 終了
 	m_pActExit = new QAction(trUtf8("E&xit"), this) ;
 	m_pActExit->setShortcuts(QKeySequence::Quit);
@@ -633,6 +671,7 @@ void MainWindow::createMenus( void )
 	{
 		QMenu *p = pMenu->addMenu(trUtf8("Export")) ;
 		p->addAction(m_pActExportPNG) ;
+		p->addAction(m_pActExportJson) ;
 	}
 	pMenu->addSeparator() ;
 	pMenu->addAction(m_pActExit) ;
@@ -786,6 +825,7 @@ bool MainWindow::saveFile( QString fileName )
 
 	m_EditData.sortFrameDatas() ;
 
+	// XML
 	if ( fileName.indexOf(FILE_EXT_ANM2D_XML) > 0 ) {
 		CAnm2DXml data(setting.getSaveImage()) ;
 		QProgressDialog prog(trUtf8("保存しています"), trUtf8("&Cancel"), 0, 100, this) ;

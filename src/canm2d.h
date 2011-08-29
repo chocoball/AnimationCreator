@@ -186,4 +186,25 @@ private:
 	bool			m_bSaveImage ;
 };
 
+// JSON形式
+class CAnm2DJson : public CAnm2DBase
+{
+public:
+	CAnm2DJson() ;
+
+	bool makeFromEditData( CEditData &rEditData ) ;
+	bool makeFromFile(QString &str, CEditData &rEditData) ;
+
+	QString getData()			{ return m_Data ; }
+	void addString(QString str)	{ m_Data += str ; }
+
+private:
+	bool makeObject( CEditData &rEditData ) ;
+	bool makeImage( CEditData &rEditData ) ;
+
+private:
+	QString			m_Data ;
+	int				m_ObjNum, m_ImageNum ;
+};
+
 #endif // CANM2D_H
