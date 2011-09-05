@@ -183,11 +183,15 @@ CObjectModel::typeID CObjectModel::getLayerIDFromFrameAndPos( typeID objID, int 
 	int z = 0 ;
 	if ( !p ) { return 0 ; }
 	for ( int i = 0 ; i < p->size() ; i ++ ) {
+		const int flag = p->at(i).first->data(Qt::CheckStateRole).toInt() ;
+		if ( !(flag & 0x01) || (flag & 0x02) ) { continue ; }	// hide or Lock
+
 		const FrameDataList &frameDataList = p->at(i).second ;
 		for ( int j = 0 ; j < frameDataList.size() ; j ++ ) {
 			const FrameData data = frameDataList.at(j) ;
 			if ( data.frame != frame ) { continue ; }
 			if ( !isFrameDataInPos(data, pos) ) { continue ; }
+
 			if ( !ret || z < data.pos_z ) {
 				ret = p->at(i).first ;
 				z = data.pos_z ;
