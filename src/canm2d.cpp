@@ -1252,7 +1252,6 @@ bool CAnm2DJson::makeObject( CEditData &rEditData )
 
 		for ( int j = 0 ; j < layerGroupList.size() ; j ++ ) {
 			const CObjectModel::LayerGroup &layerGroup = layerGroupList.at(j) ;
-			QStandardItem *pLayerID = layerGroup.first ;
 			const CObjectModel::FrameDataList &frameDataList = layerGroup.second ;
 
 			addString("      {\n") ;
@@ -1311,6 +1310,7 @@ bool CAnm2DJson::makeImage( CEditData &rEditData )
 
 bool CAnm2DJson::makeFromFile(QString &str, CEditData &rEditData)
 {
+	return false ;
 }
 
 

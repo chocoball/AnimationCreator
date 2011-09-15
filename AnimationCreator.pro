@@ -58,7 +58,8 @@ HEADERS		+=									\
 				src/colorpickerform.h			\
 				src/CBrightLabel.h				\
 				src/AnimationWindowSplitter.h	\
-				src/debug.h
+				src/debug.h \
+    src/include.h
 
 RESOURCES	+=	Resource.qrc
 
@@ -69,3 +70,4 @@ FORMS		+= 	ui/animationform.ui				\
 				ui/colorpickerform.ui
 
 CONFIG		+=	help
+

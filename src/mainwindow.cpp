@@ -117,7 +117,7 @@ void MainWindow::slot_open( void )
 	QString fileName = QFileDialog::getOpenFileName(
 											this,
 											tr("Open File"),
-											setting.getCurrentDir(),
+											setting.getOpenDir(),
 											tr("All Files (*);;Image Files (*.png *.bmp *.jpg);;Text (*"FILE_EXT_ANM2D_XML");;Bin (*"FILE_EXT_ANM2D_BIN")")) ;
 	if ( fileName.isEmpty() ) {
 		return ;
@@ -142,7 +142,7 @@ void MainWindow::slot_saveAs( void )
 {
 	QString str = QFileDialog::getSaveFileName(this,
 											   trUtf8("名前を付けて保存"),
-											   setting.getCurrentSaveDir(),
+											   setting.getSaveDir(),
 											   tr("Text (*"FILE_EXT_ANM2D_XML");;Bin (*"FILE_EXT_ANM2D_BIN")")) ;
 	if ( str.isEmpty() ) { return ; }
 
@@ -154,7 +154,7 @@ void MainWindow::slot_saveAs( void )
 		if ( index < 0 ) { return ; }
 
 		tmp.remove( index + 1, tmp.size() ) ;
-		setting.setCurrentSaveDir(tmp);
+		setting.setSaveDir(tmp);
 	}
 }
 
@@ -377,6 +377,7 @@ void MainWindow::slot_reqFinished(QNetworkReply *reply)
 	}
 }
 
+// JSON 吐き出し
 void MainWindow::slot_exportJSON()
 {
 	if ( m_StrSaveFileName.isEmpty() ) {
@@ -480,9 +481,9 @@ void MainWindow::readRootSetting( void )
 
 	move(pos) ;
 	resize(size) ;
-	setting.setCurrentDir(dir) ;
-	setting.setCurrentSaveDir(save_dir);
-	setting.setCurrentPNGDir(png_dir);
+	setting.setOpenDir(dir) ;
+	setting.setSaveDir(save_dir);
+	setting.setSavePngDir(png_dir);
 	setting.setAnimeBGColor(animeCol);
 	setting.setImageBGColor(imageCol);
 	setting.setSaveImage(bSaveImage);
@@ -514,9 +515,9 @@ void MainWindow::writeRootSetting( void )
 	QSettings settings("Editor", "rootSettings") ;
 #endif
 	settings.beginGroup("Global");
-	settings.setValue("cur_dir",		setting.getCurrentDir()) ;
-	settings.setValue("save_dir",		setting.getCurrentSaveDir()) ;
-	settings.setValue("png_dir",		setting.getCurrentPNGDir()) ;
+	settings.setValue("cur_dir",		setting.getOpenDir()) ;
+	settings.setValue("save_dir",		setting.getSaveDir()) ;
+	settings.setValue("png_dir",		setting.getSavePngDir()) ;
 	settings.setValue("anime_color",	setting.getAnimeBGColor().rgba());
 	settings.setValue("image_color",	setting.getImageBGColor().rgba());
 	settings.setValue("save_image",		setting.getSaveImage());
@@ -706,7 +707,7 @@ void MainWindow::setCurrentDir( QString &fileName )
 	if ( index < 0 ) { return ; }
 
 	tmp.remove( index + 1, tmp.size() ) ;
-	setting.setCurrentDir(tmp) ;
+	setting.setOpenDir(tmp) ;
 }
 
 // ウィンドウ達を作成
