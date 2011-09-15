@@ -58,7 +58,7 @@ public slots:
 
 	void slot_endedOption( void ) ;
 	void slot_changeDrawCenter( bool flag ) ;
-	void slot_dragedImage(CObjectModel::FrameData data) ;
+	void slot_dragedImage(FrameData data) ;
 
 private:
 	Ui::ImageWindow	*ui ;

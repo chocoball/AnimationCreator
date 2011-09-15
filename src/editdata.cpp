@@ -125,18 +125,18 @@ void CEditData::cmd_copyObject(CObjectModel::typeID objID, QList<QWidget *> &upd
 }
 
 // 選択しているフレームデータ取得
-bool CEditData::getNowSelectFrameData(CObjectModel::FrameData &data)
+bool CEditData::getNowSelectFrameData(FrameData &data)
 {
 	CObjectModel::typeID objID = getSelectObject() ;
 	CObjectModel::typeID layerID = getSelectLayer() ;
 	int frame = getSelectFrame() ;
 
-	CObjectModel::FrameData *pPrev = m_pObjectModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
+	FrameData *pPrev = m_pObjectModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
 	if ( !pPrev ) {
 		pPrev = m_pObjectModel->getFrameDataFromPrevFrame(objID, layerID, frame) ;
 		if ( !pPrev ) { return false ; }
 	}
-	CObjectModel::FrameData *pNext = m_pObjectModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
+	FrameData *pNext = m_pObjectModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
 	data = pPrev->getInterpolation(pNext, frame) ;
 	return true ;
 }
@@ -149,7 +149,7 @@ void CEditData::sortFrameDatas( void )
 		CObjectModel::ObjectGroup &objGroup = objList[i] ;
 
 		for ( int j = 0 ; j < objGroup.layerGroupList.size() ; j ++ ) {
-			CObjectModel::FrameDataList &frameDataList = objGroup.layerGroupList[j].second ;
+			FrameDataList &frameDataList = objGroup.layerGroupList[j].second ;
 
 			for ( int k = 0 ; k < frameDataList.size() ; k ++ ) {
 				for ( int l = 0 ; l < k ; l ++ ) {

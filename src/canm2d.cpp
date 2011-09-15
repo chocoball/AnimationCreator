@@ -44,7 +44,7 @@ bool CAnm2DBin::makeFromEditData( CEditData &rEditData )
 		for ( int j = 0 ; j < layerGroupList.size() ; j ++ ) {
 			const CObjectModel::LayerGroup &layerGroup = layerGroupList.at(j) ;
 			QStandardItem *pLayerItem = (QStandardItem *)layerGroup.first ;
-			const CObjectModel::FrameDataList &frameDataList = layerGroup.second ;
+			const FrameDataList &frameDataList = layerGroup.second ;
 
 			QByteArray layerArray ;
 			layerArray.resize(sizeof(Anm2DLayer) + (frameDataList.size()-1)*sizeof(unsigned int));
@@ -59,7 +59,7 @@ bool CAnm2DBin::makeFromEditData( CEditData &rEditData )
 			pObjData->nLayerNo[j] = pLayerData->nLayerNo ;	// オブジェクトが参照するレイヤ番号セット
 
 			for ( int k = 0 ; k < frameDataList.size() ; k ++ ) {
-				const CObjectModel::FrameData &data = frameDataList.at(k) ;
+				const FrameData &data = frameDataList.at(k) ;
 
 				QByteArray frameDataArray ;
 				frameDataArray.resize(sizeof(Anm2DFrameData)) ;
@@ -200,7 +200,7 @@ bool CAnm2DBin::makeHeader( QByteArray &rData, CEditData &rEditData )
 		const CObjectModel::LayerGroupList &layerGroupList = objList.at(i).layerGroupList ;
 		blockNum += layerGroupList.size() ;	// レイヤ数
 		for ( int j = 0 ; j < layerGroupList.size() ; j ++ ) {
-			const CObjectModel::FrameDataList &frameDataList = layerGroupList.at(j).second ;
+			const FrameDataList &frameDataList = layerGroupList.at(j).second ;
 			blockNum += frameDataList.size() ;	// フレームデータ数
 		}
 	}
@@ -336,7 +336,7 @@ bool CAnm2DBin::addLayer(Anm2DHeader *pHeader, CEditData &rEditData)
 						newItem->setData(true, Qt::CheckStateRole);
 						pObjItem->appendRow(newItem);
 
-						CObjectModel::LayerGroup layerGroup = qMakePair(newItem, CObjectModel::FrameDataList()) ;
+						CObjectModel::LayerGroup layerGroup = qMakePair(newItem, FrameDataList()) ;
 						objList[j].layerGroupList.append(layerGroup);
 					}
 				}
@@ -357,7 +357,7 @@ bool CAnm2DBin::addLayer(Anm2DHeader *pHeader, CEditData &rEditData)
 						newItem->setData(true, Qt::CheckStateRole);
 						pObjItem->appendRow(newItem);
 
-						CObjectModel::LayerGroup layerGroup = qMakePair(newItem, CObjectModel::FrameDataList()) ;
+						CObjectModel::LayerGroup layerGroup = qMakePair(newItem, FrameDataList()) ;
 						objList[j].layerGroupList.append(layerGroup);
 					}
 				}
@@ -407,11 +407,11 @@ bool CAnm2DBin::addFrameData(Anm2DHeader *pHeader, CEditData &rEditData)
 							return false ;
 						}
 
-						CObjectModel::FrameDataList &frameDataList = layerGroupList[layerNum].second ;
+						FrameDataList &frameDataList = layerGroupList[layerNum].second ;
 						for ( int frameNum = 0 ; frameNum < pLayer->nFrameDataNum ; frameNum ++ ) {
 							if ( pLayer->nFrameDataNo[frameNum] != pFrame->nFrameDataNo ) { continue ; }
 
-							CObjectModel::FrameData data ;
+							FrameData data ;
 							data.frame		= pFrame->nFrame ;
 							data.pos_x		= pFrame->pos_x ;
 							data.pos_y		= pFrame->pos_y ;
@@ -445,7 +445,7 @@ bool CAnm2DBin::addFrameData(Anm2DHeader *pHeader, CEditData &rEditData)
 					CObjectModel::LayerGroupList &layerGroupList = objList[objNum].layerGroupList ;
 					for ( int layerGroupNum = 0 ; layerGroupNum < layerGroupList.size() ; layerGroupNum ++ ) {
 						QStandardItem *pLayerItem = (QStandardItem *)layerGroupList[layerGroupNum].first ;
-						CObjectModel::FrameDataList &frameDataList = layerGroupList[layerGroupNum].second ;
+						FrameDataList &frameDataList = layerGroupList[layerGroupNum].second ;
 						Anm2DLayer *pLayer = search2DLayerFromName(pHeader, pLayerItem->text()) ;
 						if ( !pLayer ) {
 							qDebug() << pLayerItem->text() ;
@@ -455,7 +455,7 @@ bool CAnm2DBin::addFrameData(Anm2DHeader *pHeader, CEditData &rEditData)
 						for ( int j = 0 ; j < pLayer->nFrameDataNum ; j ++ ) {
 							if ( pLayer->nFrameDataNo[j] != pFrame->nFrameDataNo ) { continue ; }
 
-							CObjectModel::FrameData data ;
+							FrameData data ;
 							data.frame		= pFrame->nFrame ;
 							data.pos_x		= pFrame->pos_x ;
 							data.pos_y		= pFrame->pos_y ;
@@ -698,7 +698,7 @@ bool CAnm2DXml::makeObject(QDomElement &element, QDomDocument &doc, CEditData &r
 		for ( int j = 0 ; j < layerGroupList.size() ; j ++ ) {
 			const CObjectModel::LayerGroup &layerGroup = layerGroupList.at(j) ;
 			QStandardItem *pLayerID = layerGroup.first ;
-			const CObjectModel::FrameDataList &frameDataList = layerGroup.second ;
+			const FrameDataList &frameDataList = layerGroup.second ;
 
 			QDomElement elmLayer = doc.createElement(kAnmXML_ID_Layer) ;
 			elmLayer.setAttribute(kAnmXML_Attr_Name, QString(pLayerID->text().toUtf8()));
@@ -707,7 +707,7 @@ bool CAnm2DXml::makeObject(QDomElement &element, QDomDocument &doc, CEditData &r
 			elmObj.appendChild(elmLayer) ;
 
 			for ( int k = 0 ; k < frameDataList.size() ; k ++ ) {
-				const CObjectModel::FrameData &data = frameDataList.at(k) ;
+				const FrameData &data = frameDataList.at(k) ;
 
 				QDomElement elmFrameData = doc.createElement(kAnmXML_ID_FrameData) ;
 				QDomElement elmTmp ;
@@ -1001,11 +1001,11 @@ bool CAnm2DXml::addLayer( QDomNode &node, CObjectModel::LayerGroupList &layerGro
 }
 
 // フレームデータを追加
-bool CAnm2DXml::addFrameData( QDomNode &node, CObjectModel::FrameDataList &frameDataList, int maxFrameDataNum )
+bool CAnm2DXml::addFrameData( QDomNode &node, FrameDataList &frameDataList, int maxFrameDataNum )
 {
 	while ( !node.isNull() ) {
 		if ( node.nodeName() == kAnmXML_ID_FrameData ) {
-			CObjectModel::FrameData data ;
+			FrameData data ;
 			memset( &data, 0, sizeof(data) ) ;
 
 			QDomNode dataNode = node.firstChild() ;
@@ -1252,12 +1252,12 @@ bool CAnm2DJson::makeObject( CEditData &rEditData )
 
 		for ( int j = 0 ; j < layerGroupList.size() ; j ++ ) {
 			const CObjectModel::LayerGroup &layerGroup = layerGroupList.at(j) ;
-			const CObjectModel::FrameDataList &frameDataList = layerGroup.second ;
+			const FrameDataList &frameDataList = layerGroup.second ;
 
 			addString("      {\n") ;
 			addString("        \"frame\": [\n") ;
 			for ( int k = 0 ; k < frameDataList.size() ; k ++ ) {
-				const CObjectModel::FrameData &data = frameDataList.at(k) ;
+				const FrameData &data = frameDataList.at(k) ;
 				CEditData::ImageData *pImageData = rEditData.getImageDataFromNo(data.nImage) ;
 				int extPos = pImageData->fileName.lastIndexOf("/") ;
 				QString path ;

@@ -90,7 +90,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 						   ui->treeView->height());
 
 	{
-		QStandardItemModel *pTreeModel = m_pEditData->getTreeModel() ;
+        CObjectModel *pTreeModel = m_pEditData->getTreeModel() ;
 
 		ui->treeView->setModel(pTreeModel);
 		ui->treeView->header()->setHidden(true);

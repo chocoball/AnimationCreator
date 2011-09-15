@@ -175,7 +175,7 @@ void AnimeGLWidget::drawLayers_Anime()
 	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
 	if ( !pModel->getLayerGroupListFromID(objID) ) { return ; }
 
-	QList<CObjectModel::FrameData> sort ;
+    QList<FrameData> sort ;
 	QList<bool> select ;
 
 	const CObjectModel::LayerGroupList &layerGroupList = *pModel->getLayerGroupListFromID(objID) ;
@@ -184,11 +184,11 @@ void AnimeGLWidget::drawLayers_Anime()
 		QStandardItem *pLayerItem = layerID ;
 		if ( !(pLayerItem->data(Qt::CheckStateRole).toInt() & 0x01) ) { continue ; }	// 非表示
 
-		const CObjectModel::FrameData *pNow = pModel->getFrameDataFromPrevFrame(objID, layerID, frame+1) ;
-		const CObjectModel::FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
+        const FrameData *pNow = pModel->getFrameDataFromPrevFrame(objID, layerID, frame+1) ;
+        const FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
 
 		if ( !pNow ) { continue ; }
-		const CObjectModel::FrameData data = pNow->getInterpolation(pNext, frame) ;
+        const FrameData data = pNow->getInterpolation(pNext, frame) ;
 		sort.append(data);
 
 		select.append(m_pEditData->getSelectLayer() == layerID) ;
@@ -226,11 +226,11 @@ void AnimeGLWidget::drawLayers_All( void )
 	for ( int frame = 0 ; frame <= maxFrame ; frame ++ ) {
 		for ( int i = 0 ; i < pLayerGroupList->size() ; i ++ ) {
 			CObjectModel::typeID layerID = pLayerGroupList->at(i).first ;
-			const CObjectModel::FrameData *pNow = pModel->getFrameDataFromPrevFrame(objID, layerID, frame+1) ;
-			const CObjectModel::FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
+            const FrameData *pNow = pModel->getFrameDataFromPrevFrame(objID, layerID, frame+1) ;
+            const FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
 
 			if ( !pNow ) { continue ; }
-			const CObjectModel::FrameData data = pNow->getInterpolation(pNext, frame) ;
+            const FrameData data = pNow->getInterpolation(pNext, frame) ;
 			drawFrameData(data);
 		}
 	}
@@ -253,7 +253,7 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 	}
 
 	for ( int i = 0 ; i < m_pEditData->getSelectFrameDataNum() ; i ++ ) {
-		const CObjectModel::FrameData *pData = m_pEditData->getSelectFrameData(i) ;
+        const FrameData *pData = m_pEditData->getSelectFrameData(i) ;
 		if ( !pData ) { continue ; }
 
 		m_centerPos = QPoint(pData->pos_x, pData->pos_y) ;
@@ -297,25 +297,13 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 		}
 	}
 
-	// レイヤ複数選択中のマウス枠
-	if ( m_dragMode == kDragMode_SelPlural ) {
-		drawLine(QPoint(m_SelPluralStartPos.x(), m_SelPluralStartPos.y()),
-				 QPoint(m_SelPluralStartPos.x(), m_SelPluralEndPos.y()), col, 0);
-		drawLine(QPoint(m_SelPluralStartPos.x(), m_SelPluralStartPos.y()),
-				 QPoint(m_SelPluralEndPos.x(), m_SelPluralStartPos.y()), col, 0);
-		drawLine(QPoint(m_SelPluralEndPos.x(), m_SelPluralEndPos.y()),
-				 QPoint(m_SelPluralEndPos.x(), m_SelPluralStartPos.y()), col, 0);
-		drawLine(QPoint(m_SelPluralEndPos.x(), m_SelPluralEndPos.y()),
-				 QPoint(m_SelPluralStartPos.x(), m_SelPluralEndPos.y()), col, 0);
-	}
-
 	glEnable(GL_ALPHA_TEST);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D) ;
 }
 
 // フレームデータ描画
-void AnimeGLWidget::drawFrameData( const CObjectModel::FrameData &data, QColor col )
+void AnimeGLWidget::drawFrameData( const FrameData &data, QColor col )
 {
 	CEditData::ImageData *p = m_pEditData->getImageDataFromNo(data.nImage) ;
 	if ( !p ) { return ; }
@@ -355,7 +343,7 @@ void AnimeGLWidget::drawFrameData( const CObjectModel::FrameData &data, QColor c
 }
 
 // フレームデータの枠描画
-void AnimeGLWidget::drawFrame( const CObjectModel::FrameData &data, QColor col)
+void AnimeGLWidget::drawFrame( const FrameData &data, QColor col)
 {
 	Vertex v = data.getVertex() ;
 
@@ -403,7 +391,7 @@ void AnimeGLWidget::drawGrid( void )
 
 void AnimeGLWidget::drawCenter( void )
 {
-	CObjectModel::FrameData data ;
+    FrameData data ;
 	if ( !m_pEditData->getNowSelectFrameData(data) ) { return ; }
 
 	QColor col = QColor(0, 0, 255, 255) ;
@@ -519,10 +507,10 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 					// 既に現在のフレームにデータがあったら調べない
 					if ( pModel->getFrameDataFromIDAndFrame(objID, tmpLayerID, frame) ) { continue ; }
 
-					CObjectModel::FrameData *pPrev = pModel->getFrameDataFromPrevFrame(objID, tmpLayerID, frame, false) ;
+                    FrameData *pPrev = pModel->getFrameDataFromPrevFrame(objID, tmpLayerID, frame, false) ;
 					if ( !pPrev ) { continue ; }
-					CObjectModel::FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, tmpLayerID, frame) ;
-					CObjectModel::FrameData data = pPrev->getInterpolation(pNext, frame) ;
+                    FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, tmpLayerID, frame) ;
+                    FrameData data = pPrev->getInterpolation(pNext, frame) ;
 					if ( !pModel->isFrameDataInPos(data, localPos) ) { continue ; }
 
 					layerID = tmpLayerID ;
@@ -540,7 +528,7 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 				return ;
 			}
 
-			CObjectModel::FrameData *p = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
+            FrameData *p = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
 			if ( p ) {
 				m_rotStart = (float)p->rot_z*M_PI/180.0f ;
 			}
@@ -581,7 +569,7 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 		}
 
 		{
-			CObjectModel::FrameData *pData = NULL ;
+            FrameData *pData = NULL ;
 			QPoint old = m_DragOffset ;
 			for ( int i = 0 ; i < m_pEditData->getSelectFrameDataNum() ; i ++ ) {
 				pData = m_pEditData->getSelectFrameData(i) ;
@@ -594,25 +582,12 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 
 			if ( pData ) {
 				CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
-				CObjectModel::FrameData *p = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
+                FrameData *p = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
 				*p = *pData ;
 			}
 		}
 
 		update() ;
-		break ;
-	case kDragMode_SelPlural:
-		{
-			m_SelPluralEndPos = event->pos() - QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) ;
-			QRect rc ;
-			rc.setLeft(m_SelPluralStartPos.x()<m_SelPluralEndPos.x()?m_SelPluralStartPos.x():m_SelPluralEndPos.x());
-			rc.setRight(m_SelPluralStartPos.x()<m_SelPluralEndPos.x()?m_SelPluralEndPos.x():m_SelPluralStartPos.x());
-			rc.setTop(m_SelPluralStartPos.y()<m_SelPluralEndPos.y()?m_SelPluralStartPos.y():m_SelPluralEndPos.y());
-			rc.setBottom(m_SelPluralStartPos.y()<m_SelPluralEndPos.y()?m_SelPluralEndPos.y():m_SelPluralStartPos.y());
-			QList<CObjectModel::typeID> selLayers = pModel->getFrameDatasFromRect(objID, frame, rc) ;
-			m_pEditData->setSelectLayer(selLayers);
-			update() ;
-		}
 		break ;
 	}
 
@@ -630,18 +605,6 @@ void AnimeGLWidget::mouseReleaseEvent(QMouseEvent *event)
 	switch ( m_dragMode ) {
 	case kDragMode_Edit:
 		emit sig_frameDataMoveEnd() ;
-		break ;
-	case kDragMode_SelPlural:
-		{
-			m_SelPluralEndPos = event->pos() - QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) ;
-			QRect rc ;
-			rc.setLeft(m_SelPluralStartPos.x()<m_SelPluralEndPos.x()?m_SelPluralStartPos.x():m_SelPluralEndPos.x());
-			rc.setRight(m_SelPluralStartPos.x()<m_SelPluralEndPos.x()?m_SelPluralEndPos.x():m_SelPluralStartPos.x());
-			rc.setTop(m_SelPluralStartPos.y()<m_SelPluralEndPos.y()?m_SelPluralStartPos.y():m_SelPluralEndPos.y());
-			rc.setBottom(m_SelPluralStartPos.y()<m_SelPluralEndPos.y()?m_SelPluralEndPos.y():m_SelPluralStartPos.y());
-			selLayers = pModel->getFrameDatasFromRect(objID, frame, rc) ;
-			emit sig_selectLayerChanged(selLayers) ;
-		}
 		break ;
 	}
 	m_dragMode = kDragMode_None ;
@@ -664,7 +627,7 @@ void AnimeGLWidget::contextMenuEvent(QContextMenuEvent *event)
 /**
   データ編集
   */
-QPoint AnimeGLWidget::editData(CObjectModel::FrameData *pData, QPoint nowPos, QPoint oldPos)
+QPoint AnimeGLWidget::editData(FrameData *pData, QPoint nowPos, QPoint oldPos)
 {
 	if ( !pData ) {
 		return QPoint(0, 0) ;

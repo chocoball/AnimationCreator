@@ -24,7 +24,6 @@ void CDataMarkerLabel::paintEvent(QPaintEvent */*event*/)
 		}
 	}
 	else {	// レイヤ選択中
-#if 1
 		// 非選択のレイヤ
 		painter.setPen(QPen(QColor(0, 0, 255, 128)));
 		for ( i = 0 ; i < pLayerGroupList->size() ; i ++ ) {
@@ -36,7 +35,7 @@ void CDataMarkerLabel::paintEvent(QPaintEvent */*event*/)
 			if ( j != m_pEditData->getSelectLayerNum() ) { continue ; }
 			drawLine(pLayerGroupList->at(i).second, painter) ;
 		}
-#endif
+
 		// 選択中のレイヤ
 		painter.setPen(QPen(QColor(255, 0, 0)));
 		for ( i = 0 ; i < pLayerGroupList->size() ; i ++ ) {
@@ -51,10 +50,10 @@ void CDataMarkerLabel::paintEvent(QPaintEvent */*event*/)
 	}
 }
 
-void CDataMarkerLabel::drawLine( const CObjectModel::FrameDataList &frameDataList, QPainter &painter )
+void CDataMarkerLabel::drawLine( const QModelIndex &indexLayer, QPainter &painter )
 {
 	for ( int i = 0 ; i < frameDataList.size() ; i ++ ) {
-		const CObjectModel::FrameData data = frameDataList.at(i) ;
+		const FrameData data = frameDataList.at(i) ;
 		int x = (width()-1) * data.frame / CEditData::kMaxFrame ;
 		painter.drawLine(x, 0, x, height());
 	}

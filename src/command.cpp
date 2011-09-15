@@ -57,7 +57,7 @@ Command_AddFrameData::Command_AddFrameData(CEditData		*pEditData,
 
 void Command_AddFrameData::redo()
 {
-	CObjectModel::FrameDataList *pFrameDataList = m_pObjModel->getFrameDataListFromID(m_objID, m_layerID) ;
+	FrameDataList *pFrameDataList = m_pObjModel->getFrameDataListFromID(m_objID, m_layerID) ;
 	if ( !pFrameDataList ) {
 		qDebug() << "ERROR:Command_AddFrameData::redo" ;
 		return ;
@@ -84,7 +84,7 @@ void Command_AddFrameData::redo()
 
 void Command_AddFrameData::undo()
 {
-	CObjectModel::FrameDataList *pFrameDataList = m_pObjModel->getFrameDataListFromID(m_objID, m_layerID) ;
+	FrameDataList *pFrameDataList = m_pObjModel->getFrameDataListFromID(m_objID, m_layerID) ;
 	if ( !pFrameDataList ) {
 		qDebug() << "ERROR:Command_AddFrameData::undo" ;
 		return ;
@@ -118,7 +118,7 @@ Command_DelFrameData::Command_DelFrameData(CEditData			*pEditData,
 
 void Command_DelFrameData::redo()
 {
-	CObjectModel::FrameDataList *pFrameDataList = m_pObjModel->getFrameDataListFromID(m_objID, m_layerID) ;
+	FrameDataList *pFrameDataList = m_pObjModel->getFrameDataListFromID(m_objID, m_layerID) ;
 	if ( !pFrameDataList ) {
 		qDebug() << "ERROR:Command_DelFrameData::redo 0" ;
 		return ;
@@ -143,7 +143,7 @@ void Command_DelFrameData::redo()
 
 void Command_DelFrameData::undo()
 {
-	CObjectModel::FrameDataList *pFrameDataList = m_pObjModel->getFrameDataListFromID(m_objID, m_layerID) ;
+	FrameDataList *pFrameDataList = m_pObjModel->getFrameDataListFromID(m_objID, m_layerID) ;
 	if ( !pFrameDataList ) {
 		qDebug() << "ERROR:Command_DelFrameData::undo 0" ;
 		return ;
@@ -198,7 +198,7 @@ Command_EditFrameData::Command_EditFrameData(CEditData			*pEditData,
 void Command_EditFrameData::redo()
 {
 	for ( int i = 0 ; i < m_layerIDs.size() ; i ++ ) {
-		CObjectModel::FrameData *p = m_pObjModel->getFrameDataFromIDAndFrame(m_objID, m_layerIDs[i], m_Frame) ;
+		FrameData *p = m_pObjModel->getFrameDataFromIDAndFrame(m_objID, m_layerIDs[i], m_Frame) ;
 		if ( !p ) {
 			qDebug() << "ERROR:Command_EditFrameData::redo 0" << i ;
 			continue ;
@@ -226,7 +226,7 @@ void Command_EditFrameData::redo()
 void Command_EditFrameData::undo()
 {
 	for ( int i = 0 ; i < m_layerIDs.size() ; i ++ ) {
-		CObjectModel::FrameData *p = m_pObjModel->getFrameDataFromIDAndFrame(m_objID, m_layerIDs[i], m_Frame) ;
+		FrameData *p = m_pObjModel->getFrameDataFromIDAndFrame(m_objID, m_layerIDs[i], m_Frame) ;
 		if ( !p ) {
 			qDebug() << "ERROR:Command_EditFrameData::undo" << i ;
 			continue ;
