@@ -992,3 +992,4 @@ void MainWindow::makeAnimeWindow( void )
 
 	connect(m_pSubWindow_Anm, SIGNAL(destroyed()), this, SLOT(slot_destroyAnmWindow())) ;
 }
+

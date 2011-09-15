@@ -20,7 +20,7 @@ public:
 
 	enum {
 		kMaxFrame	= 1024,		// 最大アニメーションフレーム数
-		kGLWidgetSize = 2048,	// アニメーションのGLWidgetのサイズ
+		kGLWidgetSize = 2048	// アニメーションのGLWidgetのサイズ
 	} ;
 
 	// edit mode
@@ -28,31 +28,15 @@ public:
 		kEditMode_Animation = 0,
 		kEditMode_ExportPNG,
 
-		kEditMode_Num,
+		kEditMode_Num
 	} ;
 
 public:
 	CEditData() ;
 	~CEditData() ;
 
-	void setEditMode( int mode )
-	{
-		m_editMode = mode ;
-	}
-	int getEditMode( void )
-	{
-		return m_editMode ;
-	}
-
-	void setImageData( QList<ImageData> &data )
-	{
-		m_ImageDataList = data ;
-	}
-
-	void addImageData(ImageData &data)
-	{
-		m_ImageDataList.append(data) ;
-	}
+	void setImageData( QList<ImageData> &data ) { m_ImageDataList = data ; }
+	void addImageData(ImageData &data) { m_ImageDataList.append(data) ; }
 
 	int getImageDataListSize( void ) { return m_ImageDataList.size() ; }
 
@@ -85,250 +69,40 @@ public:
 		}
 	}
 
-#if 0
-	void setImageDataByIndex( int index, ImageData &data )
-	{
-		data.nNo = index ;
-		m_ImageData.insert(index, data);
-	}
-
-	void addImageData( ImageData &data )
-	{
-		data.nNo = m_ImageData.size() ;
-		m_ImageData.append(data) ;
-	}
-
-	void	setImage( int index, QImage &image )
-	{
-		if ( index < 0 || index >= m_ImageData.size() ) {
-			return ;
-		}
-		m_ImageData[index].Image = image ;
-	}
-
-	QImage	&getImage( int index )
-	{
-		if ( index < 0 || index >= m_ImageData.size() ) {
-			static QImage image ;
-			return image ;
-		}
-
-		return m_ImageData[index].Image ;
-	}
-	QImage &getImageFromNo( int no )
-	{
-		for ( int i = 0 ; i < m_ImageData.size() ; i ++ ) {
-			if ( m_ImageData[i].nNo == no ) {
-				return m_ImageData[i].Image ;
-			}
-		}
-		static QImage image ;
-		return image ;
-	}
-	void setImageFileName( int index, QString &name )
-	{
-		if ( index < 0 || index >= m_ImageData.size() ) {
-			return ;
-		}
-		m_ImageData[index].fileName = name ;
-	}
-	QString &getImageFileName( int index )
-	{
-		if ( index < 0 || index >= m_ImageData.size() ) {
-			static QString str ;
-			return str ;
-		}
-		return m_ImageData[index].fileName ;
-	}
-
-	void setImageDataLastModified( int index, QDateTime &time )
-	{
-		if ( index < 0 || index >= m_ImageData.size() ) {
-			return ;
-		}
-		m_ImageData[index].lastModified = time ;
-	}
-	QDateTime &getImageDataLastModified( int index )
-	{
-		if ( index < 0 || index >= m_ImageData.size() ) {
-			static QDateTime time ;
-			return time ;
-		}
-		return m_ImageData[index].lastModified ;
-	}
-
-	void removeImageData( int index )
-	{
-		if ( index < 0 || index >= m_ImageData.size() ) {
-			return ;
-		}
-		if ( m_ImageData[index].nTexObj ) {
-			glDeleteTextures(1, &m_ImageData[index].nTexObj);
-		}
-		m_ImageData.removeAt(index);
-	}
-
-	void	setTexObj( int index, GLuint texObj )
-	{
-		if ( index < 0 || index >= m_ImageData.size() ) {
-			return ;
-		}
-		m_ImageData[index].nTexObj = texObj ;
-	}
-	GLuint	getTexObj( int index )
-	{
-#if 1
-		for ( int i = 0 ; i < m_ImageData.size() ; i ++ ) {
-			if ( m_ImageData[i].nNo == no ) {
-				return m_ImageData[i].nTexObj ;
-			}
-		}
-		return 0 ;
-#else
-		if ( index < 0 || index >= m_ImageData.size() ) { return 0 ; }
-		return m_ImageData[index].nTexObj ;
-#endif
-	}
-	GLuint	getTexObjFormNo( int no )
-	{
-		for ( int i = 0 ; i < m_ImageData.size() ; i ++ ) {
-			if ( m_ImageData[i].nNo == no ) {
-				return m_ImageData[i].nTexObj ;
-			}
-		}
-		return 0 ;
-	}
-	void setOriginalImageSize( int index, int w, int h )
-	{
-		if ( index < 0 || index >= m_ImageData.size() ) {
-			return ;
-		}
-		m_ImageData[index].origImageW = w ;
-		m_ImageData[index].origImageH = h ;
-	}
-	void getOriginalImageSize( int index, int &w, int &h )
-	{
-		w = 0 ;
-		h = 0 ;
-		if ( index < 0 || index >= m_ImageData.size() ) {
-			return ;
-		}
-		w = m_ImageData[index].origImageW ;
-		h = m_ImageData[index].origImageH ;
-	}
-#endif
-	void	setCatchRect( QRect &rect )	{ m_CatchRect = rect ; }
-	QRect	&getCatchRect( void )		{ return m_CatchRect ; }
-
-	void	setCenter( QPoint &cen )	{ m_Center = cen ; }
-	QPoint	&getCenter( void )			{ return m_Center ; }
-
-	void setSelectObject( CObjectModel::typeID objID )
-	{
-		m_SelectObject = objID ;
-	}
-	CObjectModel::typeID getSelectObject( void )		{ return m_SelectObject ; }
-
-	void setSelectLayer( QList<CObjectModel::typeID> &layerID )
-	{
-		m_SelectLayer = layerID ;
-		updateSelectData();
-	}
-
-	CObjectModel::typeID getSelectLayer( int index = 0 )
-	{
-		if ( index >= m_SelectLayer.size() ) {
-			return 0 ;
-		}
-		return m_SelectLayer[index] ;
-	}
-	QList<CObjectModel::typeID> &getSelectLayers( void )
-	{
-		return m_SelectLayer ;
-	}
-
-	int getSelectLayerNum( void )
-	{
-		return m_SelectLayer.size() ;
-	}
-	bool isSelectedLayer( CObjectModel::typeID layerID )
-	{
-		return m_SelectLayer.indexOf(layerID) >= 0 ;
-	}
-
-	void	setSelectFrame( int frame )	{ m_SelectFrame = frame ; }
-	int		getSelectFrame( void )		{ return m_SelectFrame ; }
-
-	void updateSelectData( void )
-	{
-		m_SelectData.clear();
-		for ( int i = 0 ; i < m_SelectLayer.size() ; i ++ ) {
-			CObjectModel::FrameData *p = m_pObjectModel->getFrameDataFromIDAndFrame(m_SelectObject,
-																					m_SelectLayer[i],
-																					m_SelectFrame) ;
-			if ( !p ) { continue ; }
-			m_SelectData.insert(i, *p);
-		}
-	}
-	CObjectModel::FrameData *getSelectFrameData( int index )
-	{
-		if ( index >= m_SelectData.size() ) {
-			return NULL ;
-		}
-		return &m_SelectData[index] ;
-	}
-	int getSelectFrameDataNum( void )
-	{
-		return m_SelectData.size() ;
-	}
-
-	void	setPlayAnime( bool flag )	{ m_bPlayAnime = flag ; }
-	bool	isPlayAnime( void )			{ return m_bPlayAnime ; }
-
-	void	setPauseAnime( bool flag )	{ m_bPauseAnime = flag ; }
-	bool	isPauseAnime( void )		{ return m_bPauseAnime ; }
-
-	void	setDraggingImage( bool f )	{ m_bDraggingImage = f ; }
-	bool	isDraggingImage( void )		{ return m_bDraggingImage ; }
-
 	CObjectModel		*getObjectModel( void )	{ return m_pObjectModel ; }
-	QStandardItemModel	*getTreeModel( void )	{ return m_pTreeModel ; }
 	QUndoStack			*getUndoStack( void )	{ return m_pUndoStack ; }
 
 	void	resetData( void ) ;
 	void	initData( void ) ;
 
-	CObjectModel::typeID cmd_addNewObject( QString &str ) ;
-	void cmd_delObject(QModelIndex index, QLabel *pMarkerLabel) ;
-	void cmd_addNewLayer( QModelIndex index, QStandardItem *newItem, CObjectModel::LayerGroup &layerGroup, QList<QWidget *> &updateWidget ) ;
-	void cmd_addNewFrameData( CObjectModel::typeID objID, CObjectModel::typeID layerID, CObjectModel::FrameData &data, QList<QWidget *> &updateWidget ) ;
-	void cmd_delFrameData( CObjectModel::typeID	objID,
-						   CObjectModel::typeID	layerID,
+	QModelIndex cmd_addItem(QString &str, QModelIndex &parent) ;
+	void cmd_delItem(QModelIndex &index) ;
+
+	void cmd_addNewFrameData( QModelIndex &index, FrameData &data, QList<QWidget *> &updateWidget ) ;
+	void cmd_delFrameData( QModelIndex			&index,
 						   int					frame,
 						   QList<QWidget *>		&updateWidget ) ;
-	void cmd_editFrameData( CObjectModel::typeID			objID,
-							QList<CObjectModel::typeID>		&layerIDs,
-							int								frame,
-							QList<CObjectModel::FrameData>	&datas,
-							QList<QWidget *>				&updateWidget ) ;
-	void cmd_copyObject(CObjectModel::typeID objID, QList<QWidget *> &updateWidget) ;
+	void cmd_editFrameData( QModelIndex			&index,
+							int					frame,
+							QList<FrameData>	&datas,
+							QList<QWidget *>	&updateWidget ) ;
+	void cmd_copyObject(QModelIndex &index, QList<QWidget *> &updateWidget) ;
 
 	void setCurrLoopNum( int num )
 	{
-		if ( getSelectObject() == 0 ) { return ; }
-		CObjectModel::ObjectGroup *p = m_pObjectModel->getObjectGroupFromID(getSelectObject()) ;
+		ObjectItem *p = m_pObjectModel->getObject(m_selIndex) ;
 		if ( !p ) { return ; }
-		p->nCurrentLoop = num ;
+		p->setCurrLoop(num) ;
 	}
 	bool addCurrLoopNum( int num )
 	{
-		if ( getSelectObject() == 0 ) { return true ; }
-		CObjectModel::ObjectGroup *p = m_pObjectModel->getObjectGroupFromID(getSelectObject()) ;
+		ObjectItem *p = m_pObjectModel->getObject(m_selIndex) ;
 		if ( !p ) { return true ; }
-		p->nCurrentLoop += num ;
-		if ( p->nLoop < 0 ) { return false ; }	// 無限ループ
-		return (p->nCurrentLoop > p->nLoop) ;
+		p->setCurrLoop(p->getCurrLoop() + num) ;
+		if ( p->getLoop() < 0 ) { return false ; }	// 無限ループ
+		return p->getCurrLoop() > p->getLoop() ? true : false ;
 	}
+
 
 	// 連番PNG保存関連 ----------------------
 	void startExportPNG( QString dir )
@@ -380,12 +154,12 @@ public:
 	// --------------------------------------
 
 	// フレームデータ コピー関連 ------------
-	void setCopyFrameData( CObjectModel::FrameData data )
+	void setCopyFrameData( FrameData data )
 	{
 		m_CopyFrameData = data ;
 		m_bCopyFrameData = true ;
 	}
-	CObjectModel::FrameData getCopyFrameData( void )
+	FrameData getCopyFrameData( void )
 	{
 		return m_CopyFrameData ;
 	}
@@ -396,46 +170,43 @@ public:
 	// --------------------------------------
 
 	// レイヤコピー関連 ----------------------
-	void setCopyLayer( CObjectModel::LayerGroup layerGroup )
+	void setCopyLayer( ObjectItem *p )
 	{
-		m_CopyLayerGroup = layerGroup ;
-		m_bCopyLayerGroup = true ;
+		if ( m_pCopyLayer ) {
+			delete m_pCopyLayer ;
+		}
+		m_pCopyLayer = new ObjectItem("copy", NULL) ;
+		m_pCopyLayer->copy(p) ;
+		m_bCopyLayer = true ;
 	}
-	CObjectModel::LayerGroup getCopyLayer( void )
+	ObjectItem *getCopyLayer( void )
 	{
-		return m_CopyLayerGroup ;
+		return m_pCopyLayer ;
 	}
 	bool isCopyLayer( void )
 	{
-		return m_bCopyLayerGroup ;
+		return m_bCopyLayer ;
 	}
 	// --------------------------------------
 
-	bool getNowSelectFrameData(CObjectModel::FrameData &data) ;
+	bool getNowSelectFrameData(FrameData &data) ;
 
 	void sortFrameDatas( void ) ;
 
-private:
-	int								m_editMode ;
+	kAccessor(int, m_editMode, EditMode)
+	kAccessor(QRect, m_catchRect, CatchRect)
+	kAccessor(QPoint, m_center, Center)
+	kAccessor(QModelIndex, m_selIndex, SelIndex)
+	kAccessor(bool, m_bPlayAnime, PlayAnime)
+	kAccessor(bool, m_bPauseAnime, PauseAnime)
+	kAccessor(bool, m_bDraggingImage, DraggingImage)
+	kAccessor(int, m_selectFrame, SelectFrame)
 
+private:
 	QList<ImageData>				m_ImageDataList ;
 
-	QRect							m_CatchRect ;
-	QPoint							m_Center ;
-
-	CObjectModel::typeID			m_SelectObject ;
-	QList<CObjectModel::typeID>		m_SelectLayer ;
-	int								m_SelectFrame ;
-
-	QList<CObjectModel::FrameData>	m_SelectData ;
-
 	CObjectModel					*m_pObjectModel ;
-	QStandardItemModel				*m_pTreeModel ;
 	QUndoStack						*m_pUndoStack ;
-
-	bool							m_bPlayAnime ;
-	bool							m_bPauseAnime ;
-	bool							m_bDraggingImage ;
 
 	bool							m_bExportPNG ;
 	QString							m_strExportPNGDir ;
@@ -443,10 +214,10 @@ private:
 	int								m_nExportEndFrame ;	// 吐き出し終わったフレーム
 
 	bool							m_bCopyFrameData ;
-	CObjectModel::FrameData			m_CopyFrameData ;
+	FrameData						m_CopyFrameData ;
 
-	bool							m_bCopyLayerGroup ;
-	CObjectModel::LayerGroup		m_CopyLayerGroup ;
+	bool							m_bCopyLayer ;
+	ObjectItem						*m_pCopyLayer ;
 } ;
 
 #endif // EDITDATA_H

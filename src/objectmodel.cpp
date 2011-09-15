@@ -6,17 +6,19 @@
 // CObjectModel
 //
 // ---------------------------------------------------------------------------------
-CObjectModel::CObjectModel()
+CObjectModel::CObjectModel(QObject *parent) :
+	QAbstractItemModel(parent)
 {
+	m_pRoot = new ObjectItem("Root", NULL) ;
 }
 
 CObjectModel::~CObjectModel()
 {
+	delete m_pRoot ;
 }
 
 bool CObjectModel::isFrameDataInPos( const FrameData &data, QPoint pos )
 {
-#if 1
 	QVector3D v[4] ;
 	data.getVertexApplyMatrix(v);
 	QVector3D tri[2][3] = {
@@ -50,21 +52,7 @@ bool CObjectModel::isFrameDataInPos( const FrameData &data, QPoint pos )
 			return true ;
 		}
 	}
-#else
-	Vertex v = data.getVertex() ;
-	int left = v.x0<v.x1 ? v.x0 : v.x1 ;
-	int right = v.x0<v.x1 ? v.x1 : v.x0 ;
-	int top = v.y0<v.y1 ? v.y0 : v.y1 ;
-	int bottom = v.y0<v.y1 ? v.y1 : v.y0 ;
-	left += data.pos_x ;
-	right += data.pos_x ;
-	top += data.pos_y ;
-	bottom += data.pos_y ;
-	if ( left <= pos.x() && pos.x() <= right &&
-		 top <= pos.y() && pos.y() <= bottom ) {
-		return true ;
-	}
-#endif
+
 	return false ;
 }
 
@@ -115,142 +103,174 @@ bool CObjectModel::isFrameDataInRect( const FrameData &data, QRect rect )
 	return false ;
 }
 
-CObjectModel::ObjectGroup *CObjectModel::getObjectGroupFromID( typeID objID )
+QVariant CObjectModel::data(const QModelIndex &index, int role) const
 {
-	for ( int i = 0 ; i < m_ObjectList.size() ; i ++ ) {
-		if ( m_ObjectList.at(i).id != objID ) { continue ; }
-		return &m_ObjectList[i] ;
-	}
-	return NULL ;
+	if ( role != Qt::DisplayRole && role != Qt::EditRole ) { return QVariant() ; }
+
+	ObjectModel *p = getItemFromIndex(index) ;
+	return p->getName() ;
 }
 
-// pObj のレイヤグループﾘｽﾄを返す
-CObjectModel::LayerGroupList *CObjectModel::getLayerGroupListFromID( typeID objID )
+int CObjectModel::rowCount(const QModelIndex &parent) const
 {
-	for ( int i = 0 ; i < m_ObjectList.size() ; i ++ ) {
-		if ( m_ObjectList.at(i).id != objID ) { continue ; }
-		return &m_ObjectList[i].layerGroupList ;
-	}
-	return NULL ;
+	ObjectItem *p = getItemFromIndex(parent) ;
+	return p->childCount() ;
 }
 
-CObjectModel::FrameDataList *CObjectModel::getFrameDataListFromID( typeID objID, typeID layerID )
+int CObjectModel::columnCount(const QModelIndex &parent) const
 {
-	LayerGroupList *p = getLayerGroupListFromID(objID) ;
-	if ( !p ) { return NULL ; }
-
-	LayerGroupList::iterator it ;
-	for ( it = p->begin() ; it != p->end() ; it ++ ) {
-		if ( it->first != layerID ) { continue ; }
-		return &it->second ;
-	}
-
-	return NULL ;
+	return 1 ;
 }
 
-CObjectModel::FrameData *CObjectModel::getFrameDataFromIDAndFrame(typeID objID, typeID layerID, int frame)
+Qt::ItemFlags CObjectModel::flags(const QModelIndex &index) const
 {
-	FrameDataList *pList = getFrameDataListFromID(objID, layerID) ;
-	if ( !pList ) { return NULL ; }
-
-	for ( int i = 0 ; i < pList->size() ; i ++ ) {
-		if ( pList->at(i).frame != frame ) { continue ; }
-		return &((*pList)[i]) ;
+	if ( !index.isValid() ) {
+		return Qt::ItemIsEnabled ;
 	}
-	return NULL ;
+	return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled ;
 }
 
-CObjectModel::FrameData *CObjectModel::getMaxFrameDataFromID(typeID objID, typeID layerID)
+bool CObjectModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-	FrameDataList *pList = getFrameDataListFromID(objID, layerID) ;
-	if ( !pList ) { return NULL ; }
+	if ( role != Qt::DisplayRole && role != Qt::EditRole ) {
+		return false ;
+	}
 
-	int frame = -1 ;
-	FrameData *pRet = NULL ;
-	for ( int i = 0 ; i < pList->size() ; i ++ ) {
-		if ( !pRet || (frame < pList->at(i).frame) ) {
-			pRet = &((*pList)[i]) ;
-			frame = pList->at(i).frame ;
+	ObjectItem *p = getItemFromIndex(index) ;
+	p->setName(value.toString()) ;
+	emit dataChanged(index, index);
+	return true ;
+}
+
+bool CObjectModel::insertRows(int row, int count, const QModelIndex &parent)
+{
+	beginInsertRows(parent, row, row+count-1) ;
+
+	ObjectItem *p = getItemFromIndex(index) ;
+	p->insertChild(row, new ObjectItem(QString(), p)) ;
+
+	endInsertRows();
+	return true ;
+}
+
+bool CObjectModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+	beginRemoveRows(parent, row, row+count-1) ;
+
+	ObjectItem *p = getItemFromIndex(parent) ;
+	p->removeChild(p->child(row)) ;
+
+	endRemoveRows();
+	return true ;
+}
+
+QModelIndex CObjectModel::index(int row, int column, const QModelIndex &parent) const
+{
+	if ( !hasIndex(row, column, parent) ) { return QModelIndex() ; }
+
+	ObjectItem *p = getItemFromIndex(parent) ;
+
+	ObjectItem *pChild = p->child(row) ;
+	if ( pChild ) {
+		return createIndex(row, column, pChild) ;
+	}
+	return QModelIndex() ;
+}
+
+QModelIndex CObjectModel::parent(const QModelIndex &child) const
+{
+	if ( !child.isValid() ) { return QModelIndex() ; }
+	ObjectItem *c = static_cast<ObjectItem *>(child.internalPointer()) ;
+	ObjectItem *p = c->parent() ;
+	if ( p == m_pRoot ) { return QModelIndex() ; }
+	return createIndex(p->row(), 0, p) ;
+}
+
+Qt::DropActions CObjectModel::supportedDropActions() const
+{
+	return Qt::CopyAction | Qt::MoveAction ;
+}
+
+QStringList CObjectModel::mimeTypes() const
+{
+	QStringList types ;
+	types << "application/object.item.list" ;
+	return types ;
+}
+
+QMimeData *CObjectModel::mimeData(const QModelIndexList &indexes) const
+{
+	QMimeData *mimeData = new QMimeData() ;
+	QByteArray encodeData ;
+
+	QDataStream stream(&encodeData, QIODevice::WriteOnly) ;
+	foreach ( const QModelIndex &index, indexes ) {
+		if ( index.isValid() ) {
+			stream << reinterpret_cast<quint64>(index.internalPointer()) ;
 		}
 	}
-	return pRet ;
+	mimeData->setData("application/object.item.list", encodeData) ;
+	return mimeData ;
 }
 
-CObjectModel::typeID CObjectModel::getLayerIDFromFrameAndPos( typeID objID, int frame, QPoint pos )
+bool CObjectModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
-	LayerGroupList *p = getLayerGroupListFromID(objID) ;
-	typeID ret = 0 ;
-	int z = 0 ;
-	if ( !p ) { return 0 ; }
-	for ( int i = 0 ; i < p->size() ; i ++ ) {
-		const int flag = p->at(i).first->data(Qt::CheckStateRole).toInt() ;
-		if ( !(flag & 0x01) || (flag & 0x02) ) { continue ; }	// hide or Lock
+	if ( action == Qt::IgnoreAction ) { return true ; }
+	if ( !data->hasFormat("application/object.item.list") ) { return false ; }
+	if ( column > 0 ) { return false ; }
 
-		const FrameDataList &frameDataList = p->at(i).second ;
-		for ( int j = 0 ; j < frameDataList.size() ; j ++ ) {
-			const FrameData data = frameDataList.at(j) ;
-			if ( data.frame != frame ) { continue ; }
-			if ( !isFrameDataInPos(data, pos) ) { continue ; }
+	QByteArray encodeData = data->data("application/object.item.list") ;
+	QDataStream stream(&encodeData, QIODevice::ReadOnly) ;
 
-			if ( !ret || z < data.pos_z ) {
-				ret = p->at(i).first ;
-				z = data.pos_z ;
-			}
-		}
+	while ( !stream.atEnd() ) {
+		quint64 val ;
+		ObjectItem *p ;
+		stream >> val ;
+		p = reinterpret_cast<ObjectItem *>(val) ;
+		QModelIndex index = addItem(p->getName(), parent) ;
+		ObjectItem *newItem = getItemFromIndex(index) ;
+		newItem->copy(p) ;
 	}
-	return ret ;
+	return true ;
 }
 
-CObjectModel::FrameData *CObjectModel::getFrameDataFromPrevFrame( typeID objID, typeID layerID, int nowFrame, bool bRepeat )
+QModelIndex CObjectModel::addItem(QString name, const QModelIndex &parent)
 {
-	FrameData *pRet = NULL ;
-	int prevFrame = nowFrame ;
+	ObjectItem *p = getItemFromIndex(parent) ;
+	int row = p->childCount() ;
 
-	do {
-		nowFrame -- ;
-		if ( nowFrame < 0 ) {
-			FrameData *p = getMaxFrameDataFromID(objID, layerID) ;
-			if ( bRepeat && p ) {
-				nowFrame = p->frame ;
-			}
-			else {
-				return NULL ;
-			}
-		}
-		pRet = getFrameDataFromIDAndFrame(objID, layerID, nowFrame) ;
-		if ( pRet ) { return pRet ; }
-	} while ( prevFrame != nowFrame ) ;
-
-	return NULL ;
+	insertRows(row, 1, parent) ;
+	QModelIndex index = this->index(row, 0, parent) ;
+	setData(index, name, Qt::EditRole) ;
+	return index ;
 }
 
-CObjectModel::FrameData *CObjectModel::getFrameDataFromNextFrame( typeID objID, typeID layerID, int nowFrame )
+void CObjectModel::removeItem(QModelIndex &index)
 {
-	FrameData *pRet = NULL ;
+	if ( !index.isValid() ) { return ; }
 
-	do {
-		nowFrame ++ ;
-		pRet = getFrameDataFromIDAndFrame(objID, layerID, nowFrame) ;
-		if ( pRet ) { return pRet ; }
-	} while ( nowFrame < CEditData::kMaxFrame ) ;
-
-	return NULL ;
+	removeRows(index.row(), 1, index.parent()) ;
 }
 
-QList<CObjectModel::typeID> CObjectModel::getFrameDatasFromRect( typeID objID, int frame, QRect rect )
+
+// QModelIndex から ObjectItem 取得
+ObjectItem *CObjectModel::getItemFromIndex(const QModelIndex &index)
 {
-	QList<typeID> list ;
-	const LayerGroupList *pLayerGroupList = getLayerGroupListFromID(objID) ;
-
-	if ( pLayerGroupList ) {
-		for ( int i = 0 ; i < pLayerGroupList->size() ; i ++ ) {
-			const LayerGroup &layerGroup = pLayerGroupList->at(i) ;
-			const FrameData *pData = getFrameDataFromIDAndFrame(objID, layerGroup.first, frame) ;
-			if ( !pData ) { continue ; }
-			if ( !isFrameDataInRect(*pData, rect) ) { continue ; }
-
-			list << layerGroup.first ;
-		}
+	ObjectItem *p = m_pRoot ;
+	if ( index.isValid() ) {
+		p = static_cast<ObjectItem *>(index.internalPointer()) ;
 	}
-	return list ;
+	return p ;
 }
+
+ObjectItem *CObjectModel::getObject(const QModelIndex &index)
+{
+	if ( !index.isValid() ) { return NULL ; }
+	QModelIndex i = index ;
+	while ( i.parent().internalPointer() != m_pRoot ) {
+		i = i.parent() ;
+	}
+	return static_cast<ObjectItem *>(i.internalPointer()) ;
+}
+
+

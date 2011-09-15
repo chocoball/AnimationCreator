@@ -123,3 +123,4 @@ void ExportPNGForm::slot_cancel( void )
 {
 	emit sig_cancel() ;
 }
+

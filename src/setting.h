@@ -4,6 +4,7 @@
 #include <QtGui>
 #include "include.h"
 
+
 class CSettings
 {
 public:

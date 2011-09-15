@@ -5,6 +5,7 @@
 #include "editdata.h"
 #include "setting.h"
 
+
 class AnimeGLWidget : public QGLWidget
 {
     Q_OBJECT
@@ -14,14 +15,14 @@ public:
 		kEditMode_Pos = 0,		///< 位置編集中
 		kEditMode_Rot,			///< 回転角編集中
 		kEditMode_Center,		///< 中心位置編集中
-		kEditMode_Scale,		///< 拡縮編集中
+		kEditMode_Scale			///< 拡縮編集中
 	} ;
 
 	// ドラッグモード
 	enum {
 		kDragMode_None = 0,		///< なんもない
 		kDragMode_Edit,			///< 編集モード
-		kDragMode_SelPlural,	///< レイヤ複数選択モード
+		kDragMode_SelPlural		///< レイヤ複数選択モード
 	} ;
 
 public:

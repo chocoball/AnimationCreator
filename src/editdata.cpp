@@ -6,6 +6,7 @@
 CEditData::CEditData()
 {
 	m_pUndoStack = NULL ;
+	m_pCopyLayer = NULL ;
 	initData() ;
 }
 
@@ -14,6 +15,10 @@ CEditData::~CEditData()
 	delete m_pObjectModel ;
 	delete m_pTreeModel ;
 	delete m_pUndoStack ;
+
+	if ( m_pCopyLayer ) {
+		delete m_pCopyLayer ;
+	}
 }
 
 void CEditData::resetData( void )
@@ -32,6 +37,10 @@ void CEditData::resetData( void )
 	}
 	if ( m_pUndoStack ) {
 		m_pUndoStack->clear();
+	}
+	if ( m_pCopyLayer ) {
+		delete m_pCopyLayer ;
+		m_pCopyLayer = NULL ;
 	}
 
 	initData() ;
@@ -74,46 +83,39 @@ void CEditData::initData( void )
 	m_bCopyLayerGroup = false ;
 }
 
-// オブジェクト追加コマンド
-CObjectModel::typeID CEditData::cmd_addNewObject( QString &str )
+// アイテム追加 コマンド
+QModelIndex CEditData::cmd_addItem(QString &str, QModelIndex &parent)
 {
-	Command_AddObject *p = new Command_AddObject(this, str) ;
-	m_pUndoStack->push(p);
-	return p->getNewItem() ;
+	Command_AddItem *p = new Command_AddItem(this, str, parent) ;
+	m_pUndoStack->push(p) ;
+	return p->getIndex() ;
 }
 
-// オブジェクト削除コマンド
-void CEditData::cmd_delObject(QModelIndex index, QLabel *pMarkerLabel)
+// アイテム削除 コマンド
+void CEditData::cmd_delItem(QModelIndex &index)
 {
-	m_pUndoStack->push(new Command_DelObject(this, index, pMarkerLabel));
-}
-
-// レイヤ追加コマンド
-void CEditData::cmd_addNewLayer( QModelIndex index, QStandardItem *newItem, CObjectModel::LayerGroup &layerGroup, QList<QWidget *> &updateWidget )
-{
-	m_pUndoStack->push(new Command_AddLayer(this, index, newItem, layerGroup, updateWidget));
+	m_pUndoStack->push(new Command_DelItem(this, index)) ;
 }
 
 // フレームデータ追加コマンド
-void CEditData::cmd_addNewFrameData( CObjectModel::typeID objID, CObjectModel::typeID layerID, CObjectModel::FrameData &data, QList<QWidget *> &updateWidget )
+void CEditData::cmd_addNewFrameData( QModelIndex &index, FrameData &data, QList<QWidget *> &updateWidget )
 {
-	m_pUndoStack->push( new Command_AddFrameData(this, objID, layerID, data, updateWidget));
+	m_pUndoStack->push( new Command_AddFrameData(this, index, data, updateWidget));
 }
 
 // フレームデータ削除コマンド
-void CEditData::cmd_delFrameData( CObjectModel::typeID objID, CObjectModel::typeID layerID, int frame, QList<QWidget *> &updateWidget )
+void CEditData::cmd_delFrameData( QModelIndex &index, int frame, QList<QWidget *> &updateWidget )
 {
-	m_pUndoStack->push( new Command_DelFrameData(this, objID, layerID, frame, updateWidget));
+	m_pUndoStack->push( new Command_DelFrameData(this, index, frame, updateWidget));
 }
 
 // フレームデータ編集コマンド
-void CEditData::cmd_editFrameData( CObjectModel::typeID				objID,
-								   QList<CObjectModel::typeID>		&layerIDs,
-								   int								frame,
-								   QList<CObjectModel::FrameData>	&datas,
-								   QList<QWidget *>					&updateWidget )
+void CEditData::cmd_editFrameData( QModelIndex		&index,
+								   int				frame,
+								   QList<FrameData>	&datas,
+								   QList<QWidget *>	&updateWidget )
 {
-	m_pUndoStack->push( new Command_EditFrameData(this, objID, layerIDs, frame, datas, updateWidget));
+	m_pUndoStack->push( new Command_EditFrameData(this, index, frame, datas, updateWidget));
 }
 
 // オブジェクトコピー コマンド
@@ -159,3 +161,4 @@ void CEditData::sortFrameDatas( void )
 		}
 	}
 }
+
