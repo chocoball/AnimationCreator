@@ -37,8 +37,6 @@ signals:
     void sig_selectPrevLayer( QModelIndex indexLayer, int frame, FrameData data ) ;
 	void sig_frameDataMoveEnd( void ) ;
 	void sig_exportPNGRectChange( void ) ;
-//	void sig_copyFrameData( void ) ;
-//	void sig_pasteFrameData( void ) ;
 
 public slots:
 	void slot_actDel( void ) ;
@@ -51,6 +49,7 @@ protected:
 
 	void drawLayers( void ) ;
 	void drawLayers_Anime( void ) ;
+	void drawLayers(ObjectItem *pLayerItem, FrameData &parentFrameData) ;
 	void drawLayers_All( void ) ;
 	void drawSelFrameInfo( void ) ;
     void drawFrameData( const FrameData &data, QColor col = QColor(255, 255, 255, 255) ) ;
@@ -69,9 +68,6 @@ protected:
 	void mouseReleaseEvent(QMouseEvent *event);
 
 	void contextMenuEvent(QContextMenuEvent *event) ;
-
-//	void keyPressEvent(QKeyEvent *event) ;
-//	void keyReleaseEvent(QKeyEvent *event);
 
     QPoint editData(FrameData *pData, QPoint nowPos, QPoint oldPos) ;
 

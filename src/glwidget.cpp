@@ -53,26 +53,18 @@ void AnimeGLWidget::initializeGL()
 	glAlphaFunc(GL_GREATER, 0);
 
 	glEnable(GL_DEPTH_TEST);
-#if 1
+
 	for ( int i = 0 ; i < m_pEditData->getImageDataListSize() ; i ++ ) {
 		CEditData::ImageData *p = m_pEditData->getImageData(i) ;
 		if ( !p ) { continue ; }
 		if ( p->nTexObj ) { continue ; }
 		p->nTexObj = bindTexture(p->Image) ;
 	}
-#else
-	for ( int i = 0 ; i < m_pEditData->getImageDataSize() ; i ++ ) {
-		if ( m_pEditData->getTexObj(i) ) { continue ; }
-		GLuint obj = bindTexture(m_pEditData->getImage(i)) ;
-		m_pEditData->setTexObj(i, obj) ;
-	}
-#endif
 }
 
 void AnimeGLWidget::resizeGL(int w, int h)
 {
 	glViewport(0, 0, w, h) ;
-
 }
 
 void AnimeGLWidget::paintGL()
@@ -142,7 +134,10 @@ void AnimeGLWidget::paintGL()
 
 void AnimeGLWidget::drawLayers( void )
 {
-	if ( !m_pEditData->getSelectObject() ) { return ; }
+	if ( !m_pEditData->getObjectModel()->isObject(m_pEditData->getSelIndex())
+		 && !m_pEditData->getObjectModel()->isLayer(m_pEditData->getSelIndex()) ) {
+		return ;
+	}
 
 	glEnable(GL_TEXTURE_2D) ;
 
@@ -171,51 +166,64 @@ void AnimeGLWidget::drawLayers( void )
 void AnimeGLWidget::drawLayers_Anime()
 {
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	int frame = m_pEditData->getSelectFrame() ;
-	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
-	if ( !pModel->getLayerGroupListFromID(objID) ) { return ; }
 
-    QList<FrameData> sort ;
-	QList<bool> select ;
+	ObjectItem *pItem = pModel->getObject(m_pEditData->getSelIndex()) ;
+	if ( !pItem ) { return ; }
 
-	const CObjectModel::LayerGroupList &layerGroupList = *pModel->getLayerGroupListFromID(objID) ;
-	for ( int i = 0 ; i < layerGroupList.size() ; i ++ ) {
-		CObjectModel::typeID layerID = layerGroupList[i].first ;
-		QStandardItem *pLayerItem = layerID ;
-		if ( !(pLayerItem->data(Qt::CheckStateRole).toInt() & 0x01) ) { continue ; }	// 非表示
-
-        const FrameData *pNow = pModel->getFrameDataFromPrevFrame(objID, layerID, frame+1) ;
-        const FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
-
-		if ( !pNow ) { continue ; }
-        const FrameData data = pNow->getInterpolation(pNext, frame) ;
-		sort.append(data);
-
-		select.append(m_pEditData->getSelectLayer() == layerID) ;
+	FrameData dummy ;
+	for ( int i = 0 ; i < pItem->childCount() ; i ++ ) {
+		drawLayers(pItem->child(i), dummy) ;
 	}
-	for ( int i = 0 ; i < sort.size() ; i ++ ) {
-		for ( int j = i + 1 ; j < sort.size() ; j ++ ) {
-			if ( sort[i].pos_z > sort[j].pos_z ) {
-				sort.swap(i, j);
-				select.swap(i, j);
-			}
-		}
-	}
-	for ( int i = 0 ; i < sort.size() ; i ++ ) {
-		drawFrameData(sort[i]);
+}
 
-		if ( m_pSetting->getDrawFrame() && !m_pEditData->isExportPNG() ) {
-			QColor col ;
-			if ( select[i] )	{ col = QColor(255, 0, 0, 255) ; }
-			else				{ col = QColor(64, 64, 64, 255) ; }
-			drawFrame(sort[i], col) ;
-		}
+void AnimeGLWidget::drawLayers(ObjectItem *pLayerItem, FrameData &parentFrameData)
+{
+	FrameData d, *prev ;
+	prev = m_pEditData->getObjectModel()->getFrameDataFromPrevFrame(pLayerItem, m_pEditData->getSelectFrame()) ;
+	if ( prev ) {
+		FrameData *next = m_pEditData->getObjectModel()->getFrameDataFromNextFrame(pLayerItem, m_pEditData->getSelectFrame()) ;
+		d = prev->getInterpolation(next, m_pEditData->getSelectFrame()) ;
+	}
+
+	d.pos_x += parentFrameData.pos_x ;
+	d.pos_y += parentFrameData.pos_y ;
+	d.pos_z += parentFrameData.pos_z ;
+
+	d.rot_x += parentFrameData.rot_x ;
+	d.rot_y += parentFrameData.rot_y ;
+	d.rot_z += parentFrameData.rot_z ;
+	if ( d.rot_x < 0 ) { d.rot_x += 360 ; }
+	if ( d.rot_x > 360 ) { d.rot_x -= 360 ; }
+	if ( d.rot_y < 0 ) { d.rot_y += 360 ; }
+	if ( d.rot_y > 360 ) { d.rot_y -= 360 ; }
+	if ( d.rot_z < 0 ) { d.rot_z += 360 ; }
+	if ( d.rot_z > 360 ) { d.rot_z -= 360 ; }
+
+	d.fScaleX *= parentFrameData.fScaleX ;
+	d.fScaleY *= parentFrameData.fScaleY ;
+	for ( int i = 0 ; i < 4 ; i ++ ) {
+		d.rgba[i] *= (float)parentFrameData.rgba[i] / 255.0f ;
+	}
+
+	for ( int i = 0 ; i < pLayerItem->childCount() ; i ++ ) {
+		drawLayers(pLayerItem->child(i), d) ;
+	}
+
+	drawFrameData(d) ;
+	if ( m_pSetting->getDrawFrame() && !m_pEditData->isExportPNG() ) {
+		QColor col ;
+		ObjectItem *p = m_pEditData->getObjectModel()->getItemFromIndex(m_pEditData->getSelIndex()) ;
+		if ( pLayerItem == p )	{ col = QColor(255, 0, 0, 255) ; }
+		else					{ col = QColor(64, 64, 64, 255) ; }
+		drawFrame(d, col) ;
 	}
 }
 
 // 全フレーム描画
 void AnimeGLWidget::drawLayers_All( void )
 {
+#if 0
+	TODO
 	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
 	if ( !objID ) { return ; }
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
@@ -234,11 +242,15 @@ void AnimeGLWidget::drawLayers_All( void )
 			drawFrameData(data);
 		}
 	}
+#endif
 }
 
 // 選択中フレーム
 void AnimeGLWidget::drawSelFrameInfo( void )
 {
+	QModelIndex index = m_pEditData->getSelIndex() ;
+	if ( !m_pEditData->getObjectModel()->isLayer(index) ) { return ; }
+
 	glDisable(GL_TEXTURE_2D) ;
 	glDisable(GL_ALPHA_TEST);
 	glDisable(GL_DEPTH_TEST);
@@ -252,48 +264,33 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 		col = QColor(255, 0, 0, 255) ;
 	}
 
-	for ( int i = 0 ; i < m_pEditData->getSelectFrameDataNum() ; i ++ ) {
-        const FrameData *pData = m_pEditData->getSelectFrameData(i) ;
-		if ( !pData ) { continue ; }
-
-		m_centerPos = QPoint(pData->pos_x, pData->pos_y) ;
-
-		if ( m_editMode != kEditMode_Center ) {
-			if ( (m_dragMode != kDragMode_Edit) || m_bPressCtrl ) {
-				continue ;
-			}
-		}
+	ObjectItem *pItem = m_pEditData->getObjectModel()->getItemFromIndex(index) ;
+	FrameData data = pItem->getDisplayFrameData(m_pEditData->getSelectFrame()) ;
+	if ( data.frame == m_pEditData->getSelectFrame() ) {
+		m_centerPos = QPoint(data.pos_x, data.pos_y) ;
 
 		switch ( m_editMode ) {
-		case kEditMode_Rot:
-			glEnable(GL_LINE_STIPPLE);
-			glLineStipple(2, 0x3333);
-			{
-				QPoint c = QPoint(pData->pos_x, pData->pos_y) ;
-				QPoint p0 = m_DragOffset - QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) ;
+			case kEditMode_Rot:
+				glEnable(GL_LINE_STIPPLE);
+				glLineStipple(2, 0x3333);
+				{
+					QPoint c = QPoint(data.pos_x, data.pos_y) ;
+					QPoint p0 = m_DragOffset - QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) ;
 
-				float len = QVector2D(p0-c).length() ;
-				drawLine(c, p0, col, 0);
-				glBegin(GL_LINES);
-				for ( int i = 0 ; i < 40 ; i ++ ) {
-					float rad = i * M_PI*2.0f / 40.0f ;
-					float x = cosf(rad) * len ;
-					float y = sinf(rad) * len ;
-					glVertex2f(x+pData->pos_x, y+pData->pos_y);
+					float len = QVector2D(p0-c).length() ;
+					drawLine(c, p0, col, 0);
+					glBegin(GL_LINES);
+					for ( int i = 0 ; i < 40 ; i ++ ) {
+						float rad = i * M_PI*2.0f / 40.0f ;
+						float x = cosf(rad) * len ;
+						float y = sinf(rad) * len ;
+						glVertex2f(x+data.pos_x, y+data.pos_y);
+					}
+					glEnd() ;
 				}
-				glEnd() ;
-			}
 
-			glDisable(GL_LINE_STIPPLE);
-			break ;
-#if 0
-		case kEditMode_Center:
-			{
-				m_bDrawCenter = true ;
-				m_centerPos = QPoint(pData->pos_x, pData->pos_y) ;
-			}
-			break ;
-#endif
+				glDisable(GL_LINE_STIPPLE);
+				break ;
 		}
 	}
 
@@ -432,7 +429,7 @@ void AnimeGLWidget::drawRect(QRectF rc, QRectF uv, float z, QColor col)
 // ドラッグ進入イベント
 void AnimeGLWidget::dragEnterEvent(QDragEnterEvent *event)
 {
-	if ( m_pEditData->getObjectModel()->getObjListSize() <= 0 ) {
+	if ( !m_pEditData->getSelIndex().isValid() ) {
 		event->ignore();
 		return ;
 	}
@@ -474,7 +471,7 @@ void AnimeGLWidget::dropEvent(QDropEvent *event)
 void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 {
 	m_dragMode = kDragMode_None ;
-	if ( m_pEditData->isPlayAnime() ) { return ; }
+	if ( m_pEditData->getPlayAnime() ) { return ; }
 
 	if ( event->button() == Qt::LeftButton ) {	// 左ボタン
 
@@ -493,9 +490,9 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 		m_DragOffset = event->pos() ;
 
 		CObjectModel *pModel = m_pEditData->getObjectModel() ;
-		CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
 		int frame = m_pEditData->getSelectFrame() ;
 
+		CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
 		CObjectModel::typeID layerID = pModel->getLayerIDFromFrameAndPos(objID, frame, localPos) ;
 
 		if ( !layerID ) {

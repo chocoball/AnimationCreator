@@ -13,7 +13,6 @@ CEditData::CEditData()
 CEditData::~CEditData()
 {
 	delete m_pObjectModel ;
-	delete m_pTreeModel ;
 	delete m_pUndoStack ;
 
 	if ( m_pCopyLayer ) {
@@ -32,9 +31,6 @@ void CEditData::resetData( void )
 	if ( m_pObjectModel ) {
 		delete m_pObjectModel ;
 	}
-	if ( m_pTreeModel ) {
-		delete m_pTreeModel ;
-	}
 	if ( m_pUndoStack ) {
 		m_pUndoStack->clear();
 	}
@@ -51,11 +47,10 @@ void CEditData::initData( void )
 	m_editMode = kEditMode_Animation ;
 	m_ImageDataList.clear();
 
-	m_CatchRect			= QRect(0, 0, 0, 0) ;
-	m_Center			= QPoint(0, 0) ;
+	m_catchRect			= QRect(0, 0, 0, 0) ;
+	m_center			= QPoint(0, 0) ;
 
 	m_pObjectModel		= new CObjectModel ;
-	m_pTreeModel		= new QStandardItemModel ;
 	if ( !m_pUndoStack ) {
 		m_pUndoStack	= new QUndoStack ;
 	}
@@ -63,9 +58,7 @@ void CEditData::initData( void )
 		m_pUndoStack->clear();
 	}
 
-	m_SelectObject		= 0 ;
-	m_SelectFrame		= 0 ;
-	m_SelectLayer.clear();
+	m_selectFrame		= 0 ;
 
 	m_bPlayAnime		= false ;
 	m_bPauseAnime		= false ;
@@ -80,11 +73,11 @@ void CEditData::initData( void )
 	m_exPngRect[3] = 0 ;
 
 	m_bCopyFrameData = false ;
-	m_bCopyLayerGroup = false ;
+	m_bCopyLayer = false ;
 }
 
 // アイテム追加 コマンド
-QModelIndex CEditData::cmd_addItem(QString &str, QModelIndex &parent)
+QModelIndex CEditData::cmd_addItem(QString str, QModelIndex parent)
 {
 	Command_AddItem *p = new Command_AddItem(this, str, parent) ;
 	m_pUndoStack->push(p) ;
@@ -110,40 +103,46 @@ void CEditData::cmd_delFrameData( QModelIndex &index, int frame, QList<QWidget *
 }
 
 // フレームデータ編集コマンド
-void CEditData::cmd_editFrameData( QModelIndex		&index,
+void CEditData::cmd_editFrameData( QModelIndex		index,
 								   int				frame,
-								   QList<FrameData>	&datas,
+								   FrameData		&data,
 								   QList<QWidget *>	&updateWidget )
 {
-	m_pUndoStack->push( new Command_EditFrameData(this, index, frame, datas, updateWidget));
+	m_pUndoStack->push( new Command_EditFrameData(this, index, frame, data, updateWidget));
 }
 
 // オブジェクトコピー コマンド
-void CEditData::cmd_copyObject(CObjectModel::typeID objID, QList<QWidget *> &updateWidget)
+void CEditData::cmd_copyObject(QModelIndex &index, QList<QWidget *> &updateWidget)
 {
-	m_pUndoStack->push( new Command_CopyObject(this, objID, updateWidget) );
+	m_pUndoStack->push( new Command_CopyObject(this, index, updateWidget) );
+}
+
+// レイヤコピー コマンド
+void CEditData::cmd_copyLayer(QModelIndex &index, ObjectItem *pLayer, QList<QWidget *> &updateWidget)
+{
+	m_pUndoStack->push(new Command_CopyLayer(this, index, pLayer, updateWidget)) ;
 }
 
 // 選択しているフレームデータ取得
-bool CEditData::getNowSelectFrameData(FrameData &data)
+bool CEditData::getNowSelectFrameData(FrameData &ret)
 {
-	CObjectModel::typeID objID = getSelectObject() ;
-	CObjectModel::typeID layerID = getSelectLayer() ;
-	int frame = getSelectFrame() ;
+	QModelIndex index = getSelIndex() ;
+	if ( !getObjectModel()->isLayer(index) ) { return false ; }
 
-	FrameData *pPrev = m_pObjectModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
-	if ( !pPrev ) {
-		pPrev = m_pObjectModel->getFrameDataFromPrevFrame(objID, layerID, frame) ;
-		if ( !pPrev ) { return false ; }
-	}
-	FrameData *pNext = m_pObjectModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
-	data = pPrev->getInterpolation(pNext, frame) ;
+	int frame = getSelectFrame() ;
+	FrameData *pPrev = getObjectModel()->getFrameDataFromPrevFrame(index, frame+1) ;
+	if ( !pPrev ) { return false ; }
+
+	FrameData *pNext = getObjectModel()->getFrameDataFromNextFrame(index, frame) ;
+	ret = pPrev->getInterpolation(pNext, frame) ;
 	return true ;
 }
 
 // フレームデータをフレーム数順に並び替え
 void CEditData::sortFrameDatas( void )
 {
+#if 0
+	TODO
 	CObjectModel::ObjectList &objList = *m_pObjectModel->getObjectListPtr() ;
 	for ( int i = 0 ; i < objList.size() ; i ++ ) {
 		CObjectModel::ObjectGroup &objGroup = objList[i] ;
@@ -160,5 +159,6 @@ void CEditData::sortFrameDatas( void )
 			}
 		}
 	}
+#endif
 }
 

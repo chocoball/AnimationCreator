@@ -3,6 +3,8 @@
 
 #include <QRect>
 #include <QList>
+#include <QModelIndex>
+#include <QBrush>
 #include "framedata.h"
 #include "include.h"
 
@@ -41,10 +43,18 @@ public:
 		delete p ;
 	}
 
-	FrameData *getFrameDataPtr(int col)
+	FrameData *getFrameDataPtr(int frame)
 	{
-		if ( col < 0 || col >= m_frameDatas.size() ) { return NULL ; }
-		return &m_frameDatas[col] ;
+		for ( int i = 0 ; i < m_frameDatas.size() ; i ++ ) {
+			if ( frame == m_frameDatas.at(i).frame ) {
+				return &m_frameDatas[i] ;
+			}
+		}
+		return NULL ;
+	}
+	const QList<FrameData> getFrameData()
+	{
+		return m_frameDatas ;
 	}
 
 	void copy(ObjectItem *p)
@@ -59,15 +69,42 @@ public:
 		this->m_frameDatas = p->m_frameDatas ;
 	}
 
+	int getMaxFrameNum(bool bRecv = true)
+	{
+		int ret = 0 ;
+
+		for ( int i = 0 ; i < m_frameDatas.size() ; i ++ ) {
+			if ( ret < m_frameDatas.at(i).frame ) {
+				ret = m_frameDatas.at(i).frame ;
+			}
+		}
+		if ( bRecv ) {
+			for ( int i = 0 ; i < m_children.size() ; i ++ ) {
+				int tmp = m_children[i]->getMaxFrameNum() ;
+				if ( ret < tmp ) { ret = tmp ; }
+			}
+		}
+		return ret ;
+	}
+
+	QVariant data(int role) ;
+	void setData(const QVariant &value, int role = Qt::UserRole + 1) ;
+	FrameData getDisplayFrameData(int frame) ;
+	FrameData *getFrameDataFromPrevFrame(int frame, bool bRepeat) ;
+	FrameData *getFrameDataFromNextFrame(int frame) ;
 
 	kAccessor(QString, m_name, Name)
 	kAccessor(int, m_nLoop, Loop)
 	kAccessor(int, m_nCurrLoop, CurrLoop)
+	kAccessor(QModelIndex, m_index, Index)
 
 private:
 	ObjectItem			*m_pParent ;
 	QList<ObjectItem *>	m_children ;
 	QList<FrameData>	m_frameDatas ;
+
+	QVariant			m_checkStateData ;
+	QVariant			m_foregroundData ;
 };
 
 #endif // OBJECTITEM_H

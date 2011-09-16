@@ -17,6 +17,16 @@ typedef struct _tagFrameData {
 	bool			bUVAnime ;					///< UVアニメするならtrue
 	unsigned char	rgba[4] ;					///< RGBA
 
+	_tagFrameData()
+	{
+		frame = 0xffff ;
+		pos_x = pos_y = pos_z = 0 ;
+		rot_x = rot_y = rot_z = 0 ;
+		center_x = center_y = 0 ;
+		fScaleX = fScaleY = 1 ;
+		rgba[0] = rgba[1] = rgba[2] = rgba[3] = 255 ;
+	}
+
 	bool operator == (const struct _tagFrameData &r) const
 	{
 		if ( frame != r.frame )			{ return false ; }
@@ -123,6 +133,29 @@ typedef struct _tagFrameData {
 			}
 		}
 		return data ;
+	}
+
+	void fromParent(struct _tagFrameData &parent)
+	{
+		this->pos_x += parent.pos_x ;
+		this->pos_y += parent.pos_y ;
+		this->pos_z += parent.pos_z ;
+
+		this->rot_x += parent.rot_x ;
+		this->rot_y += parent.rot_y ;
+		this->rot_z += parent.rot_z ;
+		if ( this->rot_x <   0 ) { this->rot_x += 360 ; }
+		if ( this->rot_x > 360 ) { this->rot_x -= 360 ; }
+		if ( this->rot_y <   0 ) { this->rot_y += 360 ; }
+		if ( this->rot_y > 360 ) { this->rot_y -= 360 ; }
+		if ( this->rot_z <   0 ) { this->rot_z += 360 ; }
+		if ( this->rot_z > 360 ) { this->rot_z -= 360 ; }
+
+		this->fScaleX *= parent.fScaleX ;
+		this->fScaleY *= parent.fScaleY ;
+		for ( int i = 0 ; i < 4 ; i ++ ) {
+			this->rgba[i] *= (float)parent.rgba[i] / 255.0f ;
+		}
 	}
 } FrameData ;
 

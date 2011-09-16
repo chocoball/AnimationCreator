@@ -62,7 +62,7 @@ void CLoupeWindow::toggleLock( void )
 
 void CLoupeWindow::slot_cursorScreenShort()
 {
-	if ( m_pEditData->isDraggingImage() ) {
+	if ( m_pEditData->getDraggingImage() ) {
 		return ;
 	}
 

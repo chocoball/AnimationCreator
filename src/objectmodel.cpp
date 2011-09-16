@@ -108,7 +108,7 @@ QVariant CObjectModel::data(const QModelIndex &index, int role) const
 	if ( role != Qt::DisplayRole && role != Qt::EditRole ) { return QVariant() ; }
 
 	ObjectModel *p = getItemFromIndex(index) ;
-	return p->getName() ;
+	return p->data(role) ;
 }
 
 int CObjectModel::rowCount(const QModelIndex &parent) const
@@ -241,6 +241,8 @@ QModelIndex CObjectModel::addItem(QString name, const QModelIndex &parent)
 
 	insertRows(row, 1, parent) ;
 	QModelIndex index = this->index(row, 0, parent) ;
+	p = static_cast<ObjectItem *>(index.internalPointer()) ;
+	p->setIndex(index) ;
 	setData(index, name, Qt::EditRole) ;
 	return index ;
 }
@@ -273,4 +275,41 @@ ObjectItem *CObjectModel::getObject(const QModelIndex &index)
 	return static_cast<ObjectItem *>(i.internalPointer()) ;
 }
 
+bool CObjectModel::isObject(const QModelIndex &index)
+{
+	if ( !index.isValid() ) { return false ; }
+	return index.parent().internalPointer() == m_pRoot ? true : false ;
+}
 
+bool CObjectModel::isLayer(const QModelIndex &index)
+{
+	if ( !index.isValid() ) { return false ; }
+	return index.parent().internalPointer() != m_pRoot ? true : false ;
+}
+
+FrameData *CObjectModel::getFrameDataFromPrevFrame(QModelIndex index, int frame, bool bRepeat)
+{
+	if ( !isLayer(index) ) { return NULL ; }
+	ObjectItem *p = getItemFromIndex(index) ;
+
+	return getFrameDataFromPrevFrame(p, frame, bRepeat) ;
+}
+
+FrameData *CObjectModel::getFrameDataFromPrevFrame(ObjectItem *p, int frame, bool bRepeat)
+{
+	if ( !p ) { return NULL ; }
+	return p->getFrameDataFromPrevFrame(frame, bRepeat) ;
+}
+
+FrameData *CObjectModel::getFrameDataFromNextFrame(QModelIndex index, int frame)
+{
+	if ( !isLayer(index) ) { return NULL ; }
+	ObjectItem *p = getItemFromIndex(index) ;
+	return getFrameDataFromNextFrame(p, frame) ;
+}
+
+FrameData *CObjectModel::getFrameDataFromNextFrame(ObjectItem *p, int frame)
+{
+	if ( !p ) { return NULL ; }
+	return p->getFrameDataFromNextFrame(frame) ;
+}

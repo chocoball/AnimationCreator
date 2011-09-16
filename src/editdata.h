@@ -75,18 +75,19 @@ public:
 	void	resetData( void ) ;
 	void	initData( void ) ;
 
-	QModelIndex cmd_addItem(QString &str, QModelIndex &parent) ;
+	QModelIndex cmd_addItem(QString str, QModelIndex parent = QModelIndex()) ;
 	void cmd_delItem(QModelIndex &index) ;
 
 	void cmd_addNewFrameData( QModelIndex &index, FrameData &data, QList<QWidget *> &updateWidget ) ;
 	void cmd_delFrameData( QModelIndex			&index,
 						   int					frame,
 						   QList<QWidget *>		&updateWidget ) ;
-	void cmd_editFrameData( QModelIndex			&index,
+	void cmd_editFrameData( QModelIndex			index,
 							int					frame,
-							QList<FrameData>	&datas,
+							FrameData			&data,
 							QList<QWidget *>	&updateWidget ) ;
 	void cmd_copyObject(QModelIndex &index, QList<QWidget *> &updateWidget) ;
+	void cmd_copyLayer(QModelIndex &index, ObjectItem *pLayer, QList<QWidget *> &updateWidget) ;
 
 	void setCurrLoopNum( int num )
 	{
@@ -189,7 +190,7 @@ public:
 	}
 	// --------------------------------------
 
-	bool getNowSelectFrameData(FrameData &data) ;
+	bool getNowSelectFrameData(FrameData &ret) ;
 
 	void sortFrameDatas( void ) ;
 

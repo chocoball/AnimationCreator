@@ -78,7 +78,7 @@ private:
 	CEditData			*m_pEditData ;
 	CObjectModel		*m_pObjModel ;
 	FrameData			m_FrameData ;
-	int					m_Index ;
+	QModelIndex			m_index ;
 
 	QList<QWidget *>	m_UpdateWidgetList ;
 };
@@ -90,7 +90,7 @@ public:
 	Command_EditFrameData(CEditData			*pEditData,
 						  QModelIndex		&index,
 						  int				frame,
-						  QList<FrameData>	&datas,
+						  FrameData			&data,
 						  QList<QWidget *>	&updateWidget) ;
 	void redo() ;
 	void undo() ;
@@ -99,7 +99,7 @@ private:
 	CEditData			*m_pEditData ;
 	CObjectModel		*m_pObjModel ;
 	QModelIndex			m_index ;
-	QList<FrameData>	m_FrameData, m_OldFrameData ;
+	FrameData			m_FrameData, m_OldFrameData ;
 	int					m_Frame ;
 
 	QList<QWidget *>	m_UpdateWidgetList ;
@@ -109,17 +109,31 @@ private:
 class Command_CopyObject : public QUndoCommand
 {
 public:
-	Command_CopyObject( CEditData *pEditData, CObjectModel::typeID objID, QList<QWidget *> &updateWidget ) ;
+	Command_CopyObject( CEditData *pEditData, QModelIndex &index, QList<QWidget *> &updateWidget ) ;
 
 	void redo() ;
 	void undo() ;
 
 private:
 	CEditData						*m_pEditData ;
-	CObjectModel::typeID			m_objID ;
+	QModelIndex						m_index ;
 	QList<QWidget *>				m_UpdateWidgetList ;
+} ;
 
-	CObjectModel::ObjectGroup		m_objGroup ;
+// レイヤコピーコマンド
+class Command_CopyLayer : public QUndoCommand
+{
+public:
+	Command_CopyLayer( CEditData *pEditData, QModelIndex &index, ObjectItem *pLayer, QList<QWidget *> &updateWidget ) ;
+
+	void redo() ;
+	void undo() ;
+
+private:
+	CEditData						*m_pEditData ;
+	QModelIndex						m_index ;
+	ObjectItem						*m_pLayer ;
+	QList<QWidget *>				m_UpdateWidgetList ;
 } ;
 
 

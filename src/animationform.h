@@ -128,10 +128,10 @@ public slots:
 	void slot_splitterMoved(int pos, int index) ;
 
 protected:
-	QList<FrameData *> getNowSelectFrameData( void ) ;
+	FrameData *getNowSelectFrameData( void ) ;
 	void addNewObject( QString str ) ;
 
-	void addCommandEdit( QList<FrameData *> &rData ) ;
+	void addCommandEdit( FrameData data ) ;
 
     bool setSelectFrameDataFromFrame( int frame, QModelIndex indexLayer ) ;
 
