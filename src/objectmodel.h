@@ -34,7 +34,7 @@ public:
 	QModelIndex addItem(QString name, const QModelIndex &parent) ;
 	void removeItem(QModelIndex &index) ;
 
-	ObjectItem *getItemFromIndex(const QModelIndex &index) ;
+	ObjectItem *getItemFromIndex(const QModelIndex &index) const ;
 	ObjectItem *getObject(const QModelIndex &index) ;
 
 	bool isObject(const QModelIndex &index) ;

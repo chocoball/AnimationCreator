@@ -1,6 +1,9 @@
 #ifndef FRAMEDATA_H
 #define FRAMEDATA_H
 
+#include <QVector3D>
+#include <QMatrix4x4>
+
 typedef struct {
 	float		x0, y0 ;
 	float		x1, y1 ;
@@ -157,6 +160,7 @@ typedef struct _tagFrameData {
 			this->rgba[i] *= (float)parent.rgba[i] / 255.0f ;
 		}
 	}
+
 } FrameData ;
 
 

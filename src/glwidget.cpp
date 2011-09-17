@@ -492,49 +492,31 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 		CObjectModel *pModel = m_pEditData->getObjectModel() ;
 		int frame = m_pEditData->getSelectFrame() ;
 
-		CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
-		CObjectModel::typeID layerID = pModel->getLayerIDFromFrameAndPos(objID, frame, localPos) ;
-
-		if ( !layerID ) {
-			// 前フレームを調べる
-			CObjectModel::LayerGroupList *pLGList = pModel->getLayerGroupListFromID(objID) ;
-			if ( pLGList ) {
-				for ( int i = 0 ; i < pLGList->size() ; i ++ ) {
-					const CObjectModel::typeID tmpLayerID = pLGList->at(i).first ;
-					// 既に現在のフレームにデータがあったら調べない
-					if ( pModel->getFrameDataFromIDAndFrame(objID, tmpLayerID, frame) ) { continue ; }
-
-                    FrameData *pPrev = pModel->getFrameDataFromPrevFrame(objID, tmpLayerID, frame, false) ;
-					if ( !pPrev ) { continue ; }
-                    FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, tmpLayerID, frame) ;
-                    FrameData data = pPrev->getInterpolation(pNext, frame) ;
-					if ( !pModel->isFrameDataInPos(data, localPos) ) { continue ; }
-
-					layerID = tmpLayerID ;
-
-					emit sig_selectPrevLayer(objID, layerID, frame, data) ;
-					break ;
-				}
-			}
+		QModelIndex index = m_pEditData->getSelIndex() ;
+		ObjectItem *pItem = pModel->getObject(index) ;
+		if ( !pItem ) {
+			// オブジェクトが選択されていない
+			return ;
 		}
 
-		if ( layerID ) {
-			int flag = layerID->data(Qt::CheckStateRole).toInt() ;
-			if ( !(flag & 0x01) || (flag & 0x02) ) {	// 非表示
+		if ( pItem->isContain(pItem, localPos, frame) ) {
+			int flag = pItem->data(Qt::CheckStateRole).toInt() ;
+			if ( !(flag & ObjectItem::kState_Disp) || (flag & ObjectItem::kState_Lock) ) {	// 非表示
 				event->ignore();
 				return ;
 			}
 
-            FrameData *p = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
-			if ( p ) {
-				m_rotStart = (float)p->rot_z*M_PI/180.0f ;
-			}
-			if ( m_pEditData->getSelectFrameDataNum() <= 1 || !m_pEditData->isSelectedLayer(layerID) ) {
-				QList<CObjectModel::typeID> layers ;
-				layers << layerID ;
-				emit sig_selectLayerChanged(layers);
+			if ( !pItem->getFrameDataPtr(frame) ) {
+				// データがないので追加
+				FrameData data = pItem->getDisplayFrameData(frame) ;
+				emit sig_selectPrevLayer(pItem->getIndex(), frame, data) ;
 			}
 
+			FrameData *p = pItem->getFrameDataPtr(frame) ;
+			if ( p ) {
+				m_rotStart = (float)p->rot_z * M_PI / 180.0f ;
+			}
+			emit sig_selectLayerChanged(pItem->getIndex()) ;
 			m_dragMode = kDragMode_Edit ;
 		}
 	}
@@ -544,7 +526,6 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 {
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
 	int frame = m_pEditData->getSelectFrame() ;
 
 	// 連番PNG吐き出し時
@@ -561,30 +542,19 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 
 	switch ( m_dragMode ) {
 	case kDragMode_Edit:
-		if ( !m_pEditData->getSelectLayerNum() ) {
-			return ;
-		}
-
 		{
-            FrameData *pData = NULL ;
-			QPoint old = m_DragOffset ;
-			for ( int i = 0 ; i < m_pEditData->getSelectFrameDataNum() ; i ++ ) {
-				pData = m_pEditData->getSelectFrameData(i) ;
-				QPoint ret = editData(pData, event->pos(), old) ;
-				if ( !i && pData ) {
-					m_DragOffset = ret ;
-					emit sig_dragedImage(*pData) ;
-				}
-			}
+			QModelIndex index = m_pEditData->getSelIndex() ;
+			if ( !pModel->isLayer(index) ) { return ; }
+			ObjectItem *pItem = pModel->getItemFromIndex(index) ;
+			if ( !pItem ) { return ; }
 
-			if ( pData ) {
-				CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
-                FrameData *p = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
-				*p = *pData ;
-			}
+			FrameData *pData = pItem->getFrameDataPtr(frame) ;
+			if ( !pData ) { return ; }
+			QPoint ret = editData(pData, event->pos(), m_DragOffset) ;
+			m_DragOffset = ret ;
+			emit sig_dragedImage(*pData) ;
+			update() ;
 		}
-
-		update() ;
 		break ;
 	}
 
@@ -594,10 +564,6 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 void AnimeGLWidget::mouseReleaseEvent(QMouseEvent *event)
 {
 	Q_UNUSED(event) ;
-	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
-	int frame = m_pEditData->getSelectFrame() ;
-	QList<CObjectModel::typeID> selLayers ;
 
 	switch ( m_dragMode ) {
 	case kDragMode_Edit:
@@ -611,10 +577,9 @@ void AnimeGLWidget::mouseReleaseEvent(QMouseEvent *event)
 // 右クリックメニューイベント
 void AnimeGLWidget::contextMenuEvent(QContextMenuEvent *event)
 {
-	if ( m_pEditData->getSelectFrameDataNum() == 0 ) {
+	if ( !m_pEditData->getObjectModel()->isLayer(m_pEditData->getSelIndex()) ) {
 		return ;
 	}
-	qDebug() << "select layer:" << m_pEditData->getSelectLayer() ;
 
 	QMenu menu(this) ;
 	menu.addAction(m_pActDel) ;

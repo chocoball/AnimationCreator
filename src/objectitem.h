@@ -12,6 +12,11 @@
 class ObjectItem
 {
 public:
+	enum {
+		kState_Disp = 0x01,		// 表示設定
+		kState_Lock = 0x02		// ロック
+	};
+public:
 	ObjectItem(QString name, ObjectItem *parent)
 	{
 		m_name		= name ;
@@ -25,6 +30,8 @@ public:
 		qDeleteAll(m_children) ;
 	}
 
+	int row() { return getIndex().row() ; }
+	ObjectItem *parent() { return m_pParent ; }
 	int childCount() { return m_children.size() ; }
 	ObjectItem *child(int row)
 	{
@@ -89,14 +96,18 @@ public:
 
 	QVariant data(int role) ;
 	void setData(const QVariant &value, int role = Qt::UserRole + 1) ;
-	FrameData getDisplayFrameData(int frame) ;
-	FrameData *getFrameDataFromPrevFrame(int frame, bool bRepeat) ;
+	FrameData getDisplayFrameData(int frame, bool *bValid = 0) ;
+	FrameData *getFrameDataFromPrevFrame(int frame, bool bRepeat = false) ;
 	FrameData *getFrameDataFromNextFrame(int frame) ;
+	bool isContain(ObjectItem *pRet, QPoint &pos, int frame, bool bChild = true) ;
 
 	kAccessor(QString, m_name, Name)
 	kAccessor(int, m_nLoop, Loop)
 	kAccessor(int, m_nCurrLoop, CurrLoop)
 	kAccessor(QModelIndex, m_index, Index)
+
+private:
+	bool isContain(FrameData &displayData, QPoint &pos) ;
 
 private:
 	ObjectItem			*m_pParent ;

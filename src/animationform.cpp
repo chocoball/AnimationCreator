@@ -145,8 +145,8 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
             this,		SLOT(slot_setUI(FrameData))) ;
 	connect(m_pGlWidget, SIGNAL(sig_deleteFrameData()),
 			this,		SLOT(slot_deleteFrameData())) ;
-    connect(m_pGlWidget, SIGNAL(sig_selectPrevLayer(QModelIndex, int, FrameData)),
-            this,		SLOT(slot_addNewFrameData(QModelIndex, int, FrameData))) ;
+	connect(m_pGlWidget, SIGNAL(sig_selectPrevLayer(QModelIndex, int, FrameData)),
+			this,		SLOT(slot_addNewFrameData(QModelIndex, int, FrameData))) ;
 	connect(m_pGlWidget, SIGNAL(sig_frameDataMoveEnd()),
 			this,		SLOT(slot_frameDataMoveEnd())) ;
     connect(m_pGlWidget, SIGNAL(sig_dragedImage(FrameData)),
@@ -777,21 +777,18 @@ void AnimationForm::slot_treeViewMenuReq(QPoint treeViewLocalPos)
 // ツリービュー ダブルクリック
 void AnimationForm::slot_treeViewDoubleClicked(QModelIndex index)
 {
-#if 0
-	TODO
-	QStandardItemModel *pTreeModel = m_pEditData->getTreeModel() ;
-	QStandardItem *pItem = pTreeModel->itemFromIndex(index) ;
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	if ( !pModel->isLayer(index) ) { return ; }
 
+	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
 	if ( !pItem ) { return ; }
-	if ( index.internalPointer() == pTreeModel->invisibleRootItem() ) { return ; }	// オブジェクト選択中
 
 	QVariant flag = pItem->data(Qt::CheckStateRole) ;
 	int f = flag.toInt() ;
-	if ( f & 0x01 )	{ f &= ~0x01 ; }
-	else			{ f |= 0x01 ; }
+	if ( f & ObjectItem::kState_Disp )	{ f &= ~ObjectItem::kState_Disp ; }
+	else								{ f |= ObjectItem::kState_Disp ; }
 	pItem->setData(f, Qt::CheckStateRole);
 	m_pGlWidget->update();
-#endif
 }
 
 // 選択オブジェクト変更
@@ -970,12 +967,12 @@ void AnimationForm::slot_changeLayerLock( void )
 	QVariant flag = pItem->data(Qt::CheckStateRole) ;
 	int f = flag.toInt() ;
 	QBrush brush ;
-	if ( f & 0x02 )	{
-		f &= ~0x02 ;
+	if ( f & ObjectItem::kState_Lock )	{
+		f &= ~ObjectItem::kState_Lock ;
 		brush.setColor(QColor(0, 0, 0));
 	}
 	else {
-		f |= 0x02 ;
+		f |= ObjectItem::kState_Lock ;
 		brush.setColor(QColor(255, 0, 0));
 	}
 	pItem->setData(f, Qt::CheckStateRole);

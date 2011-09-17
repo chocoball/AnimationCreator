@@ -105,9 +105,7 @@ bool CObjectModel::isFrameDataInRect( const FrameData &data, QRect rect )
 
 QVariant CObjectModel::data(const QModelIndex &index, int role) const
 {
-	if ( role != Qt::DisplayRole && role != Qt::EditRole ) { return QVariant() ; }
-
-	ObjectModel *p = getItemFromIndex(index) ;
+	ObjectItem *p = getItemFromIndex(index) ;
 	return p->data(role) ;
 }
 
@@ -146,7 +144,7 @@ bool CObjectModel::insertRows(int row, int count, const QModelIndex &parent)
 {
 	beginInsertRows(parent, row, row+count-1) ;
 
-	ObjectItem *p = getItemFromIndex(index) ;
+	ObjectItem *p = getItemFromIndex(parent) ;
 	p->insertChild(row, new ObjectItem(QString(), p)) ;
 
 	endInsertRows();
@@ -256,7 +254,7 @@ void CObjectModel::removeItem(QModelIndex &index)
 
 
 // QModelIndex から ObjectItem 取得
-ObjectItem *CObjectModel::getItemFromIndex(const QModelIndex &index)
+ObjectItem *CObjectModel::getItemFromIndex(const QModelIndex &index) const
 {
 	ObjectItem *p = m_pRoot ;
 	if ( index.isValid() ) {
@@ -268,11 +266,11 @@ ObjectItem *CObjectModel::getItemFromIndex(const QModelIndex &index)
 ObjectItem *CObjectModel::getObject(const QModelIndex &index)
 {
 	if ( !index.isValid() ) { return NULL ; }
-	QModelIndex i = index ;
-	while ( i.parent().internalPointer() != m_pRoot ) {
-		i = i.parent() ;
+	ObjectItem *p = static_cast<ObjectItem *>(index.internalPointer()) ;
+	while ( p->parent() != m_pRoot ) {
+		p = p->parent() ;
 	}
-	return static_cast<ObjectItem *>(i.internalPointer()) ;
+	return p ;
 }
 
 bool CObjectModel::isObject(const QModelIndex &index)
