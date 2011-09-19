@@ -6,34 +6,64 @@
   アイテム追加 コマンド
   */
 Command_AddItem::Command_AddItem(CEditData *pEditData, QString &str, QModelIndex &parent) :
-	QUndoCommand("Command_AddItem")
+	QUndoCommand(QObject::trUtf8("オブジェクト追加"))
 {
-	// TODO
+	m_pEditData = pEditData ;
+	m_str = str ;
+	m_parent = parent ;
 }
 
 void Command_AddItem::redo()
 {
+	QModelIndex index = m_pEditData->getObjectModel()->addItem(m_str, m_parent) ;
+	m_row = index.row() ;
 }
 
 void Command_AddItem::undo()
 {
+	m_pEditData->setSelIndex(QModelIndex());
+	ObjectItem *p = m_pEditData->getObjectModel()->getItemFromIndex(QModelIndex()) ;
+	if ( p ) {
+		m_pEditData->getObjectModel()->removeItem();
+	}
 }
 
 /**
   アイテム削除 コマンド
   */
 Command_DelItem::Command_DelItem(CEditData *pEditData, QModelIndex &index) :
-	QUndoCommand("Command_DelItem")
+	QUndoCommand(QObject::trUtf8("オブジェクト削除"))
 {
-	// TODO
+	m_pEditData = pEditData ;
+	m_index = index ;
+	m_parentIndex = index.parent() ;
+	m_row = index.row() ;
+	m_pItem = NULL ;
 }
 
 void Command_DelItem::redo()
 {
+	ObjectItem *pItem = m_pEditData->getObjectModel()->getItemFromIndex(m_index) ;
+	if ( pItem ) {
+		if ( !m_pItem ) {
+			m_pItem = new ObjectItem(pItem->getName(), pItem->parent()) ;
+			m_pItem->copy(pItem) ;
+			m_pEditData->getObjectModel()->removeItem(m_index) ;
+		}
+	}
 }
 
 void Command_DelItem::undo()
 {
+	if ( !m_pItem ) { return ; }
+
+	m_index = m_pEditData->getObjectModel()->insertItem(m_row, m_pItem->getName(), m_parentIndex) ;
+	ObjectItem *p = m_pEditData->getObjectModel()->getItemFromIndex(m_index) ;
+	if ( p ) {
+		p->copy(m_pItem);
+		delete m_pItem ;
+		m_pItem = NULL ;
+	}
 }
 
 

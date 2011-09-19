@@ -30,7 +30,7 @@ public:
 		qDeleteAll(m_children) ;
 	}
 
-	int row() { return getIndex().row() ; }
+	int row() { return m_index.row() ; }
 	ObjectItem *parent() { return m_pParent ; }
 	int childCount() { return m_children.size() ; }
 	ObjectItem *child(int row)

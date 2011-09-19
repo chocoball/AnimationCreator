@@ -32,6 +32,7 @@ public:
 	bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) ;
 
 	QModelIndex addItem(QString name, const QModelIndex &parent) ;
+	QModelIndex insertItem(int row, QString name, const QModelIndex &parent) ;
 	void removeItem(QModelIndex &index) ;
 
 	ObjectItem *getItemFromIndex(const QModelIndex &index) const ;

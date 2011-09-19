@@ -115,7 +115,7 @@ int CObjectModel::rowCount(const QModelIndex &parent) const
 	return p->childCount() ;
 }
 
-int CObjectModel::columnCount(const QModelIndex &parent) const
+int CObjectModel::columnCount(const QModelIndex &/*parent*/) const
 {
 	return 1 ;
 }
@@ -180,7 +180,7 @@ QModelIndex CObjectModel::parent(const QModelIndex &child) const
 	if ( !child.isValid() ) { return QModelIndex() ; }
 	ObjectItem *c = static_cast<ObjectItem *>(child.internalPointer()) ;
 	ObjectItem *p = c->parent() ;
-	if ( p == m_pRoot ) { return QModelIndex() ; }
+	if ( p == m_pRoot || c == m_pRoot ) { return QModelIndex() ; }
 	return createIndex(p->row(), 0, p) ;
 }
 
@@ -213,6 +213,8 @@ QMimeData *CObjectModel::mimeData(const QModelIndexList &indexes) const
 
 bool CObjectModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
+Q_UNUSED(row)
+
 	if ( action == Qt::IgnoreAction ) { return true ; }
 	if ( !data->hasFormat("application/object.item.list") ) { return false ; }
 	if ( column > 0 ) { return false ; }
@@ -237,11 +239,18 @@ QModelIndex CObjectModel::addItem(QString name, const QModelIndex &parent)
 	ObjectItem *p = getItemFromIndex(parent) ;
 	int row = p->childCount() ;
 
+	return insertItem(row, name, parent) ;
+}
+
+QModelIndex CObjectModel::insertItem(int row, QString name, const QModelIndex &parent)
+{
 	insertRows(row, 1, parent) ;
+
 	QModelIndex index = this->index(row, 0, parent) ;
-	p = static_cast<ObjectItem *>(index.internalPointer()) ;
+	ObjectItem *p = static_cast<ObjectItem *>(index.internalPointer()) ;
 	p->setIndex(index) ;
 	setData(index, name, Qt::EditRole) ;
+	qDebug() << "insertItem row:" << row << " name:" << name << " p:" << p ;
 	return index ;
 }
 
@@ -249,6 +258,7 @@ void CObjectModel::removeItem(QModelIndex &index)
 {
 	if ( !index.isValid() ) { return ; }
 
+	qDebug() << "removeItem row:" << index.row() << "p:" << index.internalPointer() ;
 	removeRows(index.row(), 1, index.parent()) ;
 }
 
