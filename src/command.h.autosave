@@ -23,7 +23,6 @@ private:
 	CEditData		*m_pEditData ;
 	QString			m_str ;
 	QModelIndex		m_parent ;
-	QModelIndex		m_index ;
 	int				m_row ;
 } ;
 

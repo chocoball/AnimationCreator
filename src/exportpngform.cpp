@@ -12,7 +12,7 @@ ExportPNGForm::ExportPNGForm(CEditData *pEditData, CSettings *pSetting, QWidget 
     ui->setupUi(this);
 
 	setWindowTitle(trUtf8("連番PNG 保存"));
-	ui->textEdit->setText(m_pSetting->getCurrentPNGDir()) ;
+	ui->textEdit->setText(m_pSetting->getSavePngDir()) ;
 
 	connect(ui->pushButton_sel_dir, SIGNAL(clicked()), this, SLOT(slot_openSaveDir())) ;
 	connect(ui->spinBox_left, SIGNAL(valueChanged(int)), this, SLOT(slot_changeLeft(int))) ;
@@ -56,11 +56,11 @@ void ExportPNGForm::slot_changeRect( void )
 void ExportPNGForm::slot_openSaveDir( void )
 {
 	QString dir = QFileDialog::getExistingDirectory(this, trUtf8("保存するディレクトリを選択"),
-													 m_pSetting->getCurrentSaveDir(),
+													 m_pSetting->getSaveDir(),
 													 QFileDialog::ShowDirsOnly
 													 | QFileDialog::DontResolveSymlinks);
 	if ( dir.isEmpty() ) { return ; }
-	m_pSetting->setCurrentPNGDir(dir);
+	m_pSetting->setSavePngDir(dir);
 	ui->textEdit->setText(dir) ;
 }
 
@@ -102,7 +102,7 @@ void ExportPNGForm::slot_changeBottom( int val )
 
 void ExportPNGForm::slot_startExport( void )
 {
-	QString saveDir = m_pSetting->getCurrentPNGDir() ;
+	QString saveDir = m_pSetting->getSavePngDir() ;
 	QDir dir(saveDir) ;
 	if ( !dir.exists() ) {
 		QMessageBox::warning(this, tr("Error"), trUtf8("ディレクトリが存在しません") ) ;
@@ -115,7 +115,7 @@ void ExportPNGForm::slot_startExport( void )
 void ExportPNGForm::slot_changeSaveDir( void )
 {
 	QString dir = ui->textEdit->toPlainText() ;
-	m_pSetting->setCurrentPNGDir(dir);
+	m_pSetting->setSavePngDir(dir);
 	qDebug() << "dir:" << dir ;
 }
 
@@ -123,3 +123,4 @@ void ExportPNGForm::slot_cancel( void )
 {
 	emit sig_cancel() ;
 }
+

@@ -37,7 +37,7 @@ public:
 signals:
 	void sig_imageRepaint( void ) ;
 	void sig_portCheckDrawCenter(bool) ;
-	void sig_portDragedImage(CObjectModel::FrameData) ;
+	void sig_portDragedImage(FrameData) ;
 	void sig_pushColorToolButton( void ) ;
 
 public slots:
@@ -48,9 +48,9 @@ public slots:
 	void slot_dropedImage( QRect rect, QPoint pos, int imageIndex ) ;
 
 	void slot_frameChanged(int frame) ;
-	void slot_selectLayerChanged( QList<CObjectModel::typeID> layerIDs ) ;
+    void slot_selectLayerChanged( QModelIndex indexLayer ) ;
 
-	void slot_setUI(CObjectModel::FrameData data) ;
+	void slot_setUI(FrameData data) ;
 
 	void slot_changePosX( int val ) ;
 	void slot_changePosY( int val ) ;
@@ -79,7 +79,7 @@ public slots:
 	void slot_forwardFrameData( void ) ;
 
 	void slot_timerEvent( void ) ;
-	void slot_addNewFrameData( CObjectModel::typeID objID, CObjectModel::typeID layerID, int frame, CObjectModel::FrameData data ) ;
+    void slot_addNewFrameData( QModelIndex indexLayer, int frame, FrameData data ) ;
 	void slot_changeLayerDisp( void ) ;
 	void slot_changeLayerLock( void ) ;
 
@@ -117,7 +117,7 @@ public slots:
 	void slot_changeDrawFrame(bool flag) ;
 	void slot_changeDrawCenter(bool flag) ;
 
-	void slot_portDragedImage(CObjectModel::FrameData data) ;
+	void slot_portDragedImage(FrameData data) ;
 
 	void slot_copyLayer( void ) ;
 	void slot_pasteLayer( void ) ;
@@ -128,13 +128,12 @@ public slots:
 	void slot_splitterMoved(int pos, int index) ;
 
 protected:
-	QList<CObjectModel::FrameData *> getNowSelectFrameData( void ) ;
+	FrameData *getNowSelectFrameData( void ) ;
 	void addNewObject( QString str ) ;
 
-	void addCommandEdit( QList<CObjectModel::FrameData *> &rData ) ;
+	void addCommandEdit( FrameData data ) ;
 
-//	bool setSelectFrameDataFromFrame( int frame, const CObjectModel::LayerGroupList &layerGroupList ) ;
-	bool setSelectFrameDataFromFrame( int frame, CObjectModel::typeID layerID, const CObjectModel::FrameDataList &frameDataList ) ;
+    bool setSelectFrameDataFromFrame( int frame, QModelIndex indexLayer ) ;
 
 	void addNowSelectLayerAndFrame( void ) ;
 

@@ -174,8 +174,8 @@ private:
 	void setProgMaximum( QProgressDialog *pProg, CEditData &rEditData ) ;
 
 	bool addElement( QDomNode &node, CEditData &rEditData ) ;
-	bool addLayer( QDomNode &node, CObjectModel::LayerGroupList &layerGroupList, QStandardItem *pParentItem, int maxLayerNum ) ;
-	bool addFrameData( QDomNode &node, CObjectModel::FrameDataList &frameDataList, int maxFrameDataNum ) ;
+//	bool addLayer( QDomNode &node, CObjectModel::LayerGroupList &layerGroupList, QStandardItem *pParentItem, int maxLayerNum ) ;
+//	bool addFrameData( QDomNode &node, FrameDataList &frameDataList, int maxFrameDataNum ) ;
 	bool addImage( QDomNode &node, CEditData::ImageData &data ) ;
 
 private:

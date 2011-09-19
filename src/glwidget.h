@@ -5,6 +5,7 @@
 #include "editdata.h"
 #include "setting.h"
 
+
 class AnimeGLWidget : public QGLWidget
 {
     Q_OBJECT
@@ -14,14 +15,13 @@ public:
 		kEditMode_Pos = 0,		///< 位置編集中
 		kEditMode_Rot,			///< 回転角編集中
 		kEditMode_Center,		///< 中心位置編集中
-		kEditMode_Scale,		///< 拡縮編集中
+		kEditMode_Scale			///< 拡縮編集中
 	} ;
 
 	// ドラッグモード
 	enum {
 		kDragMode_None = 0,		///< なんもない
-		kDragMode_Edit,			///< 編集モード
-		kDragMode_SelPlural,	///< レイヤ複数選択モード
+        kDragMode_Edit			///< 編集モード
 	} ;
 
 public:
@@ -31,14 +31,12 @@ public:
 
 signals:
 	void sig_dropedImage(QRect rect, QPoint pos, int index) ;
-	void sig_selectLayerChanged( QList<CObjectModel::typeID> layerIDs ) ;
-	void sig_dragedImage( CObjectModel::FrameData data ) ;
+    void sig_selectLayerChanged( QModelIndex indexLayer ) ;
+    void sig_dragedImage( FrameData data ) ;
 	void sig_deleteFrameData( void ) ;
-	void sig_selectPrevLayer( CObjectModel::typeID objID, CObjectModel::typeID layerID, int frame, CObjectModel::FrameData data ) ;
+    void sig_selectPrevLayer( QModelIndex indexLayer, int frame, FrameData data ) ;
 	void sig_frameDataMoveEnd( void ) ;
 	void sig_exportPNGRectChange( void ) ;
-//	void sig_copyFrameData( void ) ;
-//	void sig_pasteFrameData( void ) ;
 
 public slots:
 	void slot_actDel( void ) ;
@@ -51,10 +49,11 @@ protected:
 
 	void drawLayers( void ) ;
 	void drawLayers_Anime( void ) ;
+	void drawLayers(ObjectItem *pLayerItem, FrameData &parentFrameData) ;
 	void drawLayers_All( void ) ;
 	void drawSelFrameInfo( void ) ;
-	void drawFrameData( const CObjectModel::FrameData &data, QColor col = QColor(255, 255, 255, 255) ) ;
-	void drawFrame( const CObjectModel::FrameData &data, QColor col) ;
+    void drawFrameData( const FrameData &data, QColor col = QColor(255, 255, 255, 255) ) ;
+    void drawFrame( const FrameData &data, QColor col) ;
 	void drawGrid( void ) ;
 	void drawCenter( void ) ;
 
@@ -70,10 +69,7 @@ protected:
 
 	void contextMenuEvent(QContextMenuEvent *event) ;
 
-//	void keyPressEvent(QKeyEvent *event) ;
-//	void keyReleaseEvent(QKeyEvent *event);
-
-	QPoint editData(CObjectModel::FrameData *pData, QPoint nowPos, QPoint oldPos) ;
+    QPoint editData(FrameData *pData, QPoint nowPos, QPoint oldPos) ;
 
 	void writePNGFromFrameBuffer( void ) ;
 	int getDigit(int num) ;
