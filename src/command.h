@@ -8,62 +8,96 @@
 
 class CEditData ;
 
-// アイテム追加 コマンド
-class Command_AddItem : public QUndoCommand
+// オブジェクト追加コマンド
+class Command_AddObject : public QUndoCommand
 {
 public:
-	Command_AddItem(CEditData *pEditData, QString &str, QModelIndex &parent) ;
+	Command_AddObject(CEditData *pEditData, QString &str);
 
-	void redo();
 	void undo();
+	void redo();
 
-	QModelIndex getIndex() { return m_index ; }
+	QStandardItem *getNewItem() { return m_pItem ; }
 
 private:
-	CEditData		*m_pEditData ;
-	QString			m_str ;
-	QModelIndex		m_parent ;
-	QModelIndex		m_index ;
-	int				m_row ;
-} ;
+	QString						m_strObjName ;
+	CObjectModel				*m_pObjModel ;
+	QStandardItemModel			*m_pTreeModel ;
+	QStandardItem				*m_pItem ;
 
-// アイテム削除 コマンド
-class Command_DelItem : public QUndoCommand
+	CObjectModel::ObjectGroup	m_ObjGroup ;
+	int							m_ItemIndex ;
+	int							m_objListIndex ;
+};
+
+// オブジェクト/レイヤ削除コマンド
+class Command_DelObject : public QUndoCommand
 {
 public:
-	Command_DelItem(CEditData *pEditData, QModelIndex &index) ;
+	Command_DelObject(CEditData *pEditData, QModelIndex index, QLabel *pDataMakerLabel) ;
 
-	void redo();
 	void undo();
+	void redo();
 
 private:
-	CEditData		*m_pEditData ;
-	int				m_row ;
-	QModelIndex		m_index ;
-	QModelIndex		m_parentIndex ;
-	ObjectItem		*m_pItem ;
-} ;
+	CObjectModel				*m_pObjModel ;
+	QStandardItemModel			*m_pTreeModel ;
+	QModelIndex					m_ItemIndex ;
+	QLabel						*m_pDataMarkerLabel ;
 
+	QList<QStandardItem *>		m_ItemList ;
+	CObjectModel::ObjectGroup	m_ObjGroup ;
+	CObjectModel::LayerGroup	m_LayerGroup ;
+	int							m_Index ;
+};
+
+// レイヤ追加コマンド
+class Command_AddLayer : public QUndoCommand
+{
+public:
+	Command_AddLayer(CEditData *pEditData,
+					 QModelIndex parentIndex,
+					 QStandardItem *pAddItem,
+					 CObjectModel::LayerGroup &layerGroup,
+					 QList<QWidget *> &updateWidget) ;
+
+	void undo() ;
+	void redo() ;
+
+private:
+	CObjectModel				*m_pObjModel ;
+	QStandardItemModel			*m_pTreeModel ;
+	QModelIndex					m_ObjIndex ;
+	QStandardItem				*m_pAddItem ;
+
+	int							m_ItemIndex ;
+	CObjectModel::LayerGroup	m_LayerGroup ;
+
+	QList<QWidget *>			m_UpdateWidgetList ;
+};
 
 // フレームデータ追加コマンド
 class Command_AddFrameData : public QUndoCommand
 {
 public:
 	Command_AddFrameData(CEditData *pEditData,
-						 QModelIndex &index,
-						 FrameData &data,
+						 CObjectModel::typeID objID,
+						 CObjectModel::typeID layerID,
+						 CObjectModel::FrameData &data,
 						 QList<QWidget *> &updateWidget) ;
 
-	void redo() ;
 	void undo() ;
+	void redo() ;
 
 private:
-	CEditData			*m_pEditData ;
-	CObjectModel		*m_pObjModel ;
-	QModelIndex			m_index ;
-	FrameData			m_FrameData ;
+	CEditData					*m_pEditData ;
+	CObjectModel				*m_pObjModel ;
+	CObjectModel::typeID		m_objID ;
+	CObjectModel::typeID		m_layerID ;
+	CObjectModel::FrameData		m_FrameData ;
+	int							m_Index ;
 
-	QList<QWidget *>	m_UpdateWidgetList ;
+	QList<QWidget *>			m_UpdateWidgetList ;
 };
 
 // フレームデータ削除コマンド
@@ -71,73 +105,63 @@ class Command_DelFrameData : public QUndoCommand
 {
 public:
 	Command_DelFrameData(CEditData *pEditData,
-						 QModelIndex &index,
+						 CObjectModel::typeID objID,
+						 CObjectModel::typeID layerID,
 						 int frame,
 						 QList<QWidget *> &updateWidget) ;
-	void redo() ;
 	void undo() ;
+	void redo() ;
 
 private:
-	CEditData			*m_pEditData ;
-	CObjectModel		*m_pObjModel ;
-	FrameData			m_FrameData ;
-	QModelIndex			m_index ;
+	CEditData					*m_pEditData ;
+	CObjectModel				*m_pObjModel ;
+	CObjectModel::typeID		m_objID ;
+	CObjectModel::typeID		m_layerID ;
+	CObjectModel::FrameData		m_FrameData ;
+	int							m_Index ;
 
-	QList<QWidget *>	m_UpdateWidgetList ;
+	QList<QWidget *>			m_UpdateWidgetList ;
 };
 
 // フレームデータ編集コマンド
 class Command_EditFrameData : public QUndoCommand
 {
 public:
-	Command_EditFrameData(CEditData			*pEditData,
-						  QModelIndex		&index,
-						  int				frame,
-						  FrameData			&data,
-						  QList<QWidget *>	&updateWidget) ;
-	void redo() ;
+	Command_EditFrameData(CEditData							*pEditData,
+						  CObjectModel::typeID				objID,
+						  QList<CObjectModel::typeID>		&layerIDs,
+						  int								frame,
+						  QList<CObjectModel::FrameData>	&datas,
+						  QList<QWidget *>					&updateWidget) ;
 	void undo() ;
+	void redo() ;
 
 private:
-	CEditData			*m_pEditData ;
-	CObjectModel		*m_pObjModel ;
-	QModelIndex			m_index ;
-	FrameData			m_FrameData, m_OldFrameData ;
-	int					m_Frame ;
+	CEditData						*m_pEditData ;
+	CObjectModel					*m_pObjModel ;
+	CObjectModel::typeID			m_objID ;
+	QList<CObjectModel::typeID>		m_layerIDs ;
+	QList<CObjectModel::FrameData>	m_FrameData, m_OldFrameData ;
+	int								m_Frame ;
 
-	QList<QWidget *>	m_UpdateWidgetList ;
+	QList<QWidget *>				m_UpdateWidgetList ;
 };
 
 // オブジェクトコピーコマンド
 class Command_CopyObject : public QUndoCommand
 {
 public:
-	Command_CopyObject( CEditData *pEditData, QModelIndex &index, QList<QWidget *> &updateWidget ) ;
+	Command_CopyObject( CEditData *pEditData, CObjectModel::typeID objID, QList<QWidget *> &updateWidget ) ;
 
-	void redo() ;
 	void undo() ;
+	void redo() ;
 
 private:
 	CEditData						*m_pEditData ;
-	QModelIndex						m_index ;
+	CObjectModel::typeID			m_objID ;
 	QList<QWidget *>				m_UpdateWidgetList ;
+
+	CObjectModel::ObjectGroup		m_objGroup ;
 } ;
-
-// レイヤコピーコマンド
-class Command_CopyLayer : public QUndoCommand
-{
-public:
-	Command_CopyLayer( CEditData *pEditData, QModelIndex &index, ObjectItem *pLayer, QList<QWidget *> &updateWidget ) ;
-
-	void redo() ;
-	void undo() ;
-
-private:
-	CEditData						*m_pEditData ;
-	QModelIndex						m_index ;
-	ObjectItem						*m_pLayer ;
-	QList<QWidget *>				m_UpdateWidgetList ;
-} ;
-
 
 #endif // COMMAND_H

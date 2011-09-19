@@ -90,21 +90,20 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 						   ui->treeView->height());
 
 	{
-		CObjectModel *pModel = m_pEditData->getObjectModel() ;
+		QStandardItemModel *pTreeModel = m_pEditData->getTreeModel() ;
 
-		ui->treeView->setModel(pModel);
+		ui->treeView->setModel(pTreeModel);
 		ui->treeView->header()->setHidden(true);
 		ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-		ObjectItem *root = pModel->getItemFromIndex(QModelIndex()) ;
-		if ( !root->childCount() ) {
+		if ( !pTreeModel->invisibleRootItem()->rowCount() ) {
 			addNewObject(trUtf8("New Object"));
 		}
 		else {
-			if ( root->child(0) ) {
-				QModelIndex index = pModel->index(0) ;
-				m_pEditData->setSelIndex(index);
-				ui->treeView->setCurrentIndex(index);
+			QStandardItem *pItem = pTreeModel->item(0, 0) ;
+			if ( pItem ) {
+				ui->treeView->setCurrentIndex(pItem->index());
+				m_pEditData->setSelectObject(pItem);
 			}
 		}
 	}
@@ -139,18 +138,18 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 
 	connect(m_pGlWidget, SIGNAL(sig_dropedImage(QRect, QPoint, int)),
 			this,		SLOT(slot_dropedImage(QRect, QPoint, int))) ;
-    connect(m_pGlWidget, SIGNAL(sig_selectLayerChanged(QModelIndex)),
-            this,		SLOT(slot_selectLayerChanged(QModelIndex))) ;
-    connect(m_pGlWidget, SIGNAL(sig_dragedImage(FrameData)),
-            this,		SLOT(slot_setUI(FrameData))) ;
+	connect(m_pGlWidget, SIGNAL(sig_selectLayerChanged(QList<CObjectModel::typeID>)),
+			this,		SLOT(slot_selectLayerChanged(QList<CObjectModel::typeID>))) ;
+	connect(m_pGlWidget, SIGNAL(sig_dragedImage(CObjectModel::FrameData)),
+			this,		SLOT(slot_setUI(CObjectModel::FrameData))) ;
 	connect(m_pGlWidget, SIGNAL(sig_deleteFrameData()),
 			this,		SLOT(slot_deleteFrameData())) ;
-	connect(m_pGlWidget, SIGNAL(sig_selectPrevLayer(QModelIndex, int, FrameData)),
-			this,		SLOT(slot_addNewFrameData(QModelIndex, int, FrameData))) ;
+	connect(m_pGlWidget, SIGNAL(sig_selectPrevLayer(CObjectModel::typeID, CObjectModel::typeID, int, CObjectModel::FrameData)),
+			this,		SLOT(slot_addNewFrameData(CObjectModel::typeID, CObjectModel::typeID, int, CObjectModel::FrameData))) ;
 	connect(m_pGlWidget, SIGNAL(sig_frameDataMoveEnd()),
 			this,		SLOT(slot_frameDataMoveEnd())) ;
-    connect(m_pGlWidget, SIGNAL(sig_dragedImage(FrameData)),
-            this,		SLOT(slot_portDragedImage(FrameData))) ;
+	connect(m_pGlWidget, SIGNAL(sig_dragedImage(CObjectModel::FrameData)),
+			this,		SLOT(slot_portDragedImage(CObjectModel::FrameData))) ;
 //	connect(m_pGlWidget, SIGNAL(sig_copyFrameData()), this, SLOT(slot_copyFrameData())) ;
 //	connect(m_pGlWidget, SIGNAL(sig_pasteFrameData()), this, SLOT(slot_pasteFrameData())) ;
 
@@ -313,8 +312,6 @@ void AnimationForm::dbgDumpObject( void )
 	if ( !m_pEditData->getObjectModel() ) { return ; }
 
 	qDebug("Deump Object ------------------------") ;
-#if 0
-TODO
 	const CObjectModel::ObjectList &objList = m_pEditData->getObjectModel()->getObjectList() ;
 	for ( int i = 0 ; i < objList.size() ; i ++ ) {
 		qDebug("Object [%d] ID:%p", i, objList.at(i).id) ;
@@ -323,9 +320,9 @@ TODO
 		for ( int j = 0 ; j < layerGroupList.size() ; j ++ ) {
 			qDebug("  LayerGroup [%d] ID:%p", j, layerGroupList.at(j).first ) ;
 
-            const FrameDataList &frameDataList = layerGroupList.at(j).second ;
+			const CObjectModel::FrameDataList &frameDataList = layerGroupList.at(j).second ;
 			for ( int k = 0 ; k < frameDataList.size() ; k ++ ) {
-                const FrameData data = frameDataList.at(k) ;
+				const CObjectModel::FrameData data = frameDataList.at(k) ;
 				qDebug("    FrameData [%d] x:%d y:%d z:%d", k, data.pos_x, data.pos_y, data.pos_z) ;
 				qDebug("              cx:%d cy:%d frame:%d", data.center_x, data.center_y, data.frame) ;
 				qDebug("              scaX:%f scaY:%f", data.fScaleX, data.fScaleY) ;
@@ -334,7 +331,6 @@ TODO
 			}
 		}
 	}
-#endif
 	qDebug("end ---------------------------------") ;
 }
 
@@ -357,9 +353,10 @@ void AnimationForm::slot_createNewObject( void )
 	if ( !bOk ) { return ; }
 	if ( str.isEmpty() ) { return ; }
 
-	QModelIndex index = m_pEditData->cmd_addItem(str) ;
-	ui->treeView->setCurrentIndex(index) ;
-	m_pEditData->setSelIndex(index) ;
+//	addNewObject(str);
+	QStandardItem *newItem = m_pEditData->cmd_addNewObject(str);
+	ui->treeView->setCurrentIndex(newItem->index());
+	m_pEditData->setSelectObject(newItem);
 
 	ui->spinBox_loop->setValue(0);
 }
@@ -372,39 +369,38 @@ void AnimationForm::slot_deleteObject( void )
 
 	if ( !index.isValid() ) { return ; }
 
-	m_pEditData->cmd_delItem(index) ;
+	m_pEditData->cmd_delObject(index, m_pDataMarker);
 	slot_changeSelectObject(ui->treeView->currentIndex());
 }
 
 // フレームデータ削除
 void AnimationForm::slot_deleteFrameData(void)
 {
-#if 1
-	QModelIndex index = ui->treeView->currentIndex() ;
-	if ( !index.isValid() ) { return ; }
-
-	int frame = m_pEditData->getSelectFrame() ;
-
-	QList<QWidget *> update ;
-	update << m_pDataMarker << m_pGlWidget ;
-
-	m_pEditData->cmd_delFrameData(index, frame, update) ;
-#else
 	CObjectModel *pModel			= m_pEditData->getObjectModel() ;
 	CObjectModel::typeID objID		= m_pEditData->getSelectObject() ;
 	CObjectModel::typeID layerID	= m_pEditData->getSelectLayer() ;
 	int frame						= m_pEditData->getSelectFrame() ;
-
+#if 1
 	QList<QWidget *> update ;
 	update << m_pDataMarker << m_pGlWidget ;
 	m_pEditData->cmd_delFrameData(objID, layerID, frame, update) ;
 
-    FrameDataList *p = pModel->getFrameDataListFromID(objID, layerID) ;
+	CObjectModel::FrameDataList *p = pModel->getFrameDataListFromID(objID, layerID) ;
 	if ( !p || p->size() == 0 ) {
 		QStandardItem *item = (QStandardItem *)layerID ;
 		m_pEditData->cmd_delObject(item->index(), m_pDataMarker);
 		slot_changeSelectObject(ui->treeView->currentIndex());
 	}
+#else
+	if ( pModel->delLayerData(objID, layerID, frame) ) {
+		CObjectModel::FrameDataList *p = pModel->getFrameDataListFromID(objID, layerID) ;
+		if ( !p || p->size() == 0 ) {
+			QStandardItem *item = (QStandardItem *)layerID ;
+			m_pEditData->getTreeModel()->removeRow(item->index().row(), item->parent()->index()) ;
+			slot_changeSelectObject(ui->treeView->currentIndex());
+		}
+	}
+	m_pDataMarker->update();
 #endif
 }
 
@@ -416,25 +412,41 @@ void AnimationForm::slot_dropedImage( QRect rect, QPoint pos, int imageIndex )
 	int frameNum  = ui->horizontalSlider_nowSequence->value() ;
 	QModelIndex index = ui->treeView->currentIndex() ;
 
+	qDebug() << "AnimationForm::slot_dropedImage" ;
+	qDebug("row:%d col:%d ptr:%p root:%p", index.row(), index.column(), index.internalPointer(), m_pEditData->getTreeModel()->invisibleRootItem()) ;
+
 	if ( !index.isValid() ) {
 		qWarning() << "slot_dropedImage current index invalid 0" ;
 		return ;
 	}
 
-	ObjectItem *pObjItem = pModel->getObject(index) ;
-	if ( !pObjItem ) {
-		qWarning() << "slot_dropedImage current obj 0" ;
+	while ( index.internalPointer() != m_pEditData->getTreeModel()->invisibleRootItem() ) {
+		index = index.parent() ;
+		if ( !index.isValid() ) {
+			qWarning() << "slot_dropedImage current index invalid 1" ;
+			return ;
+		}
+	}
+
+	QStandardItem *pParentItem = m_pEditData->getTreeModel()->itemFromIndex(index) ;
+	if ( !pParentItem ) {
+		qWarning() << "slot_dropedImage pParentItem == NULLpo !!" ;
+		return ;
+	}
+
+	CObjectModel::LayerGroupList *pLayerGroupList = pModel->searchLayerGroupList(pParentItem) ;
+	if ( !pLayerGroupList ) {
+		qWarning() << "slot_dropedImage pLayerGroupList == NULLpo !!" ;
 		return ;
 	}
 
 	pos -= QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) ;	// GLWidgetのローカルポスに変換
 
-	index = m_pEditData->cmd_addItem(QString("Layer %1").arg(pObjItem->childCount()), index) ;
-	ui->treeView->setCurrentIndex(index) ;
-	m_pEditData->setSelIndex(index) ;
-
 	// ツリービューに追加
-    FrameData frameData ;
+	QStandardItem *newItem = new QStandardItem(QString("Layer %1").arg(pLayerGroupList->size())) ;
+	newItem->setData(1, Qt::CheckStateRole);
+#if 1
+	CObjectModel::FrameData frameData ;
 	frameData.pos_x = pos.x() ;
 	frameData.pos_y = pos.y() ;
 	frameData.pos_z = 0 ;
@@ -456,8 +468,41 @@ void AnimationForm::slot_dropedImage( QRect rect, QPoint pos, int imageIndex )
 	QList<QWidget *> updateWidget ;
 	updateWidget << m_pGlWidget ;
 	updateWidget << m_pDataMarker ;
+	CObjectModel::LayerGroup layerGroup ;
+	layerGroup.first = newItem ;
+	layerGroup.second.append(frameData) ;
+	m_pEditData->cmd_addNewLayer(index, newItem, layerGroup, updateWidget) ;
 
-	m_pEditData->cmd_addNewFrameData(index, frameData, updateWidget) ;
+	QList<CObjectModel::typeID> list ;
+	list << newItem ;
+	m_pEditData->setSelectLayer(list);
+	slot_selectLayerChanged(list) ;
+//	slot_setUI(frameData);
+#else
+	pParentItem->appendRow(newItem);
+
+	// データを追加
+	CObjectModel::FrameData frameData ;
+	frameData.x = pos.x() ;
+	frameData.y = pos.y() ;
+	frameData.z = 0 ;
+	frameData.center_x = (rect.width()) / 2 ;
+	frameData.center_y = (rect.height()) / 2 ;
+	frameData.frame = frameNum ;
+	frameData.fScaleX = frameData.fScaleY = 1.0f ;
+	frameData.setRect(rect);
+
+	CObjectModel::LayerGroup layerGroup ;
+	layerGroup.first = newItem ;
+	layerGroup.second.append(frameData) ;
+	pLayerGroupList->append(layerGroup);
+
+	m_pEditData->setSelectLayer(newItem);
+	slot_setUI(frameData);
+
+	m_pGlWidget->update();
+	m_pDataMarker->update();
+#endif
 }
 
 // 現在フレーム変更
@@ -466,39 +511,52 @@ void AnimationForm::slot_frameChanged(int frame)
 	bool bChange = (m_pEditData->getSelectFrame() != frame) ;
 	m_pEditData->setSelectFrame( frame ) ;
 	if ( bChange ) {
-		if ( m_pEditData->getSelIndex().isValid() ) {
-			ObjectItem *pItem = m_pEditData->getObjectModel()->getItemFromIndex(m_pEditData->getSelIndex()) ;
-			if ( pItem ) {
-				FrameData *pData = pItem->getFrameDataPtr(frame) ;
-				if ( pData ) {
-					slot_setUI(*pData) ;
+		QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+		if ( Datas.size() ) {
+			slot_setUI(*(Datas[0]));
+		}
+#if 1
+		else {
+			if ( m_pEditData->getSelectLayerNum() ) {
+				CObjectModel::typeID objID		= m_pEditData->getSelectObject() ;
+				CObjectModel::typeID layerID	= m_pEditData->getSelectLayer() ;
+				if ( objID && layerID ) {
+					CObjectModel *pModel = m_pEditData->getObjectModel() ;
+					CObjectModel::FrameData *pPrev = pModel->getFrameDataFromPrevFrame(objID, layerID, frame, false) ;
+					CObjectModel::FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
+					if ( pPrev ) {
+						CObjectModel::FrameData data = pPrev->getInterpolation(pNext, frame) ;
+						slot_setUI(data) ;
+					}
 				}
 			}
 		}
-
-		m_pGlWidget->update();
+#endif
+		m_pEditData->updateSelectData();
 	}
-}
-
-// 選択レイヤ変更
-void AnimationForm::slot_selectLayerChanged( QModelIndex indexLayer )
-{
-
-	if ( indexLayer.isValid() ) {
-		ui->treeView->setCurrentIndex(indexLayer) ;
-	}
-
-	ObjectItem *p = m_pEditData->getObjectModel()->getItemFromIndex(indexLayer) ;
-	FrameData *pData = p->getFrameDataPtr(m_pEditData->getSelectFrame()) ;
-	if ( pData ) {
-		slot_setUI(*pData) ;
-	}
-
 	m_pGlWidget->update();
 }
 
+// 選択レイヤ変更
+void AnimationForm::slot_selectLayerChanged( QList<CObjectModel::typeID> layerIDs )
+{
+	m_pEditData->setSelectLayer(layerIDs);
+	if ( layerIDs.size() <= 0 ) { return ; }
+
+	QStandardItem *item = (QStandardItem *)layerIDs[0] ;
+	if ( item ) {
+		ui->treeView->setCurrentIndex(item->index());
+	}
+
+	m_pGlWidget->update();
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( Datas.size() ) {
+		slot_setUI(*(Datas[0]));
+	}
+}
+
 // ＵＩ数値セット
-void AnimationForm::slot_setUI(FrameData data)
+void AnimationForm::slot_setUI(CObjectModel::FrameData data)
 {
 	m_bDontSetData = true ;
 	if ( data.pos_x != ui->spinBox_pos_x->value() ) { ui->spinBox_pos_x->setValue(data.pos_x); }
@@ -546,11 +604,11 @@ void AnimationForm::slot_changePosX( int val )
 	if ( m_bDontSetData ) { return ; }
 
 	addNowSelectLayerAndFrame();
-	FrameData *p = getNowSelectFrameData() ;
-	if ( !p ) { return ; }
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	p->pos_x = val ;
-	addCommandEdit(*p) ;
+	Datas[0]->pos_x = val ;
+	addCommandEdit(Datas) ;
 }
 
 // pos y 変更
@@ -560,11 +618,11 @@ void AnimationForm::slot_changePosY( int val )
 	if ( m_bDontSetData ) { return ; }
 
 	addNowSelectLayerAndFrame();
-	FrameData *p = getNowSelectFrameData() ;
-	if ( !p ) { return ; }
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	p->pos_y = val ;
-	addCommandEdit(*p) ;
+	Datas[0]->pos_y = val ;
+	addCommandEdit(Datas) ;
 }
 
 // pos z 変更
@@ -574,11 +632,11 @@ void AnimationForm::slot_changePosZ( int val )
 	if ( m_bDontSetData ) { return ; }
 
 	addNowSelectLayerAndFrame();
-	FrameData *p = getNowSelectFrameData() ;
-	if ( !p ) { return ; }
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	p->pos_z = val ;
-	addCommandEdit(*p) ;
+	Datas[0]->pos_z = val ;
+	addCommandEdit(Datas) ;
 }
 
 // rot x 変更
@@ -588,11 +646,11 @@ void AnimationForm::slot_changeRotX( int val )
 	if ( m_bDontSetData ) { return ; }
 
 	addNowSelectLayerAndFrame();
-	FrameData *p = getNowSelectFrameData() ;
-	if ( !p ) { return ; }
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	p->rot_x = val ;
-	addCommandEdit(*p) ;
+	Datas[0]->rot_x = val ;
+	addCommandEdit(Datas) ;
 }
 
 // rot y 変更
@@ -602,11 +660,11 @@ void AnimationForm::slot_changeRotY( int val )
 	if ( m_bDontSetData ) { return ; }
 
 	addNowSelectLayerAndFrame();
-	FrameData *p = getNowSelectFrameData() ;
-	if ( !p ) { return ; }
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	p->rot_y = val ;
-	addCommandEdit(*p) ;
+	Datas[0]->rot_y = val ;
+	addCommandEdit(Datas) ;
 }
 
 // rot z 変更
@@ -616,11 +674,11 @@ void AnimationForm::slot_changeRotZ( int val )
 	if ( m_bDontSetData ) { return ; }
 
 	addNowSelectLayerAndFrame();
-	FrameData *p = getNowSelectFrameData() ;
-	if ( !p ) { return ; }
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	p->rot_z = val ;
-	addCommandEdit(*p) ;
+	Datas[0]->rot_z = val ;
+	addCommandEdit(Datas) ;
 }
 
 // scale x 変更
@@ -630,11 +688,11 @@ void AnimationForm::slot_changeScaleX( double val )
 	if ( m_bDontSetData ) { return ; }
 
 	addNowSelectLayerAndFrame();
-	FrameData *p = getNowSelectFrameData() ;
-	if ( !p ) { return ; }
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	p->fScaleX = val ;
-	addCommandEdit(*p) ;
+	Datas[0]->fScaleX = val ;
+	addCommandEdit(Datas) ;
 }
 
 // scale y 変更
@@ -644,11 +702,11 @@ void AnimationForm::slot_changeScaleY( double val )
 	if ( m_bDontSetData ) { return ; }
 
 	addNowSelectLayerAndFrame();
-	FrameData *p = getNowSelectFrameData() ;
-	if ( !p ) { return ; }
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	p->fScaleY = val ;
-	addCommandEdit(*p) ;
+	Datas[0]->fScaleY = val ;
+	addCommandEdit(Datas) ;
 }
 
 // uv left 変更
@@ -658,13 +716,13 @@ void AnimationForm::slot_changeUvLeft( int val )
 	if ( m_bDontSetData ) { return ; }
 
 	addNowSelectLayerAndFrame();
-	FrameData *p = getNowSelectFrameData() ;
-	if ( !p ) { return ; }
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	p->left = val ;
-	addCommandEdit(*p) ;
+	Datas[0]->left = val ;
+	addCommandEdit(Datas) ;
 
-	QRect rect = p->getRect() ;
+	QRect rect = Datas[0]->getRect() ;
 	m_pEditData->setCatchRect(rect);
 	emit sig_imageRepaint() ;
 }
@@ -676,13 +734,13 @@ void AnimationForm::slot_changeUvRight( int val )
 	if ( m_bDontSetData ) { return ; }
 
 	addNowSelectLayerAndFrame();
-	FrameData *p = getNowSelectFrameData() ;
-	if ( !p ) { return ; }
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	p->right = val ;
-	addCommandEdit(*p) ;
+	Datas[0]->right = val ;
+	addCommandEdit(Datas) ;
 
-	QRect rect = p->getRect() ;
+	QRect rect = Datas[0]->getRect() ;
 	m_pEditData->setCatchRect(rect);
 	emit sig_imageRepaint() ;
 }
@@ -694,13 +752,13 @@ void AnimationForm::slot_changeUvTop( int val )
 	if ( m_bDontSetData ) { return ; }
 
 	addNowSelectLayerAndFrame();
-	FrameData *p = getNowSelectFrameData() ;
-	if ( !p ) { return ; }
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	p->top = val ;
-	addCommandEdit(*p) ;
+	Datas[0]->top = val ;
+	addCommandEdit(Datas) ;
 
-	QRect rect = p->getRect() ;
+	QRect rect = Datas[0]->getRect() ;
 	m_pEditData->setCatchRect(rect);
 	emit sig_imageRepaint() ;
 }
@@ -712,13 +770,13 @@ void AnimationForm::slot_changeUvBottom( int val )
 	if ( m_bDontSetData ) { return ; }
 
 	addNowSelectLayerAndFrame();
-	FrameData *p = getNowSelectFrameData() ;
-	if ( !p ) { return ; }
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	p->bottom = val ;
-	addCommandEdit(*p) ;
+	Datas[0]->bottom = val ;
+	addCommandEdit(Datas) ;
 
-	QRect rect = p->getRect() ;
+	QRect rect = Datas[0]->getRect() ;
 	m_pEditData->setCatchRect(rect);
 	emit sig_imageRepaint() ;
 }
@@ -730,11 +788,12 @@ void AnimationForm::slot_changeCenterX( int val )
 	if ( m_bDontSetData ) { return ; }
 
 	addNowSelectLayerAndFrame();
-	FrameData *p = getNowSelectFrameData() ;
-	if ( !p ) { return ; }
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	p->center_x = val ;
-	addCommandEdit(*p) ;
+	Datas[0]->center_x = val ;
+
+	addCommandEdit(Datas) ;
 }
 
 // center y 変更
@@ -744,11 +803,12 @@ void AnimationForm::slot_changeCenterY( int val )
 	if ( m_bDontSetData ) { return ; }
 
 	addNowSelectLayerAndFrame();
-	FrameData *p = getNowSelectFrameData() ;
-	if ( !p ) { return ; }
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	p->center_y = val ;
-	addCommandEdit(*p) ;
+	Datas[0]->center_y = val ;
+
+	addCommandEdit(Datas) ;
 }
 
 // ツリービュー メニューリクエスト
@@ -757,14 +817,13 @@ void AnimationForm::slot_treeViewMenuReq(QPoint treeViewLocalPos)
 	QMenu menu(this) ;
 	menu.addAction(m_pActTreeViewAdd) ;
 	menu.addAction(m_pActTreeViewDel) ;
-
-	if ( m_pEditData->getObjectModel()->isLayer(m_pEditData->getSelIndex()) ) {
+	if ( ui->treeView->currentIndex().internalPointer() != m_pEditData->getTreeModel()->invisibleRootItem() ) {
 		// レイヤ選択中だったら
 		menu.addAction(m_pActTreeViewLayerDisp) ;
 		menu.addAction(m_pActCopyLayer) ;
 		menu.addAction(m_pActTreeViewLayerLock) ;
 	}
-	else if ( m_pEditData->getObjectModel()->isObject(m_pEditData->getSelIndex()) ) {
+	else {
 		// オブジェクト選択中だったら
 		menu.addAction(m_pActTreeViewCopy) ;
 	}
@@ -777,16 +836,16 @@ void AnimationForm::slot_treeViewMenuReq(QPoint treeViewLocalPos)
 // ツリービュー ダブルクリック
 void AnimationForm::slot_treeViewDoubleClicked(QModelIndex index)
 {
-	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	if ( !pModel->isLayer(index) ) { return ; }
+	QStandardItemModel *pTreeModel = m_pEditData->getTreeModel() ;
+	QStandardItem *pItem = pTreeModel->itemFromIndex(index) ;
 
-	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
 	if ( !pItem ) { return ; }
+	if ( index.internalPointer() == pTreeModel->invisibleRootItem() ) { return ; }	// オブジェクト選択中
 
 	QVariant flag = pItem->data(Qt::CheckStateRole) ;
 	int f = flag.toInt() ;
-	if ( f & ObjectItem::kState_Disp )	{ f &= ~ObjectItem::kState_Disp ; }
-	else								{ f |= ObjectItem::kState_Disp ; }
+	if ( f & 0x01 )	{ f &= ~0x01 ; }
+	else			{ f |= 0x01 ; }
 	pItem->setData(f, Qt::CheckStateRole);
 	m_pGlWidget->update();
 }
@@ -794,22 +853,36 @@ void AnimationForm::slot_treeViewDoubleClicked(QModelIndex index)
 // 選択オブジェクト変更
 void AnimationForm::slot_changeSelectObject(QModelIndex index)
 {
-	m_pEditData->setSelIndex(index) ;
+	QList<CObjectModel::typeID> list ;
+	m_pEditData->setSelectObject(0);
+	m_pEditData->setSelectLayer(list);
 
 	if ( !index.isValid() ) { return ; }
 
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
 
-	if ( pModel->isLayer(index) ) {
-		ObjectItem *pItem = pModel->getItemFromIndex(index) ;
-		FrameData *pData = pItem->getFrameDataPtr(m_pEditData->getSelectFrame()) ;
+	if ( index.internalPointer() == m_pEditData->getTreeModel()->invisibleRootItem() ) {	// オブジェクト選択
+		qDebug("select Object:%d", index.row()) ;
+		m_pEditData->setSelectObject(m_pEditData->getTreeModel()->itemFromIndex(index));
+	}
+	else {		// レイヤ選択
+		qDebug("select Layer:%d parent:%d", index.row(), index.parent().row()) ;
+		list << m_pEditData->getTreeModel()->itemFromIndex(index) ;
+		m_pEditData->setSelectObject(m_pEditData->getTreeModel()->itemFromIndex(index.parent()));
+		m_pEditData->setSelectLayer(list);
+
+		CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(m_pEditData->getSelectObject(),
+																			m_pEditData->getSelectLayer(),
+																			m_pEditData->getSelectFrame()) ;
 		if ( pData ) {
-			slot_setUI(*pData) ;
+			slot_setUI(*pData);
 		}
 	}
-	ObjectItem *pObj = pModel->getObject(index) ;
-	if ( pObj ) {
-		ui->spinBox_loop->setValue(pObj->getLoop());
+
+	// ループ回数設定
+	CObjectModel::ObjectGroup *pObjGroup = pModel->getObjectGroupFromID(m_pEditData->getSelectObject()) ;
+	if ( pObjGroup ) {
+		ui->spinBox_loop->setValue(pObjGroup->nLoop);
 	}
 
 	m_pDataMarker->repaint();
@@ -819,7 +892,7 @@ void AnimationForm::slot_changeSelectObject(QModelIndex index)
 // アニメ再生
 void AnimationForm::slot_playAnimation( void )
 {
-	if ( !m_pEditData->getPauseAnime() ) {	// ポーズ中じゃなかったら０フレームから再生
+	if ( !m_pEditData->isPauseAnime() ) {	// ポーズ中じゃなかったら０フレームから再生
 		ui->horizontalSlider_nowSequence->setValue(0);
 		m_pEditData->setCurrLoopNum(0);
 	}
@@ -827,10 +900,7 @@ void AnimationForm::slot_playAnimation( void )
 	m_pEditData->setPlayAnime(true) ;
 
 	// 最大フレーム設定
-	ObjectItem *p = m_pEditData->getObjectModel()->getObject(m_pEditData->getSelIndex()) ;
-	if ( p ) {
-		m_nMaxFrameNum = p->getMaxFrameNum() ;
-	}
+	m_nMaxFrameNum = m_pEditData->getObjectModel()->getMaxFrameFromSelectObject(m_pEditData->getSelectObject());
 
 	m_pEditData->setPauseAnime(false);
 	disconnect(ui->pushButton_play, SIGNAL(clicked()), this, SLOT(slot_playAnimation())) ;
@@ -883,29 +953,70 @@ void AnimationForm::slot_stopAnimation( void )
 // 前フレームのフレームデータに変更
 void AnimationForm::slot_backwardFrameData( void )
 {
+#if 1
+	// 選択中のレイヤだけ
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
+	if ( !objID || !layerID ) { return ; }
+
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	if ( !pModel->isLayer(m_pEditData->getSelIndex()) ) {
+	const CObjectModel::FrameDataList *pFrameDataList = pModel->getFrameDataListFromID(objID, layerID) ;
+	if ( !pFrameDataList ) {
 		return ;
 	}
-	for ( int i = m_pEditData->getSelectFrame() - 1 ; i >= 0 ; i -- ) {
-		if ( setSelectFrameDataFromFrame(i, m_pEditData->getSelIndex()) ) {
+	for ( int i = m_pEditData->getSelectFrame()-1 ; i >= 0 ; i -- ) {
+		if ( setSelectFrameDataFromFrame(i, layerID, *pFrameDataList) ) {
 			break ;
 		}
 	}
+#else
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	if ( !objID ) { return ; }
+
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	const CObjectModel::LayerGroupList *pLayerGroupList = pModel->getLayerGroupListFromID(objID) ;
+	if ( !pLayerGroupList ) { return ; }
+
+	for ( int i = m_pEditData->getSelectFrame()-1 ; i >= 0 ; i -- ) {
+		if ( setSelectFrameDataFromFrame(i, *pLayerGroupList) ) {
+			break ;
+		}
+	}
+#endif
 }
 
 // 次フレームのフレームデータに変更
 void AnimationForm::slot_forwardFrameData( void )
 {
+#if 1
+	// 選択中のレイヤだけ
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
+	if ( !objID || !layerID ) { return ; }
+
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	if ( !pModel->isLayer(m_pEditData->getSelIndex()) ) {
+	const CObjectModel::FrameDataList *pFrameDataList = pModel->getFrameDataListFromID(objID, layerID) ;
+	if ( !pFrameDataList ) {
 		return ;
 	}
-	for ( int i = m_pEditData->getSelectFrame() + 1 ; i <= CEditData::kMaxFrame ; i ++ ) {
-		if ( setSelectFrameDataFromFrame(i, m_pEditData->getSelIndex()) ) {
+	for ( int i = m_pEditData->getSelectFrame()+1 ; i <= CEditData::kMaxFrame ; i ++ ) {
+		if ( setSelectFrameDataFromFrame(i, layerID, *pFrameDataList) ) {
 			break ;
 		}
 	}
+#else
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	if ( !objID ) { return ; }
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	const CObjectModel::LayerGroupList *pLayerGroupList = pModel->getLayerGroupListFromID(objID) ;
+	if ( !pLayerGroupList ) { return ; }
+
+	for ( int i = m_pEditData->getSelectFrame()+1 ; i <= CEditData::kMaxFrame ; i ++ ) {
+		if ( setSelectFrameDataFromFrame(i, *pLayerGroupList) ) {
+			break ;
+		}
+	}
+#endif
 }
 
 // タイマイベント。フレームを進める
@@ -937,42 +1048,60 @@ void AnimationForm::slot_timerEvent( void )
 }
 
 // フレームデータ追加
-void AnimationForm::slot_addNewFrameData( QModelIndex indexLayer, int frame, FrameData data )
+void AnimationForm::slot_addNewFrameData( CObjectModel::typeID objID, CObjectModel::typeID layerID, int frame, CObjectModel::FrameData data )
 {
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	if ( !pModel->isLayer(indexLayer) ) { return ; }
+	CObjectModel::FrameDataList *pFDList = pModel->getFrameDataListFromID(objID, layerID) ;
 
+	if ( !pFDList ) { return ; }
+	for ( int i = 0 ; i < pFDList->size() ; i ++ ) {
+		const CObjectModel::FrameData &Data = pFDList->at(i) ;
+		if ( Data.frame == frame ) { return ; }		// 同フレームのデータがあったら終わる
+	}
+#if 1
 	data.frame = frame ;
 	QList<QWidget *> update ;
 	update << m_pDataMarker << m_pGlWidget ;
-	m_pEditData->cmd_addNewFrameData(indexLayer, data, update) ;
+	m_pEditData->cmd_addNewFrameData(objID, layerID, data, update) ;
+#else
+	data.frame = frame ;
+	pFDList->append(data);
+
+	m_pDataMarker->update();
+#endif
 }
 
 // レイヤ表示ON/OFF
 void AnimationForm::slot_changeLayerDisp( void )
 {
-	slot_treeViewDoubleClicked(m_pEditData->getSelIndex()) ;
+	QModelIndex index = ui->treeView->currentIndex() ;
+	if ( !index.isValid() ) { return ; }
+	if ( index.internalPointer() == m_pEditData->getTreeModel()->invisibleRootItem() ) { return ; }	// オブジェクト選択中
+
+	slot_treeViewDoubleClicked(index) ;
 }
 
 // レイヤロック ON/OFF
 void AnimationForm::slot_changeLayerLock( void )
 {
-	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	QStandardItemModel *pTreeModel = m_pEditData->getTreeModel() ;
 	QModelIndex index = ui->treeView->currentIndex() ;
 
-	if ( !pModel->isLayer(index) ) { return ; }
-	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
+	if ( !index.isValid() ) { return ; }
+	if ( index.internalPointer() == pTreeModel->invisibleRootItem() ) { return ; }	// オブジェクト選択中
+	QStandardItem *pItem = pTreeModel->itemFromIndex(index) ;
+
 	if ( !pItem ) { return ; }
 
 	QVariant flag = pItem->data(Qt::CheckStateRole) ;
 	int f = flag.toInt() ;
 	QBrush brush ;
-	if ( f & ObjectItem::kState_Lock )	{
-		f &= ~ObjectItem::kState_Lock ;
+	if ( f & 0x02 )	{
+		f &= ~0x02 ;
 		brush.setColor(QColor(0, 0, 0));
 	}
 	else {
-		f |= ObjectItem::kState_Lock ;
+		f |= 0x02 ;
 		brush.setColor(QColor(255, 0, 0));
 	}
 	pItem->setData(f, Qt::CheckStateRole);
@@ -984,14 +1113,14 @@ void AnimationForm::slot_changeLayerLock( void )
 void AnimationForm::slot_changeSelectLayerUV( QRect rect )
 {
 	addNowSelectLayerAndFrame();
-	FrameData *p = getNowSelectFrameData() ;
-	if ( !p ) {
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) {
 		return ;
 	}
-	p->setRect(rect) ;
-	addCommandEdit(*p) ;
+	Datas[0]->setRect(rect) ;
+	addCommandEdit(Datas) ;
 
-	slot_setUI(*p);
+	slot_setUI(*(Datas[0]));
 }
 
 // FPS変更
@@ -1053,35 +1182,51 @@ void AnimationForm::slot_delImage( int imageNo )
 void AnimationForm::slot_changeImageIndex(QString index)
 {
 	addNowSelectLayerAndFrame();
-	FrameData *p = getNowSelectFrameData() ;
-	if ( !p ) { return ; }
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) {
+		return ;
+	}
 	qDebug() << "changeImageIndex:" << index ;
 
-	p->nImage = index.toInt() ;
+	for ( int i = 0 ; i < Datas.size() ; i ++ ) {
+		Datas[i]->nImage = index.toInt() ;
+	}
 	m_pGlWidget->update();
-	addCommandEdit(*p) ;
+	addCommandEdit(Datas) ;
 }
 
 // UVアニメON/OFF
 void AnimationForm::slot_changeUVAnime( bool flag )
 {
 	addNowSelectLayerAndFrame();
-	FrameData *p = getNowSelectFrameData() ;
-	if ( !p ) { return ; }
-	p->bUVAnime = flag ;
-	addCommandEdit(*p) ;
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) {
+		return ;
+	}
+	for ( int i = 0 ; i < Datas.size() ; i ++ ) {
+		Datas[i]->bUVAnime = flag ;
+	}
+	addCommandEdit(Datas) ;
 }
 
 // イメージ更新
 void AnimationForm::slot_modifiedImage(int index)
 {
+#if 1
 	CEditData::ImageData *p = m_pEditData->getImageData(index) ;
 	if ( !p ) { return ; }
 	if ( p->nTexObj ) {
 		m_pGlWidget->deleteTexture(p->nTexObj);
 	}
 	p->nTexObj = m_pGlWidget->bindTexture(p->Image) ;
-
+#else
+	QImage &image = m_pEditData->getImage(index) ;
+	if ( m_pEditData->getTexObj(index) ) {
+		m_pGlWidget->deleteTexture(m_pEditData->getTexObj(index)) ;
+	}
+	GLuint obj = m_pGlWidget->bindTexture(image) ;
+	m_pEditData->setTexObj(index, obj);
+#endif
 	m_pGlWidget->update();
 }
 
@@ -1099,16 +1244,27 @@ void AnimationForm::slot_endedOption( void )
 // マウスでのデータ編集終了時
 void AnimationForm::slot_frameDataMoveEnd( void )
 {
+/*
+	int i ;
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	QModelIndex index = m_pEditData->getSelIndex() ;
-	if ( !pModel->isLayer(index) ) { return ; }
+	for ( i = 0 ; i < m_pEditData->getSelectLayerNum() ; i ++ ) {
+		CObjectModel::FrameData *p = pModel->getFrameDataFromIDAndFrame(m_pEditData->getSelectObject(),
+																		m_pEditData->getSelectLayer(i),
+																		m_pEditData->getSelectFrame()) ;
+		if ( !p ) { continue ; }
+		if ( !m_pEditData->getSelectFrameData(i) ) { continue ; }
+		if ( (*p) != *m_pEditData->getSelectFrameData(i) ) {
+			break ;
+		}
+	}
+	if ( i == m_pEditData->getSelectLayerNum() ) { return ; }	// データが変わっていない
+*/
+	QList<CObjectModel::FrameData *> data_ptrs ;
+	for ( int i = 0 ; i < m_pEditData->getSelectFrameDataNum() ; i ++ ) {
+		data_ptrs.insert(i, m_pEditData->getSelectFrameData(i));
+	}
 
-	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
-	if ( !pItem ) { return ; }
-
-	FrameData *p = pItem->getFrameDataPtr(m_pEditData->getSelectFrame()) ;
-	if ( !p ) { return ; }
-	addCommandEdit(*p) ;
+	addCommandEdit(data_ptrs);
 }
 
 // ラジオボタン POS クリック
@@ -1150,12 +1306,13 @@ void AnimationForm::slot_clickedRadioScale( bool flag )
 // ループ回数変更
 void AnimationForm::slot_changeLoop( int val )
 {
-	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	QModelIndex index = m_pEditData->getSelIndex() ;
-	if ( index.isValid() ) { return ; }
+	CObjectModel *pObjModel = m_pEditData->getObjectModel() ;
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	if ( !objID ) { return ; }
 
-	ObjectItem *pItem = pModel->getObject(index) ;
-	pItem->setLoop(val);
+	CObjectModel::ObjectGroup *p = pObjModel->getObjectGroupFromID(objID) ;
+	if ( !p ) { return ; }
+	p->nLoop = val ;
 }
 
 // 色R変更
@@ -1164,11 +1321,11 @@ void AnimationForm::slot_changeColorR( int val )
 	if ( m_bDontSetData ) { return ; }
 
 	addNowSelectLayerAndFrame();
-	FrameData *p = getNowSelectFrameData() ;
-	if ( !p ) { return ; }
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	p->rgba[0] = val ;
-	addCommandEdit(*p) ;
+	Datas[0]->rgba[0] = val ;
+	addCommandEdit(Datas) ;
 }
 
 // 色G変更
@@ -1177,11 +1334,11 @@ void AnimationForm::slot_changeColorG( int val )
 	if ( m_bDontSetData ) { return ; }
 
 	addNowSelectLayerAndFrame();
-	FrameData *p = getNowSelectFrameData() ;
-	if ( !p ) { return ; }
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	p->rgba[1] = val ;
-	addCommandEdit(*p) ;
+	Datas[0]->rgba[1] = val ;
+	addCommandEdit(Datas) ;
 }
 
 // 色B変更
@@ -1190,11 +1347,11 @@ void AnimationForm::slot_changeColorB( int val )
 	if ( m_bDontSetData ) { return ; }
 
 	addNowSelectLayerAndFrame();
-	FrameData *p = getNowSelectFrameData() ;
-	if ( !p ) { return ; }
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	p->rgba[2] = val ;
-	addCommandEdit(*p) ;
+	Datas[0]->rgba[2] = val ;
+	addCommandEdit(Datas) ;
 }
 
 // 色A変更
@@ -1203,32 +1360,60 @@ void AnimationForm::slot_changeColorA( int val )
 	if ( m_bDontSetData ) { return ; }
 
 	addNowSelectLayerAndFrame();
-	FrameData *p = getNowSelectFrameData() ;
-	if ( !p ) { return ; }
+	QList<CObjectModel::FrameData *> Datas = getNowSelectFrameData() ;
+	if ( !Datas.size() ) { return ; }
 
-	p->rgba[3] = val ;
-	addCommandEdit(*p) ;
+	Datas[0]->rgba[3] = val ;
+	addCommandEdit(Datas) ;
 }
 
 
 // 現在選択しているフレームデータ取得
-FrameData *AnimationForm::getNowSelectFrameData( void )
+QList<CObjectModel::FrameData *> AnimationForm::getNowSelectFrameData( void )
 {
-	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	if ( !pModel->isLayer(m_pEditData->getSelIndex()) ) { return NULL ; }
-	int frame = m_pEditData->getSelectFrame() ;
-	return pModel->getItemFromIndex(m_pEditData->getSelIndex())->getFrameDataPtr(frame) ;
+	QList<CObjectModel::FrameData *> ret ;
+
+	for ( int i = 0 ; i < m_pEditData->getSelectFrameDataNum() ; i ++ ) {
+		ret << m_pEditData->getSelectFrameData(i) ;
+	}
+	return ret ;
 }
 
 // 選択オブジェクトをコピー
 void AnimationForm::slot_copyObject( void )
 {
-	QModelIndex index = m_pEditData->getSelIndex() ;
-	if ( !index.isValid() ) { return ; }
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	if ( !objID ) { return ; }
 
+#if 1
 	QList<QWidget *> updateWidget ;
 	updateWidget << m_pGlWidget << this ;
-	m_pEditData->cmd_copyObject(index, updateWidget) ;
+	m_pEditData->cmd_copyObject(objID, updateWidget) ;
+#else
+	QStandardItem *pObjItem = objID ;
+	QString newName = pObjItem->text() + "_copy" ;
+
+	addNewObject(newName) ;
+	CObjectModel::typeID newObjID = m_pEditData->getSelectObject() ;
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	CObjectModel::ObjectGroup *pSrcObj = pModel->getObjectGroupFromID(objID) ;
+	CObjectModel::ObjectGroup *pDstObj = pModel->getObjectGroupFromID(newObjID) ;
+	if ( !pSrcObj || !pDstObj ) {
+		qDebug() << "copy failed!!" ;
+		return ;
+	}
+	for ( int i = 0 ; i < pSrcObj->layerGroupList.size() ; i ++ ) {
+		CObjectModel::FrameDataList *pList = &pSrcObj->layerGroupList[i].second ;
+		CObjectModel::FrameDataList newFrameDataList ;
+		for ( int j = 0 ; j < pList->size() ; j ++ ) {
+			newFrameDataList.append(pList[j]);
+		}
+		QString name = pSrcObj->layerGroupList[i].first->text() ;
+		QStandardItem *pItem = new QStandardItem(name) ;
+		CObjectModel::LayerGroup layerGroup = qMakePair(pItem, newFrameDataList) ;
+		pDstObj->layerGroupList.append(layerGroup);
+	}
+#endif
 }
 
 void AnimationForm::slot_changeDrawFrame(bool flag)
@@ -1245,7 +1430,7 @@ void AnimationForm::slot_changeDrawCenter(bool flag)
 	emit sig_portCheckDrawCenter(flag) ;
 }
 
-void AnimationForm::slot_portDragedImage(FrameData data)
+void AnimationForm::slot_portDragedImage(CObjectModel::FrameData data)
 {
 	emit sig_portDragedImage(data) ;
 }
@@ -1258,28 +1443,31 @@ void AnimationForm::slot_clickPicker( void )
 void AnimationForm::slot_setColorFromPicker(QRgb rgba)
 {
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	QModelIndex index = m_pEditData->getSelIndex() ;
-	if ( !pModel->isLayer(index) ) { return ; }
-
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
 	int frame = m_pEditData->getSelectFrame() ;
-	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
-	FrameData *pData = pItem->getFrameDataPtr(frame) ;
-	if ( !pData ) {
-		pData = pModel->getFrameDataFromPrevFrame(index, frame, true) ;
-		if ( !pData ) { return ; }
-		FrameData *pNext = pModel->getFrameDataFromNextFrame(index, frame) ;
-		FrameData data = pData->getInterpolation(pNext, frame) ;
+	if ( !objID || !layerID ) {
+		return ;
+	}
+
+	CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
+	if ( !pData ) {	// 新規追加
+		pData = pModel->getFrameDataFromPrevFrame(objID, layerID, frame) ;
+		CObjectModel::FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
+		CObjectModel::FrameData data = pData->getInterpolation(pNext, frame) ;
 		data.rgba[0] = qRed(rgba) ;
 		data.rgba[1] = qGreen(rgba) ;
 		data.rgba[2] = qBlue(rgba) ;
-		slot_addNewFrameData(index, frame, data);
+		slot_addNewFrameData(objID, layerID, frame, data);
 	}
 	else {
 		pData->rgba[0] = qRed(rgba) ;
 		pData->rgba[1] = qGreen(rgba) ;
 		pData->rgba[2] = qBlue(rgba) ;
 
-		addCommandEdit(*pData);
+		QList<CObjectModel::FrameData *> datas ;
+		datas << pData ;
+		addCommandEdit(datas);
 	}
 }
 
@@ -1294,57 +1482,116 @@ void AnimationForm::addNewObject( QString str )
 {
 	if ( str.isEmpty() ) { return ; }
 
-	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	QModelIndex index = pModel->addItem(str, QModelIndex()) ;
-	ui->treeView->setCurrentIndex(index);
-	m_pEditData->setSelIndex(index) ;
+	QStandardItem *newItem = new QStandardItem(str) ;
+	QStandardItem *item = m_pEditData->getTreeModel()->invisibleRootItem() ;
+	item->appendRow(newItem) ;
+	qDebug("addNewObject row:%d col:%d ptr:%p root:%p", newItem->index().row(), newItem->index().column(), newItem->index().internalPointer(), item) ;
+
+	CObjectModel::ObjectGroup obj ;
+	obj.id = newItem ;
+	obj.nCurrentLoop = 0 ;
+	obj.nLoop = 0 ;
+	m_pEditData->getObjectModel()->addObject(obj) ;
+
+	qDebug("newItem valid:%d row:%d col:%d", newItem->index().isValid(), newItem->row(), newItem->column()) ;
+	ui->treeView->setCurrentIndex(newItem->index());
+	m_pEditData->setSelectObject(newItem);
+
+	ui->spinBox_loop->setValue(0);
+
 }
 
 // フレームデータ編集コマンド
-void AnimationForm::addCommandEdit( FrameData data )
+void AnimationForm::addCommandEdit( QList<CObjectModel::FrameData *> &rData )
 {
-	int frame	= m_pEditData->getSelectFrame() ;
+	CObjectModel::typeID	objID	= m_pEditData->getSelectObject() ;
+	int						frame	= m_pEditData->getSelectFrame() ;
 	QList<QWidget *> update ;
+	QList<CObjectModel::FrameData> datas ;
+
+	if ( rData.size() <= 0 ) { return ; }
+
+	for ( int i = 0 ; i < rData.size() ; i ++ ) {
+		datas.insert(i, *(rData[i])) ;
+	}
 
 	update << m_pGlWidget << this ;
-	m_pEditData->cmd_editFrameData(m_pEditData->getSelIndex(), frame, data, update);
+	m_pEditData->cmd_editFrameData(objID, m_pEditData->getSelectLayers(), frame, datas, update);
 }
 
 // 指定フレームのフレームデータを選択する
-bool AnimationForm::setSelectFrameDataFromFrame( int frame, QModelIndex indexLayer )
+#if 1
+bool AnimationForm::setSelectFrameDataFromFrame( int frame, CObjectModel::typeID layerID, const CObjectModel::FrameDataList &frameDataList )
 {
-	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	if ( !pModel->isLayer(indexLayer) ) { return false ; }
-	ObjectItem *pItem = pModel->getItemFromIndex(indexLayer) ;
-	FrameData *pData = pItem->getFrameDataPtr(frame) ;
-	if ( !pData ) { return false ; }
-
-	ui->spinBox_nowSequence->setValue(frame);
-	slot_setUI(*pData);
-	m_pGlWidget->update();
-	return true ;
+	for ( int i = 0 ; i < frameDataList.size() ; i ++ ) {
+		if ( frame == frameDataList[i].frame ) {
+			QList<CObjectModel::typeID> layers ;
+			layers << layerID ;
+			m_pEditData->setSelectFrame(frame) ;
+			m_pEditData->setSelectLayer(layers);
+			ui->spinBox_nowSequence->setValue(frame);
+			QList<CObjectModel::FrameData *> datas = getNowSelectFrameData() ;
+			if ( datas.size() <= 0 ) {
+				qDebug() << "setSelectFrameDataFromFrame:frame data not found!!" ;
+			}
+			slot_setUI(*(datas[0]));
+			m_pGlWidget->update();
+			return true ;
+		}
+	}
+	return false ;
 }
+#else
+bool AnimationForm::setSelectFrameDataFromFrame( int frame, const CObjectModel::LayerGroupList &layerGroupList )
+{
+	for ( int i = 0 ; i < layerGroupList.size() ; i ++ ) {
+		const CObjectModel::LayerGroup &layerGroup = layerGroupList.at(i) ;
+		CObjectModel::typeID layerID = layerGroup.first ;
+		const CObjectModel::FrameDataList &frameDataList = layerGroup.second ;
+		for ( int j = 0 ; j < frameDataList.size() ; j ++ ) {
+			if ( frame == frameDataList[j].frame ) {
+				QList<CObjectModel::typeID> layers ;
+				layers << layerID ;
+				m_pEditData->setSelectFrame(frame) ;
+				m_pEditData->setSelectLayer(layers);
+				ui->spinBox_nowSequence->setValue(frame);
+				QList<CObjectModel::FrameData *> datas = getNowSelectFrameData() ;
+				if ( datas.size() <= 0 ) {
+					qDebug() << "setSelectFrameDataFromFrame:frame data not found!!" ;
+				}
+				slot_setUI(*(datas[0]));
+				m_pGlWidget->update();
+				return true ;
+			}
+		}
+	}
+	return false ;
+}
+#endif
 
 // 選択レイヤの選択フレームにフレームデータを追加
 void AnimationForm::addNowSelectLayerAndFrame( void )
 {
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	QModelIndex index = m_pEditData->getSelIndex() ;
-
-	if ( !pModel->isLayer(index) ) { return ; }
-
-	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
-	if ( !pItem ) { return ; }
-
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
 	int frame = m_pEditData->getSelectFrame() ;
-	if ( pItem->getFrameDataPtr(frame) ) { return ; }
 
-	FrameData *pPrev = pModel->getFrameDataFromPrevFrame(index, frame, true) ;
-	if ( !pPrev ) { return ; }
-	FrameData *pNext = pModel->getFrameDataFromNextFrame(index, frame) ;
-	FrameData data = pPrev->getInterpolation(pNext, frame) ;
+	if ( !objID ) { return ; }
 
-	slot_addNewFrameData(index, frame, data) ;	// フレームデータ追加
+	for ( int i = 0 ; i < m_pEditData->getSelectLayerNum() ; i ++ ) {
+		CObjectModel::typeID layerID = m_pEditData->getSelectLayer(i) ;
+		if ( !layerID ) { continue ; }
+		if ( pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ) { continue ; }	// すでにデータある
+
+		CObjectModel::FrameData *pPrev = pModel->getFrameDataFromPrevFrame(objID, layerID, frame, true) ;
+		if ( !pPrev ) { continue ; }
+		CObjectModel::FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
+		CObjectModel::FrameData data = pPrev->getInterpolation(pNext, frame) ;
+
+		slot_addNewFrameData(objID, layerID, frame, data) ;	// フレームデータ追加
+	}
+	m_pEditData->updateSelectData();
+
 }
 
 // キー押しイベント
@@ -1377,24 +1624,27 @@ void AnimationForm::keyReleaseEvent(QKeyEvent *event)
 // フレームデータ コピー
 void AnimationForm::copyFrameData( void )
 {
-	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	QModelIndex index = m_pEditData->getSelIndex() ;
-	if ( !pModel->isLayer(index) ) { return ; }
-	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
 
-	FrameData data, *p ;
+	if ( !objID || !layerID ) {
+		return ;
+	}
+
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
 	int frame = m_pEditData->getSelectFrame() ;
-	p = pItem->getFrameDataPtr(frame) ;
-	if ( p ) {
-		data = *p ;
+	CObjectModel::FrameData data ;
+	CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
+	if ( pData ) {
+		data = *pData ;
 	}
 	else {
-		p = pModel->getFrameDataFromPrevFrame(index, frame, false) ;
-		if ( !p ) { return ; }
-		FrameData *pNext = pModel->getFrameDataFromNextFrame(index, frame) ;
-		data = p->getInterpolation(pNext, frame) ;
+		pData = pModel->getFrameDataFromPrevFrame(objID, layerID, frame, false) ;
+		CObjectModel::FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
+		if ( !pData ) { return ; }
+		data = pData->getInterpolation(pNext, frame) ;
 	}
-	m_pEditData->setCopyFrameData(data) ;
+	m_pEditData->setCopyFrameData(data);
 }
 
 // フレームデータ ペースト
@@ -1404,42 +1654,72 @@ void AnimationForm::pasteFrameData( void )
 		return ;
 	}
 
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
+
+	if ( !objID || !layerID ) {
+		return ;
+	}
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	QModelIndex index = m_pEditData->getSelIndex() ;
-	if ( !pModel->isLayer(index) ) { return ; }
-	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
 	int frame = m_pEditData->getSelectFrame() ;
-	FrameData *pData = pItem->getFrameDataPtr(frame) ;
+	CObjectModel::FrameData *pData = pModel->getFrameDataFromIDAndFrame(objID, layerID, frame) ;
 	if ( pData ) {
-		addCommandEdit( m_pEditData->getCopyFrameData() ) ;
+		QList<CObjectModel::FrameData *> data ;
+		*pData = m_pEditData->getCopyFrameData() ;
+		data << pData ;
+		addCommandEdit( data ) ;
 	}
 	else {
-		slot_addNewFrameData(index, frame, m_pEditData->getCopyFrameData()) ;	// フレームデータ追加
+		slot_addNewFrameData(objID, layerID, frame, m_pEditData->getCopyFrameData()) ;	// フレームデータ追加
 	}
 }
 
 void AnimationForm::slot_copyLayer( void )
 {
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	QModelIndex index = m_pEditData->getSelIndex() ;
-	if ( !pModel->isLayer(index) ) { return ; }
-	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
-	m_pEditData->setCopyLayer(pItem) ;
+	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
+	CObjectModel::typeID layerID = m_pEditData->getSelectLayer() ;
+	CObjectModel::LayerGroupList *pLayerGroupList = pModel->getLayerGroupListFromID(objID) ;
+
+	if ( !pLayerGroupList ) { return ; }
+
+	for ( int i = 0 ; i < pLayerGroupList->size() ; i ++ ) {
+		CObjectModel::LayerGroup *p = &(*pLayerGroupList)[i] ;
+		if ( p->first != layerID ) { continue ; }
+
+		m_pEditData->setCopyLayer(*p);
+		break ;
+	}
+
 }
 
 void AnimationForm::slot_pasteLayer( void )
 {
 	if ( !m_pEditData->isCopyLayer() ) { return ; }
+	CObjectModel::LayerGroup layerGroup = m_pEditData->getCopyLayer() ;
+	QModelIndex index = ui->treeView->currentIndex() ;
 
-	QModelIndex index = m_pEditData->getSelIndex() ;
-	if ( !index.isValid() ) { return ; }
+	if ( !index.isValid() ) {
+		qWarning() << "slot_dropedImage current index invalid 0" ;
+		return ;
+	}
 
-	ObjectItem *pItem = m_pEditData->getCopyLayer() ;
-	if ( !pItem ) { return ; }
+	while ( index.internalPointer() != m_pEditData->getTreeModel()->invisibleRootItem() ) {
+		index = index.parent() ;
+		if ( !index.isValid() ) {
+			qWarning() << "slot_dropedImage current index invalid 1" ;
+			return ;
+		}
+	}
+	QStandardItem *pSrc = layerGroup.first ;
+	QStandardItem *newItem = new QStandardItem(pSrc->text() + "_copy") ;
+	newItem->setData(true, Qt::CheckStateRole) ;
 
 	QList<QWidget *> updateWidget ;
-	updateWidget << m_pGlWidget << m_pDataMarker ;
+	updateWidget << m_pGlWidget ;
+	updateWidget << m_pDataMarker ;
 
-	m_pEditData->cmd_copyLayer(index, pItem, updateWidget) ;
+	layerGroup.first = newItem ;
+	m_pEditData->cmd_addNewLayer(index, newItem, layerGroup, updateWidget) ;
 }
 

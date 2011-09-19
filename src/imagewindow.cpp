@@ -308,7 +308,7 @@ void ImageWindow::slot_changeDrawCenter( bool flag )
 }
 
 // フレームデータドラッグ中
-void ImageWindow::slot_dragedImage(FrameData /*data*/)
+void ImageWindow::slot_dragedImage(CObjectModel::FrameData /*data*/)
 {
 	for ( int i = 0 ; i < ui->tabWidget->count() ; i ++ ) {
 		QScrollArea *pScrollArea = (QScrollArea *)ui->tabWidget->widget(i) ;

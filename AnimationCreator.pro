@@ -32,8 +32,7 @@ SOURCES		+=									\
 				src/colorpickerform.cpp			\
 				src/CBrightLabel.cpp			\
 				src/AnimationWindowSplitter.cpp	\
-				src/debug.cpp					\
-				src/objectitem.cpp
+				src/debug.cpp
 
 HEADERS		+=									\
 				src/Anm2dTypes.h				\
@@ -59,10 +58,7 @@ HEADERS		+=									\
 				src/colorpickerform.h			\
 				src/CBrightLabel.h				\
 				src/AnimationWindowSplitter.h	\
-				src/debug.h						\
-				src/include.h					\
-				src/objectitem.h				\
-				src/framedata.h
+				src/debug.h
 
 RESOURCES	+=	Resource.qrc
 
@@ -73,4 +69,3 @@ FORMS		+= 	ui/animationform.ui				\
 				ui/colorpickerform.ui
 
 CONFIG		+=	help
-

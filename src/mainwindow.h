@@ -52,7 +52,7 @@ public slots:
 	void slot_closeExportPNGForm( void ) ;
 
 	void slot_portCheckDrawCenter(bool flag) ;
-	void slot_portDragedImage(FrameData data) ;
+	void slot_portDragedImage(CObjectModel::FrameData data) ;
 
 	void slot_pushColorToolButton( void ) ;
 
@@ -92,7 +92,7 @@ signals:
 	void sig_modifiedImageFile(int index) ;
 	void sig_endedOption( void ) ;
 	void sig_portCheckDrawCenter(bool) ;
-	void sig_portDragedImage(FrameData) ;
+	void sig_portDragedImage(CObjectModel::FrameData) ;
 
 private:
 	CDropableMdiArea	*m_pMdiArea ;

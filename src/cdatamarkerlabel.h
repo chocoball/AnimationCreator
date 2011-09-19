@@ -17,7 +17,7 @@ public slots:
 protected:
 	void paintEvent(QPaintEvent *event);
 
-	void drawLine( const QModelIndex &index, QPainter &painter, const QModelIndex selIndex ) ;
+	void drawLine( const CObjectModel::FrameDataList &frameDataList, QPainter &painter ) ;
 
 private:
 	CEditData		*m_pEditData ;

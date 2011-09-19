@@ -92,7 +92,7 @@ void CGridLabel::paintEvent(QPaintEvent *event)
 		painter.drawRect(rect) ;
 	}
 
-	FrameData data ;
+	CObjectModel::FrameData data ;
 	if ( m_pEditData->getNowSelectFrameData(data) ) {
 		if ( data.nImage != m_Index ) { return ; }
 	}
