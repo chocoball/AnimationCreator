@@ -182,6 +182,9 @@ private:
 	bool addFrameData_00001000( QDomNode &node, ObjectItem *pItem, int maxFrameDataNum ) ;
 
 	bool addElement_01000000(QDomNode &node, CEditData &rEditData) ;
+	bool addLayer_01000000( QDomNode &node, ObjectItem *pRoot, int maxLayerNum, CEditData &rEditData ) ;
+	bool addFrameData_01000000( QDomNode &node, ObjectItem *pItem, int maxFrameDataNum ) ;
+
 	bool addImage( QDomNode &node, CEditData::ImageData &data ) ;
 
 private:

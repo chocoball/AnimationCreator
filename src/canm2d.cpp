@@ -1186,6 +1186,114 @@ bool CAnm2DXml::addFrameData_00001000( QDomNode &node, ObjectItem *pItem, int ma
 
 bool CAnm2DXml::addElement_01000000(QDomNode &node, CEditData &rEditData)
 {
+	CObjectModel *pModel = rEditData.getObjectModel() ;
+
+	QList<CEditData::ImageData> ImageData ;
+
+	while ( !node.isNull() ) {
+		if ( node.nodeName() == kAnmXML_ID_Object ) {	// オブジェクト
+			QString name ;
+			int layerNum = 0 ;
+			int no = 0 ;
+			QDomNamedNodeMap nodeMap = node.attributes() ;
+			if ( nodeMap.namedItem(kAnmXML_Attr_Name).isNull()
+			  || nodeMap.namedItem(kAnmXML_Attr_LayerNum).isNull()
+			  || nodeMap.namedItem(kAnmXML_Attr_No).isNull()
+			  || nodeMap.namedItem(kAnmXML_Attr_LoopNum).isNull() ) {
+				m_nError = kErrorNo_InvalidNode ;
+				return false ;
+			}
+			name = nodeMap.namedItem(kAnmXML_Attr_Name).toAttr().value() ;
+			layerNum = nodeMap.namedItem(kAnmXML_Attr_LayerNum).toAttr().value().toInt() ;
+			no = nodeMap.namedItem(kAnmXML_Attr_No).toAttr().value().toInt() ;
+			int loopNum = nodeMap.namedItem(kAnmXML_Attr_LoopNum).toAttr().value().toInt() ;
+
+			QModelIndex index = pModel->addItem(name, QModelIndex()) ;
+			ObjectItem *pObj = pModel->getItemFromIndex(index) ;
+			pObj->setLoop(loopNum) ;
+
+			QDomNode child = node.firstChild() ;
+			if ( !addLayer_01000000(child, pObj, layerNum, rEditData) ) {
+				return false ;
+			}
+		}
+		else if ( node.nodeName() == kAnmXML_ID_Image ) {	// イメージ
+			QDomNamedNodeMap nodeMap = node.attributes() ;
+			if ( nodeMap.namedItem(kAnmXML_Attr_No).isNull() ) {
+				m_nError = kErrorNo_InvalidNode ;
+				return false ;
+			}
+			int no = nodeMap.namedItem(kAnmXML_Attr_No).toAttr().value().toInt() ;
+
+			CEditData::ImageData data ;
+			QDomNode child = node.firstChild() ;
+			if ( !addImage(child, data) ) {
+				return false ;
+			}
+			data.lastModified = QDateTime::currentDateTimeUtc() ;
+			data.nTexObj = 0 ;
+			data.nNo = no ;
+			ImageData.insert(no, data);
+		}
+		node = node.nextSibling() ;
+	}
+
+	if ( pModel->getItemFromIndex(QModelIndex())->childCount() != m_ObjNum
+	  || ImageData.size() != m_ImageNum ) {
+		m_nError = kErrorNo_InvalidObjNum ;
+		return false ;
+	}
+
+	rEditData.setImageData(ImageData);
+	return true ;
+}
+
+bool CAnm2DXml::addLayer_01000000( QDomNode &node, ObjectItem *pRoot, int maxLayerNum, CEditData &rEditData )
+{
+	CObjectModel *pModel = rEditData.getObjectModel() ;
+
+	while ( !node.isNull() ) {
+		if ( node.nodeName() == kAnmXML_ID_Layer ) {
+			QDomNamedNodeMap nodeMap = node.attributes() ;
+			if ( nodeMap.namedItem(kAnmXML_Attr_Name).isNull()
+			  || nodeMap.namedItem(kAnmXML_Attr_FrameNum).isNull()
+			  || nodeMap.namedItem(kAnmXML_Attr_ChildNum).isNull() ) {
+				m_nError = kErrorNo_InvalidNode ;
+				return false ;
+			}
+			QString name ;
+			int frameDataNum = 0 ;
+			int childNum = 0 ;
+
+			name = nodeMap.namedItem(kAnmXML_Attr_Name).toAttr().value() ;
+			frameDataNum = nodeMap.namedItem(kAnmXML_Attr_FrameNum).toAttr().value().toInt() ;
+			childNum = nodeMap.namedItem(kAnmXML_Attr_ChildNum).toAttr().value().toInt() ;
+
+			QModelIndex index = pModel->addItem(name, pRoot->getIndex()) ;
+			ObjectItem *pItem = pModel->getItemFromIndex(index) ;
+			pItem->setData(ObjectItem::kState_Disp, Qt::CheckStateRole) ;
+
+			QDomNode child = node.firstChild() ;
+			if ( !addFrameData_00001000(child, pItem, frameDataNum) ) {
+				return false ;
+			}
+			QDomNode layers = node.firstChild() ;
+			if ( !addLayer_01000000(layers, pItem, childNum, rEditData) ) {
+				return false ;
+			}
+		}
+		node = node.nextSibling() ;
+	}
+
+	if ( pRoot->childCount() != maxLayerNum ) {
+		m_nError = kErrorNo_InvalidLayerNum ;
+		return false ;
+	}
+	return true ;
+}
+
+bool CAnm2DXml::addFrameData_01000000( QDomNode &node, ObjectItem *pItem, int maxFrameDataNum )
+{
 	return false ;
 }
 
