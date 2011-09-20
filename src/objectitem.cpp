@@ -32,16 +32,11 @@ void ObjectItem::setData(const QVariant &value, int role)
 
 FrameData ObjectItem::getDisplayFrameData(int frame, bool *bValid)
 {
-	FrameData d, parent ;
-	if ( m_pParent ) {
-		parent = m_pParent->getDisplayFrameData(frame) ;
-	}
-
-	FrameData *pPrev = getFrameDataFromPrevFrame(frame) ;
+	FrameData d ;
+	FrameData *pPrev = getFrameDataFromPrevFrame(frame+1) ;
 	if ( pPrev ) {
 		FrameData *pNext = getFrameDataFromNextFrame(frame) ;
 		d = pPrev->getInterpolation(pNext, frame) ;
-		d.fromParent(parent) ;
 
 		if ( bValid ) { *bValid = true ; }
 	}
@@ -49,6 +44,31 @@ FrameData ObjectItem::getDisplayFrameData(int frame, bool *bValid)
 		if ( bValid ) { *bValid = false ; }
 	}
 	return d ;
+}
+
+QMatrix4x4 ObjectItem::getDisplayMatrix(int frame, bool *bValid)
+{
+	QMatrix4x4 parent, mat ;
+	if ( m_pParent ) {
+		parent = m_pParent->getDisplayMatrix(frame) ;
+	}
+
+	bool valid ;
+	FrameData d = getDisplayFrameData(frame, &valid) ;
+	if ( valid ) {
+		mat.translate(d.pos_x, d.pos_y, d.pos_z/4096.0f) ;
+		mat.rotate(d.rot_x, 1, 0, 0) ;
+		mat.rotate(d.rot_y, 0, 1, 0) ;
+		mat.rotate(d.rot_z, 0, 0, 1) ;
+		mat.scale(d.fScaleX, d.fScaleY) ;
+		mat = parent * mat ;
+
+		if ( bValid ) { *bValid = true ; }
+	}
+	else {
+		if ( bValid ) { *bValid = false ; }
+	}
+	return mat ;
 }
 
 FrameData *ObjectItem::getFrameDataFromPrevFrame(int frame, bool bRepeat)
@@ -73,33 +93,33 @@ FrameData *ObjectItem::getFrameDataFromNextFrame(int frame)
 	int max = getMaxFrameNum(false) ;
 
 	for ( int i = frame + 1 ; i < max+1 ; i ++ ) {
-		FrameData *pData = getFrameDataPtr(frame) ;
+		FrameData *pData = getFrameDataPtr(i) ;
 		if ( pData ) { return pData ; }
 	}
 	return NULL ;
 }
 
-bool ObjectItem::isContain(ObjectItem *pRet, QPoint &pos, int frame, bool bChild)
+bool ObjectItem::isContain(ObjectItem **ppRet, QPoint &pos, int frame, bool bChild)
 {
 	if ( bChild ) {
 		for ( int i = 0 ; i < childCount() ; i ++ ) {
-			if ( child(i)->isContain(pRet, pos, frame, true) ) { return true ; }
+			if ( child(i)->isContain(ppRet, pos, frame, true) ) { return true ; }
 		}
 	}
 
 	bool valid ;
 	FrameData d = getDisplayFrameData(frame, &valid) ;
-	if (valid && isContain(d, pos) ) {
-		pRet = this ;
+	if (valid && isContain(d, pos, getDisplayMatrix(frame)) ) {
+		*ppRet = this ;
 		return true ;
 	}
 	return false ;
 }
 
-bool ObjectItem::isContain(FrameData &displayData, QPoint &pos)
+bool ObjectItem::isContain(FrameData &displayData, QPoint &pos, const QMatrix4x4 &matDisp)
 {
 	QVector3D v[4] ;
-	displayData.getVertexApplyMatrix(v) ;
+	displayData.getVertexApplyMatrix(v, matDisp) ;
 	QVector3D tri[2][3] = {
 		{
 			v[0],

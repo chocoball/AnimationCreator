@@ -49,11 +49,11 @@ protected:
 
 	void drawLayers( void ) ;
 	void drawLayers_Anime( void ) ;
-	void drawLayers(ObjectItem *pLayerItem, FrameData &parentFrameData) ;
+	void drawLayers(ObjectItem *pLayerItem) ;
 	void drawLayers_All( void ) ;
 	void drawSelFrameInfo( void ) ;
-    void drawFrameData( const FrameData &data, QColor col = QColor(255, 255, 255, 255) ) ;
-    void drawFrame( const FrameData &data, QColor col) ;
+	void drawFrameData( const FrameData &data, const QMatrix4x4 &mat, QColor col = QColor(255, 255, 255, 255) ) ;
+	void drawFrame( ObjectItem *pItem, int frame, QColor col) ;
 	void drawGrid( void ) ;
 	void drawCenter( void ) ;
 
@@ -73,6 +73,9 @@ protected:
 
 	void writePNGFromFrameBuffer( void ) ;
 	int getDigit(int num) ;
+
+	void multMatrix(const QMatrix4x4 &mat) ;
+	void convMat(double *ret, const QMatrix4x4 &mat) ;
 
 public:
 	void setDrawArea( int w, int h ) ;
@@ -117,8 +120,6 @@ private:
 	int					m_dragMode ;				///< ドラッグモード kDragMode_~
 
 	float				m_rotStart ;				///< 回転変更時の開始ラジアン
-
-	QPoint				m_centerPos ;
 
 	unsigned int		m_backImageTex ;
 	QImage				m_BackImage ;

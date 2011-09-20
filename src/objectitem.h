@@ -30,6 +30,9 @@ public:
 		qDeleteAll(m_children) ;
 	}
 
+	// -----------------------------------------------
+	// Model
+	// -----------------------------------------------
 	int row() { return m_index.row() ; }
 	ObjectItem *parent() { return m_pParent ; }
 	int childCount() { return m_children.size() ; }
@@ -50,16 +53,42 @@ public:
 		delete p ;
 	}
 
+	// -----------------------------------------------
+	// FRAMEDATA
+	// -----------------------------------------------
+	void addFrameData(FrameData &data)
+	{
+		FrameData *p = getFrameDataPtr(data.frame) ;
+		if ( p ) {
+			*p = data ;
+		}
+		else {
+			m_frameDatas.append(data) ;
+		}
+	}
+	void removeFrameData(int frame)
+	{
+		int index = getFrameDataIndex(frame) ;
+		if ( index < 0 ) { return ; }
+		m_frameDatas.removeAt(index) ;
+	}
+
+	int getFrameDataIndex(int frame)
+	{
+		for ( int i = 0 ; i < m_frameDatas.size() ; i ++ ) {
+			if ( frame == m_frameDatas.at(i).frame ) { return i ; }
+		}
+		return -1 ;
+	}
+
 	FrameData *getFrameDataPtr(int frame)
 	{
 		for ( int i = 0 ; i < m_frameDatas.size() ; i ++ ) {
-			if ( frame == m_frameDatas.at(i).frame ) {
-				return &m_frameDatas[i] ;
-			}
+			if ( frame == m_frameDatas.at(i).frame ) { return &m_frameDatas[i] ; }
 		}
 		return NULL ;
 	}
-	const QList<FrameData> getFrameData()
+	const QList<FrameData> &getFrameData()
 	{
 		return m_frameDatas ;
 	}
@@ -74,6 +103,8 @@ public:
 			this->m_children[i]->copy(p->m_children[i]);
 		}
 		this->m_frameDatas = p->m_frameDatas ;
+		this->m_checkStateData = p->m_checkStateData ;
+		this->m_foregroundData = p->m_foregroundData ;
 	}
 
 	int getMaxFrameNum(bool bRecv = true)
@@ -97,9 +128,10 @@ public:
 	QVariant data(int role) ;
 	void setData(const QVariant &value, int role = Qt::UserRole + 1) ;
 	FrameData getDisplayFrameData(int frame, bool *bValid = 0) ;
+	QMatrix4x4 getDisplayMatrix(int frame, bool *bValid = 0) ;
 	FrameData *getFrameDataFromPrevFrame(int frame, bool bRepeat = false) ;
 	FrameData *getFrameDataFromNextFrame(int frame) ;
-	bool isContain(ObjectItem *pRet, QPoint &pos, int frame, bool bChild = true) ;
+	bool isContain(ObjectItem **ppRet, QPoint &pos, int frame, bool bChild = true) ;
 
 	kAccessor(QString, m_name, Name)
 	kAccessor(int, m_nLoop, Loop)
@@ -107,7 +139,7 @@ public:
 	kAccessor(QModelIndex, m_index, Index)
 
 private:
-	bool isContain(FrameData &displayData, QPoint &pos) ;
+	bool isContain(FrameData &displayData, QPoint &pos, const QMatrix4x4 &matDisp) ;
 
 private:
 	ObjectItem			*m_pParent ;

@@ -19,6 +19,9 @@ CObjectModel::~CObjectModel()
 
 bool CObjectModel::isFrameDataInPos( const FrameData &data, QPoint pos )
 {
+#if 1
+	return false ;
+#else
 	QVector3D v[4] ;
 	data.getVertexApplyMatrix(v);
 	QVector3D tri[2][3] = {
@@ -52,12 +55,15 @@ bool CObjectModel::isFrameDataInPos( const FrameData &data, QPoint pos )
 			return true ;
 		}
 	}
-
 	return false ;
+#endif
 }
 
 bool CObjectModel::isFrameDataInRect( const FrameData &data, QRect rect )
 {
+#if 1
+	return false ;
+#else
 	int i ;
 	QVector3D v[4] ;
 	data.getVertexApplyMatrix(v);
@@ -101,6 +107,7 @@ bool CObjectModel::isFrameDataInRect( const FrameData &data, QRect rect )
 	}
 
 	return false ;
+#endif
 }
 
 QVariant CObjectModel::data(const QModelIndex &index, int role) const
@@ -142,6 +149,7 @@ bool CObjectModel::setData(const QModelIndex &index, const QVariant &value, int 
 
 bool CObjectModel::insertRows(int row, int count, const QModelIndex &parent)
 {
+	qDebug() << "insertRows " << row << count << parent ;
 	beginInsertRows(parent, row, row+count-1) ;
 
 	ObjectItem *p = getItemFromIndex(parent) ;
@@ -192,7 +200,7 @@ Qt::DropActions CObjectModel::supportedDropActions() const
 QStringList CObjectModel::mimeTypes() const
 {
 	QStringList types ;
-	types << "application/object.item.list" ;
+	types << "AnimationCreator/object.item.list" ;
 	return types ;
 }
 
@@ -207,19 +215,20 @@ QMimeData *CObjectModel::mimeData(const QModelIndexList &indexes) const
 			stream << reinterpret_cast<quint64>(index.internalPointer()) ;
 		}
 	}
-	mimeData->setData("application/object.item.list", encodeData) ;
+	mimeData->setData("AnimationCreator/object.item.list", encodeData) ;
 	return mimeData ;
 }
 
 bool CObjectModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
-Q_UNUSED(row)
-
 	if ( action == Qt::IgnoreAction ) { return true ; }
-	if ( !data->hasFormat("application/object.item.list") ) { return false ; }
+	if ( !data->hasFormat("AnimationCreator/object.item.list") ) { return false ; }
 	if ( column > 0 ) { return false ; }
 
-	QByteArray encodeData = data->data("application/object.item.list") ;
+	qDebug() << "dropMimeData row:" << row << " col:" << column ;
+	qDebug() << " parent:" << parent ;
+
+	QByteArray encodeData = data->data("AnimationCreator/object.item.list") ;
 	QDataStream stream(&encodeData, QIODevice::ReadOnly) ;
 
 	while ( !stream.atEnd() ) {
@@ -227,10 +236,10 @@ Q_UNUSED(row)
 		ObjectItem *p ;
 		stream >> val ;
 		p = reinterpret_cast<ObjectItem *>(val) ;
-		QModelIndex index = addItem(p->getName(), parent) ;
-		ObjectItem *newItem = getItemFromIndex(index) ;
-		newItem->copy(p) ;
+
+		emit sig_moveIndex(row, p, parent) ;
 	}
+
 	return true ;
 }
 
@@ -321,3 +330,45 @@ FrameData *CObjectModel::getFrameDataFromNextFrame(ObjectItem *p, int frame)
 	if ( !p ) { return NULL ; }
 	return p->getFrameDataFromNextFrame(frame) ;
 }
+
+int CObjectModel::getRow(QModelIndex index)
+{
+	ObjectItem *p = getItemFromIndex(index) ;
+	int row = 0 ;
+	return getRow(m_pRoot, p, &row) ;
+}
+
+int CObjectModel::getRow(ObjectItem *root, ObjectItem *p, int *row)
+{
+	if ( root == p ) { return *row ; }
+	for ( int i = 0 ; i < root->childCount() ; i ++ ) {
+		*row += 1 ;
+		int ret = getRow(root->child(i), p, row) ;
+		if ( ret >= 0 ) { return ret ; }
+	}
+	return -1 ;
+}
+
+QModelIndex CObjectModel::getIndex(int row)
+{
+	int curr = 0 ;
+	return getIndex(m_pRoot, row, &curr) ;
+}
+
+QModelIndex CObjectModel::getIndex(ObjectItem *root, int row, int *currRow)
+{
+	if ( row == *currRow ) { return root->getIndex() ; }
+
+	for ( int i = 0 ; i < root->childCount() ; i ++ ) {
+		*currRow += 1 ;
+		QModelIndex ret = getIndex(root->child(i), row, currRow) ;
+		if ( ret.isValid() ) { return ret ; }
+	}
+	return QModelIndex() ;
+}
+
+
+
+
+
+

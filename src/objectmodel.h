@@ -1,14 +1,15 @@
 #ifndef OBJECTMODEL_H
 #define OBJECTMODEL_H
 
+#include <QAbstractItemModel>
 #include <QtGui>
 #include <QPair>
 #include <QMatrix4x4>
 #include "objectitem.h"
 
-
 class CObjectModel : public QAbstractItemModel
 {
+	Q_OBJECT
 public:
 	explicit CObjectModel(QObject *parent = 0) ;
 	virtual ~CObjectModel() ;
@@ -46,6 +47,16 @@ public:
 
 	FrameData *getFrameDataFromNextFrame(QModelIndex index, int frame) ;
 	FrameData *getFrameDataFromNextFrame(ObjectItem *pItem, int frame) ;
+
+	int getRow(QModelIndex index) ;
+	int getRow(ObjectItem *root, ObjectItem *p, int *row) ;
+	QModelIndex getIndex(int row) ;
+	QModelIndex getIndex(ObjectItem *root, int row, int *currRow) ;
+
+signals:
+	void sig_moveIndex(int row, ObjectItem *pItem, QModelIndex parent) ;
+
+public slots:
 
 private:
 	ObjectItem		*m_pRoot ;

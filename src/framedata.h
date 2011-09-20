@@ -80,14 +80,14 @@ typedef struct _tagFrameData {
 	Vertex getVertex() const
 	{
 		Vertex v ;
-		v.x0 = -center_x * fScaleX ;
-		v.y0 = -center_y * fScaleY ;
-		v.x1 = v.x0 + width()*fScaleX ;
-		v.y1 = v.y0 + height()*fScaleY ;
+		v.x0 = -center_x ;
+		v.y0 = -center_y ;
+		v.x1 = v.x0 + width() ;
+		v.y1 = v.y0 + height() ;
 		return v ;
 	}
 
-	void getVertexApplyMatrix(QVector3D ret[4]) const
+	void getVertexApplyMatrix(QVector3D ret[4], const QMatrix4x4 &m) const
 	{
 		Vertex v = getVertex() ;
 		ret[0] = QVector3D(v.x0, v.y0, 0) ;		// left-up
@@ -95,12 +95,6 @@ typedef struct _tagFrameData {
 		ret[2] = QVector3D(v.x0, v.y1, 0) ;		// left-down
 		ret[3] = QVector3D(v.x1, v.y1, 0) ;		// right-down
 
-		QMatrix4x4 m ;
-		m.setToIdentity();
-		m.translate(pos_x, pos_y, pos_z/4096.0f);
-		m.rotate(rot_x, 1, 0, 0);
-		m.rotate(rot_y, 0, 1, 0);
-		m.rotate(rot_z, 0, 0, 1);
 		for ( int i = 0 ; i < 4 ; i ++ ) {
 			ret[i] = m * ret[i] ;
 		}
@@ -138,21 +132,23 @@ typedef struct _tagFrameData {
 		return data ;
 	}
 
+	QVector4D getRotatePos(int x, int y, int z)
+	{
+		QMatrix4x4 m ;
+		m.setToIdentity();
+		m.translate(x, y, z/4096.0f);
+		m.rotate(rot_x, 1, 0, 0);
+		m.rotate(rot_y, 0, 1, 0);
+		m.rotate(rot_z, 0, 0, 1);
+		return m.row(3) ;
+	}
+
 	void fromParent(struct _tagFrameData &parent)
 	{
-		this->pos_x += parent.pos_x ;
-		this->pos_y += parent.pos_y ;
-		this->pos_z += parent.pos_z ;
-
-		this->rot_x += parent.rot_x ;
-		this->rot_y += parent.rot_y ;
-		this->rot_z += parent.rot_z ;
-		if ( this->rot_x <   0 ) { this->rot_x += 360 ; }
-		if ( this->rot_x > 360 ) { this->rot_x -= 360 ; }
-		if ( this->rot_y <   0 ) { this->rot_y += 360 ; }
-		if ( this->rot_y > 360 ) { this->rot_y -= 360 ; }
-		if ( this->rot_z <   0 ) { this->rot_z += 360 ; }
-		if ( this->rot_z > 360 ) { this->rot_z -= 360 ; }
+		QVector4D v = parent.getRotatePos(this->pos_x, this->pos_y, this->pos_z) ;
+		this->pos_x = parent.pos_x + v.x() ;
+		this->pos_y = parent.pos_y + v.y() ;
+		this->pos_z = parent.pos_z + v.z() ;
 
 		this->fScaleX *= parent.fScaleX ;
 		this->fScaleY *= parent.fScaleY ;

@@ -585,26 +585,50 @@ bool CAnm2DXml::makeFromFile(QDomDocument &xml, CEditData &rEditData)
 		m_nError = kErrorNo_InvalidNode ;
 		return false ;
 	}
-	if ( nodeMap.namedItem(kAnmXML_Attr_Version).isNull()
-	  || nodeMap.namedItem(kAnmXML_Attr_Version).toAttr().value().toInt() != kAnmXML_Version ) {
+	if ( nodeMap.namedItem(kAnmXML_Attr_Version).isNull() ) {
 		m_nError = kErrorNo_InvalidVersion ;
 		return false ;
 	}
-	if ( nodeMap.namedItem(kAnmXML_Attr_ObjNum).isNull() ) {
-		m_nError = kErrorNo_InvalidObjNum ;
-		return false ;
-	}
-	if ( nodeMap.namedItem(kAnmXML_Attr_ImageNum).isNull() ) {
-		m_nError = kErrorNo_InvalidImageNum ;
-		return false ;
-	}
-	m_ObjNum = nodeMap.namedItem(kAnmXML_Attr_ObjNum).toAttr().value().toInt() ;
-	m_ImageNum = nodeMap.namedItem(kAnmXML_Attr_ImageNum).toAttr().value().toInt() ;
+	int version = nodeMap.namedItem(kAnmXML_Attr_Version).toAttr().value().toInt() ;
+	if ( version == 0x00001000 ) {
+		if ( nodeMap.namedItem(kAnmXML_Attr_ObjNum).isNull() ) {
+			m_nError = kErrorNo_InvalidObjNum ;
+			return false ;
+		}
+		if ( nodeMap.namedItem(kAnmXML_Attr_ImageNum).isNull() ) {
+			m_nError = kErrorNo_InvalidImageNum ;
+			return false ;
+		}
+		m_ObjNum = nodeMap.namedItem(kAnmXML_Attr_ObjNum).toAttr().value().toInt() ;
+		m_ImageNum = nodeMap.namedItem(kAnmXML_Attr_ImageNum).toAttr().value().toInt() ;
 
-	qDebug("objNum:%d imageNum:%d", m_ObjNum, m_ImageNum) ;
+		qDebug("objNum:%d imageNum:%d", m_ObjNum, m_ImageNum) ;
 
-	QDomNode n = root.firstChild() ;
-	if ( !addElement(n, rEditData) ) {
+		QDomNode n = root.firstChild() ;
+		if ( !addElement_00001000(n, rEditData) ) {
+			return false ;
+		}
+	}
+	else if ( version == 0x01000000 ) {
+		if ( nodeMap.namedItem(kAnmXML_Attr_ObjNum).isNull() ) {
+			m_nError = kErrorNo_InvalidObjNum ;
+			return false ;
+		}
+		if ( nodeMap.namedItem(kAnmXML_Attr_ImageNum).isNull() ) {
+			m_nError = kErrorNo_InvalidImageNum ;
+			return false ;
+		}
+		m_ObjNum = nodeMap.namedItem(kAnmXML_Attr_ObjNum).toAttr().value().toInt() ;
+		m_ImageNum = nodeMap.namedItem(kAnmXML_Attr_ImageNum).toAttr().value().toInt() ;
+
+		qDebug("objNum:%d imageNum:%d", m_ObjNum, m_ImageNum) ;
+
+		QDomNode n = root.firstChild() ;
+		if ( !addElement_01000000(n, rEditData) ) {
+			return false ;
+		}
+	}
+	else {
 		return false ;
 	}
 
@@ -615,116 +639,118 @@ bool CAnm2DXml::makeFromFile(QDomDocument &xml, CEditData &rEditData)
 bool CAnm2DXml::makeHeader(QDomElement &element, QDomDocument &doc, CEditData &rEditData)
 {
 Q_UNUSED(doc) ;
-#if 0
-	TODO
+
 	CObjectModel *pModel = rEditData.getObjectModel() ;
-	const CObjectModel::ObjectList &objList = pModel->getObjectList() ;
+	ObjectItem *pRoot = pModel->getItemFromIndex(QModelIndex()) ;
 
 	element.setAttribute(kAnmXML_Attr_Version, kAnmXML_Version);
-	element.setAttribute(kAnmXML_Attr_ObjNum, objList.size());
+	element.setAttribute(kAnmXML_Attr_ObjNum, pRoot->childCount());
 	element.setAttribute(kAnmXML_Attr_ImageNum, rEditData.getImageDataListSize());
-#endif
+
 	return true ;
 }
 
 // オブジェクトエレメント作成
 bool CAnm2DXml::makeObject(QDomElement &element, QDomDocument &doc, CEditData &rEditData)
 {
-#if 0
-	TODO
 	CObjectModel *pModel = rEditData.getObjectModel() ;
-	const CObjectModel::ObjectList &objList = pModel->getObjectList() ;
-
-	for ( int i = 0 ; i < objList.size() ; i ++ ) {
-		const CObjectModel::ObjectGroup &objGroup = objList.at(i) ;
-		QStandardItem *pObjID = objGroup.id ;
-		const CObjectModel::LayerGroupList &layerGroupList = objGroup.layerGroupList ;
+	ObjectItem *pRoot = pModel->getItemFromIndex(QModelIndex()) ;
+	for ( int i = 0 ; i < pRoot->childCount() ; i ++ ) {
+		ObjectItem *obj = pRoot->child(i) ;
 
 		QDomElement elmObj = doc.createElement(kAnmXML_ID_Object) ;
-		elmObj.setAttribute(kAnmXML_Attr_Name, QString(pObjID->text().toUtf8()));
+		elmObj.setAttribute(kAnmXML_Attr_Name, QString(obj->getName().toUtf8()));
 		elmObj.setAttribute(kAnmXML_Attr_No, i);
-		elmObj.setAttribute(kAnmXML_Attr_LayerNum, layerGroupList.size());
-		elmObj.setAttribute(kAnmXML_Attr_LoopNum, objGroup.nLoop);	// ループ回数(after ver 0.1.0)
+		elmObj.setAttribute(kAnmXML_Attr_LayerNum, obj->childCount()) ;
+		elmObj.setAttribute(kAnmXML_Attr_LoopNum, obj->getLoop());	// ループ回数(after ver 0.1.0)
 		element.appendChild(elmObj) ;
 
-		for ( int j = 0 ; j < layerGroupList.size() ; j ++ ) {
-			const CObjectModel::LayerGroup &layerGroup = layerGroupList.at(j) ;
-			QStandardItem *pLayerID = layerGroup.first ;
-			const FrameDataList &frameDataList = layerGroup.second ;
-
-			QDomElement elmLayer = doc.createElement(kAnmXML_ID_Layer) ;
-			elmLayer.setAttribute(kAnmXML_Attr_Name, QString(pLayerID->text().toUtf8()));
-			elmLayer.setAttribute(kAnmXML_Attr_No, j);
-			elmLayer.setAttribute(kAnmXML_Attr_FrameNum, frameDataList.size());
-			elmObj.appendChild(elmLayer) ;
-
-			for ( int k = 0 ; k < frameDataList.size() ; k ++ ) {
-				const FrameData &data = frameDataList.at(k) ;
-
-				QDomElement elmFrameData = doc.createElement(kAnmXML_ID_FrameData) ;
-				QDomElement elmTmp ;
-				QDomText text ;
-
-				elmTmp = doc.createElement("frame") ;
-				text = doc.createTextNode(QString("%1").arg(data.frame)) ;
-				elmTmp.appendChild(text) ;
-				elmFrameData.appendChild(elmTmp) ;
-
-				elmTmp = doc.createElement("pos") ;
-				text = doc.createTextNode(QString("%1 %2 %3").arg(data.pos_x).arg(data.pos_y).arg(data.pos_z)) ;
-				elmTmp.appendChild(text) ;
-				elmFrameData.appendChild(elmTmp) ;
-
-				elmTmp = doc.createElement("rot") ;
-				text = doc.createTextNode(QString("%1 %2 %3").arg(data.rot_x).arg(data.rot_y).arg(data.rot_z)) ;
-				elmTmp.appendChild(text) ;
-				elmFrameData.appendChild(elmTmp) ;
-
-				elmTmp = doc.createElement("center") ;
-				text = doc.createTextNode(QString("%1 %2").arg(data.center_x).arg(data.center_y)) ;
-				elmTmp.appendChild(text) ;
-				elmFrameData.appendChild(elmTmp) ;
-
-				elmTmp = doc.createElement("UV") ;
-				text = doc.createTextNode(QString("%1 %2 %3 %4").arg(data.left).arg(data.top).arg(data.right).arg(data.bottom)) ;
-				elmTmp.appendChild(text) ;
-				elmFrameData.appendChild(elmTmp) ;
-
-				elmTmp = doc.createElement("ImageNo") ;
-				text = doc.createTextNode(QString("%1").arg(data.nImage)) ;
-				elmTmp.appendChild(text) ;
-				elmFrameData.appendChild(elmTmp) ;
-
-				elmTmp = doc.createElement("scale") ;
-				text = doc.createTextNode(QString("%1 %2").arg(data.fScaleX).arg(data.fScaleY)) ;
-				elmTmp.appendChild(text) ;
-				elmFrameData.appendChild(elmTmp) ;
-
-				elmTmp = doc.createElement("UVAnime") ;
-				text = doc.createTextNode(QString("%1").arg(data.bUVAnime)) ;
-				elmTmp.appendChild(text) ;
-				elmFrameData.appendChild(elmTmp) ;
-
-				// 頂点色(after ver 0.1.0)
-				elmTmp = doc.createElement("Color") ;
-				text = doc.createTextNode(QString("%1 %2 %3 %4").arg(data.rgba[0]).arg(data.rgba[1]).arg(data.rgba[2]).arg(data.rgba[3])) ;
-				elmTmp.appendChild(text) ;
-				elmFrameData.appendChild(elmTmp) ;
-
-				elmLayer.appendChild(elmFrameData) ;
-
-				if ( m_pProgress ) {
-					m_pProgress->setValue(m_pProgress->value()+1);
-
-					if ( m_pProgress->wasCanceled() ) {
-						m_nError = kErrorNo_Cancel ;
-						return false ;
-					}
-				}
+		for ( int j = 0 ; j < obj->childCount() ; j ++ ) {
+			if ( !makeLayer(obj->child(j), elmObj, doc, rEditData) ) {
+				return false ;
 			}
 		}
 	}
-#endif
+	return true ;
+}
+
+bool CAnm2DXml::makeLayer(ObjectItem *root, QDomElement &element, QDomDocument &doc, CEditData &rEditData)
+{
+	QDomElement elmLayer = doc.createElement(kAnmXML_ID_Layer) ;
+	elmLayer.setAttribute(kAnmXML_Attr_Name, QString(root->getName().toUtf8()));
+	elmLayer.setAttribute(kAnmXML_Attr_FrameNum, root->getFrameData().size()) ;
+	elmLayer.setAttribute(kAnmXML_Attr_ChildNum, root->childCount()) ;
+	element.appendChild(elmLayer) ;
+
+	const QList<FrameData> &datas = root->getFrameData() ;
+	for ( int i = 0 ; i < datas.size() ; i ++ ) {
+		const FrameData &data = datas.at(i) ;
+
+		QDomElement elmFrameData = doc.createElement(kAnmXML_ID_FrameData) ;
+		QDomElement elmTmp ;
+		QDomText text ;
+
+		elmTmp = doc.createElement("frame") ;
+		text = doc.createTextNode(QString("%1").arg(data.frame)) ;
+		elmTmp.appendChild(text) ;
+		elmFrameData.appendChild(elmTmp) ;
+
+		elmTmp = doc.createElement("pos") ;
+		text = doc.createTextNode(QString("%1 %2 %3").arg(data.pos_x).arg(data.pos_y).arg(data.pos_z)) ;
+		elmTmp.appendChild(text) ;
+		elmFrameData.appendChild(elmTmp) ;
+
+		elmTmp = doc.createElement("rot") ;
+		text = doc.createTextNode(QString("%1 %2 %3").arg(data.rot_x).arg(data.rot_y).arg(data.rot_z)) ;
+		elmTmp.appendChild(text) ;
+		elmFrameData.appendChild(elmTmp) ;
+
+		elmTmp = doc.createElement("center") ;
+		text = doc.createTextNode(QString("%1 %2").arg(data.center_x).arg(data.center_y)) ;
+		elmTmp.appendChild(text) ;
+		elmFrameData.appendChild(elmTmp) ;
+
+		elmTmp = doc.createElement("UV") ;
+		text = doc.createTextNode(QString("%1 %2 %3 %4").arg(data.left).arg(data.top).arg(data.right).arg(data.bottom)) ;
+		elmTmp.appendChild(text) ;
+		elmFrameData.appendChild(elmTmp) ;
+
+		elmTmp = doc.createElement("ImageNo") ;
+		text = doc.createTextNode(QString("%1").arg(data.nImage)) ;
+		elmTmp.appendChild(text) ;
+		elmFrameData.appendChild(elmTmp) ;
+
+		elmTmp = doc.createElement("scale") ;
+		text = doc.createTextNode(QString("%1 %2").arg(data.fScaleX).arg(data.fScaleY)) ;
+		elmTmp.appendChild(text) ;
+		elmFrameData.appendChild(elmTmp) ;
+
+		elmTmp = doc.createElement("UVAnime") ;
+		text = doc.createTextNode(QString("%1").arg(data.bUVAnime)) ;
+		elmTmp.appendChild(text) ;
+		elmFrameData.appendChild(elmTmp) ;
+
+		// 頂点色(after ver 0.1.0)
+		elmTmp = doc.createElement("Color") ;
+		text = doc.createTextNode(QString("%1 %2 %3 %4").arg(data.rgba[0]).arg(data.rgba[1]).arg(data.rgba[2]).arg(data.rgba[3])) ;
+		elmTmp.appendChild(text) ;
+		elmFrameData.appendChild(elmTmp) ;
+
+		elmLayer.appendChild(elmFrameData) ;
+
+		if ( m_pProgress ) {
+			m_pProgress->setValue(m_pProgress->value()+1);
+
+			if ( m_pProgress->wasCanceled() ) {
+				m_nError = kErrorNo_Cancel ;
+				return false ;
+			}
+		}
+	}
+
+	for ( int i = 0 ; i < root->childCount() ; i ++ ) {
+		makeLayer(root->child(i), elmLayer, doc, rEditData) ;
+	}
 	return true ;
 }
 
@@ -838,8 +864,69 @@ void CAnm2DXml::setProgMaximum( QProgressDialog *pProg, CEditData &rEditData )
 }
 
 // エレメント追加
-bool CAnm2DXml::addElement( QDomNode &node, CEditData &rEditData )
+bool CAnm2DXml::addElement_00001000( QDomNode &node, CEditData &rEditData )
 {
+	CObjectModel *pModel = rEditData.getObjectModel() ;
+
+	QList<CEditData::ImageData> ImageData ;
+
+	while ( !node.isNull() ) {
+		if ( node.nodeName() == kAnmXML_ID_Object ) {	// オブジェクト
+			QString name ;
+			int layerNum = 0 ;
+			int no = 0 ;
+			QDomNamedNodeMap nodeMap = node.attributes() ;
+			if ( nodeMap.namedItem(kAnmXML_Attr_Name).isNull()
+			  || nodeMap.namedItem(kAnmXML_Attr_LayerNum).isNull()
+			  || nodeMap.namedItem(kAnmXML_Attr_No).isNull()
+			  || nodeMap.namedItem(kAnmXML_Attr_LoopNum).isNull() ) {
+				m_nError = kErrorNo_InvalidNode ;
+				return false ;
+			}
+			name = nodeMap.namedItem(kAnmXML_Attr_Name).toAttr().value() ;
+			layerNum = nodeMap.namedItem(kAnmXML_Attr_LayerNum).toAttr().value().toInt() ;
+			no = nodeMap.namedItem(kAnmXML_Attr_No).toAttr().value().toInt() ;
+			int loopNum = nodeMap.namedItem(kAnmXML_Attr_LoopNum).toAttr().value().toInt() ;
+
+			QModelIndex index = pModel->addItem(name, QModelIndex()) ;
+			ObjectItem *pObj = pModel->getItemFromIndex(index) ;
+			pObj->setLoop(loopNum) ;
+
+			QDomNode child = node.firstChild() ;
+			if ( !addLayer_00001000(child, pObj, layerNum, rEditData) ) {
+				return false ;
+			}
+		}
+		else if ( node.nodeName() == kAnmXML_ID_Image ) {	// イメージ
+			QDomNamedNodeMap nodeMap = node.attributes() ;
+			if ( nodeMap.namedItem(kAnmXML_Attr_No).isNull() ) {
+				m_nError = kErrorNo_InvalidNode ;
+				return false ;
+			}
+			int no = nodeMap.namedItem(kAnmXML_Attr_No).toAttr().value().toInt() ;
+
+			CEditData::ImageData data ;
+			QDomNode child = node.firstChild() ;
+			if ( !addImage(child, data) ) {
+				return false ;
+			}
+			data.lastModified = QDateTime::currentDateTimeUtc() ;
+			data.nTexObj = 0 ;
+			data.nNo = no ;
+			ImageData.insert(no, data);
+		}
+		node = node.nextSibling() ;
+	}
+
+	if ( pModel->getItemFromIndex(QModelIndex())->childCount() != m_ObjNum
+	  || ImageData.size() != m_ImageNum ) {
+		m_nError = kErrorNo_InvalidObjNum ;
+		return false ;
+	}
+
+	rEditData.setImageData(ImageData);
+	return true ;
+
 #if 0
 	TODO
 	CObjectModel *pModel = rEditData.getObjectModel() ;
@@ -909,14 +996,15 @@ bool CAnm2DXml::addElement( QDomNode &node, CEditData &rEditData )
 	}
 
 	rEditData.setImageData(ImageData);
-#endif
 	return true ;
+#endif
 }
-#if 0
-TODO
+
 // レイヤデータを追加
-bool CAnm2DXml::addLayer( QDomNode &node, CObjectModel::LayerGroupList &layerGroupList, QStandardItem *pParentItem, int maxLayerNum )
+bool CAnm2DXml::addLayer_00001000( QDomNode &node, ObjectItem *pRoot, int maxLayerNum, CEditData &rEditData )
 {
+	CObjectModel *pModel = rEditData.getObjectModel() ;
+
 	while ( !node.isNull() ) {
 		if ( node.nodeName() == kAnmXML_ID_Layer ) {
 			QDomNamedNodeMap nodeMap = node.attributes() ;
@@ -934,24 +1022,19 @@ bool CAnm2DXml::addLayer( QDomNode &node, CObjectModel::LayerGroupList &layerGro
 			frameDataNum = nodeMap.namedItem(kAnmXML_Attr_FrameNum).toAttr().value().toInt() ;
 			no = nodeMap.namedItem(kAnmXML_Attr_No).toAttr().value().toInt() ;
 
-			QStandardItem *layerItem = new QStandardItem(name) ;
-			layerItem->setData(true, Qt::CheckStateRole);
-			pParentItem->insertRow(no, layerItem) ;
-
-			CObjectModel::LayerGroup layerGroup ;
-			layerGroup.first = layerItem ;
+			QModelIndex index = pModel->addItem(name, pRoot->getIndex()) ;
+			ObjectItem *pItem = pModel->getItemFromIndex(index) ;
+			pItem->setData(ObjectItem::kState_Disp, Qt::CheckStateRole) ;
 
 			QDomNode child = node.firstChild() ;
-			if ( !addFrameData(child, layerGroup.second, frameDataNum) ) {
+			if ( !addFrameData_00001000(child, pItem, frameDataNum) ) {
 				return false ;
 			}
-
-			layerGroupList.insert(no, layerGroup) ;
 		}
 		node = node.nextSibling() ;
 	}
 
-	if ( layerGroupList.size() != maxLayerNum ) {
+	if ( pRoot->childCount() != maxLayerNum ) {
 		m_nError = kErrorNo_InvalidLayerNum ;
 		return false ;
 	}
@@ -959,7 +1042,7 @@ bool CAnm2DXml::addLayer( QDomNode &node, CObjectModel::LayerGroupList &layerGro
 }
 
 // フレームデータを追加
-bool CAnm2DXml::addFrameData( QDomNode &node, FrameDataList &frameDataList, int maxFrameDataNum )
+bool CAnm2DXml::addFrameData_00001000( QDomNode &node, ObjectItem *pItem, int maxFrameDataNum )
 {
 	while ( !node.isNull() ) {
 		if ( node.nodeName() == kAnmXML_ID_FrameData ) {
@@ -1088,19 +1171,24 @@ bool CAnm2DXml::addFrameData( QDomNode &node, FrameDataList &frameDataList, int 
 				dataNode = dataNode.nextSibling() ;
 			}
 
-			frameDataList.append(data);
+			pItem->addFrameData(data) ;
 		}
 		node = node.nextSibling() ;
 	}
 
-	if ( frameDataList.size() != maxFrameDataNum ) {
-		qDebug("%d %d", frameDataList.size(), maxFrameDataNum) ;
+	if ( pItem->getFrameData().size() != maxFrameDataNum ) {
+		qDebug("%d %d", pItem->getFrameData().size(), maxFrameDataNum) ;
 		m_nError = kErrorNo_InvalidFrameDataNum ;
 		return false ;
 	}
 	return true ;
 }
-#endif
+
+bool CAnm2DXml::addElement_01000000(QDomNode &node, CEditData &rEditData)
+{
+	return false ;
+}
+
 // イメージ追加
 bool CAnm2DXml::addImage( QDomNode &node, CEditData::ImageData &data )
 {

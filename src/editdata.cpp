@@ -50,13 +50,9 @@ void CEditData::initData( void )
 	m_catchRect			= QRect(0, 0, 0, 0) ;
 	m_center			= QPoint(0, 0) ;
 
-	m_pObjectModel		= new CObjectModel ;
-	if ( !m_pUndoStack ) {
-		m_pUndoStack	= new QUndoStack ;
-	}
-	else {
-		m_pUndoStack->clear();
-	}
+	m_pObjectModel		= new CObjectModel() ;
+	if ( !m_pUndoStack )	{ m_pUndoStack = new QUndoStack ; }
+	else					{ m_pUndoStack->clear(); }
 
 	m_selectFrame		= 0 ;
 
@@ -91,7 +87,7 @@ void CEditData::cmd_delItem(QModelIndex &index)
 }
 
 // フレームデータ追加コマンド
-void CEditData::cmd_addNewFrameData( QModelIndex &index, FrameData &data, QList<QWidget *> &updateWidget )
+void CEditData::cmd_addFrameData( QModelIndex &index, FrameData &data, QList<QWidget *> &updateWidget )
 {
 	m_pUndoStack->push( new Command_AddFrameData(this, index, data, updateWidget));
 }
@@ -123,6 +119,12 @@ void CEditData::cmd_copyLayer(QModelIndex &index, ObjectItem *pLayer, QList<QWid
 	m_pUndoStack->push(new Command_CopyLayer(this, index, pLayer, updateWidget)) ;
 }
 
+// レイヤ 親子移動
+void CEditData::cmd_moveIndex(int row, ObjectItem *pItem, QModelIndex parent, QList<QWidget *> &updateWidget)
+{
+	m_pUndoStack->push(new Command_MoveIndex(this, row, pItem, parent, updateWidget)) ;
+}
+
 // 選択しているフレームデータ取得
 bool CEditData::getNowSelectFrameData(FrameData &ret)
 {
@@ -130,12 +132,20 @@ bool CEditData::getNowSelectFrameData(FrameData &ret)
 	if ( !getObjectModel()->isLayer(index) ) { return false ; }
 
 	int frame = getSelectFrame() ;
-	FrameData *pPrev = getObjectModel()->getFrameDataFromPrevFrame(index, frame+1) ;
-	if ( !pPrev ) { return false ; }
+	ObjectItem *pItem = getObjectModel()->getItemFromIndex(index) ;
+	bool valid ;
+	ret = pItem->getDisplayFrameData(frame, &valid) ;
+	return valid ;
+}
 
-	FrameData *pNext = getObjectModel()->getFrameDataFromNextFrame(index, frame) ;
-	ret = pPrev->getInterpolation(pNext, frame) ;
-	return true ;
+QMatrix4x4 CEditData::getNowSelectMatrix()
+{
+	QModelIndex index = getSelIndex() ;
+	if ( !getObjectModel()->isLayer(index) ) { return QMatrix4x4() ; }
+
+	int frame = getSelectFrame() ;
+	ObjectItem *pItem = getObjectModel()->getItemFromIndex(index) ;
+	return pItem->getDisplayMatrix(frame) ;
 }
 
 // フレームデータをフレーム数順に並び替え

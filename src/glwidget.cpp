@@ -2,7 +2,7 @@
 #include "util.h"
 
 AnimeGLWidget::AnimeGLWidget(CEditData *editData, CSettings *pSetting, QWidget *parent) :
-    QGLWidget(parent)
+	QGLWidget(QGLFormat(QGL::AlphaChannel), parent)
 {
 	m_pEditData = editData ;
 	m_pSetting = pSetting ;
@@ -22,10 +22,6 @@ AnimeGLWidget::AnimeGLWidget(CEditData *editData, CSettings *pSetting, QWidget *
 	m_dragMode = kDragMode_None ;
 
 	m_backImageTex = 0 ;
-
-	QGLFormat f = format() ;
-	f.setAlpha(true) ;
-	setFormat(f);
 }
 
 GLuint AnimeGLWidget::bindTexture(QImage &image)
@@ -170,52 +166,30 @@ void AnimeGLWidget::drawLayers_Anime()
 	ObjectItem *pItem = pModel->getObject(m_pEditData->getSelIndex()) ;
 	if ( !pItem ) { return ; }
 
-	FrameData dummy ;
 	for ( int i = 0 ; i < pItem->childCount() ; i ++ ) {
-		drawLayers(pItem->child(i), dummy) ;
+		drawLayers(pItem->child(i)) ;
 	}
 }
 
-void AnimeGLWidget::drawLayers(ObjectItem *pLayerItem, FrameData &parentFrameData)
+void AnimeGLWidget::drawLayers(ObjectItem *pLayerItem)
 {
-	FrameData d, *prev ;
-	prev = m_pEditData->getObjectModel()->getFrameDataFromPrevFrame(pLayerItem, m_pEditData->getSelectFrame()) ;
-	if ( prev ) {
-		FrameData *next = m_pEditData->getObjectModel()->getFrameDataFromNextFrame(pLayerItem, m_pEditData->getSelectFrame()) ;
-		d = prev->getInterpolation(next, m_pEditData->getSelectFrame()) ;
-	}
-
-	d.pos_x += parentFrameData.pos_x ;
-	d.pos_y += parentFrameData.pos_y ;
-	d.pos_z += parentFrameData.pos_z ;
-
-	d.rot_x += parentFrameData.rot_x ;
-	d.rot_y += parentFrameData.rot_y ;
-	d.rot_z += parentFrameData.rot_z ;
-	if ( d.rot_x < 0 ) { d.rot_x += 360 ; }
-	if ( d.rot_x > 360 ) { d.rot_x -= 360 ; }
-	if ( d.rot_y < 0 ) { d.rot_y += 360 ; }
-	if ( d.rot_y > 360 ) { d.rot_y -= 360 ; }
-	if ( d.rot_z < 0 ) { d.rot_z += 360 ; }
-	if ( d.rot_z > 360 ) { d.rot_z -= 360 ; }
-
-	d.fScaleX *= parentFrameData.fScaleX ;
-	d.fScaleY *= parentFrameData.fScaleY ;
-	for ( int i = 0 ; i < 4 ; i ++ ) {
-		d.rgba[i] *= (float)parentFrameData.rgba[i] / 255.0f ;
-	}
-
 	for ( int i = 0 ; i < pLayerItem->childCount() ; i ++ ) {
-		drawLayers(pLayerItem->child(i), d) ;
+		drawLayers(pLayerItem->child(i)) ;
 	}
 
-	drawFrameData(d) ;
-	if ( m_pSetting->getDrawFrame() && !m_pEditData->isExportPNG() ) {
-		QColor col ;
-		ObjectItem *p = m_pEditData->getObjectModel()->getItemFromIndex(m_pEditData->getSelIndex()) ;
-		if ( pLayerItem == p )	{ col = QColor(255, 0, 0, 255) ; }
-		else					{ col = QColor(64, 64, 64, 255) ; }
-		drawFrame(d, col) ;
+	FrameData d ;
+	bool valid ;
+	d = pLayerItem->getDisplayFrameData(m_pEditData->getSelectFrame(), &valid) ;
+	if ( valid ) {
+		drawFrameData(d, pLayerItem->getDisplayMatrix(m_pEditData->getSelectFrame())) ;
+
+		if ( m_pSetting->getDrawFrame() && !m_pEditData->isExportPNG() ) {
+			QColor col ;
+			ObjectItem *p = m_pEditData->getObjectModel()->getItemFromIndex(m_pEditData->getSelIndex()) ;
+			if ( pLayerItem == p )	{ col = QColor(255, 0, 0, 255) ; }
+			else					{ col = QColor(64, 64, 64, 255) ; }
+			drawFrame(p, m_pEditData->getSelectFrame(), col) ;
+		}
 	}
 }
 
@@ -267,14 +241,15 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 	ObjectItem *pItem = m_pEditData->getObjectModel()->getItemFromIndex(index) ;
 	FrameData data = pItem->getDisplayFrameData(m_pEditData->getSelectFrame()) ;
 	if ( data.frame == m_pEditData->getSelectFrame() ) {
-		m_centerPos = QPoint(data.pos_x, data.pos_y) ;
 
 		switch ( m_editMode ) {
 			case kEditMode_Rot:
 				glEnable(GL_LINE_STIPPLE);
 				glLineStipple(2, 0x3333);
 				{
-					QPoint c = QPoint(data.pos_x, data.pos_y) ;
+					QMatrix4x4 mat = pItem->getDisplayMatrix(m_pEditData->getSelectFrame()) ;
+
+					QPoint c = QPoint(mat.column(3).x(), mat.column(3).y()) ;
 					QPoint p0 = m_DragOffset - QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) ;
 
 					float len = QVector2D(p0-c).length() ;
@@ -284,11 +259,10 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 						float rad = i * M_PI*2.0f / 40.0f ;
 						float x = cosf(rad) * len ;
 						float y = sinf(rad) * len ;
-						glVertex2f(x+data.pos_x, y+data.pos_y);
+						glVertex2f(x+c.x(), y+c.y());
 					}
 					glEnd() ;
 				}
-
 				glDisable(GL_LINE_STIPPLE);
 				break ;
 		}
@@ -300,7 +274,7 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 }
 
 // フレームデータ描画
-void AnimeGLWidget::drawFrameData( const FrameData &data, QColor col )
+void AnimeGLWidget::drawFrameData( const FrameData &data, const QMatrix4x4 &mat, QColor col )
 {
 	CEditData::ImageData *p = m_pEditData->getImageDataFromNo(data.nImage) ;
 	if ( !p ) { return ; }
@@ -311,37 +285,36 @@ void AnimeGLWidget::drawFrameData( const FrameData &data, QColor col )
 	QRectF uvF ;
 
 	glPushMatrix() ;
-	glTranslatef(data.pos_x, data.pos_y, data.pos_z / 4096.0f);
-	glRotatef(data.rot_x, 1, 0, 0);
-	glRotatef(data.rot_y, 0, 1, 0);
-	glRotatef(data.rot_z, 0, 0, 1);
+	{
+		multMatrix(mat) ;
 
-	Vertex v = data.getVertex() ;
-	rect.setLeft(v.x0);
-	rect.setRight(v.x1) ;
-	rect.setTop(v.y0);
-	rect.setBottom(v.y1);
+		Vertex v = data.getVertex() ;
+		rect.setLeft(v.x0);
+		rect.setRight(v.x1) ;
+		rect.setTop(v.y0);
+		rect.setBottom(v.y1);
 
-	uvF.setLeft((float)uv.left()/Image.width());
-	uvF.setRight((float)uv.right()/Image.width());
-	uvF.setTop((float)(Image.height()-uv.top())/Image.height());
-	uvF.setBottom((float)(Image.height()-uv.bottom())/Image.height());
+		uvF.setLeft((float)uv.left()/Image.width());
+		uvF.setRight((float)uv.right()/Image.width());
+		uvF.setTop((float)(Image.height()-uv.top())/Image.height());
+		uvF.setBottom((float)(Image.height()-uv.bottom())/Image.height());
 
-	glBindTexture(GL_TEXTURE_2D, p->nTexObj) ;
+		glBindTexture(GL_TEXTURE_2D, p->nTexObj) ;
 
-	col.setRed( col.red()		* data.rgba[0] / 255 );
-	col.setGreen( col.green()	* data.rgba[1] / 255 );
-	col.setBlue( col.blue()		* data.rgba[2] / 255 );
-	col.setAlpha( col.alpha()	* data.rgba[3] / 255 );
+		col.setRed( col.red()		* data.rgba[0] / 255 );
+		col.setGreen( col.green()	* data.rgba[1] / 255 );
+		col.setBlue( col.blue()		* data.rgba[2] / 255 );
+		col.setAlpha( col.alpha()	* data.rgba[3] / 255 );
 
-	drawRect(rect, uvF, data.pos_z / 4096.0f, col) ;
-
-	glPopMatrix();
+		drawRect(rect, uvF, data.pos_z / 4096.0f, col) ;
+	}
+	glPopMatrix() ;
 }
 
 // フレームデータの枠描画
-void AnimeGLWidget::drawFrame( const FrameData &data, QColor col)
+void AnimeGLWidget::drawFrame( ObjectItem *pItem, int frame, QColor col)
 {
+	FrameData data = pItem->getDisplayFrameData(frame) ;
 	Vertex v = data.getVertex() ;
 
 	bool bDepth = glIsEnabled(GL_DEPTH_TEST) ;
@@ -350,15 +323,14 @@ void AnimeGLWidget::drawFrame( const FrameData &data, QColor col)
 	glDisable(GL_TEXTURE_2D) ;
 
 	glPushMatrix();
-		glTranslatef(data.pos_x, data.pos_y, data.pos_z / 4096.0f);
-		glRotatef(data.rot_x, 1, 0, 0);
-		glRotatef(data.rot_y, 0, 1, 0);
-		glRotatef(data.rot_z, 0, 0, 1);
+	{
+		multMatrix(pItem->getDisplayMatrix(frame)) ;
 
 		drawLine(QPoint(v.x0, v.y0), QPoint(v.x0, v.y1), col, 0);
 		drawLine(QPoint(v.x1, v.y0), QPoint(v.x1, v.y1), col, 0);
 		drawLine(QPoint(v.x0, v.y0), QPoint(v.x1, v.y0), col, 0);
 		drawLine(QPoint(v.x0, v.y1), QPoint(v.x1, v.y1), col, 0);
+	}
 	glPopMatrix();
 
 	if ( bDepth ) { glEnable(GL_DEPTH_TEST) ; }
@@ -386,16 +358,32 @@ void AnimeGLWidget::drawGrid( void )
 	glPopMatrix();
 }
 
+// 選択フレームデータのセンター表示
 void AnimeGLWidget::drawCenter( void )
 {
     FrameData data ;
 	if ( !m_pEditData->getNowSelectFrameData(data) ) { return ; }
 
+	QMatrix4x4 m = m_pEditData->getNowSelectMatrix() ;
+#if 0
+	glPushMatrix() ;
+	{
+		multMatrix(m) ;
+
+		QColor col = QColor(0, 0, 255, 255) ;
+		glDisable(GL_DEPTH_TEST);
+		drawLine(QPoint(-(CEditData::kGLWidgetSize/2), 0), QPoint((CEditData::kGLWidgetSize/2), 0), col, 1.0) ;
+		drawLine(QPoint(0, -(CEditData::kGLWidgetSize/2)), QPoint(0, (CEditData::kGLWidgetSize/2)), col, 1.0) ;
+		glEnable(GL_DEPTH_TEST);
+	}
+	glPopMatrix() ;
+#else
 	QColor col = QColor(0, 0, 255, 255) ;
 	glDisable(GL_DEPTH_TEST);
-	drawLine(QPoint(-(CEditData::kGLWidgetSize/2), data.pos_y), QPoint((CEditData::kGLWidgetSize/2), data.pos_y), col, 1.0) ;
-	drawLine(QPoint(data.pos_x, -(CEditData::kGLWidgetSize/2)), QPoint(data.pos_x, (CEditData::kGLWidgetSize/2)), col, 1.0) ;
+	drawLine(QPoint(-(CEditData::kGLWidgetSize/2), m.column(3).y()), QPoint((CEditData::kGLWidgetSize/2), m.column(3).y()), col, 1.0) ;
+	drawLine(QPoint(m.column(3).x(), -(CEditData::kGLWidgetSize/2)), QPoint(m.column(3).x(), (CEditData::kGLWidgetSize/2)), col, 1.0) ;
 	glEnable(GL_DEPTH_TEST);
+#endif
 }
 
 // ライン描画
@@ -474,7 +462,6 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 	if ( m_pEditData->getPlayAnime() ) { return ; }
 
 	if ( event->button() == Qt::LeftButton ) {	// 左ボタン
-
 		// 連番PNG吐き出し時
 		if ( m_pEditData->getEditMode() == CEditData::kEditMode_ExportPNG ) {
 			int rect[4] = { 0, 0, 0, 0 } ;
@@ -496,12 +483,14 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 		ObjectItem *pItem = pModel->getObject(index) ;
 		if ( !pItem ) {
 			// オブジェクトが選択されていない
+			qDebug() << "mousePressEvent not sel object" ;
 			return ;
 		}
 
-		if ( pItem->isContain(pItem, localPos, frame) ) {
+		if ( pItem->isContain(&pItem, localPos, frame) ) {
 			int flag = pItem->data(Qt::CheckStateRole).toInt() ;
 			if ( !(flag & ObjectItem::kState_Disp) || (flag & ObjectItem::kState_Lock) ) {	// 非表示
+				qDebug() << "mousePressEvent not display:" << flag ;
 				event->ignore();
 				return ;
 			}
@@ -518,6 +507,9 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 			}
 			emit sig_selectLayerChanged(pItem->getIndex()) ;
 			m_dragMode = kDragMode_Edit ;
+		}
+		else {
+			qDebug() << "mousePressEvent not contain" << localPos ;
 		}
 	}
 }
@@ -557,7 +549,6 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 		}
 		break ;
 	}
-
 }
 
 // マウスボタン離し直後イベント
@@ -719,6 +710,21 @@ int AnimeGLWidget::getDigit(int num)
 		num /= 10 ;
 	}
 	return ret ;
+}
+
+void AnimeGLWidget::multMatrix(const QMatrix4x4 &mat)
+{
+	double m[16] ;
+	convMat(m, mat) ;
+	glMultMatrixd(m) ;
+}
+
+void AnimeGLWidget::convMat(double *ret, const QMatrix4x4 &mat)
+{
+	const qreal *p = mat.data() ;
+	for ( int i = 0 ; i < 16 ; i ++ ) {
+		ret[i] = p[i] ;
+	}
 }
 
 // 描画エリア設定

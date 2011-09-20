@@ -96,6 +96,11 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 		ui->treeView->header()->setHidden(true);
 		ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
+		ui->treeView->setDragEnabled(true) ;
+		ui->treeView->setAcceptDrops(true) ;
+		ui->treeView->setDropIndicatorShown(true) ;
+		ui->treeView->setDragDropMode(QAbstractItemView::InternalMove) ;
+
 		ObjectItem *root = pModel->getItemFromIndex(QModelIndex()) ;
 		if ( !root->childCount() ) {
 			addNewObject(trUtf8("New Object"));
@@ -199,6 +204,8 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 
 	connect(m_pSplitter,				SIGNAL(splitterMoved(int,int)), this, SLOT(slot_splitterMoved(int, int))) ;
 
+	connect(m_pEditData->getObjectModel(), SIGNAL(sig_moveIndex(int,ObjectItem*,QModelIndex)), this, SLOT(slot_moveIndex(int, ObjectItem*, QModelIndex))) ;
+
 #ifndef LAYOUT_OWN
 	QGridLayout *pLayout = new QGridLayout(this) ;
 	pLayout->addWidget(ui->listWidget, 0, 0, 5, 1);
@@ -297,6 +304,25 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 }
 #endif
 
+void AnimationForm::dumpObjects(ObjectItem *p, int tab)
+{
+	QString space, str ;
+	for ( int i = 0 ; i < tab ; i ++ ) {
+		space += "  " ;
+	}
+	str = space + QString("name:%1").arg(p->getName()) ;
+	qDebug() << str ;
+	const QList<FrameData> list = p->getFrameData() ;
+	for ( int i = 0 ; i < list.size() ; i ++ ) {
+		const FrameData &d = list.at(i) ;
+		str = space + QString(" frame:%1 pos x:%2 y:%3").arg(d.frame).arg(d.pos_x).arg(d.pos_y) ;
+		qDebug() << str ;
+	}
+	for ( int i = 0 ; i < p->childCount() ; i ++ ) {
+		dumpObjects(p->child(i), tab + 1) ;
+	}
+}
+
 // スクロールバーをセンターに。
 void AnimationForm::setBarCenter( void )
 {
@@ -313,28 +339,8 @@ void AnimationForm::dbgDumpObject( void )
 	if ( !m_pEditData->getObjectModel() ) { return ; }
 
 	qDebug("Deump Object ------------------------") ;
-#if 0
-TODO
-	const CObjectModel::ObjectList &objList = m_pEditData->getObjectModel()->getObjectList() ;
-	for ( int i = 0 ; i < objList.size() ; i ++ ) {
-		qDebug("Object [%d] ID:%p", i, objList.at(i).id) ;
-
-		const CObjectModel::LayerGroupList &layerGroupList = objList.at(i).layerGroupList ;
-		for ( int j = 0 ; j < layerGroupList.size() ; j ++ ) {
-			qDebug("  LayerGroup [%d] ID:%p", j, layerGroupList.at(j).first ) ;
-
-            const FrameDataList &frameDataList = layerGroupList.at(j).second ;
-			for ( int k = 0 ; k < frameDataList.size() ; k ++ ) {
-                const FrameData data = frameDataList.at(k) ;
-				qDebug("    FrameData [%d] x:%d y:%d z:%d", k, data.pos_x, data.pos_y, data.pos_z) ;
-				qDebug("              cx:%d cy:%d frame:%d", data.center_x, data.center_y, data.frame) ;
-				qDebug("              scaX:%f scaY:%f", data.fScaleX, data.fScaleY) ;
-				qDebug("              l:%d r:%d t:%d b:%d", data.left, data.right, data.top, data.bottom) ;
-				qDebug("              bUVAnime:%d", data.bUVAnime) ;
-			}
-		}
-	}
-#endif
+	ObjectItem *root = m_pEditData->getObjectModel()->getItemFromIndex(QModelIndex()) ;
+	dumpObjects(root, 0) ;
 	qDebug("end ---------------------------------") ;
 }
 
@@ -429,6 +435,16 @@ void AnimationForm::slot_dropedImage( QRect rect, QPoint pos, int imageIndex )
 
 	pos -= QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) ;	// GLWidgetのローカルポスに変換
 
+	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
+	bool valid ;
+	QMatrix4x4 mat = pItem->getDisplayMatrix(frameNum, &valid) ;
+	if ( valid ) {
+		QMatrix4x4 inv = mat.inverted(&valid) ;
+		if ( valid ) {
+			pos = inv.map(pos) ;
+		}
+	}
+
 	index = m_pEditData->cmd_addItem(QString("Layer %1").arg(pObjItem->childCount()), index) ;
 	ui->treeView->setCurrentIndex(index) ;
 	m_pEditData->setSelIndex(index) ;
@@ -457,7 +473,7 @@ void AnimationForm::slot_dropedImage( QRect rect, QPoint pos, int imageIndex )
 	updateWidget << m_pGlWidget ;
 	updateWidget << m_pDataMarker ;
 
-	m_pEditData->cmd_addNewFrameData(index, frameData, updateWidget) ;
+	m_pEditData->cmd_addFrameData(index, frameData, updateWidget) ;
 }
 
 // 現在フレーム変更
@@ -483,9 +499,9 @@ void AnimationForm::slot_frameChanged(int frame)
 // 選択レイヤ変更
 void AnimationForm::slot_selectLayerChanged( QModelIndex indexLayer )
 {
-
 	if ( indexLayer.isValid() ) {
 		ui->treeView->setCurrentIndex(indexLayer) ;
+		m_pEditData->setSelIndex(indexLayer) ;
 	}
 
 	ObjectItem *p = m_pEditData->getObjectModel()->getItemFromIndex(indexLayer) ;
@@ -942,10 +958,11 @@ void AnimationForm::slot_addNewFrameData( QModelIndex indexLayer, int frame, Fra
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
 	if ( !pModel->isLayer(indexLayer) ) { return ; }
 
+	qDebug() << "slot_addNewFrameData frame:" << frame ;
 	data.frame = frame ;
 	QList<QWidget *> update ;
 	update << m_pDataMarker << m_pGlWidget ;
-	m_pEditData->cmd_addNewFrameData(indexLayer, data, update) ;
+	m_pEditData->cmd_addFrameData(indexLayer, data, update) ;
 }
 
 // レイヤ表示ON/OFF
@@ -1287,6 +1304,13 @@ void AnimationForm::slot_splitterMoved(int pos, int index)
 {
 	qDebug("splitterMoved pos:%d index:%d", pos, index) ;
 	m_pSetting->setAnmWindowTreeWidth(pos, index) ;
+}
+
+void AnimationForm::slot_moveIndex(int row, ObjectItem *pItem, QModelIndex index)
+{
+	QList<QWidget *> widgets ;
+	widgets << m_pGlWidget ;
+	m_pEditData->cmd_moveIndex(row, pItem, index, widgets) ;
 }
 
 // オブジェクト追加

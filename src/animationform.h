@@ -126,6 +126,7 @@ public slots:
 	void slot_setColorFromPicker(QRgb rgba) ;
 
 	void slot_splitterMoved(int pos, int index) ;
+	void slot_moveIndex(int row, ObjectItem *pItem, QModelIndex index) ;
 
 protected:
 	FrameData *getNowSelectFrameData( void ) ;
@@ -144,6 +145,8 @@ protected:
 #ifdef LAYOUT_OWN
 	void resizeEvent(QResizeEvent *event) ;
 #endif
+
+	void dumpObjects(ObjectItem *p, int tab) ;
 
 private:
 	Ui::AnimationForm		*ui;

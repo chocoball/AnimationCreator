@@ -22,8 +22,8 @@ public:
 private:
 	CEditData		*m_pEditData ;
 	QString			m_str ;
-	QModelIndex		m_parent ;
 	QModelIndex		m_index ;
+	int				m_parentRow ;
 	int				m_row ;
 } ;
 
@@ -39,8 +39,8 @@ public:
 private:
 	CEditData		*m_pEditData ;
 	int				m_row ;
-	QModelIndex		m_index ;
-	QModelIndex		m_parentIndex ;
+	int				m_parentRow ;
+	int				m_relRow ;
 	ObjectItem		*m_pItem ;
 } ;
 
@@ -60,8 +60,9 @@ public:
 private:
 	CEditData			*m_pEditData ;
 	CObjectModel		*m_pObjModel ;
-	QModelIndex			m_index ;
-	FrameData			m_FrameData ;
+	FrameData			m_frameData ;
+	int					m_row ;
+	int					m_flag ;
 
 	QList<QWidget *>	m_UpdateWidgetList ;
 };
@@ -81,7 +82,7 @@ private:
 	CEditData			*m_pEditData ;
 	CObjectModel		*m_pObjModel ;
 	FrameData			m_FrameData ;
-	QModelIndex			m_index ;
+	int					m_row ;
 
 	QList<QWidget *>	m_UpdateWidgetList ;
 };
@@ -101,9 +102,9 @@ public:
 private:
 	CEditData			*m_pEditData ;
 	CObjectModel		*m_pObjModel ;
-	QModelIndex			m_index ;
 	FrameData			m_FrameData, m_OldFrameData ;
-	int					m_Frame ;
+	int					m_row ;
+	int					m_frame ;
 
 	QList<QWidget *>	m_UpdateWidgetList ;
 };
@@ -137,6 +138,24 @@ private:
 	QModelIndex						m_index ;
 	ObjectItem						*m_pLayer ;
 	QList<QWidget *>				m_UpdateWidgetList ;
+} ;
+
+// レイヤ 親子移動
+class Command_MoveIndex : public QUndoCommand
+{
+public:
+	Command_MoveIndex( CEditData *pEditData, int row, ObjectItem *pLayer, QModelIndex parent, QList<QWidget *> &updateWidget ) ;
+
+	void redo() ;
+	void undo() ;
+
+private:
+	CEditData			*m_pEditData ;
+	int					m_row, m_relRow, m_parentRow ;
+	int					m_oldRow, m_oldParentRow, m_oldRelRow ;
+	QModelIndex			m_index ;
+	ObjectItem			*m_pLayer, *m_pLayerOld ;
+	QList<QWidget *>	m_UpdateWidgetList ;
 } ;
 
 
