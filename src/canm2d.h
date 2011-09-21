@@ -144,9 +144,9 @@ private:
 	bool makeLayer(ObjectItem *pLayer, int *pLayerNo, Anm2DObject *pObjData, QList<QByteArray> &layerList, QList<QByteArray> &frameList, int parentNo) ;
 	bool makeImageList( QList<QByteArray> &rData, CEditData &rEditData ) ;
 
-	bool addObject(Anm2DHeader *pHeader, CEditData &rEditData) ;
-	bool addLayer(Anm2DHeader *pHeader, CEditData &rEditData) ;
-	bool addFrameData(Anm2DHeader *pHeader, CEditData &rEditData) ;
+	bool addList(Anm2DHeader *pHeader) ;
+	bool addModel(CEditData &rEditData) ;
+	bool addModel_Layer(QModelIndex &parent, int layerNo, CObjectModel *pModel) ;
 	bool addImageData(Anm2DHeader *pHeader, CEditData &rEditData) ;
 
 	Anm2DObject	*search2DObjectFromName(Anm2DHeader *pHeader, QString name) ;
