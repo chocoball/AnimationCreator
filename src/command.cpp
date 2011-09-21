@@ -17,10 +17,8 @@ Command_AddItem::Command_AddItem(CEditData *pEditData, QString &str, QModelIndex
 void Command_AddItem::redo()
 {
 	QModelIndex index = m_pEditData->getObjectModel()->getIndex(m_parentRow) ;
-	if ( index.isValid() ) {
-		m_index = m_pEditData->getObjectModel()->addItem(m_str, index) ;
-		m_row = m_pEditData->getObjectModel()->getRow(m_index) ;
-	}
+	m_index = m_pEditData->getObjectModel()->addItem(m_str, index) ;
+	m_row = m_pEditData->getObjectModel()->getRow(m_index) ;
 }
 
 void Command_AddItem::undo()
@@ -292,27 +290,21 @@ void Command_CopyLayer::undo()
 }
 
 /**
-  レイヤ親子移動
+  レイヤコピー
   */
-Command_MoveIndex::Command_MoveIndex( CEditData *pEditData, int row, ObjectItem *pLayer, QModelIndex parent, QList<QWidget *> &updateWidget ) :
-	QUndoCommand(QObject::trUtf8("レイヤ移動"))
+Command_CopyIndex::Command_CopyIndex( CEditData *pEditData, int row, ObjectItem *pLayer, QModelIndex parent, QList<QWidget *> &updateWidget ) :
+	QUndoCommand(QObject::trUtf8("レイヤコピー"))
 {
 	m_pEditData			= pEditData ;
-	m_row				= m_pEditData->getObjectModel()->getRow(pLayer->getIndex()) ;
 	m_relRow			= row ;
 	m_parentRow			= m_pEditData->getObjectModel()->getRow(parent) ;
 	m_UpdateWidgetList	= updateWidget ;
 
-	m_pLayer = new ObjectItem(pLayer->getName(), NULL) ;
+	m_pLayer = new ObjectItem(pLayer->getName() + QString("_copy"), NULL) ;
 	m_pLayer->copy(pLayer) ;
-	m_pLayer->setIndex(pLayer->getIndex()) ;
-
-	m_oldRow = -1 ;
-	m_oldParentRow = -1 ;
-	m_oldRelRow = -1 ;
 }
 
-void Command_MoveIndex::redo()
+void Command_CopyIndex::redo()
 {
 	if ( m_pLayer ) {
 		CObjectModel *pModel = m_pEditData->getObjectModel() ;
@@ -320,60 +312,37 @@ void Command_MoveIndex::redo()
 
 		index = pModel->getIndex(m_parentRow) ;
 		if ( m_relRow < 0 ) {
-			m_index = pModel->addItem(m_pLayer->getName(), index) ;
+			index = pModel->addItem(m_pLayer->getName(), index) ;
 		}
 		else {
-			m_index = pModel->insertItem(m_relRow, m_pLayer->getName(), index) ;
+			index = pModel->insertItem(m_relRow, m_pLayer->getName(), index) ;
 		}
-		if ( m_index.isValid() ) {
-			ObjectItem *pItem = pModel->getItemFromIndex(m_index) ;
+		if ( index.isValid() ) {
+			ObjectItem *pItem = pModel->getItemFromIndex(index) ;
 			pItem->copy(m_pLayer) ;
+			m_row = pModel->getRow(index) ;
 		}
 
-		// 前のデータ削除
-		if ( m_oldRow >= 0 ) {
-			index = pModel->getIndex(m_oldRow) ;
-			if ( index.isValid() ) {
-				pModel->removeItem(index) ;
-			}
-		}
-
-		index = pModel->getIndex(m_row) ;
-		m_oldRow = m_row ;
-		m_oldRelRow = index.row() ;
-		m_oldParentRow = pModel->getRow(index.parent()) ;
-
-		m_pEditData->setSelIndex(m_index) ;
+		m_pEditData->setSelIndex(index) ;
 	}
 	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
 		m_UpdateWidgetList[i]->update();
 	}
 }
 
-void Command_MoveIndex::undo()
+void Command_CopyIndex::undo()
 {
-	if ( m_index.isValid() ) {
-		CObjectModel *pModel = m_pEditData->getObjectModel() ;
-		QModelIndex index ;
-		ObjectItem *pItem, *pTmp ;
-
-		pItem = pModel->getItemFromIndex(m_index) ;
-		pTmp = new ObjectItem(pItem->getName(), NULL) ;
-		pTmp->copy(pItem) ;
-		pModel->removeItem(m_index) ;
-
-		// 前の親に戻す
-		index = pModel->getIndex(m_oldParentRow) ;
-		index = pModel->insertItem(m_oldRelRow, m_pLayer->getName(), index) ;
-		pItem = pModel->getItemFromIndex(index) ;
-		pItem->copy(m_pLayer) ;
-		m_pEditData->setSelIndex(index) ;
-
-		m_parentRow = pModel->getRow(index.parent()) ;
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	QModelIndex index = pModel->getIndex(m_row) ;
+	if ( index.isValid() ) {
+		ObjectItem *pItem ;
 
 		delete m_pLayer ;
-		m_pLayer = pTmp ;
-		m_index = QModelIndex() ;
+
+		pItem = pModel->getItemFromIndex(index) ;
+		m_pLayer = new ObjectItem(pItem->getName(), NULL) ;
+		m_pLayer->copy(pItem) ;
+		pModel->removeItem(index) ;
 	}
 
 	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {

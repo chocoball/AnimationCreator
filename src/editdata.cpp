@@ -120,9 +120,9 @@ void CEditData::cmd_copyLayer(QModelIndex &index, ObjectItem *pLayer, QList<QWid
 }
 
 // レイヤ 親子移動
-void CEditData::cmd_moveIndex(int row, ObjectItem *pItem, QModelIndex parent, QList<QWidget *> &updateWidget)
+void CEditData::cmd_copyIndex(int row, ObjectItem *pItem, QModelIndex parent, QList<QWidget *> &updateWidget)
 {
-	m_pUndoStack->push(new Command_MoveIndex(this, row, pItem, parent, updateWidget)) ;
+	m_pUndoStack->push(new Command_CopyIndex(this, row, pItem, parent, updateWidget)) ;
 }
 
 // 選択しているフレームデータ取得

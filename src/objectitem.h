@@ -95,7 +95,6 @@ public:
 
 	void copy(ObjectItem *p)
 	{
-		this->m_name = p->m_name ;
 		this->m_nLoop = p->m_nLoop ;
 		this->m_nCurrLoop = p->m_nCurrLoop ;
 		for ( int i = 0 ; i < p->m_children.size() ; i ++ ) {

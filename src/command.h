@@ -140,11 +140,11 @@ private:
 	QList<QWidget *>				m_UpdateWidgetList ;
 } ;
 
-// レイヤ 親子移動
-class Command_MoveIndex : public QUndoCommand
+// レイヤコピー
+class Command_CopyIndex : public QUndoCommand
 {
 public:
-	Command_MoveIndex( CEditData *pEditData, int row, ObjectItem *pLayer, QModelIndex parent, QList<QWidget *> &updateWidget ) ;
+	Command_CopyIndex( CEditData *pEditData, int row, ObjectItem *pLayer, QModelIndex parent, QList<QWidget *> &updateWidget ) ;
 
 	void redo() ;
 	void undo() ;
@@ -152,9 +152,7 @@ public:
 private:
 	CEditData			*m_pEditData ;
 	int					m_row, m_relRow, m_parentRow ;
-	int					m_oldRow, m_oldParentRow, m_oldRelRow ;
-	QModelIndex			m_index ;
-	ObjectItem			*m_pLayer, *m_pLayerOld ;
+	ObjectItem			*m_pLayer ;
 	QList<QWidget *>	m_UpdateWidgetList ;
 } ;
 

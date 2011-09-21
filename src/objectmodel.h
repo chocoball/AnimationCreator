@@ -36,8 +36,8 @@ public:
 	ObjectItem *getItemFromIndex(const QModelIndex &index) const ;
 	ObjectItem *getObject(const QModelIndex &index) ;
 
-	bool isObject(const QModelIndex &index) ;
-	bool isLayer(const QModelIndex &index) ;
+	bool isObject(const QModelIndex &index) const ;
+	bool isLayer(const QModelIndex &index) const ;
 
 	FrameData *getFrameDataFromPrevFrame(QModelIndex index, int frame, bool bRepeat = false) ;
 	FrameData *getFrameDataFromPrevFrame(ObjectItem *pItem, int frame, bool bRepeat = false) ;
@@ -51,7 +51,7 @@ public:
 	QModelIndex getIndex(ObjectItem *root, int row, int *currRow) ;
 
 signals:
-	void sig_moveIndex(int row, ObjectItem *pItem, QModelIndex parent) ;
+	void sig_copyIndex(int row, ObjectItem *pItem, QModelIndex parent) ;
 
 public slots:
 

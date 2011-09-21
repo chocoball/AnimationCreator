@@ -39,7 +39,12 @@ Qt::ItemFlags CObjectModel::flags(const QModelIndex &index) const
 	if ( !index.isValid() ) {
 		return Qt::ItemIsEnabled ;
 	}
-	return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled ;
+
+	return Qt::ItemIsEnabled
+		 | Qt::ItemIsSelectable
+		 | Qt::ItemIsEditable
+		 | Qt::ItemIsDragEnabled
+		 | Qt::ItemIsDropEnabled ;
 }
 
 bool CObjectModel::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -133,7 +138,7 @@ bool CObjectModel::dropMimeData(const QMimeData *data, Qt::DropAction action, in
 	if ( column > 0 ) { return false ; }
 
 	qDebug() << "dropMimeData row:" << row << " col:" << column ;
-	qDebug() << " parent:" << parent ;
+	qDebug() << " parent:" << parent << " action:" << action ;
 
 	QByteArray encodeData = data->data("AnimationCreator/object.item.list") ;
 	QDataStream stream(&encodeData, QIODevice::ReadOnly) ;
@@ -144,7 +149,16 @@ bool CObjectModel::dropMimeData(const QMimeData *data, Qt::DropAction action, in
 		stream >> val ;
 		p = reinterpret_cast<ObjectItem *>(val) ;
 
-		emit sig_moveIndex(row, p, parent) ;
+		if ( p->parent() == m_pRoot ) {	// オブジェクト
+			if ( !parent.isValid() ) {
+				emit sig_copyIndex(row, p, parent) ;
+			}
+		}
+		else {	// レイヤ
+			if ( parent.isValid() ) {
+				emit sig_copyIndex(row, p, parent) ;
+			}
+		}
 	}
 
 	return true ;
@@ -199,16 +213,20 @@ ObjectItem *CObjectModel::getObject(const QModelIndex &index)
 	return p ;
 }
 
-bool CObjectModel::isObject(const QModelIndex &index)
+bool CObjectModel::isObject(const QModelIndex &index) const
 {
 	if ( !index.isValid() ) { return false ; }
-	return index.parent().internalPointer() == m_pRoot ? true : false ;
+	ObjectItem *p = getItemFromIndex(index) ;
+	return p->parent() == m_pRoot ? true : false ;
+//	return index.parent().internalPointer() == m_pRoot ? true : false ;
 }
 
-bool CObjectModel::isLayer(const QModelIndex &index)
+bool CObjectModel::isLayer(const QModelIndex &index) const
 {
 	if ( !index.isValid() ) { return false ; }
-	return index.parent().internalPointer() != m_pRoot ? true : false ;
+	ObjectItem *p = getItemFromIndex(index) ;
+	return p->parent() == m_pRoot ? false : true ;
+//	return index.parent().internalPointer() != m_pRoot ? true : false ;
 }
 
 FrameData *CObjectModel::getFrameDataFromPrevFrame(QModelIndex index, int frame, bool bRepeat)

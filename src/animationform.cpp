@@ -99,7 +99,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 		ui->treeView->setDragEnabled(true) ;
 		ui->treeView->setAcceptDrops(true) ;
 		ui->treeView->setDropIndicatorShown(true) ;
-		ui->treeView->setDragDropMode(QAbstractItemView::InternalMove) ;
+		ui->treeView->setDragDropMode(QAbstractItemView::DragDrop) ;
 
 		ObjectItem *root = pModel->getItemFromIndex(QModelIndex()) ;
 		if ( !root->childCount() ) {
@@ -119,8 +119,6 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	m_pActTreeViewDel		= new QAction(QString("Delete"), this);
 	m_pActTreeViewLayerDisp = new QAction(QString("Disp"), this) ;
 	m_pActTreeViewLayerLock = new QAction(QString("Lock"), this) ;
-	m_pActCopyLayer			= new QAction(QString("Copy Layer"), this) ;
-	m_pActPasteLayer		= new QAction(QString("Paste Layer"), this) ;
 
 	m_pTimer = new QTimer(this) ;
 	m_pTimer->setInterval((int)(100.0f/6.0f));
@@ -180,8 +178,6 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(m_pActTreeViewDel,			SIGNAL(triggered()),			this, SLOT(slot_deleteObject())) ;
 	connect(m_pActTreeViewLayerDisp,	SIGNAL(triggered()),			this, SLOT(slot_changeLayerDisp())) ;
 	connect(m_pActTreeViewLayerLock,	SIGNAL(triggered()),			this, SLOT(slot_changeLayerLock())) ;
-	connect(m_pActCopyLayer,			SIGNAL(triggered()),			this, SLOT(slot_copyLayer())) ;
-	connect(m_pActPasteLayer,			SIGNAL(triggered()),			this, SLOT(slot_pasteLayer())) ;
 
 	connect(ui->pushButton_play,		SIGNAL(clicked()),				this, SLOT(slot_playAnimation())) ;
 	connect(ui->pushButton_stop,		SIGNAL(clicked()),				this, SLOT(slot_stopAnimation())) ;
@@ -204,7 +200,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 
 	connect(m_pSplitter,				SIGNAL(splitterMoved(int,int)), this, SLOT(slot_splitterMoved(int, int))) ;
 
-	connect(m_pEditData->getObjectModel(), SIGNAL(sig_moveIndex(int,ObjectItem*,QModelIndex)), this, SLOT(slot_moveIndex(int, ObjectItem*, QModelIndex))) ;
+	connect(m_pEditData->getObjectModel(), SIGNAL(sig_copyIndex(int,ObjectItem*,QModelIndex)), this, SLOT(slot_copyIndex(int, ObjectItem*, QModelIndex))) ;
 
 #ifndef LAYOUT_OWN
 	QGridLayout *pLayout = new QGridLayout(this) ;
@@ -385,7 +381,6 @@ void AnimationForm::slot_deleteObject( void )
 // フレームデータ削除
 void AnimationForm::slot_deleteFrameData(void)
 {
-#if 1
 	QModelIndex index = ui->treeView->currentIndex() ;
 	if ( !index.isValid() ) { return ; }
 
@@ -395,23 +390,6 @@ void AnimationForm::slot_deleteFrameData(void)
 	update << m_pDataMarker << m_pGlWidget ;
 
 	m_pEditData->cmd_delFrameData(index, frame, update) ;
-#else
-	CObjectModel *pModel			= m_pEditData->getObjectModel() ;
-	CObjectModel::typeID objID		= m_pEditData->getSelectObject() ;
-	CObjectModel::typeID layerID	= m_pEditData->getSelectLayer() ;
-	int frame						= m_pEditData->getSelectFrame() ;
-
-	QList<QWidget *> update ;
-	update << m_pDataMarker << m_pGlWidget ;
-	m_pEditData->cmd_delFrameData(objID, layerID, frame, update) ;
-
-    FrameDataList *p = pModel->getFrameDataListFromID(objID, layerID) ;
-	if ( !p || p->size() == 0 ) {
-		QStandardItem *item = (QStandardItem *)layerID ;
-		m_pEditData->cmd_delObject(item->index(), m_pDataMarker);
-		slot_changeSelectObject(ui->treeView->currentIndex());
-	}
-#endif
 }
 
 // ドロップ時のスロット
@@ -774,19 +752,21 @@ void AnimationForm::slot_treeViewMenuReq(QPoint treeViewLocalPos)
 	menu.addAction(m_pActTreeViewAdd) ;
 	menu.addAction(m_pActTreeViewDel) ;
 
-	if ( m_pEditData->getObjectModel()->isLayer(m_pEditData->getSelIndex()) ) {
-		// レイヤ選択中だったら
-		menu.addAction(m_pActTreeViewLayerDisp) ;
-		menu.addAction(m_pActCopyLayer) ;
-		menu.addAction(m_pActTreeViewLayerLock) ;
-	}
-	else if ( m_pEditData->getObjectModel()->isObject(m_pEditData->getSelIndex()) ) {
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+
+	qDebug() << "isObject:" << pModel->isObject(m_pEditData->getSelIndex()) ;
+	qDebug() << "isLayer:" << pModel->isLayer(m_pEditData->getSelIndex()) ;
+
+	if ( pModel->isObject(m_pEditData->getSelIndex()) ) {
 		// オブジェクト選択中だったら
 		menu.addAction(m_pActTreeViewCopy) ;
 	}
-	if ( m_pEditData->isCopyLayer() ) {
-		menu.addAction(m_pActPasteLayer) ;
+	else if ( pModel->isLayer(m_pEditData->getSelIndex()) ) {
+		// レイヤ選択中だったら
+		menu.addAction(m_pActTreeViewLayerDisp) ;
+		menu.addAction(m_pActTreeViewLayerLock) ;
 	}
+
 	menu.exec(ui->treeView->mapToGlobal(treeViewLocalPos) + QPoint(0, ui->treeView->header()->height())) ;
 }
 
@@ -823,6 +803,7 @@ void AnimationForm::slot_changeSelectObject(QModelIndex index)
 			slot_setUI(*pData) ;
 		}
 	}
+
 	ObjectItem *pObj = pModel->getObject(index) ;
 	if ( pObj ) {
 		ui->spinBox_loop->setValue(pObj->getLoop());
@@ -1306,11 +1287,11 @@ void AnimationForm::slot_splitterMoved(int pos, int index)
 	m_pSetting->setAnmWindowTreeWidth(pos, index) ;
 }
 
-void AnimationForm::slot_moveIndex(int row, ObjectItem *pItem, QModelIndex index)
+void AnimationForm::slot_copyIndex(int row, ObjectItem *pItem, QModelIndex index)
 {
 	QList<QWidget *> widgets ;
 	widgets << m_pGlWidget ;
-	m_pEditData->cmd_moveIndex(row, pItem, index, widgets) ;
+	m_pEditData->cmd_copyIndex(row, pItem, index, widgets) ;
 }
 
 // オブジェクト追加

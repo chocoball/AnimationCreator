@@ -126,7 +126,7 @@ public slots:
 	void slot_setColorFromPicker(QRgb rgba) ;
 
 	void slot_splitterMoved(int pos, int index) ;
-	void slot_moveIndex(int row, ObjectItem *pItem, QModelIndex index) ;
+	void slot_copyIndex(int row, ObjectItem *pItem, QModelIndex index) ;
 
 protected:
 	FrameData *getNowSelectFrameData( void ) ;
@@ -162,8 +162,6 @@ private:
 	QAction					*m_pActTreeViewLayerDisp ;
 	QAction					*m_pActPlay ;
 	QAction					*m_pActStop ;
-	QAction					*m_pActCopyLayer ;
-	QAction					*m_pActPasteLayer ;
 	QAction					*m_pActTreeViewLayerLock ;
 
 	QTimer					*m_pTimer ;
