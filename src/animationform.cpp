@@ -152,8 +152,8 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 			this,		SLOT(slot_deleteFrameData())) ;
 	connect(m_pGlWidget, SIGNAL(sig_selectPrevLayer(QModelIndex, int, FrameData)),
 			this,		SLOT(slot_addNewFrameData(QModelIndex, int, FrameData))) ;
-	connect(m_pGlWidget, SIGNAL(sig_frameDataMoveEnd()),
-			this,		SLOT(slot_frameDataMoveEnd())) ;
+	connect(m_pGlWidget, SIGNAL(sig_frameDataMoveEnd(FrameData)),
+			this,		SLOT(slot_frameDataMoveEnd(FrameData))) ;
     connect(m_pGlWidget, SIGNAL(sig_dragedImage(FrameData)),
             this,		SLOT(slot_portDragedImage(FrameData))) ;
 //	connect(m_pGlWidget, SIGNAL(sig_copyFrameData()), this, SLOT(slot_copyFrameData())) ;
@@ -1097,7 +1097,7 @@ void AnimationForm::slot_endedOption( void )
 }
 
 // マウスでのデータ編集終了時
-void AnimationForm::slot_frameDataMoveEnd( void )
+void AnimationForm::slot_frameDataMoveEnd( FrameData data )
 {
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
 	QModelIndex index = m_pEditData->getSelIndex() ;
@@ -1108,7 +1108,9 @@ void AnimationForm::slot_frameDataMoveEnd( void )
 
 	FrameData *p = pItem->getFrameDataPtr(m_pEditData->getSelectFrame()) ;
 	if ( !p ) { return ; }
-	addCommandEdit(*p) ;
+	if ( *p != data ) {
+		addCommandEdit(data) ;
+	}
 }
 
 // ラジオボタン POS クリック
@@ -1152,9 +1154,8 @@ void AnimationForm::slot_changeLoop( int val )
 {
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
 	QModelIndex index = m_pEditData->getSelIndex() ;
-	if ( index.isValid() ) { return ; }
-
 	ObjectItem *pItem = pModel->getObject(index) ;
+	if ( !pItem ) { return ; }
 	pItem->setLoop(val);
 }
 
@@ -1396,11 +1397,11 @@ void AnimationForm::copyFrameData( void )
 		data = *p ;
 	}
 	else {
-		p = pModel->getFrameDataFromPrevFrame(index, frame, false) ;
-		if ( !p ) { return ; }
-		FrameData *pNext = pModel->getFrameDataFromNextFrame(index, frame) ;
-		data = p->getInterpolation(pNext, frame) ;
+		bool valid ;
+		data = pItem->getDisplayFrameData(frame, &valid) ;
+		if ( !valid ) { return ; }
 	}
+	qDebug() << "Copy Framedata" ;
 	m_pEditData->setCopyFrameData(data) ;
 }
 
@@ -1423,5 +1424,6 @@ void AnimationForm::pasteFrameData( void )
 	else {
 		slot_addNewFrameData(index, frame, m_pEditData->getCopyFrameData()) ;	// フレームデータ追加
 	}
+	qDebug() << "Paste Framedata" ;
 }
 

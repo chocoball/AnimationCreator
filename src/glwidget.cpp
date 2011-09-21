@@ -184,11 +184,18 @@ void AnimeGLWidget::drawLayers(ObjectItem *pLayerItem)
 	bool valid ;
 	d = pLayerItem->getDisplayFrameData(m_pEditData->getSelectFrame(), &valid) ;
 	if ( valid ) {
-		drawFrameData(d, pLayerItem->getDisplayMatrix(m_pEditData->getSelectFrame())) ;
+		ObjectItem *p = m_pEditData->getObjectModel()->getItemFromIndex(m_pEditData->getSelIndex()) ;
+		if ( m_dragMode == kDragMode_Edit && pLayerItem == p ) {
+			QMatrix4x4 parent = pLayerItem->getParentDispMatrix(m_pEditData->getSelectFrame()) ;
+			QMatrix4x4 mat = parent * m_editFrameData.getMatrix() ;
+			drawFrameData(m_editFrameData, mat) ;
+		}
+		else {
+			drawFrameData(d, pLayerItem->getDisplayMatrix(m_pEditData->getSelectFrame())) ;
+		}
 
 		if ( m_pSetting->getDrawFrame() && !m_pEditData->isExportPNG() ) {
 			QColor col ;
-			ObjectItem *p = m_pEditData->getObjectModel()->getItemFromIndex(m_pEditData->getSelIndex()) ;
 			if ( pLayerItem == p )	{ col = QColor(255, 0, 0, 255) ; }
 			else					{ col = QColor(64, 64, 64, 255) ; }
 			drawFrame(pLayerItem, m_pEditData->getSelectFrame(), col) ;
@@ -344,7 +351,14 @@ void AnimeGLWidget::drawFrame( ObjectItem *pItem, int frame, QColor col)
 
 	glPushMatrix();
 	{
-		multMatrix(pItem->getDisplayMatrix(frame)) ;
+		if ( m_dragMode == kDragMode_Edit && pItem->getIndex()==m_pEditData->getSelIndex() ) {
+			QMatrix4x4 parent = pItem->getParentDispMatrix(frame) ;
+			QMatrix4x4 m = parent * m_editFrameData.getMatrix() ;
+			multMatrix(m) ;
+		}
+		else {
+			multMatrix(pItem->getDisplayMatrix(frame)) ;
+		}
 
 		drawLine(QPoint(v.x0, v.y0), QPoint(v.x0, v.y1), col, 0);
 		drawLine(QPoint(v.x1, v.y0), QPoint(v.x1, v.y1), col, 0);
@@ -523,10 +537,12 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 
 			FrameData *p = pItem->getFrameDataPtr(frame) ;
 			if ( p ) {
+				m_editFrameData = *p ;
 				m_rotStart = (float)p->rot_z * M_PI / 180.0f ;
+
+				emit sig_selectLayerChanged(pItem->getIndex()) ;
+				m_dragMode = kDragMode_Edit ;
 			}
-			emit sig_selectLayerChanged(pItem->getIndex()) ;
-			m_dragMode = kDragMode_Edit ;
 		}
 		else {
 			qDebug() << "mousePressEvent not contain" << localPos ;
@@ -537,9 +553,6 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 // マウス移動中イベント
 void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 {
-	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	int frame = m_pEditData->getSelectFrame() ;
-
 	// 連番PNG吐き出し時
 	if ( m_pEditData->getEditMode() == CEditData::kEditMode_ExportPNG ) {
 		int rect[4] = { 0, 0, 0, 0 } ;
@@ -555,16 +568,9 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 	switch ( m_dragMode ) {
 	case kDragMode_Edit:
 		{
-			QModelIndex index = m_pEditData->getSelIndex() ;
-			if ( !pModel->isLayer(index) ) { return ; }
-			ObjectItem *pItem = pModel->getItemFromIndex(index) ;
-			if ( !pItem ) { return ; }
-
-			FrameData *pData = pItem->getFrameDataPtr(frame) ;
-			if ( !pData ) { return ; }
-			QPoint ret = editData(pData, event->pos(), m_DragOffset) ;
+			QPoint ret = editData(&m_editFrameData, event->pos(), m_DragOffset) ;
 			m_DragOffset = ret ;
-			emit sig_dragedImage(*pData) ;
+			emit sig_dragedImage(m_editFrameData) ;
 			update() ;
 		}
 		break ;
@@ -578,7 +584,7 @@ void AnimeGLWidget::mouseReleaseEvent(QMouseEvent *event)
 
 	switch ( m_dragMode ) {
 	case kDragMode_Edit:
-		emit sig_frameDataMoveEnd() ;
+		emit sig_frameDataMoveEnd(m_editFrameData) ;
 		break ;
 	}
 	m_dragMode = kDragMode_None ;

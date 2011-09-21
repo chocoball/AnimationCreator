@@ -35,7 +35,7 @@ signals:
     void sig_dragedImage( FrameData data ) ;
 	void sig_deleteFrameData( void ) ;
     void sig_selectPrevLayer( QModelIndex indexLayer, int frame, FrameData data ) ;
-	void sig_frameDataMoveEnd( void ) ;
+	void sig_frameDataMoveEnd( FrameData data ) ;
 	void sig_exportPNGRectChange( void ) ;
 
 public slots:
@@ -126,6 +126,8 @@ private:
 	unsigned int		m_backImageTex ;
 	QImage				m_BackImage ;
 	int					m_backImageW, m_backImageH ;
+
+	FrameData			m_editFrameData ;
 };
 
 #endif // GLWIDGET_H

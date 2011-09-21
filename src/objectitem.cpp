@@ -149,12 +149,7 @@ QMatrix4x4 ObjectItem::getDisplayMatrix(int frame, bool *bValid)
 	bool valid ;
 	FrameData d = getDisplayFrameData(frame, &valid) ;
 	if ( valid ) {
-		mat.translate(d.pos_x, d.pos_y, d.pos_z/4096.0f) ;
-		mat.rotate(d.rot_x, 1, 0, 0) ;
-		mat.rotate(d.rot_y, 0, 1, 0) ;
-		mat.rotate(d.rot_z, 0, 0, 1) ;
-		mat.scale(d.fScaleX, d.fScaleY) ;
-		mat = parent * mat ;
+		mat = parent * d.getMatrix() ;
 
 		if ( bValid ) { *bValid = true ; }
 	}
@@ -162,6 +157,15 @@ QMatrix4x4 ObjectItem::getDisplayMatrix(int frame, bool *bValid)
 		if ( bValid ) { *bValid = false ; }
 	}
 	return mat ;
+}
+
+QMatrix4x4 ObjectItem::getParentDispMatrix(int frame, bool *bValid)
+{
+	QMatrix4x4 m ;
+	if ( m_pParent ) {
+		m = m_pParent->getDisplayMatrix(frame, bValid) ;
+	}
+	return m ;
 }
 
 FrameData *ObjectItem::getFrameDataFromPrevFrame(int frame, bool bRepeat)

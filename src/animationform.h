@@ -97,7 +97,7 @@ public slots:
 
 	void slot_endedOption( void ) ;
 
-	void slot_frameDataMoveEnd( void ) ;
+	void slot_frameDataMoveEnd( FrameData data ) ;
 
 	void slot_clickedRadioPos( bool flag ) ;
 	void slot_clickedRadioRot( bool flag ) ;

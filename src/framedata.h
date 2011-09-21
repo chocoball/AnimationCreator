@@ -132,29 +132,15 @@ typedef struct _tagFrameData {
 		return data ;
 	}
 
-	QVector4D getRotatePos(int x, int y, int z)
+	QMatrix4x4 getMatrix()
 	{
-		QMatrix4x4 m ;
-		m.setToIdentity();
-		m.translate(x, y, z/4096.0f);
-		m.rotate(rot_x, 1, 0, 0);
-		m.rotate(rot_y, 0, 1, 0);
-		m.rotate(rot_z, 0, 0, 1);
-		return m.row(3) ;
-	}
-
-	void fromParent(struct _tagFrameData &parent)
-	{
-		QVector4D v = parent.getRotatePos(this->pos_x, this->pos_y, this->pos_z) ;
-		this->pos_x = parent.pos_x + v.x() ;
-		this->pos_y = parent.pos_y + v.y() ;
-		this->pos_z = parent.pos_z + v.z() ;
-
-		this->fScaleX *= parent.fScaleX ;
-		this->fScaleY *= parent.fScaleY ;
-		for ( int i = 0 ; i < 4 ; i ++ ) {
-			this->rgba[i] *= (float)parent.rgba[i] / 255.0f ;
-		}
+		QMatrix4x4 mat ;
+		mat.translate(pos_x, pos_y, pos_z/4096.0f) ;
+		mat.rotate(rot_x, 1, 0, 0) ;
+		mat.rotate(rot_y, 0, 1, 0) ;
+		mat.rotate(rot_z, 0, 0, 1) ;
+		mat.scale(fScaleX, fScaleY) ;
+		return mat ;
 	}
 
 } FrameData ;

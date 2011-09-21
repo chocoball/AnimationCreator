@@ -59,6 +59,7 @@ public:
 	void setData(const QVariant &value, int role = Qt::UserRole + 1) ;
 	FrameData getDisplayFrameData(int frame, bool *bValid = 0) ;
 	QMatrix4x4 getDisplayMatrix(int frame, bool *bValid = 0) ;
+	QMatrix4x4 getParentDispMatrix(int frame, bool *bValid = 0) ;
 	FrameData *getFrameDataFromPrevFrame(int frame, bool bRepeat = false) ;
 	FrameData *getFrameDataFromNextFrame(int frame) ;
 	bool isContain(ObjectItem **ppRet, QPoint &pos, int frame, bool bChild = true) ;
