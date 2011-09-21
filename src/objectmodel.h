@@ -14,9 +14,6 @@ public:
 	explicit CObjectModel(QObject *parent = 0) ;
 	virtual ~CObjectModel() ;
 
-	bool isFrameDataInPos( const FrameData &data, QPoint pos ) ;
-	bool isFrameDataInRect( const FrameData &data, QRect rect ) ;
-
 	QVariant data(const QModelIndex &index, int role) const ;
 	int rowCount(const QModelIndex &parent) const ;
 	int columnCount(const QModelIndex &parent) const ;
