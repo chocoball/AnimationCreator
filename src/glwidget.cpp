@@ -199,27 +199,45 @@ void AnimeGLWidget::drawLayers(ObjectItem *pLayerItem)
 // 全フレーム描画
 void AnimeGLWidget::drawLayers_All( void )
 {
-#if 0
-	TODO
-	CObjectModel::typeID objID = m_pEditData->getSelectObject() ;
-	if ( !objID ) { return ; }
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	const CObjectModel::LayerGroupList *pLayerGroupList = pModel->getLayerGroupListFromID(objID) ;
-	if ( !pLayerGroupList ) { return ; }
 
-	int maxFrame = pModel->getMaxFrameFromSelectObject(objID) ;
-	for ( int frame = 0 ; frame <= maxFrame ; frame ++ ) {
-		for ( int i = 0 ; i < pLayerGroupList->size() ; i ++ ) {
-			CObjectModel::typeID layerID = pLayerGroupList->at(i).first ;
-            const FrameData *pNow = pModel->getFrameDataFromPrevFrame(objID, layerID, frame+1) ;
-            const FrameData *pNext = pModel->getFrameDataFromNextFrame(objID, layerID, frame) ;
+	ObjectItem *pItem = pModel->getObject(m_pEditData->getSelIndex()) ;
+	if ( !pItem ) { return ; }
 
-			if ( !pNow ) { continue ; }
-            const FrameData data = pNow->getInterpolation(pNext, frame) ;
-			drawFrameData(data);
+	for ( int i = 0 ; i < pItem->childCount() ; i ++ ) {
+		drawLayer_All(pItem->child(i), -1) ;
+	}
+}
+
+void AnimeGLWidget::drawLayer_All(ObjectItem *pLayerItem, int frame)
+{
+	if ( frame >= 0 ) {
+		if ( !pLayerItem->getFrameDataPtr(frame) ) {
+			bool valid ;
+			FrameData data = pLayerItem->getDisplayFrameData(frame, &valid) ;
+			if ( valid ) {
+				drawFrameData(data, pLayerItem->getDisplayMatrix(frame)) ;
+			}
+		}
+		for ( int i = 0 ; i < pLayerItem->childCount() ; i ++ ) {
+			drawLayer_All(pLayerItem->child(i), frame) ;
 		}
 	}
-#endif
+	else {
+		for ( int i = 0 ; i < pLayerItem->childCount() ; i ++ ) {
+			drawLayer_All(pLayerItem->child(i), -1) ;
+		}
+
+		const QList<FrameData> &datas = pLayerItem->getFrameData() ;
+		for ( int i = 0 ; i < datas.size() ; i ++ ) {
+			const FrameData &data = datas.at(i) ;
+			drawFrameData(data, pLayerItem->getDisplayMatrix(data.frame)) ;
+
+			for ( int i = 0 ; i < pLayerItem->childCount() ; i ++ ) {
+				drawLayer_All(pLayerItem->child(i), data.frame) ;
+			}
+		}
+	}
 }
 
 // 選択中フレーム
