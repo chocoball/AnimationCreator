@@ -177,6 +177,9 @@ void AnimeGLWidget::drawLayers(ObjectItem *pLayerItem)
 		drawLayers(pLayerItem->child(i)) ;
 	}
 
+	int flag = pLayerItem->data(Qt::CheckStateRole).toInt() ;
+	if ( !(flag & ObjectItem::kState_Disp) ) { return ; }
+
 	FrameData d ;
 	bool valid ;
 	d = pLayerItem->getDisplayFrameData(m_pEditData->getSelectFrame(), &valid) ;
@@ -188,7 +191,7 @@ void AnimeGLWidget::drawLayers(ObjectItem *pLayerItem)
 			ObjectItem *p = m_pEditData->getObjectModel()->getItemFromIndex(m_pEditData->getSelIndex()) ;
 			if ( pLayerItem == p )	{ col = QColor(255, 0, 0, 255) ; }
 			else					{ col = QColor(64, 64, 64, 255) ; }
-			drawFrame(p, m_pEditData->getSelectFrame(), col) ;
+			drawFrame(pLayerItem, m_pEditData->getSelectFrame(), col) ;
 		}
 	}
 }
@@ -241,7 +244,6 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 	ObjectItem *pItem = m_pEditData->getObjectModel()->getItemFromIndex(index) ;
 	FrameData data = pItem->getDisplayFrameData(m_pEditData->getSelectFrame()) ;
 	if ( data.frame == m_pEditData->getSelectFrame() ) {
-
 		switch ( m_editMode ) {
 			case kEditMode_Rot:
 				glEnable(GL_LINE_STIPPLE);
