@@ -202,14 +202,14 @@ public:
 	CAnm2DJson() ;
 
 	bool makeFromEditData( CEditData &rEditData ) ;
-	bool makeFromFile(QString &str, CEditData &rEditData) ;
+	bool makeFromFile(QString &, CEditData &) { return false ; }
 
-	QString getData()			{ return m_Data ; }
-	void addString(QString str)	{ m_Data += str ; }
+	QString getData() { return m_Data ; }
 
 private:
+	void addString(QString str, int tab = 0) ;
 	bool makeObject( CEditData &rEditData ) ;
-	bool makeImage( CEditData &rEditData ) ;
+	bool makeLayer(ObjectItem *pItem, CEditData &rEditData, int tab) ;
 
 private:
 	QString			m_Data ;

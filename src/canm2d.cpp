@@ -1384,89 +1384,110 @@ bool CAnm2DJson::makeFromEditData( CEditData &rEditData )
 {
 	addString("{\n") ;
 	if ( !makeObject(rEditData) ) { return false ; }
-	if ( !makeImage(rEditData) ) { return false ; }
 	addString("}") ;
 	return true ;
 }
 
+void CAnm2DJson::addString(QString str, int tab)
+{
+	QString t ;
+	for ( int i = 0 ; i < tab ; i ++ ) {
+		t += "  " ;
+	}
+	m_Data += t + str ;
+}
+
 bool CAnm2DJson::makeObject( CEditData &rEditData )
 {
-#if 0
-	TODO
-	CObjectModel *pModel = rEditData.getObjectModel() ;
-	const CObjectModel::ObjectList &objList = pModel->getObjectList() ;
+	ObjectItem *pRoot = rEditData.getObjectModel()->getItemFromIndex(QModelIndex()) ;
+	int tab = 1 ;
+	for ( int i = 0 ; i < pRoot->childCount() ; i ++ ) {
+		ObjectItem *pObj = pRoot->child(i) ;
 
-	for ( int i = 0 ; i < objList.size() ; i ++ ) {
-		const CObjectModel::ObjectGroup &objGroup = objList.at(i) ;
-		QStandardItem *pObjID = objGroup.id ;
-		const CObjectModel::LayerGroupList &layerGroupList = objGroup.layerGroupList ;
-
-		addString("  \"" + QString(pObjID->text().toUtf8()) + "\": {\n") ;
-		addString("    \"animeTime\": " + QVariant((int)(pModel->getMaxFrameFromSelectObject(pObjID)*(100.0/6.0))).toString() + ",\n") ;
-		addString("    \"loopNum\": " + QVariant(objGroup.nLoop).toString() + ",\n") ;
-		addString("    \"layer\": [\n") ;
-
-		for ( int j = 0 ; j < layerGroupList.size() ; j ++ ) {
-			const CObjectModel::LayerGroup &layerGroup = layerGroupList.at(j) ;
-			const FrameDataList &frameDataList = layerGroup.second ;
-
-			addString("      {\n") ;
-			addString("        \"frame\": [\n") ;
-			for ( int k = 0 ; k < frameDataList.size() ; k ++ ) {
-				const FrameData &data = frameDataList.at(k) ;
-				CEditData::ImageData *pImageData = rEditData.getImageDataFromNo(data.nImage) ;
-				int extPos = pImageData->fileName.lastIndexOf("/") ;
-				QString path ;
-				path = pImageData->fileName.right(pImageData->fileName.size() - extPos - 1) ;
-				float anchor[2], uv[4] ;
-				anchor[0] = (float)data.center_x / (float)(data.right-data.left) ;
-				anchor[1] = (float)data.center_y / (float)(data.bottom-data.top) ;
-				uv[0] = (float)data.left / (float)pImageData->origImageW ;
-				uv[1] = (float)data.top / (float)pImageData->origImageW ;
-				uv[2] = (float)(data.right-data.left) / (float)pImageData->origImageW ;
-				uv[3] = (float)(data.bottom-data.top) / (float)pImageData->origImageW ;
-
-				addString("          {\n") ;
-				addString("            \"frame\": " + QVariant((int)(data.frame*(100.0/6.0))).toString() + ",\n") ;
-				addString("            \"pos\": [" + QVariant(data.pos_x).toString() + ", " + QVariant(data.pos_y).toString() + ", " + QVariant(data.pos_z).toString() + "],\n") ;
-				addString("            \"rot\": [" + QVariant(data.rot_x).toString() + ", " + QVariant(data.rot_y).toString() + ", " + QVariant(data.rot_z).toString() + "],\n") ;
-				addString("            \"sca\": [" + QVariant(data.fScaleX).toString() + ", " + QVariant(data.fScaleY).toString() + "],\n") ;
-				addString("            \"color\": [" + QVariant((float)data.rgba[0]/255.0f).toString() + ", " + QVariant((float)data.rgba[1]/255.0f).toString() + ", " + QVariant((float)data.rgba[2]/255.0f).toString() + ", " + QVariant((float)data.rgba[3]/255.0f).toString() + "],\n") ;
-				addString("            \"uvAnime\": " + QVariant((int)data.bUVAnime).toString() + ",\n") ;
-				addString("            \"image\": {\n") ;
-				addString("              \"path\": \"" + path + "\",\n") ;
-				addString("              \"size\": [" + QVariant(pImageData->origImageW).toString() + ", " + QVariant(pImageData->origImageH).toString() + "],\n") ;
-				addString("              \"center\": [" + QVariant(anchor[0]).toString() + ", " + QVariant(anchor[1]).toString() + "],\n") ;
-				addString("              \"uvrect\": [" + QVariant(uv[0]).toString() + ", " + QVariant(uv[1]).toString() + ", " + QVariant(uv[2]).toString() + ", " + QVariant(uv[3]).toString() + "]\n") ;
-				addString("            }\n") ;
-				addString("          }") ;
-				if ( k < frameDataList.size()-1 ) { addString(",") ; }
-				addString("\n") ;
+		addString("\"" + QString(pObj->getName().toUtf8()) + "\": {\n", tab) ;
+		tab ++ ;
+		addString("\"animeTime\": " + QVariant((int)(pObj->getMaxFrameNum()*(100.0/6.0))).toString() + ",\n", tab) ;
+		addString("\"loopNum\": " + QVariant(pObj->getLoop()).toString() + ",\n", tab) ;
+		addString("\"layer\": [\n", tab) ;
+		for ( int j = 0 ; j < pObj->childCount() ; j ++ ) {
+			makeLayer(pObj->child(j), rEditData, tab + 1) ;
+			if ( j < pObj->childCount()-1 ) {
+				addString(",") ;
 			}
-			addString("        ]\n") ;
-			addString("      }") ;
-			if ( j < layerGroupList.size()-1 ) { addString(",") ; }
 			addString("\n") ;
 		}
-		addString("    ]\n") ;
-		addString("  }") ;
-		if ( i < objList.size()-1 ) { addString(",") ; }
+		addString("]\n", tab) ;
+		tab -- ;
+		addString("}", tab) ;
+		if ( i < pRoot->childCount()-1 ) { addString(",") ; }
 		addString("\n") ;
 	}
-#endif
+
 	return true ;
 }
 
-bool CAnm2DJson::makeImage( CEditData &rEditData )
+bool CAnm2DJson::makeLayer(ObjectItem *pItem, CEditData &rEditData, int tab)
 {
+	const QList<FrameData> &datas = pItem->getFrameData() ;
+
+	addString("{\n", tab) ;
+	tab ++ ;
+	addString("\"frame\": [\n", tab) ;
+	tab ++ ;
+	for ( int i = 0 ; i < datas.size() ; i ++ ) {
+		const FrameData &data = datas.at(i) ;
+
+		CEditData::ImageData *pImageData = rEditData.getImageDataFromNo(data.nImage) ;
+		int extPos = pImageData->fileName.lastIndexOf("/") ;
+		QString path ;
+		path = pImageData->fileName.right(pImageData->fileName.size() - extPos - 1) ;
+		float anchor[2], uv[4] ;
+		anchor[0] = (float)data.center_x / (float)(data.right-data.left) ;
+		anchor[1] = (float)data.center_y / (float)(data.bottom-data.top) ;
+		uv[0] = (float)data.left / (float)pImageData->origImageW ;
+		uv[1] = (float)data.top / (float)pImageData->origImageW ;
+		uv[2] = (float)(data.right-data.left) / (float)pImageData->origImageW ;
+		uv[3] = (float)(data.bottom-data.top) / (float)pImageData->origImageW ;
+
+		addString("{\n", tab) ;
+		tab ++ ;
+		addString("\"frame\": " + QVariant((int)(data.frame*(100.0/6.0))).toString() + ",\n", tab) ;
+		addString("\"pos\": [" + QVariant(data.pos_x).toString() + ", " + QVariant(data.pos_y).toString() + ", " + QVariant(data.pos_z).toString() + "],\n", tab) ;
+		addString("\"rot\": [" + QVariant(data.rot_x).toString() + ", " + QVariant(data.rot_y).toString() + ", " + QVariant(data.rot_z).toString() + "],\n", tab) ;
+		addString("\"sca\": [" + QVariant(data.fScaleX).toString() + ", " + QVariant(data.fScaleY).toString() + "],\n", tab) ;
+		addString("\"color\": [" + QVariant((float)data.rgba[0]/255.0f).toString() + ", " + QVariant((float)data.rgba[1]/255.0f).toString() + ", " + QVariant((float)data.rgba[2]/255.0f).toString() + ", " + QVariant((float)data.rgba[3]/255.0f).toString() + "],\n", tab) ;
+		addString("\"uvAnime\": " + QVariant((int)data.bUVAnime).toString() + ",\n", tab) ;
+		addString("\"image\": {\n", tab) ;
+		tab ++ ;
+		addString("\"path\": \"" + path + "\",\n", tab) ;
+		addString("\"size\": [" + QVariant(pImageData->origImageW).toString() + ", " + QVariant(pImageData->origImageH).toString() + "],\n", tab) ;
+		addString("\"center\": [" + QVariant(anchor[0]).toString() + ", " + QVariant(anchor[1]).toString() + "],\n", tab) ;
+		addString("\"uvrect\": [" + QVariant(uv[0]).toString() + ", " + QVariant(uv[1]).toString() + ", " + QVariant(uv[2]).toString() + ", " + QVariant(uv[3]).toString() + "]\n", tab) ;
+		tab -- ;
+		addString("}\n", tab) ;
+		tab -- ;
+		addString("}", tab) ;
+		if ( i < datas.size()-1 ) { addString(",") ; }
+		addString("\n") ;
+	}
+	tab -- ;
+	addString("]", tab) ;
+	if ( pItem->childCount() ) {
+		addString(",\n") ;
+		addString("\"layer\": [\n", tab) ;
+		for ( int i = 0 ; i < pItem->childCount() ; i ++ ) {
+			makeLayer(pItem->child(i), rEditData, tab + 1) ;
+			if ( i < pItem->childCount()-1 ) {
+				addString(",") ;
+			}
+			addString("\n") ;
+		}
+		addString("]", tab) ;
+	}
+	addString("\n") ;
+	tab -- ;
+	addString("}", tab) ;
 	return true ;
-}
-
-
-
-bool CAnm2DJson::makeFromFile(QString &str, CEditData &rEditData)
-{
-	return false ;
 }
 
 
