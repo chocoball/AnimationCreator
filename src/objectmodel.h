@@ -56,7 +56,7 @@ private:
 	void updateIndex(ObjectItem *pItem, const QModelIndex &parent, int row) ;
 
 signals:
-	void sig_copyIndex(int row, ObjectItem *pItem, QModelIndex parent) ;
+	void sig_copyIndex(int row, ObjectItem *pItem, QModelIndex parent, Qt::DropAction action) ;
 
 public slots:
 

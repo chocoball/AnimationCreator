@@ -95,6 +95,7 @@ public:
 						  QModelIndex		&index,
 						  int				frame,
 						  FrameData			&data,
+						  FrameData			*pOld,
 						  QList<QWidget *>	&updateWidget) ;
 	void redo() ;
 	void undo() ;
@@ -105,6 +106,8 @@ private:
 	FrameData			m_FrameData, m_OldFrameData ;
 	int					m_row ;
 	int					m_frame ;
+
+	bool				m_bSetOld ;
 
 	QList<QWidget *>	m_UpdateWidgetList ;
 };

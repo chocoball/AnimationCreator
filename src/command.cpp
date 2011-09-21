@@ -189,6 +189,7 @@ Command_EditFrameData::Command_EditFrameData(CEditData			*pEditData,
 											 QModelIndex		&index,
 											 int				frame,
 											 FrameData			&data,
+											 FrameData			*pOld,
 											 QList<QWidget *>	&updateWidget) :
 	QUndoCommand(QObject::trUtf8("フレームデータ編集"))
 {
@@ -200,6 +201,11 @@ Command_EditFrameData::Command_EditFrameData(CEditData			*pEditData,
 	m_frame		= frame ;
 	m_FrameData = data ;
 	m_UpdateWidgetList = updateWidget ;
+
+	if ( pOld ) {
+		m_OldFrameData = *pOld ;
+		m_bSetOld = true ;
+	}
 }
 
 void Command_EditFrameData::redo()
@@ -211,7 +217,10 @@ void Command_EditFrameData::redo()
 	FrameData *p = pItem->getFrameDataPtr(m_frame) ;
 	if ( !p ) { return ; }
 
-	m_OldFrameData = *p ;
+	if ( !m_bSetOld ) {
+		m_OldFrameData = *p ;
+	}
+	m_bSetOld = false ;
 	*p = m_FrameData ;
 
 	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {

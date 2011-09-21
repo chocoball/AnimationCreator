@@ -121,13 +121,13 @@ public slots:
 	void slot_setColorFromPicker(QRgb rgba) ;
 
 	void slot_splitterMoved(int pos, int index) ;
-	void slot_copyIndex(int row, ObjectItem *pItem, QModelIndex index) ;
+	void slot_copyIndex(int row, ObjectItem *pItem, QModelIndex index, Qt::DropAction action) ;
 
 protected:
 	FrameData *getNowSelectFrameData( void ) ;
 	void addNewObject( QString str ) ;
 
-	void addCommandEdit( FrameData data ) ;
+	void addCommandEdit( FrameData data, FrameData *pOld = 0 ) ;
 
     bool setSelectFrameDataFromFrame( int frame, QModelIndex indexLayer ) ;
 

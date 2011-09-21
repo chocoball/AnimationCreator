@@ -106,7 +106,7 @@ QModelIndex CObjectModel::parent(const QModelIndex &child) const
 
 Qt::DropActions CObjectModel::supportedDropActions() const
 {
-	return Qt::CopyAction | Qt::MoveAction ;
+	return Qt::CopyAction ;//| Qt::MoveAction ;
 }
 
 QStringList CObjectModel::mimeTypes() const
@@ -151,12 +151,12 @@ bool CObjectModel::dropMimeData(const QMimeData *data, Qt::DropAction action, in
 
 		if ( p->parent() == m_pRoot ) {	// オブジェクト
 			if ( !parent.isValid() ) {
-				emit sig_copyIndex(row, p, parent) ;
+				emit sig_copyIndex(row, p, parent, action) ;
 			}
 		}
-		else {	// レイヤ
+		else {							// レイヤ
 			if ( parent.isValid() ) {
-				emit sig_copyIndex(row, p, parent) ;
+				emit sig_copyIndex(row, p, parent, action) ;
 			}
 		}
 	}

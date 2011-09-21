@@ -127,7 +127,7 @@ private:
 	QImage				m_BackImage ;
 	int					m_backImageW, m_backImageH ;
 
-	FrameData			m_editFrameData ;
+	FrameData			m_editFrameDataOld ;
 };
 
 #endif // GLWIDGET_H

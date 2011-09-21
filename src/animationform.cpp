@@ -202,7 +202,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 
 	connect(m_pSplitter,				SIGNAL(splitterMoved(int,int)), this, SLOT(slot_splitterMoved(int, int))) ;
 
-	connect(m_pEditData->getObjectModel(), SIGNAL(sig_copyIndex(int,ObjectItem*,QModelIndex)), this, SLOT(slot_copyIndex(int, ObjectItem*, QModelIndex))) ;
+	connect(m_pEditData->getObjectModel(), SIGNAL(sig_copyIndex(int,ObjectItem*,QModelIndex,Qt::DropAction)), this, SLOT(slot_copyIndex(int, ObjectItem*, QModelIndex,Qt::DropAction))) ;
 
 #ifndef LAYOUT_OWN
 	QGridLayout *pLayout = new QGridLayout(this) ;
@@ -1097,7 +1097,7 @@ void AnimationForm::slot_endedOption( void )
 }
 
 // マウスでのデータ編集終了時
-void AnimationForm::slot_frameDataMoveEnd( FrameData data )
+void AnimationForm::slot_frameDataMoveEnd( FrameData dataOld )
 {
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
 	QModelIndex index = m_pEditData->getSelIndex() ;
@@ -1108,8 +1108,8 @@ void AnimationForm::slot_frameDataMoveEnd( FrameData data )
 
 	FrameData *p = pItem->getFrameDataPtr(m_pEditData->getSelectFrame()) ;
 	if ( !p ) { return ; }
-	if ( *p != data ) {
-		addCommandEdit(data) ;
+	if ( *p != dataOld ) {
+		addCommandEdit(*p, &dataOld) ;
 	}
 }
 
@@ -1290,7 +1290,7 @@ void AnimationForm::slot_splitterMoved(int pos, int index)
 	m_pSetting->setAnmWindowTreeWidth(pos, index) ;
 }
 
-void AnimationForm::slot_copyIndex(int row, ObjectItem *pItem, QModelIndex index)
+void AnimationForm::slot_copyIndex(int row, ObjectItem *pItem, QModelIndex index, Qt::DropAction /*action*/)
 {
 	QList<QWidget *> widgets ;
 	widgets << m_pGlWidget ;
@@ -1309,13 +1309,13 @@ void AnimationForm::addNewObject( QString str )
 }
 
 // フレームデータ編集コマンド
-void AnimationForm::addCommandEdit( FrameData data )
+void AnimationForm::addCommandEdit( FrameData data, FrameData *pOld )
 {
 	int frame	= m_pEditData->getSelectFrame() ;
 	QList<QWidget *> update ;
 
 	update << m_pGlWidget << this ;
-	m_pEditData->cmd_editFrameData(m_pEditData->getSelIndex(), frame, data, update);
+	m_pEditData->cmd_editFrameData(m_pEditData->getSelIndex(), frame, data, pOld, update);
 }
 
 // 指定フレームのフレームデータを選択する

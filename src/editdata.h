@@ -85,6 +85,7 @@ public:
 	void cmd_editFrameData( QModelIndex			index,
 							int					frame,
 							FrameData			&data,
+							FrameData			*pOld,
 							QList<QWidget *>	&updateWidget ) ;
 	void cmd_copyObject(QModelIndex &index, QList<QWidget *> &updateWidget) ;
 	void cmd_copyIndex(int row, ObjectItem *pItem, QModelIndex parent, QList<QWidget *> &updateWidget) ;

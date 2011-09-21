@@ -100,11 +100,12 @@ void CEditData::cmd_delFrameData( QModelIndex &index, int frame, QList<QWidget *
 
 // フレームデータ編集コマンド
 void CEditData::cmd_editFrameData( QModelIndex		index,
-								   int				frame,
-								   FrameData		&data,
-								   QList<QWidget *>	&updateWidget )
+								 int				frame,
+								 FrameData		&data,
+								 FrameData		*pOld,
+								 QList<QWidget *>	&updateWidget )
 {
-	m_pUndoStack->push( new Command_EditFrameData(this, index, frame, data, updateWidget));
+	m_pUndoStack->push( new Command_EditFrameData(this, index, frame, data, pOld, updateWidget));
 }
 
 // オブジェクトコピー コマンド
