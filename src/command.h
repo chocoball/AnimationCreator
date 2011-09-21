@@ -125,22 +125,6 @@ private:
 	QList<QWidget *>	m_UpdateWidgetList ;
 } ;
 
-// レイヤコピーコマンド
-class Command_CopyLayer : public QUndoCommand
-{
-public:
-	Command_CopyLayer( CEditData *pEditData, QModelIndex &index, ObjectItem *pLayer, QList<QWidget *> &updateWidget ) ;
-
-	void redo() ;
-	void undo() ;
-
-private:
-	CEditData						*m_pEditData ;
-	QModelIndex						m_index ;
-	ObjectItem						*m_pLayer ;
-	QList<QWidget *>				m_UpdateWidgetList ;
-} ;
-
 // レイヤコピー
 class Command_CopyIndex : public QUndoCommand
 {

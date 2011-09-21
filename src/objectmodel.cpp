@@ -292,7 +292,22 @@ QModelIndex CObjectModel::getIndex(ObjectItem *root, int row, int *currRow)
 	return QModelIndex() ;
 }
 
+void CObjectModel::updateIndex()
+{
+	for ( int i = 0 ; i < m_pRoot->childCount() ; i ++ ) {
+		updateIndex(m_pRoot->child(i), QModelIndex(), i) ;
+	}
+}
 
+void CObjectModel::updateIndex(ObjectItem *pItem, const QModelIndex &parent, int row)
+{
+	pItem->setIndex(this->index(row, 0, parent)) ;
+	pItem->setParent(this->getItemFromIndex(parent)) ;
+
+	for ( int i = 0 ; i < pItem->childCount() ; i ++ ) {
+		updateIndex(pItem->child(i), pItem->getIndex(), i) ;
+	}
+}
 
 
 

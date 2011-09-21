@@ -113,12 +113,6 @@ void CEditData::cmd_copyObject(QModelIndex &index, QList<QWidget *> &updateWidge
 	m_pUndoStack->push( new Command_CopyObject(this, index, updateWidget) );
 }
 
-// レイヤコピー コマンド
-void CEditData::cmd_copyLayer(QModelIndex &index, ObjectItem *pLayer, QList<QWidget *> &updateWidget)
-{
-	m_pUndoStack->push(new Command_CopyLayer(this, index, pLayer, updateWidget)) ;
-}
-
 // レイヤ 親子移動
 void CEditData::cmd_copyIndex(int row, ObjectItem *pItem, QModelIndex parent, QList<QWidget *> &updateWidget)
 {

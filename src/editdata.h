@@ -87,18 +87,17 @@ public:
 							FrameData			&data,
 							QList<QWidget *>	&updateWidget ) ;
 	void cmd_copyObject(QModelIndex &index, QList<QWidget *> &updateWidget) ;
-	void cmd_copyLayer(QModelIndex &index, ObjectItem *pLayer, QList<QWidget *> &updateWidget) ;
 	void cmd_copyIndex(int row, ObjectItem *pItem, QModelIndex parent, QList<QWidget *> &updateWidget) ;
 
 	void setCurrLoopNum( int num )
 	{
-		ObjectItem *p = m_pObjectModel->getObject(m_selIndex) ;
+		ObjectItem *p = m_pObjectModel->getObject(getSelIndex()) ;
 		if ( !p ) { return ; }
 		p->setCurrLoop(num) ;
 	}
 	bool addCurrLoopNum( int num )
 	{
-		ObjectItem *p = m_pObjectModel->getObject(m_selIndex) ;
+		ObjectItem *p = m_pObjectModel->getObject(getSelIndex()) ;
 		if ( !p ) { return true ; }
 		p->setCurrLoop(p->getCurrLoop() + num) ;
 		if ( p->getLoop() < 0 ) { return false ; }	// 無限ループ
@@ -196,13 +195,19 @@ public:
 
 	void sortFrameDatas( void ) ;
 
+	QModelIndex getSelIndex()
+	{
+		if ( !m_pTreeViewRef ) { return QModelIndex() ; }
+		return m_pTreeViewRef->currentIndex() ;
+	}
+
 private:
 	void sortFrameDatas(ObjectItem *pItem) ;
 
 	kAccessor(int, m_editMode, EditMode)
 	kAccessor(QRect, m_catchRect, CatchRect)
 	kAccessor(QPoint, m_center, Center)
-	kAccessor(QModelIndex, m_selIndex, SelIndex)
+	kAccessor(QTreeView*, m_pTreeViewRef, TreeView)
 	kAccessor(bool, m_bPlayAnime, PlayAnime)
 	kAccessor(bool, m_bPauseAnime, PauseAnime)
 	kAccessor(bool, m_bDraggingImage, DraggingImage)

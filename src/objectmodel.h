@@ -50,6 +50,11 @@ public:
 	QModelIndex getIndex(int row) ;
 	QModelIndex getIndex(ObjectItem *root, int row, int *currRow) ;
 
+	void updateIndex() ;
+
+private:
+	void updateIndex(ObjectItem *pItem, const QModelIndex &parent, int row) ;
+
 signals:
 	void sig_copyIndex(int row, ObjectItem *pItem, QModelIndex parent) ;
 

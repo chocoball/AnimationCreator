@@ -16,6 +16,8 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 
 	ui->setupUi(this);
 
+	m_pEditData->setTreeView(ui->treeView) ;
+
 	setFocusPolicy(Qt::StrongFocus);
 
 	m_pGlWidget = new AnimeGLWidget(pImageData, pSetting, this) ;
@@ -108,7 +110,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 		else {
 			if ( root->child(0) ) {
 				QModelIndex index = pModel->index(0) ;
-				m_pEditData->setSelIndex(index);
+//				m_pEditData->setSelIndex(index);
 				ui->treeView->setCurrentIndex(index);
 			}
 		}
@@ -361,7 +363,7 @@ void AnimationForm::slot_createNewObject( void )
 
 	QModelIndex index = m_pEditData->cmd_addItem(str) ;
 	ui->treeView->setCurrentIndex(index) ;
-	m_pEditData->setSelIndex(index) ;
+//	m_pEditData->setSelIndex(index) ;
 
 	ui->spinBox_loop->setValue(0);
 }
@@ -425,7 +427,7 @@ void AnimationForm::slot_dropedImage( QRect rect, QPoint pos, int imageIndex )
 
 	index = m_pEditData->cmd_addItem(QString("Layer %1").arg(pObjItem->childCount()), index) ;
 	ui->treeView->setCurrentIndex(index) ;
-	m_pEditData->setSelIndex(index) ;
+//	m_pEditData->setSelIndex(index) ;
 
 	// ツリービューに追加
     FrameData frameData ;
@@ -479,7 +481,7 @@ void AnimationForm::slot_selectLayerChanged( QModelIndex indexLayer )
 {
 	if ( indexLayer.isValid() ) {
 		ui->treeView->setCurrentIndex(indexLayer) ;
-		m_pEditData->setSelIndex(indexLayer) ;
+//		m_pEditData->setSelIndex(indexLayer) ;
 	}
 
 	ObjectItem *p = m_pEditData->getObjectModel()->getItemFromIndex(indexLayer) ;
@@ -790,7 +792,7 @@ void AnimationForm::slot_treeViewDoubleClicked(QModelIndex index)
 // 選択オブジェクト変更
 void AnimationForm::slot_changeSelectObject(QModelIndex index)
 {
-	m_pEditData->setSelIndex(index) ;
+//	m_pEditData->setSelIndex(index) ;
 
 	if ( !index.isValid() ) { return ; }
 
@@ -1302,7 +1304,7 @@ void AnimationForm::addNewObject( QString str )
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
 	QModelIndex index = pModel->addItem(str, QModelIndex()) ;
 	ui->treeView->setCurrentIndex(index);
-	m_pEditData->setSelIndex(index) ;
+//	m_pEditData->setSelIndex(index) ;
 }
 
 // フレームデータ編集コマンド

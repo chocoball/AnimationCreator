@@ -33,9 +33,10 @@ public:
 	// -----------------------------------------------
 	// Model
 	// -----------------------------------------------
-	int row()				{ return m_index.row() ; }
-	ObjectItem *parent()	{ return m_pParent ; }
-	int childCount()		{ return m_children.size() ; }
+	int row()						{ return m_index.row() ; }
+	ObjectItem *parent()			{ return m_pParent ; }
+	void setParent(ObjectItem *p)	{ m_pParent = p ; }
+	int childCount()				{ return m_children.size() ; }
 	ObjectItem *child(int row) ;
 	void insertChild(int row, ObjectItem *p) ;
 	void removeChild(ObjectItem *p) ;

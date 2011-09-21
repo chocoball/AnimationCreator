@@ -25,7 +25,7 @@ void Command_AddItem::undo()
 {
 	if ( m_row < 0 ) { return ; }
 
-	m_pEditData->setSelIndex(QModelIndex());
+//	m_pEditData->setSelIndex(QModelIndex());
 	QModelIndex index = m_pEditData->getObjectModel()->getIndex(m_row) ;
 	if ( index.isValid() ) {
 		ObjectItem *pItem = m_pEditData->getObjectModel()->getItemFromIndex(index) ;
@@ -58,6 +58,7 @@ void Command_DelItem::redo()
 		if ( !m_pItem ) {
 			m_pItem = new ObjectItem(pItem->getName(), pItem->parent()) ;
 			m_pItem->copy(pItem) ;
+			m_pEditData->getObjectModel()->updateIndex() ;
 
 			m_pEditData->getObjectModel()->removeItem(index) ;
 			qDebug() << "Command_DelItem redo exec" ;
@@ -74,6 +75,7 @@ void Command_DelItem::undo()
 	ObjectItem *p = m_pEditData->getObjectModel()->getItemFromIndex(index) ;
 	if ( p ) {
 		p->copy(m_pItem);
+		m_pEditData->getObjectModel()->updateIndex() ;
 		delete m_pItem ;
 		m_pItem = NULL ;
 		qDebug() << "Command_DelItem undo exec" ;
@@ -270,6 +272,7 @@ void Command_CopyObject::redo()
 		QModelIndex index = pModel->addItem(m_pObject->getName(), QModelIndex()) ;
 		ObjectItem *pItem = pModel->getItemFromIndex(index) ;
 		pItem->copy(m_pObject) ;
+		pModel->updateIndex() ;
 		m_row = pModel->getRow(index) ;
 	}
 
@@ -289,25 +292,6 @@ void Command_CopyObject::undo()
 	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
 		m_UpdateWidgetList[i]->update();
 	}
-}
-
-/**
-  レイヤコピーコマンド
-  */
-Command_CopyLayer::Command_CopyLayer( CEditData *pEditData, QModelIndex &index, ObjectItem *pLayer, QList<QWidget *> &updateWidget ) :
-	QUndoCommand(QObject::trUtf8("レイヤコピー"))
-{
-	m_pEditData			= pEditData ;
-	m_index				= index ;
-	m_UpdateWidgetList	= updateWidget ;
-}
-
-void Command_CopyLayer::redo()
-{
-}
-
-void Command_CopyLayer::undo()
-{
 }
 
 /**
@@ -341,10 +325,11 @@ void Command_CopyIndex::redo()
 		if ( index.isValid() ) {
 			ObjectItem *pItem = pModel->getItemFromIndex(index) ;
 			pItem->copy(m_pLayer) ;
+			pModel->updateIndex() ;
 			m_row = pModel->getRow(index) ;
 		}
 
-		m_pEditData->setSelIndex(index) ;
+//		m_pEditData->setSelIndex(index) ;
 	}
 	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
 		m_UpdateWidgetList[i]->update();
@@ -363,6 +348,7 @@ void Command_CopyIndex::undo()
 		pItem = pModel->getItemFromIndex(index) ;
 		m_pLayer = new ObjectItem(pItem->getName(), NULL) ;
 		m_pLayer->copy(pItem) ;
+		pModel->updateIndex() ;
 		pModel->removeItem(index) ;
 	}
 
