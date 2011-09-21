@@ -252,12 +252,27 @@ Command_CopyObject::Command_CopyObject( CEditData *pEditData, QModelIndex &index
 	QUndoCommand(QObject::trUtf8("オブジェクトコピー"))
 {
 	m_pEditData			= pEditData ;
-	m_index				= index ;
 	m_UpdateWidgetList	= updateWidget ;
+	m_pObject			= NULL ;
+	m_row				= -1 ;
+
+	ObjectItem *p = pEditData->getObjectModel()->getObject(index) ;
+	if ( p ) {
+		m_pObject = new ObjectItem(p->getName() + "_copy", NULL) ;
+		m_pObject->copy(p) ;
+	}
 }
 
 void Command_CopyObject::redo()
 {
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	if ( m_pObject ) {
+		QModelIndex index = pModel->addItem(m_pObject->getName(), QModelIndex()) ;
+		ObjectItem *pItem = pModel->getItemFromIndex(index) ;
+		pItem->copy(m_pObject) ;
+		m_row = pModel->getRow(index) ;
+	}
+
 	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
 		m_UpdateWidgetList[i]->update();
 	}
@@ -265,6 +280,12 @@ void Command_CopyObject::redo()
 
 void Command_CopyObject::undo()
 {
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	if ( m_row >= 0 ) {
+		QModelIndex index = pModel->getIndex(m_row) ;
+		pModel->removeItem(index) ;
+		m_row = -1 ;
+	}
 	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
 		m_UpdateWidgetList[i]->update();
 	}

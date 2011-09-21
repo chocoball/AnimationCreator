@@ -119,9 +119,10 @@ public:
 	void undo() ;
 
 private:
-	CEditData						*m_pEditData ;
-	QModelIndex						m_index ;
-	QList<QWidget *>				m_UpdateWidgetList ;
+	CEditData			*m_pEditData ;
+	ObjectItem			*m_pObject ;
+	int					m_row ;
+	QList<QWidget *>	m_UpdateWidgetList ;
 } ;
 
 // レイヤコピーコマンド

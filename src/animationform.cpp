@@ -491,7 +491,7 @@ void AnimationForm::slot_selectLayerChanged( QModelIndex indexLayer )
 	m_pGlWidget->update();
 }
 
-// ＵＩ数値セット
+// UI数値セット
 void AnimationForm::slot_setUI(FrameData data)
 {
 	m_bDontSetData = true ;
@@ -1421,30 +1421,5 @@ void AnimationForm::pasteFrameData( void )
 	else {
 		slot_addNewFrameData(index, frame, m_pEditData->getCopyFrameData()) ;	// フレームデータ追加
 	}
-}
-
-void AnimationForm::slot_copyLayer( void )
-{
-	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	QModelIndex index = m_pEditData->getSelIndex() ;
-	if ( !pModel->isLayer(index) ) { return ; }
-	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
-	m_pEditData->setCopyLayer(pItem) ;
-}
-
-void AnimationForm::slot_pasteLayer( void )
-{
-	if ( !m_pEditData->isCopyLayer() ) { return ; }
-
-	QModelIndex index = m_pEditData->getSelIndex() ;
-	if ( !index.isValid() ) { return ; }
-
-	ObjectItem *pItem = m_pEditData->getCopyLayer() ;
-	if ( !pItem ) { return ; }
-
-	QList<QWidget *> updateWidget ;
-	updateWidget << m_pGlWidget << m_pDataMarker ;
-
-	m_pEditData->cmd_copyLayer(index, pItem, updateWidget) ;
 }
 

@@ -111,16 +111,11 @@ public slots:
 	void slot_changeColorA(int val ) ;
 
 	void slot_copyObject( void ) ;
-//	void slot_copyFrameData( void ) ;
-//	void slot_pasteFrameData( void ) ;
 
 	void slot_changeDrawFrame(bool flag) ;
 	void slot_changeDrawCenter(bool flag) ;
 
 	void slot_portDragedImage(FrameData data) ;
-
-	void slot_copyLayer( void ) ;
-	void slot_pasteLayer( void ) ;
 
 	void slot_clickPicker( void ) ;
 	void slot_setColorFromPicker(QRgb rgba) ;
