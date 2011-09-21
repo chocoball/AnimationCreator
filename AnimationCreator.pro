@@ -6,7 +6,7 @@
 
 QT       += core gui opengl xml network
 
-TARGET = AnimationCreator
+TARGET = AnimationCreator2
 TEMPLATE = app
 
 
