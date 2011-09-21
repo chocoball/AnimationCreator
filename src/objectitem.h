@@ -33,96 +33,26 @@ public:
 	// -----------------------------------------------
 	// Model
 	// -----------------------------------------------
-	int row() { return m_index.row() ; }
-	ObjectItem *parent() { return m_pParent ; }
-	int childCount() { return m_children.size() ; }
-	ObjectItem *child(int row)
-	{
-		if ( row < 0 || row >= m_children.size() ) { return NULL ; }
-		return m_children[row] ;
-	}
-	void insertChild(int row, ObjectItem *p)
-	{
-		m_children.insert(row, p) ;
-	}
-	void removeChild(ObjectItem *p)
-	{
-		int index = m_children.indexOf(p) ;
-		if ( index < 0 ) { return ; }
-		m_children.removeAt(index) ;
-		delete p ;
-	}
+	int row()				{ return m_index.row() ; }
+	ObjectItem *parent()	{ return m_pParent ; }
+	int childCount()		{ return m_children.size() ; }
+	ObjectItem *child(int row) ;
+	void insertChild(int row, ObjectItem *p) ;
+	void removeChild(ObjectItem *p) ;
 
 	// -----------------------------------------------
 	// FRAMEDATA
 	// -----------------------------------------------
-	void addFrameData(FrameData &data)
-	{
-		FrameData *p = getFrameDataPtr(data.frame) ;
-		if ( p ) {
-			*p = data ;
-		}
-		else {
-			m_frameDatas.append(data) ;
-		}
-	}
-	void removeFrameData(int frame)
-	{
-		int index = getFrameDataIndex(frame) ;
-		if ( index < 0 ) { return ; }
-		m_frameDatas.removeAt(index) ;
-	}
+	const QList<FrameData> &getFrameData() { return m_frameDatas ; }
 
-	int getFrameDataIndex(int frame)
-	{
-		for ( int i = 0 ; i < m_frameDatas.size() ; i ++ ) {
-			if ( frame == m_frameDatas.at(i).frame ) { return i ; }
-		}
-		return -1 ;
-	}
+	void addFrameData(FrameData &data) ;
+	void removeFrameData(int frame) ;
+	int getFrameDataIndex(int frame) ;
+	FrameData *getFrameDataPtr(int frame) ;
+	void sortFrameData() ;
 
-	FrameData *getFrameDataPtr(int frame)
-	{
-		for ( int i = 0 ; i < m_frameDatas.size() ; i ++ ) {
-			if ( frame == m_frameDatas.at(i).frame ) { return &m_frameDatas[i] ; }
-		}
-		return NULL ;
-	}
-	const QList<FrameData> &getFrameData()
-	{
-		return m_frameDatas ;
-	}
-
-	void copy(ObjectItem *p)
-	{
-		this->m_nLoop = p->m_nLoop ;
-		this->m_nCurrLoop = p->m_nCurrLoop ;
-		for ( int i = 0 ; i < p->m_children.size() ; i ++ ) {
-			insertChild(i, new ObjectItem(p->m_children[i]->m_name, this)) ;
-			this->m_children[i]->copy(p->m_children[i]);
-		}
-		this->m_frameDatas = p->m_frameDatas ;
-		this->m_checkStateData = p->m_checkStateData ;
-		this->m_foregroundData = p->m_foregroundData ;
-	}
-
-	int getMaxFrameNum(bool bRecv = true)
-	{
-		int ret = 0 ;
-
-		for ( int i = 0 ; i < m_frameDatas.size() ; i ++ ) {
-			if ( ret < m_frameDatas.at(i).frame ) {
-				ret = m_frameDatas.at(i).frame ;
-			}
-		}
-		if ( bRecv ) {
-			for ( int i = 0 ; i < m_children.size() ; i ++ ) {
-				int tmp = m_children[i]->getMaxFrameNum() ;
-				if ( ret < tmp ) { ret = tmp ; }
-			}
-		}
-		return ret ;
-	}
+	void copy(ObjectItem *p) ;
+	int getMaxFrameNum(bool bRecv = true) ;
 
 	QVariant data(int role) ;
 	void setData(const QVariant &value, int role = Qt::UserRole + 1) ;

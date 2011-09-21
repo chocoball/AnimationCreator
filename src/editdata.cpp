@@ -151,24 +151,14 @@ QMatrix4x4 CEditData::getNowSelectMatrix()
 // フレームデータをフレーム数順に並び替え
 void CEditData::sortFrameDatas( void )
 {
-#if 0
-	TODO
-	CObjectModel::ObjectList &objList = *m_pObjectModel->getObjectListPtr() ;
-	for ( int i = 0 ; i < objList.size() ; i ++ ) {
-		CObjectModel::ObjectGroup &objGroup = objList[i] ;
-
-		for ( int j = 0 ; j < objGroup.layerGroupList.size() ; j ++ ) {
-			FrameDataList &frameDataList = objGroup.layerGroupList[j].second ;
-
-			for ( int k = 0 ; k < frameDataList.size() ; k ++ ) {
-				for ( int l = 0 ; l < k ; l ++ ) {
-					if ( frameDataList[k].frame < frameDataList[l].frame ) {
-						frameDataList.swap(k, l) ;
-					}
-				}
-			}
-		}
-	}
-#endif
+	ObjectItem *pRoot = getObjectModel()->getItemFromIndex(QModelIndex()) ;
+	sortFrameDatas(pRoot) ;
 }
 
+void CEditData::sortFrameDatas(ObjectItem *pItem)
+{
+	pItem->sortFrameData() ;
+	for ( int i = 0 ; i < pItem->childCount() ; i ++ ) {
+		sortFrameDatas(pItem->child(i)) ;
+	}
+}

@@ -196,6 +196,9 @@ public:
 
 	void sortFrameDatas( void ) ;
 
+private:
+	void sortFrameDatas(ObjectItem *pItem) ;
+
 	kAccessor(int, m_editMode, EditMode)
 	kAccessor(QRect, m_catchRect, CatchRect)
 	kAccessor(QPoint, m_center, Center)

@@ -1,6 +1,98 @@
 #include "objectitem.h"
 #include "editdata.h"
 
+ObjectItem *ObjectItem::child(int row)
+{
+	if ( row < 0 || row >= m_children.size() ) { return NULL ; }
+	return m_children[row] ;
+}
+void ObjectItem::insertChild(int row, ObjectItem *p)
+{
+	m_children.insert(row, p) ;
+}
+void ObjectItem::removeChild(ObjectItem *p)
+{
+	int index = m_children.indexOf(p) ;
+	if ( index < 0 ) { return ; }
+	m_children.removeAt(index) ;
+	delete p ;
+}
+
+void ObjectItem::addFrameData(FrameData &data)
+{
+	FrameData *p = getFrameDataPtr(data.frame) ;
+	if ( p ) {
+		*p = data ;
+	}
+	else {
+		m_frameDatas.append(data) ;
+	}
+}
+void ObjectItem::removeFrameData(int frame)
+{
+	int index = getFrameDataIndex(frame) ;
+	if ( index < 0 ) { return ; }
+	m_frameDatas.removeAt(index) ;
+}
+
+int ObjectItem::getFrameDataIndex(int frame)
+{
+	for ( int i = 0 ; i < m_frameDatas.size() ; i ++ ) {
+		if ( frame == m_frameDatas.at(i).frame ) { return i ; }
+	}
+	return -1 ;
+}
+
+FrameData *ObjectItem::getFrameDataPtr(int frame)
+{
+	for ( int i = 0 ; i < m_frameDatas.size() ; i ++ ) {
+		if ( frame == m_frameDatas.at(i).frame ) { return &m_frameDatas[i] ; }
+	}
+	return NULL ;
+}
+
+void ObjectItem::sortFrameData()
+{
+	for ( int i = 0 ; i < m_frameDatas.size() ; i ++ ) {
+		for ( int j = 0 ; j < i ; j ++ ) {
+			if ( m_frameDatas.at(i).frame < m_frameDatas.at(j).frame ) {
+				m_frameDatas.swap(i, j) ;
+			}
+		}
+	}
+}
+
+void ObjectItem::copy(ObjectItem *p)
+{
+	this->m_nLoop = p->m_nLoop ;
+	this->m_nCurrLoop = p->m_nCurrLoop ;
+	for ( int i = 0 ; i < p->m_children.size() ; i ++ ) {
+		insertChild(i, new ObjectItem(p->m_children[i]->m_name, this)) ;
+		this->m_children[i]->copy(p->m_children[i]);
+	}
+	this->m_frameDatas = p->m_frameDatas ;
+	this->m_checkStateData = p->m_checkStateData ;
+	this->m_foregroundData = p->m_foregroundData ;
+}
+
+int ObjectItem::getMaxFrameNum(bool bRecv)
+{
+	int ret = 0 ;
+
+	for ( int i = 0 ; i < m_frameDatas.size() ; i ++ ) {
+		if ( ret < m_frameDatas.at(i).frame ) {
+			ret = m_frameDatas.at(i).frame ;
+		}
+	}
+	if ( bRecv ) {
+		for ( int i = 0 ; i < m_children.size() ; i ++ ) {
+			int tmp = m_children[i]->getMaxFrameNum() ;
+			if ( ret < tmp ) { ret = tmp ; }
+		}
+	}
+	return ret ;
+}
+
 QVariant ObjectItem::data(int role)
 {
 	switch ( role ) {
