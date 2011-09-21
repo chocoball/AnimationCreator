@@ -12,15 +12,17 @@
 	更新履歴
 	2010/11/17	ver 0.0.1	フォーマット作成
 	2011/01/19	ver 0.1.0	ループ回数、フレームデータRGBA追加
+	2011/09/21	ver 1.0.0	レイヤを階層持つように修正
  */
 
-#define ANM2D_VERSION	0x00001000				///< バージョン 0x[00][000][000]
+//#define kANM2D_VERSION		0x00001000			///< バージョン 0x[00][000][000]
+#define kANM2D_VERSION		0x01000000			///< バージョン 0x[00][000][000]
 
-#define ANM2D_ID_HEADER		'ANM2'				///< ヘッダID
-#define ANM2D_ID_OBJECT		'OBJE'				///< オブジェクトID
-#define ANM2D_ID_LAYER		'LAYR'				///< レイヤID
-#define ANM2D_ID_FRAMEDATA	'FRAM'				///< フレームデータID
-#define ANM2D_ID_IMAGE		'IMAG'				///< イメージID
+#define kANM2D_ID_HEADER	'ANM2'				///< ヘッダID
+#define kANM2D_ID_OBJECT	'OBJE'				///< オブジェクトID
+#define kANM2D_ID_LAYER		'LAYR'				///< レイヤID
+#define kANM2D_ID_FRAMEDATA	'FRAM'				///< フレームデータID
+#define kANM2D_ID_IMAGE		'IMAG'				///< イメージID
 
 // @brief ブロック構造
 typedef struct {
@@ -61,7 +63,9 @@ typedef struct {
 												///< nSize = sizeof(Anm2DLayer) + (nFrameDataNum-1) * unsigned int
 	Anm2DName			layerName ;				///< レイヤ名
 	unsigned short		nLayerNo ;				///< レイヤ番号
+	short				nParentNo ;				///< 親のレイヤ番号(いない場合は0未満)
 	unsigned short		nFrameDataNum ;			///< フレームデータ数
+	unsigned short		pad[1] ;
 	unsigned int		nFrameDataNo[1] ;		///< フレームデータ番号
 } Anm2DLayer ;
 

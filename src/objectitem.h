@@ -40,6 +40,7 @@ public:
 	ObjectItem *child(int row) ;
 	void insertChild(int row, ObjectItem *p) ;
 	void removeChild(ObjectItem *p) ;
+	int getAllChildNum() ;
 
 	// -----------------------------------------------
 	// FRAMEDATA
@@ -57,6 +58,7 @@ public:
 
 	QVariant data(int role) ;
 	void setData(const QVariant &value, int role = Qt::UserRole + 1) ;
+
 	FrameData getDisplayFrameData(int frame, bool *bValid = 0) ;
 	QMatrix4x4 getDisplayMatrix(int frame, bool *bValid = 0) ;
 	QMatrix4x4 getParentDispMatrix(int frame, bool *bValid = 0) ;

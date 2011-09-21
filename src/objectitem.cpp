@@ -18,6 +18,16 @@ void ObjectItem::removeChild(ObjectItem *p)
 	delete p ;
 }
 
+int ObjectItem::getAllChildNum()
+{
+	int ret = childCount() ;
+	for ( int i = 0 ; i < childCount() ; i ++ ) {
+		ret += child(i)->getAllChildNum() ;
+	}
+	return ret ;
+}
+
+
 void ObjectItem::addFrameData(FrameData &data)
 {
 	FrameData *p = getFrameDataPtr(data.frame) ;
@@ -251,5 +261,6 @@ bool ObjectItem::isContain(FrameData &displayData, QPoint &pos, const QMatrix4x4
 
 	return false ;
 }
+
 
 

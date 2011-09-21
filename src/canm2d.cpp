@@ -20,10 +20,66 @@ bool CAnm2DBin::makeFromEditData( CEditData &rEditData )
 	QList<QByteArray> frameList ;
 	QList<QByteArray> imageList ;
 
-	if ( !makeHeader(header, rEditData) ) {
+#if 1
+	ObjectItem *pRoot = rEditData.getObjectModel()->getItemFromIndex(QModelIndex()) ;
+	for ( int i = 0 ; i < pRoot->childCount() ; i ++ ) {
+		if ( !makeObject(pRoot->child(i), objectList, layerList, frameList) ) {
+			return false ;
+		}
+	}
+
+	if ( !makeHeader(header, rEditData, objectList, layerList, frameList) ) {
 		return false ;
 	}
-#if 0
+	if ( !makeImageList(imageList, rEditData) ) {
+		return false ;
+	}
+
+	// ヘッダのオフセットを設定
+	Anm2DHeader *pHeader = (Anm2DHeader *)header.data() ;
+	unsigned int offset = 0 ;
+	unsigned int blockCnt = 0 ;
+	offset += header.size() ;
+	for ( int i = 0 ; i < objectList.size() ; i ++ ) {
+		pHeader->nBlockOffset[blockCnt ++] = offset ;
+		offset += objectList[i].size() ;
+	}
+	for ( int i = 0 ; i < layerList.size() ; i ++ ) {
+		pHeader->nBlockOffset[blockCnt ++] = offset ;
+		offset += layerList[i].size() ;
+	}
+	for ( int i = 0 ; i < frameList.size() ; i ++ ) {
+		pHeader->nBlockOffset[blockCnt ++] = offset ;
+		offset += frameList[i].size() ;
+	}
+	for ( int i = 0 ; i < imageList.size() ; i ++ ) {
+		pHeader->nBlockOffset[blockCnt ++] = offset ;
+		offset += imageList[i].size() ;
+	}
+	pHeader->nFileSize = offset ;
+
+	if ( pHeader->nBlockNum != blockCnt ) {
+		m_nError = kErrorNo_BlockNumNotSame ;
+		return false ;
+	}
+
+	// データセット
+	m_Data.clear() ;
+	m_Data += header ;
+	for ( int i = 0 ; i < objectList.size() ; i ++ ) {
+		m_Data += objectList[i] ;
+	}
+	for ( int i = 0 ; i < layerList.size() ; i ++ ) {
+		m_Data += layerList[i] ;
+	}
+	for ( int i = 0 ; i < frameList.size() ; i ++ ) {
+		m_Data += frameList[i] ;
+	}
+	for ( int i = 0 ; i < imageList.size() ; i ++ ) {
+		m_Data += imageList[i] ;
+	}
+	return true ;
+#else
 	TODO
 	CObjectModel *pModel = rEditData.getObjectModel() ;
 	const CObjectModel::ObjectList &objList = pModel->getObjectList() ;
@@ -150,8 +206,8 @@ bool CAnm2DBin::makeFromEditData( CEditData &rEditData )
 	for ( int i = 0 ; i < imageList.size() ; i ++ ) {
 		m_Data += imageList[i] ;
 	}
-#endif
 	return true ;
+#endif
 }
 
 // アニメファイルから作成中データへ変換
@@ -160,7 +216,7 @@ bool CAnm2DBin::makeFromFile(QByteArray &data, CEditData &rEditData)
 	m_Data = data ;
 
 	Anm2DHeader *pHeader = (Anm2DHeader *)m_Data.data() ;
-	if ( pHeader->header.nID != ANM2D_ID_HEADER ) {
+	if ( pHeader->header.nID != kANM2D_ID_HEADER ) {
 		m_nError = kErrorNo_InvalidID ;
 		return false ;
 	}
@@ -168,7 +224,7 @@ bool CAnm2DBin::makeFromFile(QByteArray &data, CEditData &rEditData)
 		m_nError = kErrorNo_InvalidFileSize ;
 		return false ;
 	}
-	if ( pHeader->nVersion != ANM2D_VERSION ) {
+	if ( pHeader->nVersion != kANM2D_VERSION ) {
 		m_nError = kErrorNo_InvalidVersion ;
 		return false ;
 	}
@@ -190,9 +246,25 @@ bool CAnm2DBin::makeFromFile(QByteArray &data, CEditData &rEditData)
 
 
 // ヘッダ作成
-bool CAnm2DBin::makeHeader( QByteArray &rData, CEditData &rEditData )
+bool CAnm2DBin::makeHeader( QByteArray &rData, CEditData &rEditData, QList<QByteArray> &objectList, QList<QByteArray> &layerList, QList<QByteArray> &frameList )
 {
-#if 0
+#if 1
+	int blockNum = 0 ;
+	blockNum += objectList.size() ;
+	blockNum += layerList.size() ;
+	blockNum += frameList.size() ;
+	blockNum += rEditData.getImageDataListSize() ;
+
+	rData.resize(sizeof(Anm2DHeader) + (blockNum-1) * sizeof(unsigned int));
+	Anm2DHeader *pHeader = (Anm2DHeader *)rData.data() ;
+	memset( pHeader, 0, sizeof(Anm2DHeader) + (blockNum-1) * sizeof(unsigned int) ) ;
+	pHeader->header.nID		= kANM2D_ID_HEADER ;
+	pHeader->header.nSize	= sizeof( Anm2DHeader ) ;
+	pHeader->nVersion		= kANM2D_VERSION ;
+	pHeader->nFileSize		= 0 ;	// 後で入れる
+	pHeader->nBlockNum		= blockNum ;
+	return true ;
+#else
 	TODO
 	int blockNum = 0 ;
 	CObjectModel *pModel = rEditData.getObjectModel() ;
@@ -217,7 +289,102 @@ bool CAnm2DBin::makeHeader( QByteArray &rData, CEditData &rEditData )
 	pHeader->nVersion		= ANM2D_VERSION ;
 	pHeader->nFileSize		= 0 ;	// 後で入れる
 	pHeader->nBlockNum		= blockNum ;
+	return true ;
 #endif
+}
+
+bool CAnm2DBin::makeObject(ObjectItem *pObj, QList<QByteArray> &objList, QList<QByteArray> &layerList, QList<QByteArray> &frameList)
+{
+	int layerNum = pObj->getAllChildNum() ;
+
+	QByteArray objArray ;
+	objArray.resize(sizeof(Anm2DObject) + (layerNum-1)*sizeof(unsigned int)) ;
+	Anm2DObject *pObjData = (Anm2DObject *)objArray.data() ;
+	memset( pObjData, 0, sizeof(Anm2DObject) + (layerNum-1)*sizeof(unsigned int) ) ;
+	pObjData->header.nID	= kANM2D_ID_OBJECT ;
+	pObjData->header.nSize	= sizeof(Anm2DObject) + (layerNum-1)*sizeof(unsigned int) ;
+	strncpy( pObjData->objName.name, pObj->getName().toUtf8().data(), sizeof(Anm2DName) ) ;	// オブジェクト名
+	pObjData->nLayerNum		= layerNum ;
+	pObjData->nLoopNum		= pObj->getLoop() ;	// ループ回数(after ver 0.1.0)
+
+	int layerNo = 0 ;
+	for ( int i = 0 ; i < pObj->childCount() ; i ++ ) {
+		if ( !makeLayer(pObj->child(i), &layerNo, pObjData, layerList, frameList, -1) ) {
+			return false ;
+		}
+	}
+
+	objList << objArray ;
+	return true ;
+}
+
+bool CAnm2DBin::makeLayer(ObjectItem		*pLayer,
+						  int				*pLayerNo,
+						  Anm2DObject		*pObjData,
+						  QList<QByteArray>	&layerList,
+						  QList<QByteArray>	&frameList,
+						  int				parentNo)
+{
+	const QList<FrameData> &frameDatas = pLayer->getFrameData() ;
+	QByteArray layerArray ;
+	layerArray.resize(sizeof(Anm2DLayer) + (frameDatas.size()-1)*sizeof(unsigned int));
+	Anm2DLayer *pLayerData = (Anm2DLayer *)layerArray.data() ;
+	memset(pLayerData, 0, sizeof(Anm2DLayer) + (frameDatas.size()-1)*sizeof(unsigned int)) ;
+	pLayerData->header.nID   = kANM2D_ID_LAYER ;
+	pLayerData->header.nSize = sizeof(Anm2DLayer) + (frameDatas.size()-1)*sizeof(unsigned int) ;
+	strncpy( pLayerData->layerName.name, pLayer->getName().toUtf8().data(), sizeof(Anm2DName) ) ;	// レイヤ名
+	pLayerData->nLayerNo = layerList.size() ;
+	pLayerData->nFrameDataNum = frameDatas.size() ;
+	pLayerData->nParentNo = parentNo ;
+
+	pObjData->nLayerNo[*pLayerNo] = pLayerData->nLayerNo ;	// オブジェクトが参照するレイヤ番号セット
+	*pLayerNo += 1 ;
+
+	for ( int i = 0 ; i < frameDatas.size() ; i ++ ) {
+		const FrameData &data = frameDatas.at(i) ;
+
+		QByteArray frameDataArray ;
+		frameDataArray.resize(sizeof(Anm2DFrameData)) ;
+		Anm2DFrameData *pFrameData = (Anm2DFrameData *)frameDataArray.data() ;
+		memset(pFrameData, 0, sizeof(Anm2DFrameData)) ;
+		pFrameData->header.nID		= kANM2D_ID_FRAMEDATA ;
+		pFrameData->header.nSize	= sizeof(Anm2DFrameData) ;
+		pFrameData->nFrameDataNo	= frameList.size() ;
+		pFrameData->nFrame			= data.frame ;
+		pFrameData->pos_x			= data.pos_x ;
+		pFrameData->pos_y			= data.pos_y ;
+		pFrameData->pos_z			= data.pos_z ;
+		pFrameData->rot_x			= data.rot_x ;
+		pFrameData->rot_y			= data.rot_y ;
+		pFrameData->rot_z			= data.rot_z ;
+		pFrameData->cx				= data.center_x ;
+		pFrameData->cy				= data.center_y ;
+		pFrameData->nImageNo		= data.nImage ;
+		pFrameData->uv[0]			= data.left ;
+		pFrameData->uv[1]			= data.right ;
+		pFrameData->uv[2]			= data.top ;
+		pFrameData->uv[3]			= data.bottom ;
+		pFrameData->fScaleX			= data.fScaleX ;
+		pFrameData->fScaleY			= data.fScaleY ;
+		pFrameData->bFlag			= (data.bUVAnime) ? 1 : 0 ;
+		// 頂点色(after ver 0.1.0)
+		pFrameData->rgba[0]			= data.rgba[0] ;
+		pFrameData->rgba[1]			= data.rgba[1] ;
+		pFrameData->rgba[2]			= data.rgba[2] ;
+		pFrameData->rgba[3]			= data.rgba[3] ;
+
+		pLayerData->nFrameDataNo[i] = pFrameData->nFrameDataNo ;	// レイヤが参照するフレームデータ番号セット
+
+		frameList << frameDataArray ;
+	}
+
+	layerList << layerArray ;
+
+	for ( int i = 0 ; i < pLayer->childCount() ; i ++ ) {
+		if ( !makeLayer(pLayer->child(i), pLayerNo, pObjData, layerList, frameList, pLayerData->nLayerNo) ) {
+			return false ;
+		}
+	}
 	return true ;
 }
 
@@ -227,7 +394,6 @@ bool CAnm2DBin::makeImageList( QList<QByteArray> &rData, CEditData &rEditData )
 	int imageNum = rEditData.getImageDataListSize() ;
 
 	for ( int i = 0 ; i < imageNum ; i ++ ) {
-#if 1
 		CEditData::ImageData *p = rEditData.getImageData(i) ;
 		if ( !p ) { continue ; }
 
@@ -239,32 +405,15 @@ bool CAnm2DBin::makeImageList( QList<QByteArray> &rData, CEditData &rEditData )
 		imgArray.resize(size);
 		Anm2DImage *pImage = (Anm2DImage *)imgArray.data() ;
 		memset( pImage, 0, size ) ;
-		pImage->header.nID = ANM2D_ID_IMAGE ;
-		pImage->header.nSize = size ;
-		pImage->nWidth = img.width() ;
-		pImage->nHeight = img.height() ;
-		pImage->nImageNo = p->nNo ;
+		pImage->header.nID		= kANM2D_ID_IMAGE ;
+		pImage->header.nSize	= size ;
+		pImage->nWidth			= img.width() ;
+		pImage->nHeight			= img.height() ;
+		pImage->nImageNo		= p->nNo ;
 		QString relPath = getRelativePath(m_filePath, p->fileName) ;
 		strncpy(pImage->fileName, relPath.toUtf8().data(), 255) ;
 		memcpy(pImage->data, img.bits(), img.width()*img.height()*4) ;
-#else
-		QImage img = rEditData.getImage(i) ;
-		unsigned int size = sizeof(Anm2DImage) + img.width() * img.height() * 4 * sizeof(unsigned char) - 1 ;
-		size = (size+0x03) & ~0x03 ;
 
-		QByteArray imgArray ;
-		imgArray.resize(size);
-		Anm2DImage *pImage = (Anm2DImage *)imgArray.data() ;
-		memset( pImage, 0, size ) ;
-		pImage->header.nID = ANM2D_ID_IMAGE ;
-		pImage->header.nSize = size ;
-		pImage->nWidth = img.width() ;
-		pImage->nHeight = img.height() ;
-		pImage->nImageNo = i ;
-		QString relPath = getRelativePath(m_filePath, rEditData.getImageFileName(i)) ;
-		strncpy(pImage->fileName, relPath.toUtf8().data(), 255) ;
-		memcpy(pImage->data, img.bits(), img.width()*img.height()*4) ;
-#endif
 		rData << imgArray ;
 	}
 	return true ;
@@ -273,7 +422,9 @@ bool CAnm2DBin::makeImageList( QList<QByteArray> &rData, CEditData &rEditData )
 // 編集データにオブジェクトを追加
 bool CAnm2DBin::addObject(Anm2DHeader *pHeader, CEditData &rEditData)
 {
-#if 0
+#if 1
+	return false ;
+#else
 	TODO
 	CObjectModel *pModel = rEditData.getObjectModel() ;
 	QStandardItemModel *pTreeModel = rEditData.getTreeModel() ;
@@ -307,8 +458,8 @@ bool CAnm2DBin::addObject(Anm2DHeader *pHeader, CEditData &rEditData)
 			return false ;
 		}
 	}
-#endif
 	return true ;
+#endif
 }
 
 // 編集データにレイヤを追加
@@ -454,7 +605,7 @@ bool CAnm2DBin::addImageData(Anm2DHeader *pHeader, CEditData &rEditData)
 	for ( int i = 0 ; i < pHeader->nBlockNum ; i ++ ) {
 		Anm2DBlockHeader *p = (Anm2DBlockHeader *)LP_ADD(pHeader, pHeader->nBlockOffset[i]) ;
 		switch ( p->nID ) {
-		case ANM2D_ID_IMAGE:
+		case kANM2D_ID_IMAGE:
 			{
 				Anm2DImage *pImage = (Anm2DImage *)p ;
 
@@ -484,9 +635,9 @@ bool CAnm2DBin::addImageData(Anm2DHeader *pHeader, CEditData &rEditData)
 				data.insert(pImage->nImageNo, ImageData);
 			}
 			break ;
-		case ANM2D_ID_OBJECT:
-		case ANM2D_ID_LAYER:
-		case ANM2D_ID_FRAMEDATA:
+		case kANM2D_ID_OBJECT:
+		case kANM2D_ID_LAYER:
+		case kANM2D_ID_FRAMEDATA:
 			continue ;
 
 		default:
@@ -503,7 +654,7 @@ Anm2DObject *CAnm2DBin::search2DObjectFromName(Anm2DHeader *pHeader, QString nam
 {
 	for ( int i = 0 ; i < pHeader->nBlockNum ; i ++ ) {
 		Anm2DObject *p = (Anm2DObject *)LP_ADD(pHeader, pHeader->nBlockOffset[i]) ;
-		if ( p->header.nID != ANM2D_ID_OBJECT ) { continue ; }
+		if ( p->header.nID != kANM2D_ID_OBJECT ) { continue ; }
 		if ( name != QString::fromUtf8(p->objName.name) ) { continue ; }
 
 		return p ;
@@ -516,7 +667,7 @@ Anm2DLayer *CAnm2DBin::search2DLayerFromName(Anm2DHeader *pHeader, QString name)
 {
 	for ( int i = 0 ; i < pHeader->nBlockNum ; i ++ ) {
 		Anm2DLayer *p = (Anm2DLayer *)LP_ADD(pHeader, pHeader->nBlockOffset[i]) ;
-		if ( p->header.nID != ANM2D_ID_LAYER ) { continue ; }
+		if ( p->header.nID != kANM2D_ID_LAYER ) { continue ; }
 		if ( name != QString::fromUtf8(p->layerName.name) ) { continue ; }
 
 		return p ;
