@@ -52,6 +52,15 @@ public:
 
 	void updateIndex() ;
 
+	void flat() ;
+
+	CObjectModel * operator =(CObjectModel *p)
+	{
+		this->m_pRoot->copy(p->m_pRoot) ;
+		updateIndex() ;
+		return this ;
+	}
+
 private:
 	void updateIndex(ObjectItem *pItem, const QModelIndex &parent, int row) ;
 

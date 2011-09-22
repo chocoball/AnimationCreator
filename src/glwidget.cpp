@@ -655,6 +655,7 @@ QPoint AnimeGLWidget::editData(FrameData *pData, QPoint nowPos, QPoint oldPos)
 					if ( now >= M_PI*2 ) { now -= M_PI*2 ; }
 					if ( now < -M_PI*2 ) { now += M_PI*2 ; }
 					pData->rot_z = now*180.0f/M_PI ;
+					if ( pData->rot_z < 0 ) { pData->rot_z += 360 ; }
 				}
 				break ;
 			case kEditMode_Center:

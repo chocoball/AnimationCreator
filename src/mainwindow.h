@@ -65,6 +65,7 @@ public slots:
 
 #ifndef QT_NO_DEBUG
 	void slot_dbgObjectDump( void ) ;
+	void slot_dbgObjectFlat( void ) ;
 #endif
 
 private:
@@ -143,6 +144,7 @@ private:
 #ifndef QT_NO_DEBUG
 	// デバッグ用 ----
 	QAction				*m_pActDbgDump ;
+	QAction				*m_pActDbgFlat ;
 #endif
 
 	QMdiSubWindow		*m_pSubWindow_Anm ;

@@ -358,7 +358,13 @@ void MainWindow::slot_dbgObjectDump( void )
 
 	m_pAnimationForm->dbgDumpObject() ;
 }
+
+void MainWindow::slot_dbgObjectFlat( void )
+{
+	m_EditData.getObjectModel()->flat() ;
+}
 #endif
+
 // 設定を復元
 void MainWindow::readRootSetting( void )
 {
@@ -468,6 +474,8 @@ void MainWindow::createActions( void )
 #ifndef QT_NO_DEBUG
 	m_pActDbgDump = new QAction(tr("Dump"), this) ;
 	connect(m_pActDbgDump, SIGNAL(triggered()), this, SLOT(slot_dbgObjectDump())) ;
+	m_pActDbgFlat = new QAction(tr("Flat"), this) ;
+	connect(m_pActDbgFlat, SIGNAL(triggered()), this, SLOT(slot_dbgObjectFlat())) ;
 #endif
 }
 
@@ -508,6 +516,7 @@ void MainWindow::createMenus( void )
 #ifndef QT_NO_DEBUG
 	pMenu = menuBar()->addMenu(tr("Debug")) ;
 	pMenu->addAction(m_pActDbgDump) ;
+	pMenu->addAction(m_pActDbgFlat) ;
 #endif
 }
 

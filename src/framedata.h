@@ -3,6 +3,7 @@
 
 #include <QVector3D>
 #include <QMatrix4x4>
+#include <math.h>
 
 typedef struct {
 	float		x0, y0 ;
@@ -141,6 +142,46 @@ typedef struct _tagFrameData {
 		mat.rotate(rot_z, 0, 0, 1) ;
 		mat.scale(fScaleX, fScaleY) ;
 		return mat ;
+	}
+
+	void applyMatrix(QMatrix4x4 &mat)
+	{
+		pos_x = mat.column(3).x() ;
+		pos_y = mat.column(3).y() ;
+		pos_z = mat.column(3).z() ;
+
+		QVector3D vx, vy, vz ;
+		vx = QVector3D(mat.row(0)) ;
+		vy = QVector3D(mat.row(1)) ;
+		vz = QVector3D(mat.row(2)) ;
+		fScaleX = vx.length() ;
+		fScaleY = vy.length() ;
+
+		vx.normalize();
+		vy.normalize();
+		vz.normalize();
+
+		qreal rx, ry, rz ;
+		rz = -atan2(vx.y(), vx.x()) ;
+		ry = -asin(vx.z()) ;
+		qreal cosy = cos(ry) ;
+		if ( fabs(cosy) <= 0.0001 ) {
+			rx = 0 ;
+			rz = atan2(-vy.x(), vy.y()) ;
+		}
+		else {
+			rx = asin(vy.z() / cosy) ;
+			if ( vz.z() < 0 ) {
+				rx = M_PI - rx ;
+			}
+		}
+		rot_x = rx * 180 / M_PI ;
+		rot_y = ry * 180 / M_PI ;
+		rot_z = rz * 180 / M_PI ;
+
+		if ( rot_x < 0 ) { rot_x += 360 ; }
+		if ( rot_y < 0 ) { rot_y += 360 ; }
+		if ( rot_z < 0 ) { rot_z += 360 ; }
 	}
 
 } FrameData ;

@@ -40,7 +40,8 @@ public:
 	ObjectItem *child(int row) ;
 	void insertChild(int row, ObjectItem *p) ;
 	void removeChild(ObjectItem *p) ;
-	int getAllChildNum() ;
+	void flat() ;
+	QList<ObjectItem *> getLayers(ObjectItem *pObj) ;
 
 	// -----------------------------------------------
 	// FRAMEDATA
@@ -73,6 +74,10 @@ public:
 
 private:
 	bool isContain(FrameData &displayData, QPoint &pos, const QMatrix4x4 &matDisp) ;
+
+	void applyFrameDataFromParent() ;
+	int getParentFrameMax() ;
+	FrameData *getParentFrameDataPtr(int frame) ;
 
 private:
 	ObjectItem			*m_pParent ;

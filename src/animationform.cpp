@@ -465,9 +465,10 @@ void AnimationForm::slot_frameChanged(int frame)
 		if ( m_pEditData->getSelIndex().isValid() ) {
 			ObjectItem *pItem = m_pEditData->getObjectModel()->getItemFromIndex(m_pEditData->getSelIndex()) ;
 			if ( pItem ) {
-				FrameData *pData = pItem->getFrameDataPtr(frame) ;
-				if ( pData ) {
-					slot_setUI(*pData) ;
+				bool valid ;
+				FrameData d = pItem->getDisplayFrameData(frame, &valid) ;
+				if ( valid ) {
+					slot_setUI(d) ;
 				}
 			}
 		}

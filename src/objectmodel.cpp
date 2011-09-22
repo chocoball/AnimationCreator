@@ -309,6 +309,14 @@ void CObjectModel::updateIndex(ObjectItem *pItem, const QModelIndex &parent, int
 	}
 }
 
+void CObjectModel::flat()
+{
+	for ( int i = 0 ; i < m_pRoot->childCount() ; i ++ ) {
+		ObjectItem *pObj = m_pRoot->child(i) ;
+		pObj->flat() ;
+	}
+	updateIndex() ;
+}
 
 
 

@@ -18,15 +18,37 @@ void ObjectItem::removeChild(ObjectItem *p)
 	delete p ;
 }
 
-int ObjectItem::getAllChildNum()
+void ObjectItem::flat()
 {
-	int ret = childCount() ;
-	for ( int i = 0 ; i < childCount() ; i ++ ) {
-		ret += child(i)->getAllChildNum() ;
+	QList<ObjectItem *> layers = getLayers(this) ;
+	QList<ObjectItem *>	children ;
+
+	for ( int i = 0 ; i < layers.size() ; i ++ ) {
+		ObjectItem *p = new ObjectItem(layers[i]->getName(), layers[i]->parent()) ;
+		p->copy(layers[i]) ;
+		p->applyFrameDataFromParent() ;
+		p->m_pParent = this ;
+
+		children.append(p) ;
+	}
+	for ( int i = 0 ; i < children.size() ; i ++ ) {
+		qDeleteAll(children[i]->m_children) ;
+		children[i]->m_children.clear() ;
+	}
+
+	qDeleteAll(m_children) ;
+	m_children = children ;
+}
+
+QList<ObjectItem *> ObjectItem::getLayers(ObjectItem *pObj)
+{
+	QList<ObjectItem *> ret ;
+	for ( int i = 0 ; i < pObj->childCount() ; i ++ ) {
+		ret << pObj->child(i) ;
+		ret << getLayers(pObj->child(i)) ;
 	}
 	return ret ;
 }
-
 
 void ObjectItem::addFrameData(FrameData &data)
 {
@@ -140,7 +162,7 @@ FrameData ObjectItem::getDisplayFrameData(int frame, bool *bValid)
 	if ( pPrev ) {
 		FrameData *pNext = getFrameDataFromNextFrame(frame) ;
 		d = pPrev->getInterpolation(pNext, frame) ;
-
+		d.frame = frame ;
 		if ( bValid ) { *bValid = true ; }
 	}
 	else {
@@ -262,5 +284,83 @@ bool ObjectItem::isContain(FrameData &displayData, QPoint &pos, const QMatrix4x4
 	return false ;
 }
 
+void ObjectItem::applyFrameDataFromParent()
+{
+	QList<FrameData> datas ;
+	for ( int i = 0 ; i < m_frameDatas.size() ; i ++ ) {
+		FrameData data = m_frameDatas[i] ;
 
+		bool valid ;
+		QMatrix4x4 mat = getDisplayMatrix(data.frame, &valid) ;
+		if ( !valid ) { continue ; }
+
+		data.applyMatrix(mat) ;
+		datas.append(data) ;
+	}
+
+	FrameData old ;
+	int frame = getParentFrameMax() ;
+	for ( int i = 0 ; i < frame ; i ++ ) {
+		if ( getFrameDataPtr(i) ) {
+			old = *getFrameDataPtr(i) ;
+			continue ;
+		}
+
+		FrameData *parent = getParentFrameDataPtr(i) ;
+		if ( !parent ) { continue ; }
+
+		bool valid ;
+		FrameData data ;
+		data = getDisplayFrameData(i, &valid) ;
+		if ( !valid ) { continue ; }
+
+		QMatrix4x4 mat = getDisplayMatrix(i, &valid) ;
+		if ( !valid ) { continue ; }
+
+		data.applyMatrix(mat) ;
+		if ( !(old.frame&0x8000) ) {
+			if ( old.rot_z != data.rot_z ) {
+				for ( int j = old.frame + 1 ; j < data.frame ; j ++ ) {
+					bool b ;
+					FrameData tmp = getDisplayFrameData(j, &b) ;
+					if ( !b ) { continue ; }
+					QMatrix4x4 mat = getDisplayMatrix(j, &b) ;
+					if ( !b ) { continue ; }
+					tmp.applyMatrix(mat);
+					datas.append(tmp) ;
+				}
+			}
+		}
+		old = data ;
+		datas.append(data);
+	}
+
+	m_frameDatas = datas ;
+}
+
+int ObjectItem::getParentFrameMax()
+{
+	int ret = 0 ;
+	ObjectItem *parent = m_pParent ;
+	while ( parent ) {
+		for ( int i = 0 ; i < parent->m_frameDatas.size() ; i ++ ) {
+			if ( ret < parent->m_frameDatas.at(i).frame + 1 ) {
+				ret = parent->m_frameDatas.at(i).frame + 1 ;
+			}
+		}
+		parent = parent->m_pParent ;
+	}
+	return ret ;
+}
+
+FrameData *ObjectItem::getParentFrameDataPtr(int frame)
+{
+	ObjectItem *parent = m_pParent ;
+	while ( parent ) {
+		FrameData *p = parent->getFrameDataPtr(frame) ;
+		if ( p ) { return p ; }
+		parent = parent->m_pParent ;
+	}
+	return NULL ;
+}
 
