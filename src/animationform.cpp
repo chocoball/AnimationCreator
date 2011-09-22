@@ -1016,7 +1016,6 @@ void AnimationForm::slot_addImage( int imageNo )
 //	ui->comboBox_image_no->addItem(tr("%1").arg(imageNo));
 	ui->comboBox_image_no->insertItem(imageNo, tr("%1").arg(imageNo));
 
-#if 1
 	for ( int i = 0 ; i < m_pEditData->getImageDataListSize() ; i ++ ) {
 		CEditData::ImageData *p = m_pEditData->getImageData(i) ;
 		if ( !p ) { continue ; }
@@ -1024,28 +1023,13 @@ void AnimationForm::slot_addImage( int imageNo )
 		if ( p->nTexObj ) { continue ; }
 		p->nTexObj = m_pGlWidget->bindTexture(p->Image) ;
 	}
-#else
-	if ( !m_pEditData->getTexObj(imageNo) ) {
-		GLuint obj = m_pGlWidget->bindTexture(m_pEditData->getImage(imageNo)) ;
-		m_pEditData->setTexObj(imageNo, obj);
-	}
-#endif
 }
 
 // イメージ削除
 void AnimationForm::slot_delImage( int imageNo )
 {
 	ui->comboBox_image_no->removeItem(imageNo);
-#if 0
-	for ( int i = 0 ; i < ui->comboBox_image_no->count() ; i ++ ) {
-		ui->comboBox_image_no->setItemText(i, tr("%1").arg(i));
-	}
-#endif
-#if 1
 	m_pEditData->removeImageDataByNo(imageNo) ;
-#else
-	m_pEditData->removeImageData(imageNo) ;
-#endif
 	m_pGlWidget->update();
 }
 

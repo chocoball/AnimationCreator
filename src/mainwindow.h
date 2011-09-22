@@ -32,13 +32,13 @@ protected:
 	void closeEvent(QCloseEvent *event) ;
 	void keyPressEvent(QKeyEvent *event) ;
 	void keyReleaseEvent(QKeyEvent *event);
+	void enterEvent(QEvent *);
 
 public slots:
 	void slot_open( void ) ;
 	void slot_save( void ) ;
 	void slot_saveAs( void ) ;
 	void slot_dropFiles(QString fileName) ;
-	void slot_checkFileModified( void ) ;
 	void slot_checkDataModified(int index) ;
 	void slot_help( void ) ;
 
@@ -88,6 +88,8 @@ private:
 	void makeLoupeWindow( void ) ;
 	void makeAnimeWindow( void ) ;
 
+	void checkFileModified( void ) ;
+
 signals:
 	void sig_modifiedImageFile(int index) ;
 	void sig_endedOption( void ) ;
@@ -133,7 +135,7 @@ private:
 
 	int					m_UndoIndex ;
 
-	QTimer				*m_pTimer ;
+//	QTimer				*m_pTimer ;
 
 	bool				m_bSaveImage ;			// 画像データ保存するならtrue
 

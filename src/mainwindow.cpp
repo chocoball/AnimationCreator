@@ -26,8 +26,8 @@ MainWindow::MainWindow(QWidget *parent)
 	m_pMdiArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 	setCentralWidget(m_pMdiArea);
 
-	m_pTimer = new QTimer(this) ;
-	m_pTimer->start(10*1000);
+//	m_pTimer = new QTimer(this) ;
+//	m_pTimer->start(10*1000);
 
 	createActions() ;
 	createMenus() ;
@@ -38,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
 	setUnifiedTitleAndToolBarOnMac(true);
 
 	connect(m_pMdiArea, SIGNAL(dropFiles(QString)), this, SLOT(slot_dropFiles(QString))) ;
-	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(slot_checkFileModified())) ;
+//	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(slot_checkFileModified())) ;
 	QUndoStack *pUndoStack = m_EditData.getUndoStack() ;
 	connect(pUndoStack, SIGNAL(indexChanged(int)), this, SLOT(slot_checkDataModified(int))) ;
 
@@ -105,6 +105,10 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 	}
 }
 
+void MainWindow::enterEvent(QEvent *)
+{
+	checkFileModified() ;
+}
 
 // ファイルオープン
 void MainWindow::slot_open( void )
@@ -167,69 +171,6 @@ void MainWindow::slot_dropFiles(QString fileName)
 	}
 
 	fileOpen(fileName) ;
-}
-
-// 読み込んでるイメージデータの最終更新日時をチェック
-void MainWindow::slot_checkFileModified( void )
-{
-	for ( int i = 0 ; i < m_EditData.getImageDataListSize() ; i ++ ) {
-#if 1
-		CEditData::ImageData *p = m_EditData.getImageData(i) ;
-
-		QString fullPath = p->fileName ;
-		QFileInfo info(fullPath) ;
-		if ( !info.isFile() ) { continue ; }
-		if ( !info.lastModified().isValid() ) { continue ; }
-		if ( info.lastModified().toUTC() <= p->lastModified ) { continue ; }
-
-		QDateTime time = info.lastModified().toUTC() ;
-		p->lastModified = time ;
-
-		QMessageBox::StandardButton reply = QMessageBox::question(this,
-																  trUtf8("質問"),
-																  trUtf8("%1が更新されています。読み込みますか？").arg(info.fileName()),
-																  QMessageBox::Yes | QMessageBox::No) ;
-		if ( reply != QMessageBox::Yes ) {
-			continue ;
-		}
-
-		QImage image ;
-		if ( !image.load(fullPath) ) {
-			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(info.fileName())) ;
-			continue ;
-		}
-		p->origImageW = image.width() ;
-		p->origImageH = image.height() ;
-		util::resizeImage(image) ;
-		p->Image = image ;
-		emit sig_modifiedImageFile(i) ;
-#else
-		QString fullPath = m_EditData.getImageFileName(i) ;
-		QFileInfo info(fullPath) ;
-		if ( !info.isFile() ) { continue ; }
-		if ( !info.lastModified().isValid() ) { continue ; }
-		if ( info.lastModified().toUTC() <= m_EditData.getImageDataLastModified(i) ) { continue ; }
-
-		QDateTime time = info.lastModified().toUTC() ;
-		m_EditData.setImageDataLastModified(i, time);
-
-		QMessageBox::StandardButton reply = QMessageBox::question(this,
-																  trUtf8("質問"),
-																  trUtf8("%1が更新されています。読み込みますか？").arg(info.fileName()),
-																  QMessageBox::Yes | QMessageBox::No) ;
-		if ( reply != QMessageBox::Yes ) {
-			continue ;
-		}
-
-		QImage image ;
-		if ( !image.load(fullPath) ) {
-			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(info.fileName())) ;
-			continue ;
-		}
-		m_EditData.setImage(i, image) ;
-		emit sig_modifiedImageFile(i) ;
-#endif
-	}
 }
 
 // データを編集したか
@@ -993,3 +934,38 @@ void MainWindow::makeAnimeWindow( void )
 	connect(m_pSubWindow_Anm, SIGNAL(destroyed()), this, SLOT(slot_destroyAnmWindow())) ;
 }
 
+// 読み込んでるイメージデータの最終更新日時をチェック
+void MainWindow::checkFileModified( void )
+{
+	for ( int i = 0 ; i < m_EditData.getImageDataListSize() ; i ++ ) {
+		CEditData::ImageData *p = m_EditData.getImageData(i) ;
+
+		QString fullPath = p->fileName ;
+		QFileInfo info(fullPath) ;
+		if ( !info.isFile() ) { continue ; }
+		if ( !info.lastModified().isValid() ) { continue ; }
+		if ( info.lastModified().toUTC() <= p->lastModified ) { continue ; }
+
+		QDateTime time = info.lastModified().toUTC() ;
+		p->lastModified = time ;
+
+		QMessageBox::StandardButton reply = QMessageBox::question(this,
+																  trUtf8("質問"),
+																  trUtf8("%1が更新されています。読み込みますか？").arg(info.fileName()),
+																  QMessageBox::Yes | QMessageBox::No) ;
+		if ( reply != QMessageBox::Yes ) {
+			continue ;
+		}
+
+		QImage image ;
+		if ( !image.load(fullPath) ) {
+			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("読み込みに失敗しました:%1").arg(info.fileName())) ;
+			continue ;
+		}
+		p->origImageW = image.width() ;
+		p->origImageH = image.height() ;
+		util::resizeImage(image) ;
+		p->Image = image ;
+		emit sig_modifiedImageFile(i) ;
+	}
+}
