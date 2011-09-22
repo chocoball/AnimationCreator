@@ -33,7 +33,8 @@ SOURCES		+=									\
 				src/CBrightLabel.cpp			\
 				src/AnimationWindowSplitter.cpp	\
 				src/debug.cpp					\
-				src/objectitem.cpp
+				src/objectitem.cpp \
+    src/setting.cpp
 
 HEADERS		+=									\
 				src/Anm2dTypes.h				\
@@ -73,4 +74,5 @@ FORMS		+= 	ui/animationform.ui				\
 				ui/colorpickerform.ui
 
 CONFIG		+=	help
+
 

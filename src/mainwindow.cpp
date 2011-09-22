@@ -246,6 +246,7 @@ void MainWindow::slot_exportPNG( void )
 	}
 }
 
+// 連番PNG 閉じる
 void MainWindow::slot_closeExportPNGForm( void )
 {
 	m_pMdiArea->removeSubWindow(m_pExpngSubWindow);
@@ -321,16 +322,14 @@ void MainWindow::slot_reqFinished(QNetworkReply *reply)
 // JSON 吐き出し
 void MainWindow::slot_exportJSON()
 {
-	if ( m_StrSaveFileName.isEmpty() ) {
-		QMessageBox::warning(this, trUtf8("エラー"), trUtf8("1度保存してください")) ;
-		return ;
-	}
-	int extPos = m_StrSaveFileName.lastIndexOf(".") ;
-	if ( extPos < 0 ) {
-		QMessageBox::warning(this, trUtf8("エラー"), trUtf8("1度保存してください")) ;
-		return ;
-	}
-	QString fileName = m_StrSaveFileName.left(extPos) + ".json" ;
+	QString fileName = QFileDialog::getSaveFileName(this,
+													trUtf8("名前を付けて保存"),
+													setting.getSaveJsonDir(),
+													tr("JSON (*.json)")) ;
+
+	if ( fileName.isEmpty() ) { return ; }
+
+	setting.setSaveJsonDir(fileName) ;
 
 	CAnm2DJson data ;
 	if ( !data.makeFromEditData(m_EditData) ) {
@@ -363,160 +362,32 @@ void MainWindow::slot_dbgObjectDump( void )
 // 設定を復元
 void MainWindow::readRootSetting( void )
 {
-#if 1
-	QSettings settings(qApp->applicationDirPath() + "/settnig.ini", QSettings::IniFormat) ;
-	qDebug() << "readRootSetting\n" << settings.allKeys() ;
-	qDebug() << "file:" << qApp->applicationDirPath() + "/settnig.ini" ;
-#else
-	QSettings settings("Editor", "rootSettings") ;
-#endif
-	settings.beginGroup("Global");
-#if defined(Q_OS_WIN32)
-	QString dir = settings.value("cur_dir", QString(".\\")).toString() ;
-	QString save_dir = settings.value("save_dir", dir).toString() ;
-	QString png_dir = settings.value("png_dir", dir).toString() ;
-#elif defined(Q_OS_MAC)
-	QString dir = settings.value("cur_dir", QString("/Users/")).toString() ;
-	QString save_dir = settings.value("save_dir", QString("/Users/")).toString() ;
-	QString png_dir = settings.value("png_dir", QString("/Users/")).toString() ;
-#elif defined(Q_OS_LINUX)
-	QString dir = settings.value("cur_dir", QString("/home/")).toString() ;
-	QString save_dir = settings.value("save_dir", QString("/home/")).toString() ;
-	QString png_dir = settings.value("png_dir", QString("/home/")).toString() ;
-#else
-	#error OSが定義されてないよ
-#endif
-	QRgb col ;
-	col = settings.value("anime_color", 0).toUInt() ;
-	QColor animeCol = QColor(qRed(col), qGreen(col), qBlue(col), qAlpha(col)) ;
-	col = settings.value("image_color", 0).toUInt() ;
-	QColor imageCol = QColor(qRed(col), qGreen(col), qBlue(col), qAlpha(col)) ;
-	bool bSaveImage = settings.value("save_image", false).toBool() ;
-	settings.endGroup();
+	setting.read();
 
-	settings.beginGroup("MainWindow");
-	QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint() ;
-	QSize size = settings.value("size", QSize(400, 400)).toSize() ;
-	settings.endGroup();
-
-	settings.beginGroup("AnimationWindow");
-	QPoint aw_pos = settings.value("pos", QPoint(-1, -1)).toPoint() ;
-	QSize aw_size = settings.value("size", QSize(-1, -1)).toSize() ;
-	bool bBackImage = settings.value("use_back_image", false).toBool() ;
-	QString strBackImage = settings.value("back_image", "").toString() ;
-	bool bFrame = settings.value("disp_frame", true).toBool() ;
-	bool bCenter = settings.value("disp_center", false).toBool() ;
-	int treeWidth = settings.value("tree_width", -1).toInt() ;
-	int treeWidthIdx = settings.value("tree_width_idx", -1).toInt() ;
-	settings.endGroup();
-
-	settings.beginGroup("ImageWindow");
-	QPoint img_pos = settings.value("pos", QPoint(-1, -1)).toPoint() ;
-	QSize img_size = settings.value("size", QSize(-1, -1)).toSize() ;
-	settings.endGroup();
-
-	settings.beginGroup("LoupeWindow");
-	QPoint loupe_pos = settings.value("pos", QPoint(-1, -1)).toPoint() ;
-	QSize loupe_size = settings.value("size", QSize(-1, -1)).toSize() ;
-	settings.endGroup();
-
-	move(pos) ;
-	resize(size) ;
-	setting.setOpenDir(dir) ;
-	setting.setSaveDir(save_dir);
-	setting.setSavePngDir(png_dir);
-	setting.setAnimeBGColor(animeCol);
-	setting.setImageBGColor(imageCol);
-	setting.setSaveImage(bSaveImage);
-	setting.setBackImagePath(strBackImage) ;
-	setting.setUseBackImage(bBackImage) ;
-	setting.setDrawFrame(bFrame) ;
-	setting.setDrawCenter(bCenter) ;
-
-	setting.setAnmWindowPos(aw_pos) ;
-	setting.setAnmWindowSize(aw_size) ;
-
-	setting.setImgWindowPos(img_pos) ;
-	setting.setImgWindowSize(img_size) ;
-
-	setting.setLoupeWindowPos(loupe_pos) ;
-	setting.setLoupeWindowSize(loupe_size) ;
-
-	setting.setAnmWindowTreeWidth(treeWidth, treeWidthIdx) ;
+	move(setting.getMainWindowPos()) ;
+	resize(setting.getMainWindowSize()) ;
 }
 
 // 設定を保存
 void MainWindow::writeRootSetting( void )
 {
-#if 1
-	QSettings settings(qApp->applicationDirPath() + "/settnig.ini", QSettings::IniFormat) ;
-	qDebug() << "writeRootSetting writable:" << settings.isWritable() ;
-	qDebug() << "file:" << qApp->applicationDirPath() + "/settnig.ini" ;
-#else
-	QSettings settings("Editor", "rootSettings") ;
-#endif
-	settings.beginGroup("Global");
-	settings.setValue("cur_dir",		setting.getOpenDir()) ;
-	settings.setValue("save_dir",		setting.getSaveDir()) ;
-	settings.setValue("png_dir",		setting.getSavePngDir()) ;
-	settings.setValue("anime_color",	setting.getAnimeBGColor().rgba());
-	settings.setValue("image_color",	setting.getImageBGColor().rgba());
-	settings.setValue("save_image",		setting.getSaveImage());
-	settings.endGroup();
-
-	settings.beginGroup("MainWindow");
-	settings.setValue("pos",	pos()) ;
-	settings.setValue("size",	size()) ;
-	settings.endGroup();
-
-	QPoint pos ;
-	QSize size ;
+	setting.setMainWindowPos(pos()) ;
+	setting.setMainWindowSize(size()) ;
 
 	if ( m_pSubWindow_Anm ) {
-		pos = m_pSubWindow_Anm->pos() ;
-		size = m_pSubWindow_Anm->size() ;
+		setting.setAnmWindowPos(m_pSubWindow_Anm->pos()) ;
+		setting.setAnmWindowSize(m_pSubWindow_Anm->size()) ;
 	}
-	else {
-		pos = setting.getAnmWindowPos() ;
-		size = setting.getAnmWindowSize() ;
-	}
-
-	settings.beginGroup("AnimationWindow");
-	settings.setValue("pos",			pos) ;
-	settings.setValue("size",			size) ;
-	settings.setValue("use_back_image",	setting.getUseBackImage());
-	settings.setValue("back_image",		setting.getBackImagePath());
-	settings.setValue("disp_frame",		setting.getDrawFrame());
-	settings.setValue("disp_center",	setting.getDrawCenter()) ;
-	settings.setValue("tree_width",		setting.getAnmWindowTreeWidth());
-	settings.setValue("tree_width_idx",	setting.getAnmWindowTreeWidthIndex());
-	settings.endGroup();
-
 	if ( m_pSubWindow_Img ) {
-		pos = m_pSubWindow_Img->pos() ;
-		size = m_pSubWindow_Img->size() ;
+		setting.setImgWindowPos(m_pSubWindow_Img->pos());
+		setting.setImgWindowSize(m_pSubWindow_Img->size());
 	}
-	else {
-		pos = setting.getImgWindowPos() ;
-		size = setting.getImgWindowSize() ;
-	}
-	settings.beginGroup("ImageWindow");
-	settings.setValue("pos",			pos) ;
-	settings.setValue("size",			size) ;
-	settings.endGroup();
-
 	if ( m_pSubWindow_Loupe ) {
-		pos = m_pSubWindow_Loupe->pos() ;
-		size = m_pSubWindow_Loupe->size() ;
+		setting.setLoupeWindowPos(m_pSubWindow_Loupe->pos());
+		setting.setLoupeWindowSize(m_pSubWindow_Loupe->size());
 	}
-	else {
-		pos = setting.getLoupeWindowPos() ;
-		size = setting.getLoupeWindowSize() ;
-	}
-	settings.beginGroup("LoupeWindow");
-	settings.setValue("pos",			pos) ;
-	settings.setValue("size",			size) ;
-	settings.endGroup();
+
+	setting.write();
 }
 
 // アクションを作成
