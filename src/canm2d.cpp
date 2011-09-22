@@ -128,7 +128,7 @@ bool CAnm2DBin::makeHeader( QByteArray &rData, CEditData &rEditData, QList<QByte
 
 bool CAnm2DBin::makeObject(ObjectItem *pObj, QList<QByteArray> &objList, QList<QByteArray> &layerList, QList<QByteArray> &frameList)
 {
-	int layerNum = pObj->getAllChildNum() ;
+	int layerNum = pObj->childCount() ;
 
 	QByteArray objArray ;
 	objArray.resize(sizeof(Anm2DObject) + (layerNum-1)*sizeof(unsigned int)) ;
@@ -170,8 +170,10 @@ bool CAnm2DBin::makeLayer(ObjectItem		*pLayer,
 	pLayerData->nFrameDataNum = frameDatas.size() ;
 	pLayerData->nParentNo = parentNo ;
 
-	pObjData->nLayerNo[*pLayerNo] = pLayerData->nLayerNo ;	// オブジェクトが参照するレイヤ番号セット
-	*pLayerNo += 1 ;
+	if ( pObjData ) {
+		pObjData->nLayerNo[*pLayerNo] = pLayerData->nLayerNo ;	// オブジェクトが参照するレイヤ番号セット
+		*pLayerNo += 1 ;
+	}
 
 	for ( int i = 0 ; i < frameDatas.size() ; i ++ ) {
 		const FrameData &data = frameDatas.at(i) ;
@@ -214,7 +216,7 @@ bool CAnm2DBin::makeLayer(ObjectItem		*pLayer,
 	layerList << layerArray ;
 
 	for ( int i = 0 ; i < pLayer->childCount() ; i ++ ) {
-		if ( !makeLayer(pLayer->child(i), pLayerNo, pObjData, layerList, frameList, pLayerData->nLayerNo) ) {
+		if ( !makeLayer(pLayer->child(i), pLayerNo, NULL, layerList, frameList, pLayerData->nLayerNo) ) {
 			return false ;
 		}
 	}
