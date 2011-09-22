@@ -138,8 +138,6 @@ private:
 
 //	QTimer				*m_pTimer ;
 
-	bool				m_bSaveImage ;			// 画像データ保存するならtrue
-
 	bool				m_bCtrl ;
 #ifndef QT_NO_DEBUG
 	// デバッグ用 ----

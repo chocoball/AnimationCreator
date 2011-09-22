@@ -43,7 +43,6 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(pUndoStack, SIGNAL(indexChanged(int)), this, SLOT(slot_checkDataModified(int))) ;
 
 	m_UndoIndex = 0 ;
-	m_bSaveImage = false ;
 
 	m_pImageWindow = NULL ;
 	m_pLoupeWindow = NULL ;
