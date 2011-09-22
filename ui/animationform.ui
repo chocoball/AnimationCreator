@@ -64,16 +64,6 @@
    <property name="alignment">
     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
    </property>
-   <widget class="QWidget" name="scrollAreaWidgetContents">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>377</width>
-      <height>297</height>
-     </rect>
-    </property>
-   </widget>
   </widget>
   <widget class="QSpinBox" name="spinBox_nowSequence">
    <property name="geometry">
