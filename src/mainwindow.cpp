@@ -12,7 +12,7 @@
 #define FILE_EXT_ANM2D_BIN	".anm2"
 #define FILE_EXT_JSON		".json"
 
-#define kVersion	"1.1.0"
+#define kVersion	"2.0.0"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
