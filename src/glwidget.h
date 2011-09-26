@@ -79,8 +79,6 @@ protected:
 	void multMatrix(const QMatrix4x4 &mat) ;
 	void convMat(double *ret, const QMatrix4x4 &mat) ;
 
-	QSize sizeHint() const ;
-
 public:
 	void setDrawArea( int w, int h ) ;
 	void setGridSpace( int w, int h )

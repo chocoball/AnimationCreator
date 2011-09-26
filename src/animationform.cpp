@@ -23,7 +23,6 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	m_pGlWidget = new AnimeGLWidget(pImageData, pSetting, this) ;
 	ui->scrollArea_anime->setWidget(m_pGlWidget);
 	m_pGlWidget->resize(CEditData::kGLWidgetSize, CEditData::kGLWidgetSize);
-	m_pGlWidget->setMinimumSize(CEditData::kGLWidgetSize, CEditData::kGLWidgetSize);
 	m_pGlWidget->setDrawArea(CEditData::kGLWidgetSize, CEditData::kGLWidgetSize);
 	m_pGlWidget->show();
 
