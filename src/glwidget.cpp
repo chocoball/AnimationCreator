@@ -745,6 +745,11 @@ void AnimeGLWidget::convMat(double *ret, const QMatrix4x4 &mat)
 	}
 }
 
+QSize AnimeGLWidget::sizeHint() const
+{
+	return QSize(CEditData::kGLWidgetSize, CEditData::kGLWidgetSize) ;
+}
+
 // 描画エリア設定
 void AnimeGLWidget::setDrawArea(int w, int h)
 {

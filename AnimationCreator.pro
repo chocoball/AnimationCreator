@@ -4,13 +4,14 @@
 #
 #-------------------------------------------------
 
-QT			+=	core gui opengl xml network
+QT       += core gui opengl xml network
 
-TARGET		=	AnimationCreator2
-TEMPLATE	=	app
+TARGET = AnimationCreator2
+TEMPLATE = app
 
 
-SOURCES		+=	src/animationform.cpp			\
+SOURCES		+=									\
+				src/animationform.cpp			\
 				src/canm2d.cpp					\
 				src/cdatamarkerlabel.cpp		\
 				src/cdropablemdiarea.cpp		\
@@ -32,10 +33,11 @@ SOURCES		+=	src/animationform.cpp			\
 				src/CBrightLabel.cpp			\
 				src/AnimationWindowSplitter.cpp	\
 				src/debug.cpp					\
-				src/objectitem.cpp				\
-				src/setting.cpp
+				src/objectitem.cpp \
+    src/setting.cpp
 
-HEADERS		+=	src/Anm2dTypes.h				\
+HEADERS		+=									\
+				src/Anm2dTypes.h				\
 				src/animationform.h				\
 				src/canm2d.h					\
 				src/cdatamarkerlabel.h			\
