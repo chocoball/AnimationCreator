@@ -41,6 +41,7 @@ public:
 	kAccessor(QSize,	m_imgWindowSize,	ImgWindowSize)
 	kAccessor(QPoint,	m_loupeWindowPos,	LoupeWindowPos)
 	kAccessor(QSize,	m_loupeWindowSize,	LoupeWindowSize)
+	kAccessor(bool,		m_bFlat,			Flat)
 
 private:
 	int			m_anmWindowTreeWidth ;

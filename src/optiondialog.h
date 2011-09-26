@@ -17,7 +17,8 @@ public:
 	explicit FileTab(CSettings *pSetting, QWidget *parent = 0) ;
 
 public slots:
-	void slot_clickedCheckBox(bool) ;
+	void slot_clickedSaveImage(bool) ;
+	void slot_clickedFlat(bool) ;
 
 private:
 	CSettings		*m_pSetting ;

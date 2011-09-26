@@ -54,11 +54,10 @@ public:
 
 	void flat() ;
 
-	CObjectModel * operator =(CObjectModel *p)
+	void copy(CObjectModel *p)
 	{
 		this->m_pRoot->copy(p->m_pRoot) ;
 		updateIndex() ;
-		return this ;
 	}
 
 private:

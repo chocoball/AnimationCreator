@@ -26,15 +26,25 @@ FileTab::FileTab(CSettings *pSetting, QWidget *parent)
 
 	QCheckBox *pCheckBox = new QCheckBox(trUtf8("XML形式で保存時、画像データを保存する"), this) ;
 	pCheckBox->setChecked(pSetting->getSaveImage());
-	connect(pCheckBox, SIGNAL(clicked(bool)), this, SLOT(slot_clickedCheckBox(bool))) ;
+	connect(pCheckBox, SIGNAL(clicked(bool)), this, SLOT(slot_clickedSaveImage(bool))) ;
+
+	QCheckBox *pCheckBox2 = new QCheckBox(trUtf8("JSON形式で保存時、レイヤの親子関係をなくす"), this) ;
+	pCheckBox2->setChecked(pSetting->getFlat());
+	connect(pCheckBox2, SIGNAL(clicked(bool)), this, SLOT(slot_clickedFlat(bool))) ;
 
 	QVBoxLayout *pLayout = new QVBoxLayout(this) ;
 	pLayout->addWidget(pCheckBox);
+	pLayout->addWidget(pCheckBox2);
 }
 
-void FileTab::slot_clickedCheckBox(bool flag)
+void FileTab::slot_clickedSaveImage(bool flag)
 {
 	m_pSetting->setSaveImage(flag) ;
+}
+
+void FileTab::slot_clickedFlat(bool flag)
+{
+	m_pSetting->setFlat(flag) ;
 }
 
 // アニメーションウィンドウ タブ

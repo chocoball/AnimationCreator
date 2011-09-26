@@ -1276,13 +1276,31 @@ bool CAnm2DXml::addImage( QDomNode &node, CEditData::ImageData &data )
 * CAnm2DJson
 *
 ************************************************************/
-CAnm2DJson::CAnm2DJson()
+CAnm2DJson::CAnm2DJson(bool bFlat)
 	: CAnm2DBase()
 {
+	m_bFlat		= bFlat ;
+	m_pModel	= NULL ;
+}
+
+CAnm2DJson::~CAnm2DJson()
+{
+	if ( m_bFlat && m_pModel ) {
+		delete m_pModel ;
+		m_pModel = NULL ;
+	}
 }
 
 bool CAnm2DJson::makeFromEditData( CEditData &rEditData )
 {
+	m_pModel = rEditData.getObjectModel() ;
+	if ( m_bFlat ) {
+		CObjectModel *p = new CObjectModel() ;
+		p->copy(m_pModel) ;
+		p->flat();
+		m_pModel = p ;
+	}
+
 	addString("{\n") ;
 	if ( !makeObject(rEditData) ) { return false ; }
 	addString("}") ;
@@ -1300,7 +1318,7 @@ void CAnm2DJson::addString(QString str, int tab)
 
 bool CAnm2DJson::makeObject( CEditData &rEditData )
 {
-	ObjectItem *pRoot = rEditData.getObjectModel()->getItemFromIndex(QModelIndex()) ;
+	ObjectItem *pRoot = m_pModel->getItemFromIndex(QModelIndex()) ;
 	int tab = 1 ;
 	for ( int i = 0 ; i < pRoot->childCount() ; i ++ ) {
 		ObjectItem *pObj = pRoot->child(i) ;
@@ -1343,12 +1361,15 @@ bool CAnm2DJson::makeLayer(ObjectItem *pItem, CEditData &rEditData, int tab)
 		QString path ;
 		path = pImageData->fileName.right(pImageData->fileName.size() - extPos - 1) ;
 		float anchor[2], uv[4] ;
+		int w, h ;
+		w = data.right - data.left ;
+		h = data.bottom - data.top ;
 		anchor[0] = (float)data.center_x / (float)(data.right-data.left) ;
 		anchor[1] = (float)data.center_y / (float)(data.bottom-data.top) ;
 		uv[0] = (float)data.left / (float)pImageData->origImageW ;
-		uv[1] = (float)data.top / (float)pImageData->origImageW ;
-		uv[2] = (float)(data.right-data.left) / (float)pImageData->origImageW ;
-		uv[3] = (float)(data.bottom-data.top) / (float)pImageData->origImageW ;
+		uv[1] = (float)data.top / (float)pImageData->origImageH ;
+		uv[2] = (float)w / (float)pImageData->origImageW ;
+		uv[3] = (float)h / (float)pImageData->origImageH ;
 
 		addString("{\n", tab) ;
 		tab ++ ;
@@ -1361,7 +1382,7 @@ bool CAnm2DJson::makeLayer(ObjectItem *pItem, CEditData &rEditData, int tab)
 		addString("\"image\": {\n", tab) ;
 		tab ++ ;
 		addString("\"path\": \"" + path + "\",\n", tab) ;
-		addString("\"size\": [" + QVariant(pImageData->origImageW).toString() + ", " + QVariant(pImageData->origImageH).toString() + "],\n", tab) ;
+		addString("\"size\": [" + QVariant(w).toString() + ", " + QVariant(h).toString() + "],\n", tab) ;
 		addString("\"center\": [" + QVariant(anchor[0]).toString() + ", " + QVariant(anchor[1]).toString() + "],\n", tab) ;
 		addString("\"uvrect\": [" + QVariant(uv[0]).toString() + ", " + QVariant(uv[1]).toString() + ", " + QVariant(uv[2]).toString() + ", " + QVariant(uv[3]).toString() + "]\n", tab) ;
 		tab -- ;

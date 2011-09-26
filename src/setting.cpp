@@ -26,6 +26,7 @@ void CSettings::read()
 	col = settings.value("image_color", 0).toUInt() ;
 	m_imageBGColor = QColor(qRed(col), qGreen(col), qBlue(col), qAlpha(col)) ;
 	m_bSaveImage = settings.value("save_image", false).toBool() ;
+	m_bFlat = settings.value("save_flat_json", false).toBool() ;
 	settings.endGroup();
 
 	settings.beginGroup("MainWindow");
@@ -66,9 +67,10 @@ void CSettings::write()
 	settings.setValue("save_dir",		m_fileSaveDir) ;
 	settings.setValue("png_dir",		m_pngSaveDir) ;
 	settings.setValue("json_dir",		m_jsonSaveDir) ;
-	settings.setValue("anime_color",	m_animeBGColor.rgba());
-	settings.setValue("image_color",	m_imageBGColor.rgba());
-	settings.setValue("save_image",		m_bSaveImage);
+	settings.setValue("anime_color",	m_animeBGColor.rgba()) ;
+	settings.setValue("image_color",	m_imageBGColor.rgba()) ;
+	settings.setValue("save_image",		m_bSaveImage) ;
+	settings.setValue("save_flat_json",	m_bFlat) ;
 	settings.endGroup();
 
 	settings.beginGroup("MainWindow");

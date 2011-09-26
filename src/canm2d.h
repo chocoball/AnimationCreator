@@ -94,6 +94,7 @@ public:
 	{
 		m_nError = kErrorNo_NoError ;
 	}
+	virtual ~CAnm2DBase() {}
 
 	void setFilePath( QString &str )
 	{
@@ -201,7 +202,8 @@ private:
 class CAnm2DJson : public CAnm2DBase
 {
 public:
-	CAnm2DJson() ;
+	CAnm2DJson(bool bFlat) ;
+	~CAnm2DJson() ;
 
 	bool makeFromEditData( CEditData &rEditData ) ;
 	bool makeFromFile(QString &, CEditData &) { return false ; }
@@ -214,6 +216,8 @@ private:
 	bool makeLayer(ObjectItem *pItem, CEditData &rEditData, int tab) ;
 
 private:
+	bool			m_bFlat ;
+	CObjectModel	*m_pModel ;
 	QString			m_Data ;
 	int				m_ObjNum, m_ImageNum ;
 };

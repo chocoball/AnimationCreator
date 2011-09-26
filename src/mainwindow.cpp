@@ -330,7 +330,7 @@ void MainWindow::slot_exportJSON()
 
 	setting.setSaveJsonDir(fileName) ;
 
-	CAnm2DJson data ;
+	CAnm2DJson data(setting.getFlat()) ;
 	if ( !data.makeFromEditData(m_EditData) ) {
 		if ( data.getErrorNo() != CAnm2DBase::kErrorNo_Cancel ) {
 			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("コンバート失敗 %1:\n%2").arg(fileName).arg(data.getErrorNo())) ;
