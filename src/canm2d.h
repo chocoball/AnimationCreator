@@ -11,10 +11,11 @@
  2010/11/17	ver 0.0.1	フォーマット作成
  2011/01/19	ver 0.1.0	ループ回数、フレームデータRGBA追加
  2011/09/20	ver 1.0.0	レイヤを階層持つように修正
+ 2011/09/28	ver 1.0.1	FPS情報追加
  */
 
 //#define kAnmXML_Version			0x00001000		///< バージョン 0x[00][000][000]
-#define kAnmXML_Version			0x01000000		///< バージョン 0x[00][000][000]
+#define kAnmXML_Version			0x01000001		///< バージョン 0x[00][000][000]
 
 #define kAnmXML_Attr_Version	"Version"
 #define kAnmXML_Attr_ObjNum		"ObjNum"
@@ -25,6 +26,7 @@
 #define kAnmXML_Attr_No			"No"
 #define kAnmXML_Attr_Name		"Name"
 #define kAnmXML_Attr_ChildNum	"ChildNum"
+#define kAnmXML_Attr_FpsNum		"Fps"
 
 #define kAnmXML_ID_Anm2D		"ANM2D"
 #define kAnmXML_ID_Root			"ROOT"

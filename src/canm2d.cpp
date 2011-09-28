@@ -510,7 +510,7 @@ bool CAnm2DXml::makeFromFile(QDomDocument &xml, CEditData &rEditData)
 			return false ;
 		}
 	}
-	else if ( version == 0x01000000 ) {
+	else if ( version == 0x01000000 || version == 0x01000001 ) {
 		if ( nodeMap.namedItem(kAnmXML_Attr_ObjNum).isNull() ) {
 			m_nError = kErrorNo_InvalidObjNum ;
 			return false ;
@@ -564,6 +564,7 @@ bool CAnm2DXml::makeObject(QDomElement &element, QDomDocument &doc, CEditData &r
 		elmObj.setAttribute(kAnmXML_Attr_No, i);
 		elmObj.setAttribute(kAnmXML_Attr_LayerNum, obj->childCount()) ;
 		elmObj.setAttribute(kAnmXML_Attr_LoopNum, obj->getLoop());	// ループ回数(after ver 0.1.0)
+		elmObj.setAttribute(kAnmXML_Attr_FpsNum, obj->getFps()) ;	// FPS(after ver 1.0.1)
 		element.appendChild(elmObj) ;
 
 		for ( int j = 0 ; j < obj->childCount() ; j ++ ) {
@@ -1108,10 +1109,15 @@ bool CAnm2DXml::addElement_01000000(QDomNode &node, CEditData &rEditData)
 			layerNum = nodeMap.namedItem(kAnmXML_Attr_LayerNum).toAttr().value().toInt() ;
 			no = nodeMap.namedItem(kAnmXML_Attr_No).toAttr().value().toInt() ;
 			int loopNum = nodeMap.namedItem(kAnmXML_Attr_LoopNum).toAttr().value().toInt() ;
+			int fps = 60 ;
+			if ( !nodeMap.namedItem(kAnmXML_Attr_FpsNum).isNull() ) {
+				fps = nodeMap.namedItem(kAnmXML_Attr_FpsNum).toAttr().value().toInt() ;
+			}
 
 			QModelIndex index = pModel->addItem(name, QModelIndex()) ;
 			ObjectItem *pObj = pModel->getItemFromIndex(index) ;
 			pObj->setLoop(loopNum) ;
+			pObj->setFps(fps) ;
 
 			QDomNode child = node.firstChild() ;
 			if ( !addLayer_01000000(child, pObj, layerNum, rEditData) ) {
@@ -1327,6 +1333,7 @@ bool CAnm2DJson::makeObject( CEditData &rEditData )
 		tab ++ ;
 		addString("\"animeTime\": " + QVariant((int)(pObj->getMaxFrameNum()*(100.0/6.0))).toString() + ",\n", tab) ;
 		addString("\"loopNum\": " + QVariant(pObj->getLoop()).toString() + ",\n", tab) ;
+		addString("\"speed\": " + QVariant((double)pObj->getFps() / 60.0).toString() + ",\n", tab) ;
 		addString("\"layer\": [\n", tab) ;
 		for ( int j = 0 ; j < pObj->childCount() ; j ++ ) {
 			makeLayer(pObj->child(j), rEditData, tab + 1) ;
@@ -1360,16 +1367,16 @@ bool CAnm2DJson::makeLayer(ObjectItem *pItem, CEditData &rEditData, int tab)
 		int extPos = pImageData->fileName.lastIndexOf("/") ;
 		QString path ;
 		path = pImageData->fileName.right(pImageData->fileName.size() - extPos - 1) ;
-		float anchor[2], uv[4] ;
+		double anchor[2], uv[4] ;
 		int w, h ;
 		w = data.right - data.left ;
 		h = data.bottom - data.top ;
-		anchor[0] = (float)data.center_x / (float)(data.right-data.left) ;
-		anchor[1] = (float)data.center_y / (float)(data.bottom-data.top) ;
-		uv[0] = (float)data.left / (float)pImageData->origImageW ;
-		uv[1] = (float)data.top / (float)pImageData->origImageH ;
-		uv[2] = (float)w / (float)pImageData->origImageW ;
-		uv[3] = (float)h / (float)pImageData->origImageH ;
+		anchor[0] = (double)data.center_x / (double)w ;
+		anchor[1] = (double)data.center_y / (double)h ;
+		uv[0] = (double)data.left / (double)pImageData->origImageW ;
+		uv[1] = (double)data.top / (double)pImageData->origImageH ;
+		uv[2] = (double)w / (double)pImageData->origImageW ;
+		uv[3] = (double)h / (double)pImageData->origImageH ;
 
 		addString("{\n", tab) ;
 		tab ++ ;
@@ -1377,7 +1384,7 @@ bool CAnm2DJson::makeLayer(ObjectItem *pItem, CEditData &rEditData, int tab)
 		addString("\"pos\": [" + QVariant(data.pos_x).toString() + ", " + QVariant(data.pos_y).toString() + ", " + QVariant(data.pos_z).toString() + "],\n", tab) ;
 		addString("\"rot\": [" + QVariant(data.rot_x).toString() + ", " + QVariant(data.rot_y).toString() + ", " + QVariant(data.rot_z).toString() + "],\n", tab) ;
 		addString("\"sca\": [" + QVariant(data.fScaleX).toString() + ", " + QVariant(data.fScaleY).toString() + "],\n", tab) ;
-		addString("\"color\": [" + QVariant((float)data.rgba[0]/255.0f).toString() + ", " + QVariant((float)data.rgba[1]/255.0f).toString() + ", " + QVariant((float)data.rgba[2]/255.0f).toString() + ", " + QVariant((float)data.rgba[3]/255.0f).toString() + "],\n", tab) ;
+		addString("\"color\": [" + QVariant((double)data.rgba[0]/255.0).toString() + ", " + QVariant((double)data.rgba[1]/255.0).toString() + ", " + QVariant((double)data.rgba[2]/255.0).toString() + ", " + QVariant((double)data.rgba[3]/255.0).toString() + "],\n", tab) ;
 		addString("\"uvAnime\": " + QVariant((int)data.bUVAnime).toString() + ",\n", tab) ;
 		addString("\"image\": {\n", tab) ;
 		tab ++ ;

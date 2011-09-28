@@ -23,6 +23,7 @@ public:
 		m_pParent	= parent ;
 		m_nLoop		= 0 ;
 		m_nCurrLoop	= 0 ;
+		m_nFps		= 60 ;
 	}
 
 	~ObjectItem()
@@ -70,6 +71,7 @@ public:
 	kAccessor(QString, m_name, Name)
 	kAccessor(int, m_nLoop, Loop)
 	kAccessor(int, m_nCurrLoop, CurrLoop)
+	kAccessor(int, m_nFps, Fps)
 	kAccessor(QModelIndex, m_index, Index)
 
 private:

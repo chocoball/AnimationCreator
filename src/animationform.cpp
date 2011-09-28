@@ -70,10 +70,13 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	ui->spinBox_a->setMinimum(0);
 	ui->spinBox_a->setMaximum(255);
 	ui->checkBox_grid->setChecked(true);
+/*
 	ui->comboBox_fps->addItem(tr("60 fps"));
 	ui->comboBox_fps->addItem(tr("30 fps"));
 	ui->comboBox_fps->addItem(tr("15 fps"));
 	ui->comboBox_fps->setCurrentIndex(0);
+*/
+	ui->spinBox_fps->setValue(60) ;
 	ui->checkBox_frame->setChecked(pSetting->getDrawFrame());
 	ui->checkBox_center->setChecked(pSetting->getDrawCenter());
 
@@ -187,7 +190,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(ui->pushButton_forward,		SIGNAL(clicked()),				this, SLOT(slot_forwardFrameData())) ;
 	connect(ui->checkBox_grid,			SIGNAL(clicked(bool)),			m_pGlWidget, SLOT(slot_setDrawGrid(bool))) ;
 	connect(ui->checkBox_uv_anime,		SIGNAL(clicked(bool)),			this, SLOT(slot_changeUVAnime(bool))) ;
-	connect(ui->comboBox_fps,			SIGNAL(activated(int)),			this, SLOT(slot_changeAnimeSpeed(int))) ;
+	connect(ui->spinBox_fps,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changeAnimeSpeed(int))) ;
 	connect(ui->comboBox_image_no,		SIGNAL(activated(QString)),		this, SLOT(slot_changeImageIndex(QString))) ;
 	connect(m_pTimer,					SIGNAL(timeout()),				this, SLOT(slot_timerEvent())) ;
 	connect(ui->spinBox_loop,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changeLoop(int))) ;
@@ -810,6 +813,7 @@ void AnimationForm::slot_changeSelectObject(QModelIndex index)
 	ObjectItem *pObj = pModel->getObject(index) ;
 	if ( pObj ) {
 		ui->spinBox_loop->setValue(pObj->getLoop());
+		ui->spinBox_fps->setValue(pObj->getFps()) ;
 	}
 
 	m_pDataMarker->repaint();
@@ -996,17 +1000,22 @@ void AnimationForm::slot_changeSelectLayerUV( QRect rect )
 }
 
 // FPS変更
-void AnimationForm::slot_changeAnimeSpeed(int index)
+void AnimationForm::slot_changeAnimeSpeed(int val)
 {
-	if ( index < 0 || index > 2 ) { return ; }
+	if ( val <= 0 ) { return ; }
 
-	float frame[] = { 60, 30, 15 } ;
 	bool bPlay = m_pTimer->isActive() ;
 	m_pTimer->stop();
-	m_pTimer->setInterval((int)(1000.0f/frame[index]));
+	m_pTimer->setInterval((int)(1000.0f/val));
 	if ( bPlay ) {
 		m_pTimer->start();
 	}
+
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	QModelIndex index = m_pEditData->getSelIndex() ;
+	ObjectItem *pItem = pModel->getObject(index) ;
+	if ( !pItem ) { return ; }
+	pItem->setFps(val) ;
 }
 
 // イメージ追加

@@ -434,16 +434,6 @@
     <string>グリッド</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="comboBox_fps">
-   <property name="geometry">
-    <rect>
-     <x>670</x>
-     <y>10</y>
-     <width>71</width>
-     <height>31</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QSpinBox" name="spinBox_rot_z">
    <property name="geometry">
     <rect>
@@ -826,13 +816,47 @@
     <string>...</string>
    </property>
   </widget>
+  <widget class="QSpinBox" name="spinBox_fps">
+   <property name="geometry">
+    <rect>
+     <x>700</x>
+     <y>10</y>
+     <width>41</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="minimum">
+    <number>1</number>
+   </property>
+   <property name="maximum">
+    <number>60</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>660</x>
+     <y>10</y>
+     <width>31</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::RightToLeft</enum>
+   </property>
+   <property name="text">
+    <string>FPS</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>pushButton_play</tabstop>
   <tabstop>pushButton_stop</tabstop>
   <tabstop>horizontalSlider_nowSequence</tabstop>
   <tabstop>spinBox_nowSequence</tabstop>
-  <tabstop>comboBox_fps</tabstop>
   <tabstop>checkBox_grid</tabstop>
   <tabstop>treeView</tabstop>
   <tabstop>scrollArea_anime</tabstop>
