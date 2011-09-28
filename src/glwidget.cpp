@@ -173,27 +173,28 @@ void AnimeGLWidget::drawLayers_Anime()
 
 void AnimeGLWidget::drawLayers(ObjectItem *pLayerItem)
 {
+	int flag = pLayerItem->data(Qt::CheckStateRole).toInt() ;
+	if ( (flag & ObjectItem::kState_Disp) ) {
+		FrameData d ;
+		bool valid ;
+		d = pLayerItem->getDisplayFrameData(m_pEditData->getSelectFrame(), &valid) ;
+		if ( valid ) {
+			drawFrameData(d, pLayerItem->getDisplayMatrix(m_pEditData->getSelectFrame())) ;
+
+			if ( m_pSetting->getDrawFrame() && !m_pEditData->isExportPNG() ) {
+				QColor col ;
+				ObjectItem *p = m_pEditData->getObjectModel()->getItemFromIndex(m_pEditData->getSelIndex()) ;
+				if ( pLayerItem == p )	{ col = QColor(255, 0, 0, 255) ; }
+				else						{ col = QColor(64, 64, 64, 255) ; }
+				drawFrame(pLayerItem, m_pEditData->getSelectFrame(), col) ;
+			}
+		}
+	}
+
 	for ( int i = 0 ; i < pLayerItem->childCount() ; i ++ ) {
 		drawLayers(pLayerItem->child(i)) ;
 	}
 
-	int flag = pLayerItem->data(Qt::CheckStateRole).toInt() ;
-	if ( !(flag & ObjectItem::kState_Disp) ) { return ; }
-
-	FrameData d ;
-	bool valid ;
-	d = pLayerItem->getDisplayFrameData(m_pEditData->getSelectFrame(), &valid) ;
-	if ( valid ) {
-		drawFrameData(d, pLayerItem->getDisplayMatrix(m_pEditData->getSelectFrame())) ;
-
-		if ( m_pSetting->getDrawFrame() && !m_pEditData->isExportPNG() ) {
-			QColor col ;
-			ObjectItem *p = m_pEditData->getObjectModel()->getItemFromIndex(m_pEditData->getSelIndex()) ;
-			if ( pLayerItem == p )	{ col = QColor(255, 0, 0, 255) ; }
-			else						{ col = QColor(64, 64, 64, 255) ; }
-			drawFrame(pLayerItem, m_pEditData->getSelectFrame(), col) ;
-		}
-	}
 }
 
 // 全フレーム描画

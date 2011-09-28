@@ -1358,6 +1358,7 @@ bool CAnm2DJson::makeLayer(ObjectItem *pItem, CEditData &rEditData, int tab)
 
 	addString("{\n", tab) ;
 	tab ++ ;
+	addString(QString("\"name\": \"%1\",\n").arg(pItem->getName()), tab) ;
 	addString("\"frame\": [\n", tab) ;
 	tab ++ ;
 	for ( int i = 0 ; i < datas.size() ; i ++ ) {
