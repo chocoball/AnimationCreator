@@ -54,7 +54,7 @@ protected:
 	void drawLayer_All(ObjectItem *pLayerItem, int frame) ;
 
 	void drawSelFrameInfo( void ) ;
-	void drawFrameData( const FrameData &data, const QMatrix4x4 &mat, QColor col = QColor(255, 255, 255, 255) ) ;
+	void drawFrameData( const FrameData &data, QMatrix4x4 mat, QColor col = QColor(255, 255, 255, 255) ) ;
 	void drawFrame( ObjectItem *pItem, int frame, QColor col) ;
 	void drawGrid( void ) ;
 	void drawCenter( void ) ;

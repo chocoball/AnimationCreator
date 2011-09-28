@@ -185,7 +185,7 @@ void AnimeGLWidget::drawLayers(ObjectItem *pLayerItem)
 				QColor col ;
 				ObjectItem *p = m_pEditData->getObjectModel()->getItemFromIndex(m_pEditData->getSelIndex()) ;
 				if ( pLayerItem == p )	{ col = QColor(255, 0, 0, 255) ; }
-				else						{ col = QColor(64, 64, 64, 255) ; }
+				else					{ col = QColor(64, 64, 64, 255) ; }
 				drawFrame(pLayerItem, m_pEditData->getSelectFrame(), col) ;
 			}
 		}
@@ -295,7 +295,7 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 }
 
 // フレームデータ描画
-void AnimeGLWidget::drawFrameData( const FrameData &data, const QMatrix4x4 &mat, QColor col )
+void AnimeGLWidget::drawFrameData( const FrameData &data, QMatrix4x4 mat, QColor col )
 {
 	CEditData::ImageData *p = m_pEditData->getImageDataFromNo(data.nImage) ;
 	if ( !p ) { return ; }
@@ -307,6 +307,7 @@ void AnimeGLWidget::drawFrameData( const FrameData &data, const QMatrix4x4 &mat,
 
 	glPushMatrix() ;
 	{
+		mat.data()[14] /= 4096.0 ;
 		multMatrix(mat) ;
 
 		Vertex v = data.getVertex() ;
@@ -327,7 +328,7 @@ void AnimeGLWidget::drawFrameData( const FrameData &data, const QMatrix4x4 &mat,
 		col.setBlue( col.blue()		* data.rgba[2] / 255 );
 		col.setAlpha( col.alpha()	* data.rgba[3] / 255 );
 
-		drawRect(rect, uvF, data.pos_z / 4096.0f, col) ;
+		drawRect(rect, uvF, 0, col) ;
 	}
 	glPopMatrix() ;
 }

@@ -96,11 +96,12 @@ void ObjectItem::sortFrameData()
 
 void ObjectItem::copy(ObjectItem *p)
 {
-	this->m_nLoop = p->m_nLoop ;
-	this->m_nCurrLoop = p->m_nCurrLoop ;
-	this->m_frameDatas = p->m_frameDatas ;
-	this->m_checkStateData = p->m_checkStateData ;
-	this->m_foregroundData = p->m_foregroundData ;
+	this->m_nLoop			= p->m_nLoop ;
+	this->m_nCurrLoop		= p->m_nCurrLoop ;
+	this->m_nFps			= p->m_nFps ;
+	this->m_frameDatas		= p->m_frameDatas ;
+	this->m_checkStateData	= p->m_checkStateData ;
+	this->m_foregroundData	= p->m_foregroundData ;
 
 	for ( int i = 0 ; i < p->m_children.size() ; i ++ ) {
 		insertChild(i, new ObjectItem(p->m_children[i]->m_name, this)) ;

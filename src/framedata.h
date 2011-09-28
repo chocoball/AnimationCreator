@@ -136,7 +136,7 @@ typedef struct _tagFrameData {
 	QMatrix4x4 getMatrix()
 	{
 		QMatrix4x4 mat ;
-		mat.translate(pos_x, pos_y, pos_z/4096.0f) ;
+		mat.translate(pos_x, pos_y, pos_z) ;
 		mat.rotate(rot_x, 1, 0, 0) ;
 		mat.rotate(rot_y, 0, 1, 0) ;
 		mat.rotate(rot_z, 0, 0, 1) ;
