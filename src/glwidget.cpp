@@ -48,7 +48,7 @@ void AnimeGLWidget::initializeGL()
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0);
 
-	glEnable(GL_DEPTH_TEST);
+//	glEnable(GL_DEPTH_TEST);
 
 	for ( int i = 0 ; i < m_pEditData->getImageDataListSize() ; i ++ ) {
 		CEditData::ImageData *p = m_pEditData->getImageData(i) ;
@@ -119,12 +119,12 @@ void AnimeGLWidget::paintGL()
 		int rect[4] ;
 		QColor col = QColor(255, 0, 0, 255) ;
 		m_pEditData->getExportPNGRect(rect);
-		glDisable(GL_DEPTH_TEST);
+//		glDisable(GL_DEPTH_TEST);
 		drawLine(QPoint(rect[0], rect[1]), QPoint(rect[2], rect[1]), col, 1.0) ;
 		drawLine(QPoint(rect[2], rect[1]), QPoint(rect[2], rect[3]), col, 1.0) ;
 		drawLine(QPoint(rect[2], rect[3]), QPoint(rect[0], rect[3]), col, 1.0) ;
 		drawLine(QPoint(rect[0], rect[3]), QPoint(rect[0], rect[1]), col, 1.0) ;
-		glEnable(GL_DEPTH_TEST);
+//		glEnable(GL_DEPTH_TEST);
 	}
 }
 
@@ -191,10 +191,37 @@ void AnimeGLWidget::drawLayers(ObjectItem *pLayerItem)
 		}
 	}
 
+	QList<ObjectItem *> children ;
 	for ( int i = 0 ; i < pLayerItem->childCount() ; i ++ ) {
-		drawLayers(pLayerItem->child(i)) ;
+//		drawLayers(pLayerItem->child(i)) ;
+		ObjectItem *pChild = pLayerItem->child(i) ;
+		bool valid ;
+		QMatrix4x4 m = pChild->getDisplayMatrix(m_pEditData->getSelectFrame(), &valid) ;
+		if ( !valid ) {
+			children.append(pChild) ;
+			continue ;
+		}
+
+		int j ;
+		for ( j = 0 ; j < children.size() ; j ++ ) {
+			QMatrix4x4 m1 = children[j]->getDisplayMatrix(m_pEditData->getSelectFrame(), &valid) ;
+			if ( !valid ) {
+				children.append(pChild) ;
+				break ;
+			}
+			if ( m.column(3).z() < m1.column(3).z() ) {
+				children.insert(j, pChild) ;
+				break ;
+			}
+		}
+		if ( j == children.size() ) {
+			children.append(pChild) ;
+		}
 	}
 
+	foreach( ObjectItem *p, children ) {
+		drawLayers(p) ;
+	}
 }
 
 // 全フレーム描画
@@ -249,7 +276,7 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 
 	glDisable(GL_TEXTURE_2D) ;
 	glDisable(GL_ALPHA_TEST);
-	glDisable(GL_DEPTH_TEST);
+//	glDisable(GL_DEPTH_TEST);
 
 	// 枠
 	QColor col ;
@@ -290,7 +317,7 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 	}
 
 	glEnable(GL_ALPHA_TEST);
-	glEnable(GL_DEPTH_TEST);
+//	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D) ;
 }
 
@@ -401,10 +428,10 @@ void AnimeGLWidget::drawCenter( void )
 	glPopMatrix() ;
 #else
 	QColor col = QColor(0, 0, 255, 255) ;
-	glDisable(GL_DEPTH_TEST);
+//	glDisable(GL_DEPTH_TEST);
 	drawLine(QPoint(-(CEditData::kGLWidgetSize/2), m.column(3).y()), QPoint((CEditData::kGLWidgetSize/2), m.column(3).y()), col, 1.0) ;
 	drawLine(QPoint(m.column(3).x(), -(CEditData::kGLWidgetSize/2)), QPoint(m.column(3).x(), (CEditData::kGLWidgetSize/2)), col, 1.0) ;
-	glEnable(GL_DEPTH_TEST);
+//	glEnable(GL_DEPTH_TEST);
 #endif
 }
 
