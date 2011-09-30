@@ -243,6 +243,7 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 
 	QSize add = event->size() - m_oldWinSize ;
 	QSize add_h = QSize(0, add.height()) ;
+	QPoint add_w_p = QPoint(add.width(), 0) ;
 
 	m_oldWinSize = event->size() ;
 
@@ -251,8 +252,16 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 	m_pSplitter->resize(m_pSplitter->size()+add);
 	setSplitterPos(m_pSetting->getAnmWindowTreeWidth(), m_pSetting->getAnmWindowTreeWidthIndex());
 
-	ui->comboBox_image_no->move(ui->comboBox_image_no->pos() + QPoint(add.width(), 0));
-	ui->groupBox->move(ui->groupBox->pos() + QPoint(add.width(), 0));
+	ui->comboBox_image_no->move(ui->comboBox_image_no->pos() + add_w_p);
+	ui->groupBox->move(ui->groupBox->pos() + add_w_p);
+
+	ui->horizontalSlider_nowSequence->resize(ui->horizontalSlider_nowSequence->size() + QSize(add.width(), 0)) ;
+	ui->pushButton_backward->move(ui->pushButton_backward->pos() + add_w_p) ;
+	ui->pushButton_forward->move(ui->pushButton_forward->pos() + add_w_p) ;
+	ui->spinBox_nowSequence->move(ui->spinBox_nowSequence->pos() + add_w_p) ;
+	ui->label_fps->move(ui->label_fps->pos() + add_w_p) ;
+	ui->spinBox_fps->move(ui->spinBox_fps->pos() + add_w_p) ;
+	m_pDataMarker->resize(m_pDataMarker->size() + QSize(add.width(), 0)) ;
 
 	QWidget *tmp[] = {
 		ui->label_x,

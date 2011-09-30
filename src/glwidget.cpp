@@ -185,8 +185,17 @@ void AnimeGLWidget::drawLayers(ObjectItem *pLayerItem)
 			if ( m_pSetting->getDrawFrame() && !m_pEditData->isExportPNG() ) {
 				QColor col ;
 				ObjectItem *p = m_pEditData->getObjectModel()->getItemFromIndex(m_pEditData->getSelIndex()) ;
-				if ( pLayerItem == p )	{ col = QColor(255, 0, 0, 255) ; }
-				else					{ col = QColor(64, 64, 64, 255) ; }
+				if ( pLayerItem == p )	{
+					if ( m_bPressCtrl ) {
+						col = QColor(0, 255, 0, 255) ;
+					}
+					else {
+						col = QColor(255, 0, 0, 255) ;
+					}
+				}
+				else {
+					col = QColor(64, 64, 64, 255) ;
+				}
 				drawFrame(d, mat, col) ;
 			}
 		}

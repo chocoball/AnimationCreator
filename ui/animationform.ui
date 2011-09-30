@@ -832,7 +832,7 @@
     <number>60</number>
    </property>
   </widget>
-  <widget class="QLabel" name="label">
+  <widget class="QLabel" name="label_fps">
    <property name="geometry">
     <rect>
      <x>660</x>
