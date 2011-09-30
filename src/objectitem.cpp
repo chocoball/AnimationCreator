@@ -232,7 +232,8 @@ FrameData *ObjectItem::getFrameDataFromNextFrame(int frame)
 bool ObjectItem::isContain(ObjectItem **ppRet, QPoint &pos, int frame, bool bChild)
 {
 	if ( bChild ) {
-		for ( int i = 0 ; i < childCount() ; i ++ ) {
+//		for ( int i = 0 ; i < childCount() ; i ++ ) {
+		for ( int i = childCount()-1 ; i >= 0  ; i -- ) {
 			if ( child(i)->isContain(ppRet, pos, frame, true) ) { return true ; }
 		}
 	}

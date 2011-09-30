@@ -179,14 +179,15 @@ void AnimeGLWidget::drawLayers(ObjectItem *pLayerItem)
 		bool valid ;
 		d = pLayerItem->getDisplayFrameData(m_pEditData->getSelectFrame(), &valid) ;
 		if ( valid ) {
-			drawFrameData(d, pLayerItem->getDisplayMatrix(m_pEditData->getSelectFrame())) ;
+			QMatrix4x4 mat = pLayerItem->getDisplayMatrix(m_pEditData->getSelectFrame()) ;
+			drawFrameData(d, mat) ;
 
 			if ( m_pSetting->getDrawFrame() && !m_pEditData->isExportPNG() ) {
 				QColor col ;
 				ObjectItem *p = m_pEditData->getObjectModel()->getItemFromIndex(m_pEditData->getSelIndex()) ;
 				if ( pLayerItem == p )	{ col = QColor(255, 0, 0, 255) ; }
 				else					{ col = QColor(64, 64, 64, 255) ; }
-				drawFrame(pLayerItem, m_pEditData->getSelectFrame(), col) ;
+				drawFrame(d, mat, col) ;
 			}
 		}
 	}
@@ -361,19 +362,17 @@ void AnimeGLWidget::drawFrameData( const FrameData &data, QMatrix4x4 mat, QColor
 }
 
 // フレームデータの枠描画
-void AnimeGLWidget::drawFrame( ObjectItem *pItem, int frame, QColor col)
+void AnimeGLWidget::drawFrame(const FrameData &data, QMatrix4x4 mat, QColor col)
 {
-	FrameData data = pItem->getDisplayFrameData(frame) ;
-	Vertex v = data.getVertex() ;
+	const Vertex v = data.getVertex() ;
 
-	bool bDepth = glIsEnabled(GL_DEPTH_TEST) ;
 	bool bTex = glIsEnabled(GL_TEXTURE_2D) ;
-	glDisable(GL_DEPTH_TEST) ;
 	glDisable(GL_TEXTURE_2D) ;
 
 	glPushMatrix();
 	{
-		multMatrix(pItem->getDisplayMatrix(frame)) ;
+		mat.data()[14] /= 4096.0 ;
+		multMatrix(mat) ;
 
 		drawLine(QPoint(v.x0, v.y0), QPoint(v.x0, v.y1), col, 0);
 		drawLine(QPoint(v.x1, v.y0), QPoint(v.x1, v.y1), col, 0);
@@ -382,7 +381,6 @@ void AnimeGLWidget::drawFrame( ObjectItem *pItem, int frame, QColor col)
 	}
 	glPopMatrix();
 
-	if ( bDepth ) { glEnable(GL_DEPTH_TEST) ; }
 	if ( bTex ) { glEnable(GL_TEXTURE_2D) ; }
 }
 
