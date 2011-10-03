@@ -26,9 +26,6 @@ MainWindow::MainWindow(QWidget *parent)
 	m_pMdiArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 	setCentralWidget(m_pMdiArea);
 
-//	m_pTimer = new QTimer(this) ;
-//	m_pTimer->start(10*1000);
-
 	createActions() ;
 	createMenus() ;
 
@@ -38,7 +35,6 @@ MainWindow::MainWindow(QWidget *parent)
 	setUnifiedTitleAndToolBarOnMac(true);
 
 	connect(m_pMdiArea, SIGNAL(dropFiles(QString)), this, SLOT(slot_dropFiles(QString))) ;
-//	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(slot_checkFileModified())) ;
 	QUndoStack *pUndoStack = m_EditData.getUndoStack() ;
 	connect(pUndoStack, SIGNAL(indexChanged(int)), this, SLOT(slot_checkDataModified(int))) ;
 
@@ -76,11 +72,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
 	m_pMdiArea->closeAllSubWindows();
 	if ( m_pMdiArea->currentSubWindow() ) {
 		event->ignore() ;
+		return ;
 	}
-	else {
-		writeRootSetting() ;
-		event->accept() ;
-	}
+
+	writeRootSetting() ;
+	event->accept() ;
 }
 
 // キー押しイベント
@@ -278,8 +274,7 @@ void MainWindow::slot_destroyAnmWindow( void )
 {
 	if ( m_pSubWindow_Anm ) {
 		qDebug("destroyAnmWindow save setting");
-		setting.setAnmWindowPos(m_pSubWindow_Anm->pos());
-		setting.setAnmWindowSize(m_pSubWindow_Anm->size());
+		setting.setAnmWindowGeometry(m_pSubWindow_Anm->saveGeometry()) ;
 	}
 	m_pSubWindow_Anm = NULL ;
 }
@@ -288,8 +283,7 @@ void MainWindow::slot_destroyImgWindow( void )
 {
 	if ( m_pSubWindow_Img ) {
 		qDebug("destroyImgWindow save setting");
-		setting.setImgWindowPos(m_pSubWindow_Img->pos());
-		setting.setImgWindowSize(m_pSubWindow_Img->size());
+		setting.setImgWindowGeometry(m_pSubWindow_Img->saveGeometry()) ;
 	}
 	m_pSubWindow_Img = NULL ;
 }
@@ -298,8 +292,7 @@ void MainWindow::slot_destroyLoupeWindow( void )
 {
 	if ( m_pSubWindow_Loupe ) {
 		qDebug("destroyLoupeWindow save setting");
-		setting.setLoupeWindowPos(m_pSubWindow_Loupe->pos());
-		setting.setLoupeWindowSize(m_pSubWindow_Loupe->size());
+		setting.setLoupeWindowGeometry(m_pSubWindow_Loupe->saveGeometry()) ;
 	}
 	m_pSubWindow_Loupe = NULL ;
 }
@@ -369,27 +362,24 @@ void MainWindow::readRootSetting( void )
 {
 	setting.read();
 
-	move(setting.getMainWindowPos()) ;
-	resize(setting.getMainWindowSize()) ;
+	restoreGeometry(setting.getMainWindowGeometry()) ;
+	restoreState(setting.getMainWindowState()) ;
 }
 
 // 設定を保存
 void MainWindow::writeRootSetting( void )
 {
-	setting.setMainWindowPos(pos()) ;
-	setting.setMainWindowSize(size()) ;
+	setting.setMainWindowGeometry(saveGeometry()) ;
+	setting.setMainWindowState(saveState()) ;
 
 	if ( m_pSubWindow_Anm ) {
-		setting.setAnmWindowPos(m_pSubWindow_Anm->pos()) ;
-		setting.setAnmWindowSize(m_pSubWindow_Anm->size()) ;
+		setting.setAnmWindowGeometry(m_pSubWindow_Anm->saveGeometry()) ;
 	}
 	if ( m_pSubWindow_Img ) {
-		setting.setImgWindowPos(m_pSubWindow_Img->pos());
-		setting.setImgWindowSize(m_pSubWindow_Img->size());
+		setting.setImgWindowGeometry(m_pSubWindow_Img->saveGeometry()) ;
 	}
 	if ( m_pSubWindow_Loupe ) {
-		setting.setLoupeWindowPos(m_pSubWindow_Loupe->pos());
-		setting.setLoupeWindowSize(m_pSubWindow_Loupe->size());
+		setting.setLoupeWindowGeometry(m_pSubWindow_Loupe->saveGeometry()) ;
 	}
 
 	setting.write();
@@ -742,14 +732,7 @@ void MainWindow::makeImageWindow( void )
 	m_pSubWindow_Img = m_pMdiArea->addSubWindow(m_pImageWindow) ;
 	m_pImageWindow->show();
 
-	QPoint pos = setting.getImgWindowPos();
-	if ( pos.x() >= 0 && pos.y() >= 0 ) {
-		m_pSubWindow_Img->move(pos);
-	}
-	QSize size = setting.getImgWindowSize();
-	if ( size.width() >= 0 && size.height() >= 0 ) {
-		m_pSubWindow_Img->resize(size);
-	}
+	m_pSubWindow_Img->restoreGeometry(setting.getImgWindowGeometry()) ;
 
 	m_pActImageWindow->setEnabled(true);
 	m_pActImageWindow->setChecked(true);
@@ -769,14 +752,7 @@ void MainWindow::makeLoupeWindow( void )
 	m_pSubWindow_Loupe = m_pMdiArea->addSubWindow( m_pLoupeWindow ) ;
 	m_pLoupeWindow->show();
 
-	QPoint pos = setting.getLoupeWindowPos();
-	if ( pos.x() >= 0 && pos.y() >= 0 ) {
-		m_pSubWindow_Loupe->move(pos);
-	}
-	QSize size = setting.getLoupeWindowSize();
-	if ( size.width() >= 0 && size.height() >= 0 ) {
-		m_pSubWindow_Loupe->resize(size);
-	}
+	m_pSubWindow_Loupe->restoreGeometry(setting.getLoupeWindowGeometry()) ;
 
 	m_pActLoupeWindow->setEnabled(true);
 	m_pActLoupeWindow->setChecked(true);
@@ -792,14 +768,7 @@ void MainWindow::makeAnimeWindow( void )
 	m_pAnimationForm->show();
 	m_pAnimationForm->setBarCenter();
 	m_pAnimationForm->slot_endedOption();
-	QPoint pos = setting.getAnmWindowPos() ;
-	if ( pos.x() >= 0 && pos.y() >= 0 ) {
-		m_pSubWindow_Anm->move(pos) ;
-	}
-	QSize size = setting.getAnmWindowSize() ;
-	if ( size.width() >= 0 && size.height() >= 0 ) {
-		m_pSubWindow_Anm->resize(size) ;
-	}
+	m_pSubWindow_Anm->restoreGeometry(setting.getAnmWindowGeometry()) ;
 
 	m_pActAnimeWindow->setEnabled(true);
 	m_pActAnimeWindow->setChecked(true);

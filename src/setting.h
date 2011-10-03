@@ -11,41 +11,27 @@ public:
 	void read() ;
 	void write() ;
 
-	void setAnmWindowTreeWidth(int w, int idx) {
-		m_anmWindowTreeWidth = w ;
-		m_anmWindowTreeWidthIndex = idx ;
-	}
-	int getAnmWindowTreeWidth() {
-		return m_anmWindowTreeWidth ;
-	}
-	int getAnmWindowTreeWidthIndex() {
-		return m_anmWindowTreeWidthIndex ;
-	}
-
-	kAccessor(QString,	m_fileOpenDir,		OpenDir)
-	kAccessor(QString,	m_fileSaveDir,		SaveDir)
-	kAccessor(QString,	m_pngSaveDir,		SavePngDir)
-	kAccessor(QString,	m_jsonSaveDir,		SaveJsonDir)
-	kAccessor(bool,		m_bSaveImage,		SaveImage)
-	kAccessor(QColor,	m_animeBGColor,		AnimeBGColor)
-	kAccessor(QColor,	m_imageBGColor,		ImageBGColor)
-	kAccessor(QString,	m_backImagePath,	BackImagePath)
-	kAccessor(bool,		m_bUseBackImage,	UseBackImage)
-	kAccessor(bool,		m_bDrawFrame,		DrawFrame)
-	kAccessor(bool,		m_bDrawCenter,		DrawCenter)
-	kAccessor(QPoint,	m_mainWindowPos,	MainWindowPos)
-	kAccessor(QSize,	m_mainWindowSize,	MainWindowSize)
-	kAccessor(QPoint,	m_anmWindowPos,		AnmWindowPos)
-	kAccessor(QSize,	m_anmWindowSize,	AnmWindowSize)
-	kAccessor(QPoint,	m_imgWindowPos,		ImgWindowPos)
-	kAccessor(QSize,	m_imgWindowSize,	ImgWindowSize)
-	kAccessor(QPoint,	m_loupeWindowPos,	LoupeWindowPos)
-	kAccessor(QSize,	m_loupeWindowSize,	LoupeWindowSize)
-	kAccessor(bool,		m_bFlat,			Flat)
+	kAccessor(QString,		m_fileOpenDir,				OpenDir)
+	kAccessor(QString,		m_fileSaveDir,				SaveDir)
+	kAccessor(QString,		m_pngSaveDir,				SavePngDir)
+	kAccessor(QString,		m_jsonSaveDir,				SaveJsonDir)
+	kAccessor(bool,			m_bSaveImage,				SaveImage)
+	kAccessor(QColor,		m_animeBGColor,				AnimeBGColor)
+	kAccessor(QColor,		m_imageBGColor,				ImageBGColor)
+	kAccessor(QString,		m_backImagePath,			BackImagePath)
+	kAccessor(bool,			m_bUseBackImage,			UseBackImage)
+	kAccessor(bool,			m_bDrawFrame,				DrawFrame)
+	kAccessor(bool,			m_bDrawCenter,				DrawCenter)
+	kAccessor(bool,			m_bFlat,					Flat)
+	kAccessor(QByteArray,	m_mainWindowGeometry,		MainWindowGeometry)
+	kAccessor(QByteArray,	m_mainWindowState,			MainWindowState)
+	kAccessor(QByteArray,	m_anmWindowGeometry,		AnmWindowGeometry)
+	kAccessor(QByteArray,	m_imgWindowGeometry,		ImgWindowGeometry)
+	kAccessor(QByteArray,	m_loupeWindowGeometry,		LoupeWindowGeometry)
+	kAccessor(int,			m_anmWindowTreeWidth,		AnmWindowTreeWidth)
+	kAccessor(int,			m_anmWindowTreeWidthIndex,	AnmWindowTreeWidthIndex)
 
 private:
-	int			m_anmWindowTreeWidth ;
-	int			m_anmWindowTreeWidthIndex ;
 };
 
 #endif // SETTING_H

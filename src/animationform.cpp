@@ -309,8 +309,6 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 	for ( int i = 0 ; i < ARRAY_NUM(tmp) ; i ++ ) {
 		tmp[i]->move(tmp[i]->pos() + QPoint(add.width(), 0));
 	}
-
-	m_pSetting->setAnmWindowSize(parentWidget()->size()) ;
 }
 #endif
 
@@ -1290,7 +1288,8 @@ void AnimationForm::slot_setColorFromPicker(QRgb rgba)
 void AnimationForm::slot_splitterMoved(int pos, int index)
 {
 	qDebug("splitterMoved pos:%d index:%d", pos, index) ;
-	m_pSetting->setAnmWindowTreeWidth(pos, index) ;
+	m_pSetting->setAnmWindowTreeWidth(pos) ;
+	m_pSetting->setAnmWindowTreeWidthIndex(index) ;
 }
 
 void AnimationForm::slot_copyIndex(int row, ObjectItem *pItem, QModelIndex index, Qt::DropAction /*action*/)

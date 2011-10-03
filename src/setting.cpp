@@ -30,13 +30,12 @@ void CSettings::read()
 	settings.endGroup();
 
 	settings.beginGroup("MainWindow");
-	m_mainWindowPos = settings.value("pos", QPoint(200, 200)).toPoint() ;
-	m_mainWindowSize = settings.value("size", QSize(400, 400)).toSize() ;
+	m_mainWindowGeometry = settings.value("geometry").toByteArray() ;
+	m_mainWindowState = settings.value("state").toByteArray() ;
 	settings.endGroup();
 
 	settings.beginGroup("AnimationWindow");
-	m_anmWindowPos = settings.value("pos", QPoint(-1, -1)).toPoint() ;
-	m_anmWindowSize = settings.value("size", QSize(-1, -1)).toSize() ;
+	m_anmWindowGeometry = settings.value("geometry").toByteArray() ;
 	m_bUseBackImage = settings.value("use_back_image", false).toBool() ;
 	m_backImagePath = settings.value("back_image", "").toString() ;
 	m_bDrawFrame = settings.value("disp_frame", true).toBool() ;
@@ -46,13 +45,11 @@ void CSettings::read()
 	settings.endGroup();
 
 	settings.beginGroup("ImageWindow");
-	m_imgWindowPos = settings.value("pos", QPoint(-1, -1)).toPoint() ;
-	m_imgWindowSize = settings.value("size", QSize(-1, -1)).toSize() ;
+	m_imgWindowGeometry = settings.value("geometry").toByteArray() ;
 	settings.endGroup();
 
 	settings.beginGroup("LoupeWindow");
-	m_loupeWindowPos = settings.value("pos", QPoint(-1, -1)).toPoint() ;
-	m_loupeWindowSize = settings.value("size", QSize(-1, -1)).toSize() ;
+	m_loupeWindowGeometry = settings.value("geometry").toByteArray() ;
 	settings.endGroup();
 }
 
@@ -74,13 +71,12 @@ void CSettings::write()
 	settings.endGroup();
 
 	settings.beginGroup("MainWindow");
-	settings.setValue("pos",	m_mainWindowPos) ;
-	settings.setValue("size",	m_mainWindowSize) ;
+	settings.setValue("geometry",		m_mainWindowGeometry) ;
+	settings.setValue("state",			m_mainWindowState) ;
 	settings.endGroup();
 
 	settings.beginGroup("AnimationWindow");
-	settings.setValue("pos",			m_anmWindowPos) ;
-	settings.setValue("size",			m_anmWindowSize) ;
+	settings.setValue("geometry",		m_anmWindowGeometry) ;
 	settings.setValue("use_back_image",	m_bUseBackImage);
 	settings.setValue("back_image",		m_backImagePath);
 	settings.setValue("disp_frame",		m_bDrawFrame);
@@ -90,12 +86,10 @@ void CSettings::write()
 	settings.endGroup();
 
 	settings.beginGroup("ImageWindow");
-	settings.setValue("pos",			m_imgWindowPos) ;
-	settings.setValue("size",			m_imgWindowSize) ;
+	settings.setValue("geometry",		m_imgWindowGeometry) ;
 	settings.endGroup();
 
 	settings.beginGroup("LoupeWindow");
-	settings.setValue("pos",			m_loupeWindowPos) ;
-	settings.setValue("size",			m_loupeWindowSize) ;
+	settings.setValue("geometry",		m_loupeWindowGeometry) ;
 	settings.endGroup();
 }

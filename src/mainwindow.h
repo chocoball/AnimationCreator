@@ -135,10 +135,8 @@ private:
 	QStringList			m_DragFileList ;
 
 	int					m_UndoIndex ;
-
-//	QTimer				*m_pTimer ;
-
 	bool				m_bCtrl ;
+
 #ifndef QT_NO_DEBUG
 	// デバッグ用 ----
 	QAction				*m_pActDbgDump ;
