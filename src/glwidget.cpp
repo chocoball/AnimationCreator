@@ -216,8 +216,7 @@ void AnimeGLWidget::drawLayers(ObjectItem *pLayerItem)
 		for ( j = 0 ; j < children.size() ; j ++ ) {
 			QMatrix4x4 m1 = children[j]->getDisplayMatrix(m_pEditData->getSelectFrame(), &valid) ;
 			if ( !valid ) {
-				children.append(pChild) ;
-				break ;
+				continue ;
 			}
 			if ( m.column(3).z() < m1.column(3).z() ) {
 				children.insert(j, pChild) ;
