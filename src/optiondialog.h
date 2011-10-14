@@ -37,6 +37,9 @@ public slots:
 	void slot_changeUseBackImage( bool ) ;
 	void slot_openFileDialog( void ) ;
 
+	void slot_changeScreenW(int val) ;
+	void slot_changeScreenH(int val) ;
+
 private:
 	Ui::OptionAnimationTab	*ui ;
 	CSettings				*m_pSetting ;

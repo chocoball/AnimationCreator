@@ -42,6 +42,8 @@ void CSettings::read()
 	m_bDrawCenter = settings.value("disp_center", false).toBool() ;
 	m_anmWindowTreeWidth = settings.value("tree_width", -1).toInt() ;
 	m_anmWindowTreeWidthIndex = settings.value("tree_width_idx", -1).toInt() ;
+	m_anmWindowScreenW = settings.value("scr_w", 0).toInt() ;
+	m_anmWindowScreenH = settings.value("scr_h", 0).toInt() ;
 	settings.endGroup();
 
 	settings.beginGroup("ImageWindow");
@@ -83,6 +85,8 @@ void CSettings::write()
 	settings.setValue("disp_center",	m_bDrawCenter) ;
 	settings.setValue("tree_width",		m_anmWindowTreeWidth);
 	settings.setValue("tree_width_idx",	m_anmWindowTreeWidthIndex);
+	settings.setValue("scr_w",			m_anmWindowScreenW) ;
+	settings.setValue("scr_h",			m_anmWindowScreenH) ;
 	settings.endGroup();
 
 	settings.beginGroup("ImageWindow");

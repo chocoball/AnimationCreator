@@ -77,6 +77,8 @@ AnimeWindowTab::AnimeWindowTab(CSettings *pSetting, QWidget *parent)
 	connect(pComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(slot_changeBGColor(QString))) ;
 	connect(pCheckBox, SIGNAL(clicked(bool)), this, SLOT(slot_changeUseBackImage(bool))) ;
 	connect(ui->pushButton_imagePath, SIGNAL(clicked()), this, SLOT(slot_openFileDialog())) ;
+	connect(ui->spinBox_scrw, SIGNAL(valueChanged(int)), this, SLOT(slot_changeScreenW(int))) ;
+	connect(ui->spinBox_scrh, SIGNAL(valueChanged(int)), this, SLOT(slot_changeScreenH(int))) ;
 }
 
 AnimeWindowTab::~AnimeWindowTab()
@@ -109,6 +111,16 @@ void AnimeWindowTab::slot_openFileDialog( void )
 	}
 	m_pSetting->setBackImagePath(fileName) ;
 	ui->lineEdit_imagePath->setText(fileName);
+}
+
+void AnimeWindowTab::slot_changeScreenW(int val)
+{
+	m_pSetting->setAnmWindowScreenW(val) ;
+}
+
+void AnimeWindowTab::slot_changeScreenH(int val)
+{
+	m_pSetting->setAnmWindowScreenH(val) ;
 }
 
 // イメージウィンドウ タブ

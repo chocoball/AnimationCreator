@@ -90,7 +90,6 @@ void AnimeGLWidget::paintGL()
 
 		rect.setRect(-m_backImageW/2, m_backImageH/2, m_backImageW, -m_backImageH);
 		uvF.setRect(0.0, (float)(m_BackImage.height()-m_backImageH)/m_BackImage.height(), (float)m_backImageW/m_BackImage.width(), (float)m_backImageH/m_BackImage.height());
-		qDebug() << uvF ;
 		drawRect(rect, uvF, -1, col) ;
 
 		glBindTexture(GL_TEXTURE_2D, 0) ;
@@ -398,17 +397,28 @@ void AnimeGLWidget::drawGrid( void )
 	glPushMatrix();
 	glLoadIdentity();
 
-	QColor colHalfWhite = QColor(255, 255, 255, 128) ;
+	QColor col = QColor(255, 255, 255, 128) ;
 	for ( int x = -m_DrawWidth/2 ; x < m_DrawWidth/2 ; x += m_GridWidth ) {
-		drawLine(QPoint(x, -m_DrawHeight/2), QPoint(x, m_DrawHeight/2), colHalfWhite, 0.999f) ;
+		drawLine(QPoint(x, -m_DrawHeight/2), QPoint(x, m_DrawHeight/2), col, 0.999f) ;
 	}
 	for ( int y = -m_DrawHeight/2 ; y < m_DrawHeight/2 ; y += m_GridHeight ) {
-		drawLine(QPoint(-m_DrawWidth/2, y), QPoint(m_DrawWidth/2, y), colHalfWhite, 0.999f) ;
+		drawLine(QPoint(-m_DrawWidth/2, y), QPoint(m_DrawWidth/2, y), col, 0.999f) ;
 	}
 
-	QColor colHalfYellow = QColor(255, 255, 0, 128) ;
-	drawLine(QPoint(0, -m_DrawHeight/2), QPoint(0, m_DrawHeight/2), colHalfYellow) ;
-	drawLine(QPoint(-m_DrawWidth/2, 0), QPoint(m_DrawWidth/2, 0), colHalfYellow) ;
+	col = QColor(255, 255, 0, 128) ;
+	drawLine(QPoint(0, -m_DrawHeight/2), QPoint(0, m_DrawHeight/2), col) ;
+	drawLine(QPoint(-m_DrawWidth/2, 0), QPoint(m_DrawWidth/2, 0), col) ;
+
+	// 画面サイズ
+	int w = m_pSetting->getAnmWindowScreenW() ;
+	int h = m_pSetting->getAnmWindowScreenH() ;
+	if ( w != 0 && h != 0 ) {
+		col = QColor(0, 0, 255, 255) ;
+		drawLine(QPoint(0, 0), QPoint(w, 0), col) ;
+		drawLine(QPoint(w, 0), QPoint(w, h), col) ;
+		drawLine(QPoint(w, h), QPoint(0, h), col) ;
+		drawLine(QPoint(0, h), QPoint(0, 0), col) ;
+	}
 
 	glPopMatrix();
 }

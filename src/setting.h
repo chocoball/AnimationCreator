@@ -30,6 +30,8 @@ public:
 	kAccessor(QByteArray,	m_loupeWindowGeometry,		LoupeWindowGeometry)
 	kAccessor(int,			m_anmWindowTreeWidth,		AnmWindowTreeWidth)
 	kAccessor(int,			m_anmWindowTreeWidthIndex,	AnmWindowTreeWidthIndex)
+	kAccessor(int,			m_anmWindowScreenW,			AnmWindowScreenW)
+	kAccessor(int,			m_anmWindowScreenH,			AnmWindowScreenH)
 
 private:
 };
