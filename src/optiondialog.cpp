@@ -32,9 +32,14 @@ FileTab::FileTab(CSettings *pSetting, QWidget *parent)
 	pCheckBox2->setChecked(pSetting->getFlat());
 	connect(pCheckBox2, SIGNAL(clicked(bool)), this, SLOT(slot_clickedFlat(bool))) ;
 
+	QCheckBox *pCheckBox3 = new QCheckBox(trUtf8("レイヤに階層を持たせる"), this) ;
+	pCheckBox3->setChecked(pSetting->getLayerHierarchy());
+	connect(pCheckBox3, SIGNAL(clicked(bool)), this, SLOT(slot_clickedHierarchy(bool))) ;
+
 	QVBoxLayout *pLayout = new QVBoxLayout(this) ;
 	pLayout->addWidget(pCheckBox);
 	pLayout->addWidget(pCheckBox2);
+	pLayout->addWidget(pCheckBox3);
 }
 
 void FileTab::slot_clickedSaveImage(bool flag)
@@ -45,6 +50,11 @@ void FileTab::slot_clickedSaveImage(bool flag)
 void FileTab::slot_clickedFlat(bool flag)
 {
 	m_pSetting->setFlat(flag) ;
+}
+
+void FileTab::slot_clickedHierarchy(bool flag)
+{
+	m_pSetting->setLayerHierarchy(flag) ;
 }
 
 // アニメーションウィンドウ タブ

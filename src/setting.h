@@ -23,6 +23,7 @@ public:
 	kAccessor(bool,			m_bDrawFrame,				DrawFrame)
 	kAccessor(bool,			m_bDrawCenter,				DrawCenter)
 	kAccessor(bool,			m_bFlat,					Flat)
+	kAccessor(bool,			m_bLayerHierarchy,			LayerHierarchy)
 	kAccessor(QByteArray,	m_mainWindowGeometry,		MainWindowGeometry)
 	kAccessor(QByteArray,	m_mainWindowState,			MainWindowState)
 	kAccessor(QByteArray,	m_anmWindowGeometry,		AnmWindowGeometry)

@@ -27,6 +27,7 @@ void CSettings::read()
 	m_imageBGColor = QColor(qRed(col), qGreen(col), qBlue(col), qAlpha(col)) ;
 	m_bSaveImage = settings.value("save_image", false).toBool() ;
 	m_bFlat = settings.value("save_flat_json", false).toBool() ;
+	m_bLayerHierarchy = settings.value("layer_hierarchy", false).toBool() ;
 	settings.endGroup();
 
 	settings.beginGroup("MainWindow");
@@ -70,6 +71,7 @@ void CSettings::write()
 	settings.setValue("image_color",	m_imageBGColor.rgba()) ;
 	settings.setValue("save_image",		m_bSaveImage) ;
 	settings.setValue("save_flat_json",	m_bFlat) ;
+	settings.setValue("layer_hierarchy",m_bLayerHierarchy) ;
 	settings.endGroup();
 
 	settings.beginGroup("MainWindow");

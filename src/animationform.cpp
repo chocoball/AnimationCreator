@@ -423,6 +423,10 @@ void AnimationForm::slot_dropedImage( QRect rect, QPoint pos, int imageIndex )
 		return ;
 	}
 
+	if ( !m_pSetting->getLayerHierarchy() ) {
+		index = pObjItem->getIndex() ;
+	}
+
 	pos -= QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) ;	// GLWidgetのローカルポスに変換
 
 	ObjectItem *pItem = pModel->getItemFromIndex(index) ;

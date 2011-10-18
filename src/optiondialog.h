@@ -19,6 +19,7 @@ public:
 public slots:
 	void slot_clickedSaveImage(bool) ;
 	void slot_clickedFlat(bool) ;
+	void slot_clickedHierarchy(bool) ;
 
 private:
 	CSettings		*m_pSetting ;
