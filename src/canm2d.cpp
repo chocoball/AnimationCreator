@@ -1310,6 +1310,8 @@ bool CAnm2DJson::makeFromEditData( CEditData &rEditData )
 	addString("{\n") ;
 	if ( !makeObject(rEditData) ) { return false ; }
 	addString("}") ;
+
+	m_Data.replace(QRegExp("( |\n)"), "") ;
 	return true ;
 }
 
