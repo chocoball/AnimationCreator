@@ -1367,6 +1367,8 @@ bool CAnm2DJson::makeLayer(ObjectItem *pItem, CEditData &rEditData, int tab)
 		const FrameData &data = datas.at(i) ;
 
 		CEditData::ImageData *pImageData = rEditData.getImageDataFromNo(data.nImage) ;
+		if ( !pImageData ) { continue ; }
+
 		int extPos = pImageData->fileName.lastIndexOf("/") ;
 		QString path ;
 		path = pImageData->fileName.right(pImageData->fileName.size() - extPos - 1) ;

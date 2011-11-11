@@ -114,6 +114,7 @@ int ObjectItem::getMaxFrameNum(bool bRecv)
 	int ret = 0 ;
 
 	for ( int i = 0 ; i < m_frameDatas.size() ; i ++ ) {
+		if ( m_frameDatas.at(i).frame > CEditData::kMaxFrame ) { continue ; }
 		if ( ret < m_frameDatas.at(i).frame ) {
 			ret = m_frameDatas.at(i).frame ;
 		}
