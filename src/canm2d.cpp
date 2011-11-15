@@ -1376,8 +1376,8 @@ bool CAnm2DJson::makeLayer(ObjectItem *pItem, CEditData &rEditData, int tab)
 		int w, h ;
 		w = data.right - data.left ;
 		h = data.bottom - data.top ;
-		anchor[0] = (double)data.center_x / (double)w ;
-		anchor[1] = (double)data.center_y / (double)h ;
+		anchor[0] = w==0 ? 0 : (double)data.center_x / (double)w ;
+		anchor[1] = h==0 ? 0 : (double)data.center_y / (double)h ;
 		uv[0] = (double)data.left / (double)pImageData->origImageW ;
 		uv[1] = (double)data.top / (double)pImageData->origImageH ;
 		uv[2] = (double)w / (double)pImageData->origImageW ;
