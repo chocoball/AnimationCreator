@@ -104,10 +104,20 @@ Command_AddFrameData::Command_AddFrameData(CEditData		*pEditData,
 
 void Command_AddFrameData::redo()
 {
+	qDebug() << "Command_AddFrameData::redo()" ;
+
 	QModelIndex index = m_pObjModel->getIndex(m_row) ;
 	if ( !index.isValid() ) { return ; }
 
 	ObjectItem *pItem = m_pObjModel->getItemFromIndex(index) ;
+	qDebug() << "layer name:" << pItem->data(Qt::DisplayRole) ;
+
+	FrameData *p = pItem->getFrameDataPtr(m_frameData.frame) ;
+	if ( p ) {
+		QMessageBox::warning(m_UpdateWidgetList[0], QObject::trUtf8("エラー"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
+		return ;
+	}
+
 	pItem->addFrameData(m_frameData);
 	pItem->setData(m_flag, Qt::CheckStateRole);
 
@@ -118,10 +128,12 @@ void Command_AddFrameData::redo()
 
 void Command_AddFrameData::undo()
 {
+	qDebug() << "Command_AddFrameData::undo()" ;
 	QModelIndex index = m_pObjModel->getIndex(m_row) ;
 	if ( !index.isValid() ) { return ; }
 
 	ObjectItem *pItem = m_pObjModel->getItemFromIndex(index) ;
+	qDebug() << "layer name:" << pItem->data(Qt::DisplayRole) ;
 	m_flag = pItem->data(Qt::CheckStateRole).toInt() ;
 	pItem->removeFrameData(m_frameData.frame) ;
 

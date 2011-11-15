@@ -1425,7 +1425,9 @@ void AnimationForm::pasteFrameData( void )
 	int frame = m_pEditData->getSelectFrame() ;
 	FrameData *pData = pItem->getFrameDataPtr(frame) ;
 	if ( pData ) {
-		addCommandEdit( m_pEditData->getCopyFrameData() ) ;
+		FrameData data = m_pEditData->getCopyFrameData() ;
+		data.frame = frame ;
+		addCommandEdit(data, pData) ;
 	}
 	else {
 		slot_addNewFrameData(index, frame, m_pEditData->getCopyFrameData()) ;	// フレームデータ追加

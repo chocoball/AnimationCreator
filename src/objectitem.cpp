@@ -54,15 +54,18 @@ void ObjectItem::addFrameData(FrameData &data)
 {
 	FrameData *p = getFrameDataPtr(data.frame) ;
 	if ( p ) {
+		qDebug() << "addFrameData frame:" << data.frame << " modify" ;
 		*p = data ;
 	}
 	else {
+		qDebug() << "addFrameData frame:" << data.frame << " size:" << m_frameDatas.size() << " add" ;
 		m_frameDatas.append(data) ;
 	}
 }
 void ObjectItem::removeFrameData(int frame)
 {
 	int index = getFrameDataIndex(frame) ;
+	qDebug() << "removeFrameData frame:" << frame << " index:" << index ;
 	if ( index < 0 ) { return ; }
 	m_frameDatas.removeAt(index) ;
 }
@@ -78,7 +81,7 @@ int ObjectItem::getFrameDataIndex(int frame)
 FrameData *ObjectItem::getFrameDataPtr(int frame)
 {
 	for ( int i = 0 ; i < m_frameDatas.size() ; i ++ ) {
-		if ( frame == m_frameDatas.at(i).frame ) { return &m_frameDatas[i] ; }
+		if ( frame == m_frameDatas[i].frame ) { return &m_frameDatas[i] ; }
 	}
 	return NULL ;
 }
