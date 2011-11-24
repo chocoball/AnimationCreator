@@ -64,6 +64,7 @@ public slots:
 
 	void slot_reqFinished(QNetworkReply *reply) ;
 	void slot_exportJSON() ;
+	void slot_exportASM();
 	void slot_changeSelectLayer(QModelIndex) ;
 
 #ifndef QT_NO_DEBUG
@@ -140,6 +141,7 @@ private:
 	QAction				*m_pActHelp ;			// ヘルプ
 	QAction				*m_pActAboutQt ;		// Qtについて
 	QAction				*m_pActExportJson ;		// JSON吐き出し
+	QAction				*m_pActExportAsm;		// asm吐き出し
 	// ---- アクション
 
 	QStringList			m_DragFileList ;

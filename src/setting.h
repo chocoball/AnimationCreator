@@ -15,6 +15,7 @@ public:
 	kAccessor(QString,		m_fileSaveDir,				SaveDir)
 	kAccessor(QString,		m_pngSaveDir,				SavePngDir)
 	kAccessor(QString,		m_jsonSaveDir,				SaveJsonDir)
+	kAccessor(QString,		m_asmSaveDir,				SaveAsmDir)
 	kAccessor(bool,			m_bSaveImage,				SaveImage)
 	kAccessor(QColor,		m_animeBGColor,				AnimeBGColor)
 	kAccessor(QColor,		m_imageBGColor,				ImageBGColor)

@@ -1379,3 +1379,161 @@ bool CAnm2DJson::makeLayer(ObjectItem *pItem, CEditData &rEditData, int tab)
 }
 
 
+/*-----------------------------------------------------------*//**
+  @brief	.asm インターフェース
+  @author	Kenji Nishida
+  @date		2011/11/24
+*//*------------------------------------------------------------*/
+CAnm2DAsm::CAnm2DAsm(bool bFlat)
+	: CAnm2DBase()
+{
+	m_bFlat		= bFlat;
+	m_pModel	= NULL;
+}
+
+CAnm2DAsm::~CAnm2DAsm()
+{
+	if(m_bFlat && m_pModel){
+		delete m_pModel;
+		m_pModel = NULL;
+	}
+}
+
+void CAnm2DAsm::makeFromEditDataTip(QString qsLabel, ObjectItem *pObj)
+{
+	addString(";---------------------------------------------------------------- ANM_TIP\n");
+	addString(qsLabel + ":\n");
+	addString("\t\t\tdd\t\t" + QString("%1").arg(pObj->getMaxFrameNum(false)) + "\t\t; nKeyFrame\n"); 
+	addString("\t\t\tdd\t\t.key\t\t; pKey\n");
+	addString("\t\t\tdd\t\t" + QString("%1").arg(pObj->childCount()) + "\t\t; nTip\n");
+	if(pObj->childCount()){
+		addString("\t\t\tdd\t\t.tips\t\t; papTip\n");
+	} else {
+		addString("\t\t\tdd\t\tNO_READ\t\t; papTip\n");
+	}
+	addString("\t\n");
+	
+	// キーフレーム
+	addString("\t.key:\n");
+	for(int i=0; i<pObj->getMaxFrameNum(false); i++){
+		bool		valid;
+		FrameData	frameData = pObj->getDisplayFrameData(i, &valid);
+		if(valid == false) continue;
+		addString("\t\t\t; frame " + QString("%1").arg(i) + " --------------------------------\n");
+		addString("\t\t\tdd\t\t1\t\t; [NORMAL]\n");
+		addString("\t\t\tdw\t\t" + QString("%1").arg(frameData.frame) + "\t\t; uTime\n");
+		addString("\t\t\tdw\t\t" + m_aqsVramID[frameData.nImage] + "\t\t; uVramID\n");
+		addString("\t\t\tdw\t\t" + QString("%1, %2, %3").arg(frameData.pos_x).arg(frameData.pos_y).arg(frameData.pos_z) + "\t\t; svPos\n");
+		addString("\t\t\tdw\t\t" + QString("%1").arg(frameData.rot_z) + "\t\t; sRot\n");
+		addString("\t\t\tdw\t\t" + QString("%1, %2").arg((int)(frameData.fScaleX * 4096.0f)).arg((int)(frameData.fScaleY * 4096.0f)) + "\t\t; svSca\n");
+		addString("\t\t\tdw\t\t" + QString("%1, %2").arg(frameData.center_x).arg(frameData.center_y) + "\t\t; svCenter\n");
+		addString("\t\t\tdw\t\t" + QString("%1, %2, %3, %4").arg(frameData.left).arg(frameData.right).arg(frameData.top).arg(frameData.bottom) + "\t\t; svUV\n");
+		addString("\t\t\tdb\t\t" + QString("%1, %2, %3, %4").arg(frameData.rgba[0]).arg(frameData.rgba[1]).arg(frameData.rgba[2]).arg(frameData.rgba[3]) + "\t\t; bvRGBA\n");
+		addString("\t\t\t\n");
+	}
+	addString("\t\t\tdd\t\t0\t\t; [TERM]\n");
+	addString("\n");
+	
+	// 子供の処理
+	if(pObj->childCount()){
+		addString("\t.tips:\n");
+		for(int i=0; i<pObj->childCount(); i++){
+			addString("\t\t\tdd\t\t" + qsLabel + "_" + QString("%1").arg(i) + "\n");
+		}
+		addString("\n");
+		for(int i=0; i<pObj->childCount(); i++){
+			QString		qsLabelChild = qsLabel + QString("_%1").arg(i);
+			ObjectItem	*pChild = pObj->child(i);
+			makeFromEditDataTip(qsLabelChild, pChild);
+		}
+	}
+}
+
+bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
+{
+	m_pModel = rEditData.getObjectModel();
+	if(m_bFlat){
+		CObjectModel	*p = new CObjectModel();
+		p->copy(m_pModel);
+		p->flat();
+		m_pModel = p;
+	}
+	
+	ObjectItem	*pRoot = m_pModel->getItemFromIndex(QModelIndex()) ;
+	ObjectItem	*pObj = pRoot->child(0);
+	
+	addString(";----------------------------------------------------------------\n");
+	addString("; @kamefile\t" + QString(pObj->getName().toUtf8()) + "\n");
+	addString(";---------------------------------------------------------------- HEADER\n");
+	addString("\t\t\%include\t\"../imageid.inc\"\n");
+	addString("\n");
+	addString(";---------------------------------------------------------------- DATA\n");
+	addString("%define\t\tNO_READ\t\t0\n");
+	addString("data:\n");
+	addString(";---------------------------------------------------------------- ANM_HEAD\n");
+	addString("\t\t\tdb\t\t'ANM0'\t\t; ANM0\n");
+	addString("\t\t\tdb\t\t0, 0, 0, 0\t\t; uVersion\n");
+	addString("\t\t\tdd\t\t" + QString("%1").arg(rEditData.getImageDataListSize()) + "\t\t; nVram\n");
+	addString("\t\t\tdd\t\t.vram\t\t; pauVram\n");
+	addString("\t\t\tdd\t\t" + QString("%1").arg(pRoot->childCount()) + "\t\t; nObject\n");
+	addString("\t\t\tdd\t\t.object\t\t; paObj\n");
+	addString("\t\n");
+	addString("\t.vram:\n");
+	for(int i=0; i<rEditData.getImageDataListSize(); i++){
+		if(i >= KM_VRAM_MAX){
+			return false;
+		}
+		CEditData::ImageData	*p = rEditData.getImageData(i);
+		if(!p) continue;
+		QFileInfo	fi(p->fileName);
+		QString		sImageLabel = fi.fileName();
+		sImageLabel = QString("ID_") + sImageLabel.replace(".", "_").toUpper();
+		sImageLabel = sImageLabel.toUtf8();
+		m_aqsVramID[i] = sImageLabel;
+		addString("\t\t\tdd\t\t" + m_aqsVramID[i] + "\n");
+	}
+	addString("\t\n");
+	addString("\t.object:\n");
+	for(int i=0; i<pRoot->childCount(); i++){
+		addString("\t\t\tdd\t\tanmobj" + QString("%1").arg(i) + "\n");
+	}
+	addString("\n");
+	for(int i=0; i<pRoot->childCount(); i++){
+		ObjectItem	*pObj = pRoot->child(i);
+		addString(";---------------------------------------------------------------- ANM_OBJ\n");
+		addString("; " + QString(pObj->getName().toUtf8()) + "\n");
+		addString("anmobj" + QString("%1").arg(i) + ":\n");
+		if(pObj->childCount()){
+			addString("\t\t\tdd\t\t" + QString("%1").arg(pObj->childCount()) + "\t\t; nTip\n");
+			addString("\t\t\tdd\t\t.tips\t\t; papTip\n");
+			addString("\t\n");
+			addString("\t.tips:\n");
+			for(int j=0; j<pObj->childCount(); j++){
+				addString("\t\t\tdd\t\tobj" + QString("%1").arg(i) + "tip" + QString("%1").arg(j) + "\n");
+			}
+			addString("\n");
+			for(int j=0; j<pObj->childCount(); j++){
+				QString		qsLabel = "obj" + QString("%1").arg(i) + "tip" + QString("%1").arg(j);
+				ObjectItem	*pChild = pObj->child(j);
+				makeFromEditDataTip(qsLabel, pChild);
+			}
+		} else {
+			addString("\t\t\tdd\t\t" + QString("%1").arg(pObj->childCount()) + "\t\t; nTip\n");
+			addString("\t\t\tdd\t\tNO_READ\t\t; papTip\n");
+		}
+	}
+	addString("\n");
+
+	return true;
+}
+
+void CAnm2DAsm::addString(QString str, int tab)
+{
+	QString	t;
+	for(int i=0; i<tab; i++){
+		t += "  ";
+	}
+	m_Data += t + str;
+}
+
+
