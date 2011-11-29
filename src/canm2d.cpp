@@ -1259,7 +1259,6 @@ bool CAnm2DXml::addImage( QDomNode &node, CEditData::ImageData &data )
 	}
 
 	if ( !bFindData ) {	// Data要素が無い場合はファイルパスから読み込む
-		qDebug() << data.fileName ;
 		if ( data.fileName.isEmpty() ) {	// ファイルパスもない
 			m_nError = kErrorNo_InvalidFilePath ;
 			return false ;

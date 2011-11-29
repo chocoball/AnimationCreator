@@ -14,5 +14,13 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
 
+	if ( qApp->arguments().size() > 1 ) {
+		QString arg = qApp->arguments().at(1) ;
+		arg = arg.replace("\\", "/") ;
+		if ( !arg.isEmpty() ) {
+			w.fileOpen(arg) ;
+		}
+	}
+
     return a.exec();
 }

@@ -53,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(pManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(slot_reqFinished(QNetworkReply *))) ;
 	pManager->get(QNetworkRequest(QUrl("http://chocobowl.biz:8800/AnimationCreator/version.txt"))) ;
 */
+
 }
 
 MainWindow::~MainWindow()

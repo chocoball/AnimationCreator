@@ -27,6 +27,7 @@ public:
 	~MainWindow();
 
 	bool checkChangedFileSave( void ) ;
+	bool fileOpen( QString fileName ) ;
 
 protected:
 	void closeEvent(QCloseEvent *event) ;
@@ -82,7 +83,6 @@ private:
 
 	void resizeImage( QImage &imageData ) ;
 
-	bool fileOpen( QString fileName ) ;
 	bool saveFile( QString fileName ) ;
 
 	void makeImageWindow( void ) ;
