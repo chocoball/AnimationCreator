@@ -321,11 +321,17 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 				}
 				glDisable(GL_LINE_STIPPLE);
 				break ;
+			case kEditMode_Path:
+				glEnable(GL_LINE_STIPPLE);
+				glLineStipple(2, 0x3333);
+				{
+				}
+				glDisable(GL_LINE_STIPPLE);
+				break ;
 		}
 	}
 
 	glEnable(GL_ALPHA_TEST);
-//	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D) ;
 }
 

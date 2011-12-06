@@ -34,6 +34,13 @@ public:
 	kAccessor(int,			m_anmWindowScreenW,			AnmWindowScreenW)
 	kAccessor(int,			m_anmWindowScreenH,			AnmWindowScreenH)
 
+	kAccessor(QKeySequence,	m_scPosSelect,				ShortcutPosSelect)
+	kAccessor(QKeySequence,	m_scRotSelect,				ShortcutRotSelect)
+	kAccessor(QKeySequence,	m_scCenterSelect,			ShortcutCenterSelect)
+	kAccessor(QKeySequence,	m_scScaleSelect,			ShortcutScaleSelect)
+	kAccessor(QKeySequence,	m_scCopyFrame,				ShortcutCopyFrame)
+	kAccessor(QKeySequence,	m_scPasteFrame,				ShortcutPasteFrame)
+
 private:
 };
 

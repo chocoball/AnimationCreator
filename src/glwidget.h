@@ -15,7 +15,8 @@ public:
 		kEditMode_Pos = 0,		///< 位置編集中
 		kEditMode_Rot,			///< 回転角編集中
 		kEditMode_Center,		///< 中心位置編集中
-		kEditMode_Scale			///< 拡縮編集中
+		kEditMode_Scale,		///< 拡縮編集中
+		kEditMode_Path			///< パス編集中
 	} ;
 
 	// ドラッグモード

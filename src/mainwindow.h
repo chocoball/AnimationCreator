@@ -32,7 +32,6 @@ public:
 protected:
 	void closeEvent(QCloseEvent *event) ;
 	void keyPressEvent(QKeyEvent *event) ;
-	void keyReleaseEvent(QKeyEvent *event);
 	void enterEvent(QEvent *);
 
 public slots:
@@ -135,7 +134,6 @@ private:
 	QStringList			m_DragFileList ;
 
 	int					m_UndoIndex ;
-	bool				m_bCtrl ;
 
 #ifndef QT_NO_DEBUG
 	// デバッグ用 ----

@@ -10,6 +10,24 @@ typedef struct {
 	float		x1, y1 ;
 } Vertex ;
 
+typedef struct _tagPathData {
+	bool			bValid ;
+
+	_tagPathData()
+	{
+		bValid = false ;
+	}
+	bool operator == (const struct _tagPathData &r) const
+	{
+		if ( this->bValid != r.bValid ) { return false ; }
+		return true ;
+	}
+	bool operator != (const struct _tagPathData &r) const
+	{
+		return (*this == r ? false : true) ;
+	}
+} PathData ;
+
 typedef struct _tagFrameData {
 	unsigned short	frame ;
 	short			pos_x, pos_y, pos_z ;		///< global position
@@ -20,6 +38,7 @@ typedef struct _tagFrameData {
 	float			fScaleX, fScaleY ;			///< scale
 	bool			bUVAnime ;					///< UVアニメするならtrue
 	unsigned char	rgba[4] ;					///< RGBA
+	PathData		path ;
 
 	_tagFrameData()
 	{
@@ -54,15 +73,13 @@ typedef struct _tagFrameData {
 		if ( rgba[1] != r.rgba[1] )		{ return false ; }
 		if ( rgba[2] != r.rgba[2] )		{ return false ; }
 		if ( rgba[3] != r.rgba[3] )		{ return false ; }
+		if ( path != r.path )			{ return false ; }
 
 		return true ;
 	}
 	bool operator != (const struct _tagFrameData &r) const
 	{
-		if ( *this == r ) {
-			return false ;
-		}
-		return true ;
+		return (*this == r ? false : true) ;
 	}
 
 	void setRect( QRect &rect )

@@ -54,6 +54,15 @@ void CSettings::read()
 	settings.beginGroup("LoupeWindow");
 	m_loupeWindowGeometry = settings.value("geometry").toByteArray() ;
 	settings.endGroup();
+
+	settings.beginGroup("Shortcut");
+	m_scPosSelect = QKeySequence(settings.value("pos", "Z").toString()) ;
+	m_scRotSelect = QKeySequence(settings.value("rot", "X").toString()) ;
+	m_scCenterSelect = QKeySequence(settings.value("center", "C").toString()) ;
+	m_scScaleSelect = QKeySequence(settings.value("scale", "V").toString()) ;
+	m_scCopyFrame = QKeySequence(settings.value("copy_frame", "Ctrl+C").toString()) ;
+	m_scPasteFrame = QKeySequence(settings.value("paste_frame", "Ctrl+V").toString()) ;
+	settings.endGroup();
 }
 
 void CSettings::write()
@@ -97,5 +106,14 @@ void CSettings::write()
 
 	settings.beginGroup("LoupeWindow");
 	settings.setValue("geometry",		m_loupeWindowGeometry) ;
+	settings.endGroup();
+
+	settings.beginGroup("Shortcut");
+	settings.setValue("pos",			m_scPosSelect.toString()) ;
+	settings.setValue("rot",			m_scRotSelect.toString()) ;
+	settings.setValue("center",			m_scCenterSelect.toString()) ;
+	settings.setValue("scale",			m_scScaleSelect.toString()) ;
+	settings.setValue("copy_frame",		m_scCopyFrame.toString()) ;
+	settings.setValue("paste_frame",	m_scPasteFrame.toString()) ;
 	settings.endGroup();
 }

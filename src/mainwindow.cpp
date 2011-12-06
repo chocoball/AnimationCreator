@@ -45,8 +45,6 @@ MainWindow::MainWindow(QWidget *parent)
 	m_pAnimationForm = NULL ;
 	m_pExportPNGForm = NULL ;
 
-	m_bCtrl = false ;
-
 	setObjectName("AnimationCreator MainWindow");
 /*
 	QNetworkAccessManager *pManager = new QNetworkAccessManager(this) ;
@@ -83,21 +81,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
 // キー押しイベント
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-	if ( event->key() == Qt::Key_Control ) {
-		m_bCtrl = true ;
-	}
-	if ( m_bCtrl ) {
-		if ( event->key() == Qt::Key_L ) {
-			m_pLoupeWindow->toggleLock() ;
-		}
-	}
-}
-
-// キー放しイベント
-void MainWindow::keyReleaseEvent(QKeyEvent *event)
-{
-	if ( event->key() == Qt::Key_Control ) {
-		m_bCtrl = false ;
+	if ( event->modifiers() & Qt::ControlModifier && event->key() == Qt::Key_L ) {
+		m_pLoupeWindow->toggleLock() ;
 	}
 }
 

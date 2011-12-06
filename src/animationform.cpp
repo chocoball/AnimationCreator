@@ -140,6 +140,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(ui->radioButton_rot, SIGNAL(clicked(bool)), this, SLOT(slot_clickedRadioRot(bool))) ;
 	connect(ui->radioButton_center, SIGNAL(clicked(bool)), this, SLOT(slot_clickedRadioCenter(bool))) ;
 	connect(ui->radioButton_scale, SIGNAL(clicked(bool)), this, SLOT(slot_clickedRadioScale(bool))) ;
+//	connect(ui->radioButton_path, SIGNAL(clicked(bool)), this, SLOT(slot_clickedRadioPath(bool))) ;
 
 	connect(ui->treeView, SIGNAL(customContextMenuRequested(QPoint)),	this, SLOT(slot_treeViewMenuReq(QPoint))) ;
 //	connect(ui->treeView, SIGNAL(doubleClicked(QModelIndex)),			this, SLOT(slot_treeViewDoubleClicked(QModelIndex))) ;
@@ -1154,6 +1155,15 @@ void AnimationForm::slot_clickedRadioScale( bool flag )
 	m_pGlWidget->update();
 }
 
+// ラジオボタン PATH クリック
+void AnimationForm::slot_clickedRadioPath(bool flag)
+{
+	if ( flag ) {
+		m_pGlWidget->setEditMode(AnimeGLWidget::kEditMode_Path) ;
+	}
+	m_pGlWidget->update();
+}
+
 // ループ回数変更
 void AnimationForm::slot_changeLoop( int val )
 {
@@ -1369,13 +1379,34 @@ void AnimationForm::keyPressEvent(QKeyEvent *event)
 		m_pGlWidget->update() ;
 	}
 
-	if ( m_pGlWidget->getPressCtrl() ) {
-		if ( event->key() == Qt::Key_C ) {	// copy
-			copyFrameData() ;
-		}
-		if ( event->key() == Qt::Key_V ) {	// paste
-			pasteFrameData() ;
-		}
+	int key = event->key() ;
+	if ( event->modifiers() & Qt::ShiftModifier ) { key |= Qt::SHIFT ; }
+	if ( event->modifiers() & Qt::ControlModifier ) { key |= Qt::CTRL ; }
+	if ( event->modifiers() & Qt::MetaModifier ) { key |= Qt::META ; }
+	if ( event->modifiers() & Qt::AltModifier ) { key |= Qt::ALT ; }
+	QKeySequence ks(key) ;
+
+	if ( ks == m_pSetting->getShortcutCopyFrame() ) {
+		copyFrameData() ;
+	}
+	else if ( ks == m_pSetting->getShortcutPasteFrame() ) {
+		pasteFrameData() ;
+	}
+	else if ( ks == m_pSetting->getShortcutPosSelect() ) {
+		ui->radioButton_pos->setChecked(true) ;
+		slot_clickedRadioPos(true) ;
+	}
+	else if ( ks == m_pSetting->getShortcutRotSelect() ) {
+		ui->radioButton_rot->setChecked(true) ;
+		slot_clickedRadioRot(true) ;
+	}
+	else if ( ks == m_pSetting->getShortcutCenterSelect() ) {
+		ui->radioButton_center->setChecked(true) ;
+		slot_clickedRadioCenter(true) ;
+	}
+	else if ( ks == m_pSetting->getShortcutScaleSelect() ) {
+		ui->radioButton_scale->setChecked(true) ;
+		slot_clickedRadioScale(true) ;
 	}
 }
 
