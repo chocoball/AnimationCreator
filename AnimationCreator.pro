@@ -33,8 +33,8 @@ SOURCES		+=	src/animationform.cpp			\
 				src/AnimationWindowSplitter.cpp	\
 				src/debug.cpp					\
 				src/objectitem.cpp				\
-				src/setting.cpp \
-    src/keyboardmodel.cpp
+				src/setting.cpp					\
+				src/keyboardmodel.cpp
 
 HEADERS		+=	src/Anm2dTypes.h				\
 				src/animationform.h				\
@@ -62,8 +62,8 @@ HEADERS		+=	src/Anm2dTypes.h				\
 				src/debug.h						\
 				src/include.h					\
 				src/objectitem.h				\
-				src/framedata.h \
-    src/keyboardmodel.h
+				src/framedata.h					\
+				src/keyboardmodel.h
 
 RESOURCES	+=	Resource.qrc
 
@@ -71,8 +71,8 @@ FORMS		+= 	ui/animationform.ui				\
 				ui/imagewindow.ui				\
 				ui/exportpngform.ui				\
 				ui/OptionAnimationTab.ui		\
-				ui/colorpickerform.ui \
-    ui/KeyboardTab.ui
+				ui/colorpickerform.ui			\
+				ui/KeyboardTab.ui
 
 CONFIG		+=	help
 

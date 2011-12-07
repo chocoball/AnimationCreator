@@ -1,44 +1,63 @@
 <!DOCTYPE ANM2D>
-<ROOT ObjNum="1" Version="4096" ImageNum="1">
-    <OBJECT Name="New Object" LayerNum="1" LoopNum="-1" No="0">
-        <LAYER Name="Layer 0" FrameDataNum="3" No="0">
+<ROOT ObjNum="1" Version="16777218" ImageNum="1">
+    <OBJECT Fps="60" Name="New Object" LayerNum="1" LoopNum="0" No="0">
+        <LAYER ChildNum="1" Name="Layer 0" FrameDataNum="2">
             <FRAMEDATA>
                 <frame>0</frame>
-                <pos>-1 -22 0</pos>
+                <pos>0 -122 0</pos>
                 <rot>0 0 0</rot>
-                <center>51 73</center>
-                <UV>76 105 178 251</UV>
+                <center>54 40</center>
+                <UV>4 13 111 93</UV>
                 <ImageNo>0</ImageNo>
                 <scale>1 1</scale>
                 <UVAnime>0</UVAnime>
                 <Color>255 255 255 255</Color>
+                <Path0>37 -88</Path0>
             </FRAMEDATA>
             <FRAMEDATA>
-                <frame>100</frame>
-                <pos>-1 -22 0</pos>
-                <rot>0 0 180</rot>
-                <center>51 73</center>
-                <UV>76 105 178 251</UV>
+                <frame>92</frame>
+                <pos>177 -76 0</pos>
+                <rot>0 0 0</rot>
+                <center>54 40</center>
+                <UV>4 13 111 93</UV>
                 <ImageNo>0</ImageNo>
                 <scale>1 1</scale>
                 <UVAnime>0</UVAnime>
                 <Color>255 255 255 255</Color>
+                <Path0>8 -1</Path0>
+                <Path1>-20 52</Path1>
             </FRAMEDATA>
-            <FRAMEDATA>
-                <frame>200</frame>
-                <pos>-1 -22 0</pos>
-                <rot>0 0 360</rot>
-                <center>51 73</center>
-                <UV>76 105 178 251</UV>
-                <ImageNo>0</ImageNo>
-                <scale>1 1</scale>
-                <UVAnime>0</UVAnime>
-                <Color>255 255 255 255</Color>
-            </FRAMEDATA>
+            <LAYER ChildNum="0" Name="Layer 1" FrameDataNum="2">
+                <FRAMEDATA>
+                    <frame>0</frame>
+                    <pos>-1 90 0</pos>
+                    <rot>0 0 0</rot>
+                    <center>53 49</center>
+                    <UV>9 95 114 192</UV>
+                    <ImageNo>0</ImageNo>
+                    <scale>1 1</scale>
+                    <UVAnime>0</UVAnime>
+                    <Color>255 255 255 255</Color>
+                    <Path0>31 223</Path0>
+                </FRAMEDATA>
+                <FRAMEDATA>
+                    <frame>92</frame>
+                    <pos>1 93 0</pos>
+                    <rot>0 0 0</rot>
+                    <center>53 49</center>
+                    <UV>9 95 114 192</UV>
+                    <ImageNo>0</ImageNo>
+                    <scale>1 1</scale>
+                    <UVAnime>0</UVAnime>
+                    <Color>255 255 255 255</Color>
+                    <Path0>8 0</Path0>
+                    <Path1>-46 -177</Path1>
+                </FRAMEDATA>
+            </LAYER>
         </LAYER>
     </OBJECT>
     <IMAGE No="0">
-        <FilePath>../STD/STD_Source/trunk/Smartphone/Content/chara/c0000.png</FilePath>
-        <Size>256 256</Size>
+        <FilePath>test.bmp</FilePath>
+        <Size>142 205</Size>
     </IMAGE>
 </ROOT>

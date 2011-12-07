@@ -54,4 +54,18 @@ void resizeImage( QImage &imageData )
 	imageData = tmp ;
 }
 
+QPointF getBezierPoint(QList<QPointF> &pointList, float t)
+{
+	if ( pointList.size() == 1 ) {
+		return pointList[0] ;
+	}
+	QList<QPointF> tmp ;
+	for ( int i = 0 ; i < pointList.size()-1 ; i ++ ) {
+		const QPointF p0 = pointList.at(i) ;
+		const QPointF p1 = pointList.at(i+1) ;
+		tmp << QPointF((p1.x()-p0.x())*t+p0.x(), (p1.y()-p0.y())*t+p0.y()) ;
+	}
+	return getBezierPoint(tmp, t) ;
+}
+
 }	// namespace util

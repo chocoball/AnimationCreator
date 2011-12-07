@@ -38,6 +38,7 @@ public:
 	kAccessor(QKeySequence,	m_scRotSelect,				ShortcutRotSelect)
 	kAccessor(QKeySequence,	m_scCenterSelect,			ShortcutCenterSelect)
 	kAccessor(QKeySequence,	m_scScaleSelect,			ShortcutScaleSelect)
+	kAccessor(QKeySequence,	m_scPathSelect,				ShortcutPathSelect)
 	kAccessor(QKeySequence,	m_scCopyFrame,				ShortcutCopyFrame)
 	kAccessor(QKeySequence,	m_scPasteFrame,				ShortcutPasteFrame)
 

@@ -68,6 +68,8 @@ public:
 	FrameData *getFrameDataFromNextFrame(int frame) ;
 	bool isContain(ObjectItem **ppRet, QPoint &pos, int frame, bool bChild = true) ;
 
+	QPointF getBezierPos(int frame, bool *pValid) ;
+
 	kAccessor(QString, m_name, Name)
 	kAccessor(int, m_nLoop, Loop)
 	kAccessor(int, m_nCurrLoop, CurrLoop)

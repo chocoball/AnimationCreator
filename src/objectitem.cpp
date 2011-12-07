@@ -1,5 +1,6 @@
 #include "objectitem.h"
 #include "editdata.h"
+#include "util.h"
 
 ObjectItem *ObjectItem::child(int row)
 {
@@ -236,7 +237,6 @@ FrameData *ObjectItem::getFrameDataFromNextFrame(int frame)
 bool ObjectItem::isContain(ObjectItem **ppRet, QPoint &pos, int frame, bool bChild)
 {
 	if ( bChild ) {
-//		for ( int i = 0 ; i < childCount() ; i ++ ) {
 		for ( int i = childCount()-1 ; i >= 0  ; i -- ) {
 			if ( child(i)->isContain(ppRet, pos, frame, true) ) { return true ; }
 		}
@@ -249,6 +249,53 @@ bool ObjectItem::isContain(ObjectItem **ppRet, QPoint &pos, int frame, bool bChi
 		return true ;
 	}
 	return false ;
+}
+
+QPointF ObjectItem::getBezierPos(int frame, bool *pValid)
+{
+	FrameData *pPrev = getFrameDataFromPrevFrame(frame+1) ;
+	FrameData *pNext = getFrameDataFromNextFrame(frame) ;
+	QMatrix4x4 m0, m1 ;
+	QList<QPointF> list ;
+	bool valid ;
+	float t ;
+
+	if ( !pPrev || !pNext || (!pPrev->path[0].bValid && !pNext->path[1].bValid) ) {
+		goto __FAILED ;
+	}
+	if ( pNext->frame-pPrev->frame == 0 ) {
+		qDebug() << "Error same frame" ;
+		goto __FAILED ;
+	}
+
+	m0 = getDisplayMatrix(pPrev->frame, &valid) ;
+	if ( !valid ) {
+		goto __FAILED ;
+	}
+	if ( frame == pPrev->frame ) {
+		if ( pValid ) { *pValid = true ; }
+		return QPointF(m0.column(3).x(), m0.column(3).y()) ;
+	}
+	m1 = getDisplayMatrix(pNext->frame, &valid) ;
+	if ( !valid ) {
+		goto __FAILED ;
+	}
+	if ( frame == pNext->frame ) {
+		if ( pValid ) { *pValid = true ; }
+		return QPointF(m0.column(3).x(), m0.column(3).y()) ;
+	}
+
+	list << QPointF(m0.column(3).x(), m0.column(3).y()) ;
+	list << QPointF(m0.column(3).x() + pPrev->path[0].v.x(), m0.column(3).y() + pPrev->path[0].v.y()) ;
+	list << QPointF(m1.column(3).x() + pNext->path[1].v.x(), m1.column(3).y() + pNext->path[1].v.y()) ;
+	list << QPointF(m1.column(3).x(), m1.column(3).y()) ;
+	t = (frame-pPrev->frame) / (float)(pNext->frame-pPrev->frame) ;
+	if ( pValid ) { *pValid = true ; }
+	return util::getBezierPoint(list, t) ;
+
+__FAILED:
+	if ( pValid ) { *pValid = false ; }
+	return QPointF(0, 0) ;
 }
 
 bool ObjectItem::isContain(FrameData &displayData, QPoint &pos, const QMatrix4x4 &matDisp)

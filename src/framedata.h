@@ -1,9 +1,11 @@
 #ifndef FRAMEDATA_H
 #define FRAMEDATA_H
 
+#include <QVector2D>
 #include <QVector3D>
 #include <QMatrix4x4>
 #include <math.h>
+#include "util.h"
 
 typedef struct {
 	float		x0, y0 ;
@@ -11,7 +13,8 @@ typedef struct {
 } Vertex ;
 
 typedef struct _tagPathData {
-	bool			bValid ;
+	bool			bValid ;	///< フラグ trueなら有効なデータ
+	QVector2D		v ;			///< ベクトル
 
 	_tagPathData()
 	{
@@ -19,7 +22,8 @@ typedef struct _tagPathData {
 	}
 	bool operator == (const struct _tagPathData &r) const
 	{
-		if ( this->bValid != r.bValid ) { return false ; }
+		if ( bValid != r.bValid )	{ return false ; }
+		if ( v != r.v )				{ return false ; }
 		return true ;
 	}
 	bool operator != (const struct _tagPathData &r) const
@@ -38,7 +42,7 @@ typedef struct _tagFrameData {
 	float			fScaleX, fScaleY ;			///< scale
 	bool			bUVAnime ;					///< UVアニメするならtrue
 	unsigned char	rgba[4] ;					///< RGBA
-	PathData		path ;
+	PathData		path[2] ;					///< パスデータ 0:次データへのパス 1:前データへのパス
 
 	_tagFrameData()
 	{
@@ -73,7 +77,8 @@ typedef struct _tagFrameData {
 		if ( rgba[1] != r.rgba[1] )		{ return false ; }
 		if ( rgba[2] != r.rgba[2] )		{ return false ; }
 		if ( rgba[3] != r.rgba[3] )		{ return false ; }
-		if ( path != r.path )			{ return false ; }
+		if ( path[0] != r.path[0] )		{ return false ; }
+		if ( path[1] != r.path[1] )		{ return false ; }
 
 		return true ;
 	}
@@ -124,8 +129,24 @@ typedef struct _tagFrameData {
 		if ( pNext ) {
 			int frameNow = nowFrame - frame ;
 			int frameAll = pNext->frame - frame ;
-			data.pos_x		+= (pNext->pos_x - pos_x)*frameNow/frameAll ;
-			data.pos_y		+= (pNext->pos_y - pos_y)*frameNow/frameAll ;
+			if ( !frameAll ) {
+				return data ;
+			}
+
+			if ( data.path[0].bValid || pNext->path[1].bValid ) {	// パス有効ならベジエ補間
+				QList<QPointF> list ;
+				list << QPointF(data.pos_x, data.pos_y) ;
+				list << QPointF(data.pos_x+data.path[0].v.x(), data.pos_y+data.path[0].v.y()) ;
+				list << QPointF(pNext->pos_x+pNext->path[1].v.x(), pNext->pos_y+pNext->path[1].v.y()) ;
+				list << QPointF(pNext->pos_x, pNext->pos_y) ;
+				QPointF p = util::getBezierPoint(list, frameNow/(float)frameAll) ;
+				data.pos_x = p.x() ;
+				data.pos_y = p.y() ;
+			}
+			else {
+				data.pos_x		+= (pNext->pos_x - pos_x)*frameNow/frameAll ;
+				data.pos_y		+= (pNext->pos_y - pos_y)*frameNow/frameAll ;
+			}
 			data.pos_z		+= (pNext->pos_z - pos_z)*frameNow/frameAll ;
 			data.rot_x		+= (pNext->rot_x - rot_x)*frameNow/frameAll ;
 			data.rot_y		+= (pNext->rot_y - rot_y)*frameNow/frameAll ;

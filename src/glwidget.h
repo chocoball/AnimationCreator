@@ -62,6 +62,9 @@ protected:
 
 	void drawLine( QPoint pos0, QPoint pos1, QColor col, float z = 1.0f ) ;
 	void drawRect( QRectF rc, QRectF uv, float z, QColor col ) ;
+	void drawCircle(QPoint p, float length, int div) ;
+
+	void drawBezierLine(ObjectItem *pLayerItem, int prevFrame, int nextFrame) ;
 
 	void dragEnterEvent(QDragEnterEvent *event) ;
 	void dropEvent(QDropEvent *event) ;
@@ -123,6 +126,7 @@ private:
 	int					m_dragMode ;				///< ドラッグモード kDragMode_~
 
 	float				m_rotStart ;				///< 回転変更時の開始ラジアン
+	int					m_dragPathIndex ;			///< ドラッグしてるパスインデックス(-1で無効)
 
 	unsigned int		m_backImageTex ;
 	QImage				m_BackImage ;

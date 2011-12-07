@@ -60,6 +60,7 @@ void CSettings::read()
 	m_scRotSelect = QKeySequence(settings.value("rot", "X").toString()) ;
 	m_scCenterSelect = QKeySequence(settings.value("center", "C").toString()) ;
 	m_scScaleSelect = QKeySequence(settings.value("scale", "V").toString()) ;
+	m_scPathSelect = QKeySequence(settings.value("path", "B").toString()) ;
 	m_scCopyFrame = QKeySequence(settings.value("copy_frame", "Ctrl+C").toString()) ;
 	m_scPasteFrame = QKeySequence(settings.value("paste_frame", "Ctrl+V").toString()) ;
 	settings.endGroup();
@@ -113,6 +114,7 @@ void CSettings::write()
 	settings.setValue("rot",			m_scRotSelect.toString()) ;
 	settings.setValue("center",			m_scCenterSelect.toString()) ;
 	settings.setValue("scale",			m_scScaleSelect.toString()) ;
+	settings.setValue("path",			m_scPathSelect.toString()) ;
 	settings.setValue("copy_frame",		m_scCopyFrame.toString()) ;
 	settings.setValue("paste_frame",	m_scPasteFrame.toString()) ;
 	settings.endGroup();

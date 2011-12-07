@@ -265,6 +265,9 @@ QList<QStringList> KeyboardTab::getData()
 	list << trUtf8("SCALE 選択") << m_pSetting->getShortcutScaleSelect().toString() ;
 	datas << list ;
 	list.clear() ;
+	list << trUtf8("PATH 選択") << m_pSetting->getShortcutPathSelect().toString() ;
+	datas << list ;
+	list.clear() ;
 	list << trUtf8("フレームデータ コピー") << m_pSetting->getShortcutCopyFrame().toString() ;
 	datas << list ;
 	list.clear() ;
@@ -278,24 +281,13 @@ QList<QStringList> KeyboardTab::getData()
 void KeyboardTab::setShortcut(int type, QKeySequence ks)
 {
 	switch ( type ) {
-		case 0:	// POS
-			m_pSetting->setShortcutPosSelect(ks) ;
-			break ;
-		case 1:	// ROT
-			m_pSetting->setShortcutRotSelect(ks) ;
-			break ;
-		case 2:	// CENTER
-			m_pSetting->setShortcutCenterSelect(ks) ;
-			break ;
-		case 3:	// SCALE
-			m_pSetting->setShortcutScaleSelect(ks) ;
-			break ;
-		case 4:	// framedata copy
-			m_pSetting->setShortcutCopyFrame(ks) ;
-			break ;
-		case 5:	// framedata paste
-			m_pSetting->setShortcutPasteFrame(ks) ;
-			break ;
+		case 0:	m_pSetting->setShortcutPosSelect(ks) ;		break ;	// POS
+		case 1:	m_pSetting->setShortcutRotSelect(ks) ;		break ;	// ROT
+		case 2:	m_pSetting->setShortcutCenterSelect(ks) ;	break ;	// CENTER
+		case 3:	m_pSetting->setShortcutScaleSelect(ks) ;	break ;	// SCALE
+		case 4:	m_pSetting->setShortcutPathSelect(ks) ;		break ;	// PATH
+		case 5:	m_pSetting->setShortcutCopyFrame(ks) ;		break ;	// framedata copy
+		case 6:	m_pSetting->setShortcutPasteFrame(ks) ;		break ;	// framedata paste
 	}
 
 	ui->lineEdit->setText(ks.toString()) ;

@@ -510,7 +510,7 @@ bool CAnm2DXml::makeFromFile(QDomDocument &xml, CEditData &rEditData)
 			return false ;
 		}
 	}
-	else if ( version == 0x01000000 || version == 0x01000001 ) {
+	else if ( version >= 0x01000000 ) {
 		if ( nodeMap.namedItem(kAnmXML_Attr_ObjNum).isNull() ) {
 			m_nError = kErrorNo_InvalidObjNum ;
 			return false ;
@@ -638,6 +638,16 @@ bool CAnm2DXml::makeLayer(ObjectItem *root, QDomElement &element, QDomDocument &
 		elmTmp.appendChild(text) ;
 		elmFrameData.appendChild(elmTmp) ;
 
+		// パス(after ver 1.0.2)
+		for ( int j = 0 ; j < 2 ; j ++ ) {
+			if ( data.path[j].bValid ) {
+				elmTmp = doc.createElement(QString("Path%1").arg(j)) ;
+				text = doc.createTextNode(QString("%1 %2").arg(data.path[j].v.x()).arg(data.path[j].v.y())) ;
+				elmTmp.appendChild(text) ;
+				elmFrameData.appendChild(elmTmp) ;
+			}
+		}
+
 		elmLayer.appendChild(elmFrameData) ;
 
 		if ( m_pProgress ) {
@@ -680,7 +690,7 @@ bool CAnm2DXml::makeImage( QDomElement &element, QDomDocument &doc, CEditData &r
 		text = doc.createTextNode(relPath.toUtf8()) ;
 		elmTmp.appendChild(text) ;
 		elmImage.appendChild(elmTmp) ;
-		
+
 		int w, h ;
 		if ( m_bSaveImage ) {
 			w = image.width() ;
@@ -828,78 +838,6 @@ bool CAnm2DXml::addElement_00001000( QDomNode &node, CEditData &rEditData )
 
 	rEditData.setImageData(ImageData);
 	return true ;
-
-#if 0
-	TODO
-	CObjectModel *pModel = rEditData.getObjectModel() ;
-	CObjectModel::ObjectList *pObjList = pModel->getObjectListPtr() ;
-	QStandardItemModel *pTreeModel = rEditData.getTreeModel() ;
-	QStandardItem *pTreeRoot = pTreeModel->invisibleRootItem() ;
-
-	QList<CEditData::ImageData> ImageData ;
-
-	while ( !node.isNull() ) {
-		if ( node.nodeName() == kAnmXML_ID_Object ) {	// オブジェクト
-			QString name ;
-			int layerNum = 0 ;
-			int no = 0 ;
-			QDomNamedNodeMap nodeMap = node.attributes() ;
-			if ( nodeMap.namedItem(kAnmXML_Attr_Name).isNull()
-			  || nodeMap.namedItem(kAnmXML_Attr_LayerNum).isNull()
-			  || nodeMap.namedItem(kAnmXML_Attr_No).isNull()
-			  || nodeMap.namedItem(kAnmXML_Attr_LoopNum).isNull() ) {
-				m_nError = kErrorNo_InvalidNode ;
-				return false ;
-			}
-			name = nodeMap.namedItem(kAnmXML_Attr_Name).toAttr().value() ;
-			layerNum = nodeMap.namedItem(kAnmXML_Attr_LayerNum).toAttr().value().toInt() ;
-			no = nodeMap.namedItem(kAnmXML_Attr_No).toAttr().value().toInt() ;
-			int loopNum = nodeMap.namedItem(kAnmXML_Attr_LoopNum).toAttr().value().toInt() ;
-
-			CObjectModel::ObjectGroup objGroup ;
-			QStandardItem *pObjItem = new QStandardItem(name) ;
-
-			pTreeRoot->insertRow(no, pObjItem);
-			objGroup.id = pObjItem ;
-			objGroup.nLoop = loopNum ;		// ループ回数(after ver 0.1.0)
-
-			QDomNode child = node.firstChild() ;
-//TODO			if ( !addLayer(child, objGroup.layerGroupList, pObjItem, layerNum) ) {
-				return false ;
-//TODO			}
-
-			pObjList->insert(no, objGroup) ;
-		}
-		else if ( node.nodeName() == kAnmXML_ID_Image ) {	// イメージ
-			QDomNamedNodeMap nodeMap = node.attributes() ;
-			if ( nodeMap.namedItem(kAnmXML_Attr_No).isNull() ) {
-				m_nError = kErrorNo_InvalidNode ;
-				return false ;
-			}
-			int no = nodeMap.namedItem(kAnmXML_Attr_No).toAttr().value().toInt() ;
-
-			CEditData::ImageData data ;
-			QDomNode child = node.firstChild() ;
-			if ( !addImage(child, data) ) {
-				return false ;
-			}
-			data.lastModified = QDateTime::currentDateTimeUtc() ;
-			data.nTexObj = 0 ;
-			data.nNo = no ;
-			ImageData.insert(no, data);
-		}
-		node = node.nextSibling() ;
-	}
-
-	if ( pObjList->size() != m_ObjNum
-	  || ImageData.size() != m_ImageNum ) {
-		m_nError = kErrorNo_InvalidObjNum ;
-		return false ;
-	}
-
-	rEditData.setImageData(ImageData);
-	return true ;
-#endif
 }
 
 // レイヤデータを追加
@@ -1068,6 +1006,18 @@ bool CAnm2DXml::addFrameData_00001000( QDomNode &node, ObjectItem *pItem, int ma
 					data.rgba[1] = color[1].toInt() ;
 					data.rgba[2] = color[2].toInt() ;
 					data.rgba[3] = color[3].toInt() ;
+				}
+				else if ( dataNode.nodeName() == "Path0"
+						|| dataNode.nodeName() == "Path1" ) {	// パス(after ver 1.0.2)
+					int index = (dataNode.nodeName() == "Path0") ? 0 : 1 ;
+					QStringList vec = dataNode.firstChild().toText().nodeValue().split(" ") ;
+					if ( vec.size() != 2 ) {
+						m_nError = kErrorNo_InvalidNode ;
+						return false ;
+					}
+					data.path[index].bValid = true ;
+					data.path[index].v.setX(vec[0].toFloat()) ;
+					data.path[index].v.setY(vec[1].toFloat()) ;
 				}
 
 				dataNode = dataNode.nextSibling() ;

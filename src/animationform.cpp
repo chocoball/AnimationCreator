@@ -113,7 +113,6 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 		else {
 			if ( root->child(0) ) {
 				QModelIndex index = pModel->index(0) ;
-//				m_pEditData->setSelIndex(index);
 				ui->treeView->setCurrentIndex(index);
 			}
 		}
@@ -140,28 +139,18 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(ui->radioButton_rot, SIGNAL(clicked(bool)), this, SLOT(slot_clickedRadioRot(bool))) ;
 	connect(ui->radioButton_center, SIGNAL(clicked(bool)), this, SLOT(slot_clickedRadioCenter(bool))) ;
 	connect(ui->radioButton_scale, SIGNAL(clicked(bool)), this, SLOT(slot_clickedRadioScale(bool))) ;
-//	connect(ui->radioButton_path, SIGNAL(clicked(bool)), this, SLOT(slot_clickedRadioPath(bool))) ;
+	connect(ui->radioButton_path, SIGNAL(clicked(bool)), this, SLOT(slot_clickedRadioPath(bool))) ;
 
 	connect(ui->treeView, SIGNAL(customContextMenuRequested(QPoint)),	this, SLOT(slot_treeViewMenuReq(QPoint))) ;
-//	connect(ui->treeView, SIGNAL(doubleClicked(QModelIndex)),			this, SLOT(slot_treeViewDoubleClicked(QModelIndex))) ;
 	connect(ui->treeView, SIGNAL(clicked(QModelIndex)),					this, SLOT(slot_changeSelectObject(QModelIndex))) ;
 
-	connect(m_pGlWidget, SIGNAL(sig_dropedImage(QRect, QPoint, int)),
-			this,		SLOT(slot_dropedImage(QRect, QPoint, int))) ;
-    connect(m_pGlWidget, SIGNAL(sig_selectLayerChanged(QModelIndex)),
-            this,		SLOT(slot_selectLayerChanged(QModelIndex))) ;
-    connect(m_pGlWidget, SIGNAL(sig_dragedImage(FrameData)),
-            this,		SLOT(slot_setUI(FrameData))) ;
-	connect(m_pGlWidget, SIGNAL(sig_deleteFrameData()),
-			this,		SLOT(slot_deleteFrameData())) ;
-	connect(m_pGlWidget, SIGNAL(sig_selectPrevLayer(QModelIndex, int, FrameData)),
-			this,		SLOT(slot_addNewFrameData(QModelIndex, int, FrameData))) ;
-	connect(m_pGlWidget, SIGNAL(sig_frameDataMoveEnd(FrameData)),
-			this,		SLOT(slot_frameDataMoveEnd(FrameData))) ;
-    connect(m_pGlWidget, SIGNAL(sig_dragedImage(FrameData)),
-            this,		SLOT(slot_portDragedImage(FrameData))) ;
-//	connect(m_pGlWidget, SIGNAL(sig_copyFrameData()), this, SLOT(slot_copyFrameData())) ;
-//	connect(m_pGlWidget, SIGNAL(sig_pasteFrameData()), this, SLOT(slot_pasteFrameData())) ;
+	connect(m_pGlWidget, SIGNAL(sig_dropedImage(QRect, QPoint, int)), this, SLOT(slot_dropedImage(QRect, QPoint, int))) ;
+	connect(m_pGlWidget, SIGNAL(sig_selectLayerChanged(QModelIndex)), this, SLOT(slot_selectLayerChanged(QModelIndex))) ;
+	connect(m_pGlWidget, SIGNAL(sig_dragedImage(FrameData)), this, SLOT(slot_setUI(FrameData))) ;
+	connect(m_pGlWidget, SIGNAL(sig_deleteFrameData()), this, SLOT(slot_deleteFrameData())) ;
+	connect(m_pGlWidget, SIGNAL(sig_selectPrevLayer(QModelIndex, int, FrameData)), this, SLOT(slot_addNewFrameData(QModelIndex, int, FrameData))) ;
+	connect(m_pGlWidget, SIGNAL(sig_frameDataMoveEnd(FrameData)), this, SLOT(slot_frameDataMoveEnd(FrameData))) ;
+	connect(m_pGlWidget, SIGNAL(sig_dragedImage(FrameData)), this, SLOT(slot_portDragedImage(FrameData))) ;
 
 	connect(ui->horizontalSlider_nowSequence, SIGNAL(valueChanged(int)),this, SLOT(slot_frameChanged(int))) ;
 	connect(ui->spinBox_pos_x,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changePosX(int))) ;
@@ -228,6 +217,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 
 AnimationForm::~AnimationForm()
 {
+	m_pEditData->setTreeView(NULL) ;
 	delete ui;
 }
 
@@ -960,6 +950,7 @@ void AnimationForm::slot_addNewFrameData( QModelIndex indexLayer, int frame, Fra
 
 	qDebug() << "slot_addNewFrameData frame:" << frame ;
 	data.frame = frame ;
+	data.path[0] = data.path[1] = PathData() ;	// パス リセット
 	QList<QWidget *> update ;
 	update << m_pDataMarker << m_pGlWidget ;
 	m_pEditData->cmd_addFrameData(indexLayer, data, update) ;
@@ -1407,6 +1398,10 @@ void AnimationForm::keyPressEvent(QKeyEvent *event)
 	else if ( ks == m_pSetting->getShortcutScaleSelect() ) {
 		ui->radioButton_scale->setChecked(true) ;
 		slot_clickedRadioScale(true) ;
+	}
+	else if ( ks == m_pSetting->getShortcutPathSelect() ) {
+		ui->radioButton_path->setChecked(true) ;
+		slot_clickedRadioPath(true) ;
 	}
 }
 

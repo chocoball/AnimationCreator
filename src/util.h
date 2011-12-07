@@ -6,6 +6,7 @@
 namespace util {
 
 	void resizeImage( QImage &imageData ) ;
+	QPointF getBezierPoint(QList<QPointF> &pointList, float t) ;
 
 }
 

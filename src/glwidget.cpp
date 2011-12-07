@@ -1,6 +1,8 @@
 #include "glwidget.h"
 #include "util.h"
 
+#define kPathSelectLen	5.0
+
 AnimeGLWidget::AnimeGLWidget(CEditData *editData, CSettings *pSetting, QWidget *parent) :
 	QGLWidget(QGLFormat(QGL::AlphaChannel), parent)
 {
@@ -296,37 +298,51 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 	}
 
 	ObjectItem *pItem = m_pEditData->getObjectModel()->getItemFromIndex(index) ;
-	FrameData data = pItem->getDisplayFrameData(m_pEditData->getSelectFrame()) ;
+	int selFrame = m_pEditData->getSelectFrame() ;
+	FrameData data = pItem->getDisplayFrameData(selFrame) ;
 	if ( data.frame == m_pEditData->getSelectFrame() ) {
 		switch ( m_editMode ) {
 			case kEditMode_Rot:
 				glEnable(GL_LINE_STIPPLE);
 				glLineStipple(2, 0x3333);
 				{
-					QMatrix4x4 mat = pItem->getDisplayMatrix(m_pEditData->getSelectFrame()) ;
+					QMatrix4x4 mat = pItem->getDisplayMatrix(selFrame) ;
 
 					QPoint c = QPoint(mat.column(3).x(), mat.column(3).y()) ;
 					QPoint p0 = m_DragOffset - QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) ;
 
 					float len = QVector2D(p0-c).length() ;
 					drawLine(c, p0, col, 0);
-					glBegin(GL_LINES);
-					for ( int i = 0 ; i < 40 ; i ++ ) {
-						float rad = i * M_PI*2.0f / 40.0f ;
-						float x = cosf(rad) * len ;
-						float y = sinf(rad) * len ;
-						glVertex2f(x+c.x(), y+c.y());
-					}
-					glEnd() ;
+					drawCircle(c, len, 40) ;
 				}
 				glDisable(GL_LINE_STIPPLE);
 				break ;
 			case kEditMode_Path:
-				glEnable(GL_LINE_STIPPLE);
-				glLineStipple(2, 0x3333);
 				{
+					FrameData *pFrame = pItem->getFrameDataPtr(selFrame) ;
+					if ( pFrame ) {
+						QMatrix4x4 mat = pItem->getDisplayMatrix(selFrame) ;
+						QPoint pos = QPoint(mat.column(3).x(), mat.column(3).y()) ;
+
+						for ( int i = 0 ; i < 2 ; i ++ ) {
+							PathData *pPath = &pFrame->path[i] ;
+							QPoint cen = pos + QPoint(pPath->v.x(), pPath->v.y()) ;
+							glEnable(GL_LINE_STIPPLE);
+							glLineStipple(2, 0x3333);
+							drawLine(pos, cen, col, 0) ;
+							glDisable(GL_LINE_STIPPLE) ;
+							drawCircle(cen, kPathSelectLen, 16) ;
+						}
+						FrameData *pPrev = pItem->getFrameDataFromPrevFrame(selFrame) ;
+						if ( pPrev ) {
+							drawBezierLine(pItem, pPrev->frame, selFrame) ;
+						}
+						FrameData *pNext = pItem->getFrameDataFromNextFrame(selFrame) ;
+						if ( pNext ) {
+							drawBezierLine(pItem, selFrame, pNext->frame) ;
+						}
+					}
 				}
-				glDisable(GL_LINE_STIPPLE);
 				break ;
 		}
 	}
@@ -436,25 +452,9 @@ void AnimeGLWidget::drawCenter( void )
 	if ( !m_pEditData->getNowSelectFrameData(data) ) { return ; }
 
 	QMatrix4x4 m = m_pEditData->getNowSelectMatrix() ;
-#if 0
-	glPushMatrix() ;
-	{
-		multMatrix(m) ;
-
-		QColor col = QColor(0, 0, 255, 255) ;
-		glDisable(GL_DEPTH_TEST);
-		drawLine(QPoint(-(CEditData::kGLWidgetSize/2), 0), QPoint((CEditData::kGLWidgetSize/2), 0), col, 1.0) ;
-		drawLine(QPoint(0, -(CEditData::kGLWidgetSize/2)), QPoint(0, (CEditData::kGLWidgetSize/2)), col, 1.0) ;
-		glEnable(GL_DEPTH_TEST);
-	}
-	glPopMatrix() ;
-#else
 	QColor col = QColor(0, 0, 255, 255) ;
-//	glDisable(GL_DEPTH_TEST);
 	drawLine(QPoint(-(CEditData::kGLWidgetSize/2), m.column(3).y()), QPoint((CEditData::kGLWidgetSize/2), m.column(3).y()), col, 1.0) ;
 	drawLine(QPoint(m.column(3).x(), -(CEditData::kGLWidgetSize/2)), QPoint(m.column(3).x(), (CEditData::kGLWidgetSize/2)), col, 1.0) ;
-//	glEnable(GL_DEPTH_TEST);
-#endif
 }
 
 // ライン描画
@@ -482,6 +482,39 @@ void AnimeGLWidget::drawRect(QRectF rc, QRectF uv, float z, QColor col)
 		glVertex3f(rc.left(), rc.top(), z) ;
 		glTexCoord2f(uv.right(), uv.top());
 		glVertex3f(rc.right(), rc.top(), z) ;
+	glEnd() ;
+}
+
+// 円描画
+void AnimeGLWidget::drawCircle(QPoint p, float length, int div)
+{
+	glBegin(GL_LINE_STRIP) ;
+	for ( int i = 0 ; i < div ; i ++ ) {
+		float rad = i * M_PI*2.0f / (float)div ;
+		float x = cosf(rad) * length ;
+		float y = sinf(rad) * length ;
+		glVertex2f(x+p.x(), y+p.y()) ;
+	}
+	glEnd() ;
+}
+
+// ベジエ曲線描画
+void AnimeGLWidget::drawBezierLine(ObjectItem *pLayerItem, int prevFrame, int nextFrame)
+{
+	bool valid = false ;
+
+	if ( prevFrame == nextFrame ) { return ; }
+	QList<QPointF> lines ;
+	for ( int i = prevFrame ; i <= nextFrame ; i ++ ) {
+		QMatrix4x4 m = pLayerItem->getDisplayMatrix(i, &valid) ;
+		if ( !valid ) { continue ; }
+		lines << QPointF(m.column(3).x(), m.column(3).y()) ;
+	}
+
+	glBegin(GL_LINE_STRIP) ;
+	for ( int i = 0 ; i < lines.size() ; i ++ ) {
+		glVertex2f(lines.at(i).x(), lines.at(i).y()) ;
+	}
 	glEnd() ;
 }
 
@@ -556,6 +589,33 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 			// オブジェクトが選択されていない
 			qDebug() << "mousePressEvent not sel object" ;
 			return ;
+		}
+
+		// PATH 選択時
+		m_dragPathIndex = -1 ;
+		if ( m_editMode == kEditMode_Path && pModel->isLayer(index) ) {
+			CObjectModel *pModel = m_pEditData->getObjectModel() ;
+			ObjectItem *p = pModel->getItemFromIndex(index) ;
+			if ( p ) {
+				int flag = p->data(Qt::CheckStateRole).toInt() ;
+				if ( (flag & ObjectItem::kState_Disp) && !(flag & ObjectItem::kState_Lock) ) {
+					FrameData *pData = p->getFrameDataPtr(frame) ;
+					if ( pData ) {
+						QMatrix4x4 mat = p->getDisplayMatrix(frame) ;
+						QVector2D pos = QVector2D(mat.column(3).x(), mat.column(3).y()) ;
+						for ( int i = 0 ; i < 2 ; i ++ ) {
+							if ( (pos + pData->path[i].v - QVector2D(localPos)).length() <= kPathSelectLen ) {
+								pData->path[i].bValid = true ;
+								m_editFrameDataOld = *pData ;
+								emit sig_selectLayerChanged(p->getIndex()) ;
+								m_dragMode = kDragMode_Edit ;
+								m_dragPathIndex = i ;
+								return ;
+							}
+						}
+					}
+				}
+			}
 		}
 
 		if ( pItem->isContain(&pItem, localPos, frame) ) {
@@ -716,6 +776,11 @@ QPoint AnimeGLWidget::editData(FrameData *pData, QPoint nowPos, QPoint oldPos)
 			case kEditMode_Scale:
 				pData->fScaleX += (float)sub.x() * 0.01f ;
 				pData->fScaleY += (float)sub.y() * 0.01f ;
+				break ;
+			case kEditMode_Path:
+				if ( m_dragPathIndex < 0 || m_dragPathIndex > 1 ) { return QPoint(0, 0) ; }
+				PathData *pPath = &pData->path[m_dragPathIndex] ;
+				pPath->v += QVector2D(sub) ;
 				break ;
 		}
 		if ( m_editMode != kEditMode_Rot ) {
