@@ -60,6 +60,8 @@ public slots:
 	void slot_changeDrawCenter( bool flag ) ;
 	void slot_dragedImage(FrameData data) ;
 
+	void slot_changeTab(int nImage) ;
+
 private:
 	Ui::ImageWindow	*ui ;
 

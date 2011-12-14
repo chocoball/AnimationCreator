@@ -35,7 +35,9 @@ public:
 	void setSplitterPos(int pos, int index) ;
 
 signals:
+	void sig_imageChangeTab(int nImage) ;
 	void sig_imageRepaint( void ) ;
+	void sig_imageChangeRect(QRect rect) ;
 	void sig_portCheckDrawCenter(bool) ;
 	void sig_portDragedImage(FrameData) ;
 	void sig_pushColorToolButton( void ) ;

@@ -126,6 +126,8 @@ void ImageWindow::addTab(int imageIndex)
 	connect(pGridLabel, SIGNAL(sig_changeSelectLayerUV(QRect)), m_pAnimationForm, SLOT(slot_changeSelectLayerUV(QRect))) ;
 	connect(pGridLabel, SIGNAL(sig_changeCatchRect(QRect)), this, SLOT(slot_setUI(QRect))) ;
 	connect(m_pAnimationForm, SIGNAL(sig_imageRepaint()), pGridLabel, SLOT(update())) ;
+	connect(m_pAnimationForm, SIGNAL(sig_imageChangeRect(QRect)), this, SLOT(slot_setUI(QRect))) ;
+	connect(m_pAnimationForm, SIGNAL(sig_imageChangeTab(int)), this, SLOT(slot_changeTab(int))) ;
 }
 
 // メニュー
@@ -319,5 +321,16 @@ void ImageWindow::slot_dragedImage(FrameData /*data*/)
 			continue ;
 		}
 		pGrid->update();
+	}
+}
+
+// タブ変更
+void ImageWindow::slot_changeTab(int nImage)
+{
+	for ( int i = 0 ; i < ui->tabWidget->count() ; i ++ ) {
+		if ( nImage == ui->tabWidget->tabText(i).toInt() ) {
+			ui->tabWidget->setCurrentIndex(i) ;
+			break ;
+		}
 	}
 }

@@ -295,7 +295,8 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 		ui->checkBox_center,
 		ui->checkBox_frame,
 		ui->checkBox_grid,
-		ui->toolButton_picker
+		ui->toolButton_picker,
+		ui->checkBox_linear_filter
 	} ;
 	for ( int i = 0 ; i < ARRAY_NUM(tmp) ; i ++ ) {
 		tmp[i]->move(tmp[i]->pos() + QPoint(add.width(), 0));
@@ -532,6 +533,7 @@ void AnimationForm::slot_setUI(FrameData data)
 				break ;
 			}
 		}
+		emit sig_imageChangeTab(data.nImage) ;
 	}
 	if ( data.bUVAnime != ui->checkBox_uv_anime->isChecked() ) { ui->checkBox_uv_anime->setChecked(data.bUVAnime); }
 	if ( data.rgba[0] != ui->spinBox_r->value() ) { ui->spinBox_r->setValue(data.rgba[0]); }
@@ -543,6 +545,7 @@ void AnimationForm::slot_setUI(FrameData data)
 	if ( data.getRect() != m_pEditData->getCatchRect() ) {
 		QRect rect = data.getRect() ;
 		m_pEditData->setCatchRect(rect);
+		emit sig_imageChangeRect(rect) ;
 		emit sig_imageRepaint() ;
 	}
 }
@@ -811,10 +814,11 @@ void AnimationForm::slot_changeSelectObject(QModelIndex index)
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
 
 	if ( pModel->isLayer(index) ) {
+		bool valid ;
 		ObjectItem *pItem = pModel->getItemFromIndex(index) ;
-		FrameData *pData = pItem->getFrameDataPtr(m_pEditData->getSelectFrame()) ;
-		if ( pData ) {
-			slot_setUI(*pData) ;
+		FrameData data = pItem->getDisplayFrameData(m_pEditData->getSelectFrame(), &valid) ;
+		if ( valid ) {
+			slot_setUI(data) ;
 		}
 	}
 
@@ -980,14 +984,11 @@ void AnimationForm::slot_changeLayerLock( void )
 
 	QVariant flag = pItem->data(Qt::CheckStateRole) ;
 	int f = flag.toInt() ;
-	QBrush brush ;
 	if ( f & ObjectItem::kState_Lock )	{
 		f &= ~ObjectItem::kState_Lock ;
-		brush.setColor(QColor(0, 0, 0));
 	}
 	else {
 		f |= ObjectItem::kState_Lock ;
-		brush.setColor(QColor(255, 0, 0));
 	}
 	pItem->setData(f, Qt::CheckStateRole);
 	m_pGlWidget->update();
