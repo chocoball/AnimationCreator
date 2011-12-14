@@ -75,7 +75,7 @@ protected:
 
 	void contextMenuEvent(QContextMenuEvent *event) ;
 
-    QPoint editData(FrameData *pData, QPoint nowPos, QPoint oldPos) ;
+	QPoint editData(FrameData *pData, QPoint nowPos, QPoint oldPos, QMatrix4x4 mat) ;
 
 	void writePNGFromFrameBuffer( void ) ;
 	int getDigit(int num) ;

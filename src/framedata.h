@@ -50,7 +50,10 @@ typedef struct _tagFrameData {
 		pos_x = pos_y = pos_z = 0 ;
 		rot_x = rot_y = rot_z = 0 ;
 		center_x = center_y = 0 ;
+		left = right = top = bottom = 0 ;
+		nImage = 0 ;
 		fScaleX = fScaleY = 1 ;
+		bUVAnime = false ;
 		rgba[0] = rgba[1] = rgba[2] = rgba[3] = 255 ;
 	}
 

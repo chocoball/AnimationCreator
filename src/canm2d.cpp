@@ -803,6 +803,7 @@ bool CAnm2DXml::addElement_00001000( QDomNode &node, CEditData &rEditData )
 			QModelIndex index = pModel->addItem(name, QModelIndex()) ;
 			ObjectItem *pObj = pModel->getItemFromIndex(index) ;
 			pObj->setLoop(loopNum) ;
+			pObj->setFps(60);
 
 			QDomNode child = node.firstChild() ;
 			if ( !addLayer_00001000(child, pObj, layerNum, rEditData) ) {
@@ -887,7 +888,6 @@ bool CAnm2DXml::addFrameData_00001000( QDomNode &node, ObjectItem *pItem, int ma
 	while ( !node.isNull() ) {
 		if ( node.nodeName() == kAnmXML_ID_FrameData ) {
 			FrameData data ;
-			memset( &data, 0, sizeof(data) ) ;
 
 			QDomNode dataNode = node.firstChild() ;
 			while ( !dataNode.isNull() ) {

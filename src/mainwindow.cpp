@@ -634,8 +634,7 @@ bool MainWindow::saveFile( QString fileName )
 		QApplication::setOverrideCursor(Qt::WaitCursor);
 		if ( !data.makeFromEditData(m_EditData) ) {
 			if ( data.getErrorNo() != CAnm2DBase::kErrorNo_Cancel ) {
-				QMessageBox::warning(this, trUtf8("エラー"),
-									 trUtf8("コンバート失敗 %1:\n%2").arg(fileName).arg(data.getErrorNo())) ;
+				QMessageBox::warning(this, trUtf8("エラー"), trUtf8("コンバート失敗 %1:\n%2").arg(fileName).arg(data.getErrorNo())) ;
 			}
 			QApplication::restoreOverrideCursor();
 			return false ;
@@ -644,8 +643,7 @@ bool MainWindow::saveFile( QString fileName )
 
 		QFile file(fileName) ;
 		if ( !file.open(QFile::WriteOnly) ) {
-			QMessageBox::warning(this, trUtf8("エラー"),
-								 trUtf8("保存失敗 %1:\n%2").arg(fileName).arg(file.errorString())) ;
+			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("保存失敗 %1:\n%2").arg(fileName).arg(file.errorString())) ;
 			QApplication::restoreOverrideCursor();
 			return false ;
 		}

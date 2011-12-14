@@ -217,7 +217,6 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 
 AnimationForm::~AnimationForm()
 {
-	m_pEditData->setTreeView(NULL) ;
 	delete ui;
 }
 
@@ -303,6 +302,11 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 }
 #endif
 
+void AnimationForm::closeEvent(QCloseEvent */*event*/)
+{
+	m_pEditData->setTreeView(NULL) ;
+}
+
 void AnimationForm::dumpObjects(ObjectItem *p, int tab)
 {
 	QString space, str ;
@@ -314,7 +318,8 @@ void AnimationForm::dumpObjects(ObjectItem *p, int tab)
 	const QList<FrameData> list = p->getFrameData() ;
 	for ( int i = 0 ; i < list.size() ; i ++ ) {
 		const FrameData &d = list.at(i) ;
-		str = space + QString(" frame:%1 pos x:%2 y:%3").arg(d.frame).arg(d.pos_x).arg(d.pos_y) ;
+		str = space + QString(" frame:%1 pos x:%2 y:%3 z:%4").arg(d.frame).arg(d.pos_x).arg(d.pos_y).arg(d.pos_z) ;
+		str += QString("  rot x:%1 y:%2 z:%3").arg(d.rot_x).arg(d.rot_y).arg(d.rot_z) ;
 		qDebug() << str ;
 	}
 	for ( int i = 0 ; i < p->childCount() ; i ++ ) {

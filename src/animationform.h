@@ -141,6 +141,7 @@ protected:
 #ifdef LAYOUT_OWN
 	void resizeEvent(QResizeEvent *event) ;
 #endif
+	void closeEvent(QCloseEvent *event) ;
 
 	void dumpObjects(ObjectItem *p, int tab) ;
 

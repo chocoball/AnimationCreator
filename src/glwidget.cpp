@@ -133,6 +133,7 @@ void AnimeGLWidget::drawLayers( void )
 {
 	if ( !m_pEditData->getObjectModel()->isObject(m_pEditData->getSelIndex())
 		 && !m_pEditData->getObjectModel()->isLayer(m_pEditData->getSelIndex()) ) {
+		qDebug() << "drawLayers not object or layer" << m_pEditData->getSelIndex() ;
 		return ;
 	}
 
@@ -167,20 +168,19 @@ void AnimeGLWidget::drawLayers_Anime()
 	ObjectItem *pItem = pModel->getObject(m_pEditData->getSelIndex()) ;
 	if ( !pItem ) { return ; }
 
-	for ( int i = 0 ; i < pItem->childCount() ; i ++ ) {
-		drawLayers(pItem->child(i)) ;
-	}
+	drawLayers(pItem) ;
 }
 
 void AnimeGLWidget::drawLayers(ObjectItem *pLayerItem)
 {
+	int selFrame = m_pEditData->getSelectFrame() ;
 	int flag = pLayerItem->data(Qt::CheckStateRole).toInt() ;
-	if ( (flag & ObjectItem::kState_Disp) ) {
+	if ( m_pEditData->getObjectModel()->isLayer(pLayerItem->getIndex()) && (flag & ObjectItem::kState_Disp) ) {
 		FrameData d ;
 		bool valid ;
-		d = pLayerItem->getDisplayFrameData(m_pEditData->getSelectFrame(), &valid) ;
+		d = pLayerItem->getDisplayFrameData(selFrame, &valid) ;
 		if ( valid ) {
-			QMatrix4x4 mat = pLayerItem->getDisplayMatrix(m_pEditData->getSelectFrame()) ;
+			QMatrix4x4 mat = pLayerItem->getDisplayMatrix(selFrame) ;
 			drawFrameData(d, mat) ;
 
 			if ( m_pSetting->getDrawFrame() && !m_pEditData->isExportPNG() ) {
@@ -207,7 +207,7 @@ void AnimeGLWidget::drawLayers(ObjectItem *pLayerItem)
 //		drawLayers(pLayerItem->child(i)) ;
 		ObjectItem *pChild = pLayerItem->child(i) ;
 		bool valid ;
-		QMatrix4x4 m = pChild->getDisplayMatrix(m_pEditData->getSelectFrame(), &valid) ;
+		QMatrix4x4 m = pChild->getDisplayMatrix(selFrame, &valid) ;
 		if ( !valid ) {
 			children.append(pChild) ;
 			continue ;
@@ -215,7 +215,7 @@ void AnimeGLWidget::drawLayers(ObjectItem *pLayerItem)
 
 		int j ;
 		for ( j = 0 ; j < children.size() ; j ++ ) {
-			QMatrix4x4 m1 = children[j]->getDisplayMatrix(m_pEditData->getSelectFrame(), &valid) ;
+			QMatrix4x4 m1 = children[j]->getDisplayMatrix(selFrame, &valid) ;
 			if ( !valid ) {
 				continue ;
 			}
@@ -670,7 +670,10 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 				if ( !pItem ) { return ; }
 				FrameData *pData = pItem->getFrameDataPtr(m_pEditData->getSelectFrame()) ;
 				if ( !pData ) { return ; }
-				QPoint ret = editData(pData, event->pos(), m_DragOffset) ;
+				bool valid ;
+				QMatrix4x4 mat = pItem->getDisplayMatrix(m_pEditData->getSelectFrame(), &valid) ;
+				if ( !valid ) { mat.setToIdentity(); }
+				QPoint ret = editData(pData, event->pos(), m_DragOffset, mat) ;
 				m_DragOffset = ret ;
 				emit sig_dragedImage(*pData) ;
 				update() ;
@@ -708,7 +711,7 @@ void AnimeGLWidget::contextMenuEvent(QContextMenuEvent *event)
 /**
   データ編集
   */
-QPoint AnimeGLWidget::editData(FrameData *pData, QPoint nowPos, QPoint oldPos)
+QPoint AnimeGLWidget::editData(FrameData *pData, QPoint nowPos, QPoint oldPos, QMatrix4x4 mat)
 {
 	if ( !pData ) {
 		return QPoint(0, 0) ;
@@ -770,8 +773,20 @@ QPoint AnimeGLWidget::editData(FrameData *pData, QPoint nowPos, QPoint oldPos)
 				}
 				break ;
 			case kEditMode_Center:
+#if 1
 				pData->center_x += sub.x() ;
 				pData->center_y += sub.y() ;
+#else
+				{
+					mat = pData->getMatrix() * mat ;
+					mat.setColumn(3, QVector4D(0, 0, 0, 1)) ;
+					qDebug() << "mat:" << mat ;
+					qDebug() << "inv:" << mat.inverted() ;
+					QVector3D v = mat.inverted() * QVector3D(sub.x(), sub.y(), 0) ;
+					pData->center_x += v.x() ;
+					pData->center_y += v.y() ;
+				}
+#endif
 				break ;
 			case kEditMode_Scale:
 				pData->fScaleX += (float)sub.x() * 0.01f ;
