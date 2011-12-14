@@ -190,6 +190,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(ui->spinBox_a,				SIGNAL(valueChanged(int)),		this, SLOT(slot_changeColorA(int))) ;
 	connect(ui->checkBox_frame,			SIGNAL(clicked(bool)),			this, SLOT(slot_changeDrawFrame(bool))) ;
 	connect(ui->checkBox_center,		SIGNAL(clicked(bool)),			this, SLOT(slot_changeDrawCenter(bool))) ;
+	connect(ui->checkBox_linear_filter,	SIGNAL(clicked(bool)),			this, SLOT(slot_changeLinearFilter(bool))) ;
 
 	connect(ui->toolButton_picker,		SIGNAL(clicked()),				this, SLOT(slot_clickPicker())) ;
 
@@ -1255,6 +1256,25 @@ void AnimationForm::slot_changeDrawCenter(bool flag)
 	m_pGlWidget->update();
 
 	emit sig_portCheckDrawCenter(flag) ;
+}
+
+void AnimationForm::slot_changeLinearFilter(bool flag)
+{
+	QGLContext::BindOptions options = QGLContext::InvertedYBindOption ;
+	if ( flag ) {
+		options |= QGLContext::LinearFilteringBindOption ;
+	}
+
+	for ( int i = 0 ; i < m_pEditData->getImageDataListSize() ; i ++ ) {
+		CEditData::ImageData *p = m_pEditData->getImageData(i) ;
+		if ( !p ) { continue ; }
+		if ( p->nTexObj ) {
+			m_pGlWidget->deleteTexture(p->nTexObj) ;
+		}
+		p->nTexObj = m_pGlWidget->bindTexture(p->Image, options) ;
+	}
+
+	m_pGlWidget->update() ;
 }
 
 void AnimationForm::slot_portDragedImage(FrameData data)

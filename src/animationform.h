@@ -115,6 +115,7 @@ public slots:
 
 	void slot_changeDrawFrame(bool flag) ;
 	void slot_changeDrawCenter(bool flag) ;
+	void slot_changeLinearFilter(bool flag) ;
 
 	void slot_portDragedImage(FrameData data) ;
 

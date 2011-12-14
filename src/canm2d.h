@@ -12,10 +12,9 @@
  2011/01/19	ver 0.1.0	ループ回数、フレームデータRGBA追加
  2011/09/20	ver 1.0.0	レイヤを階層持つように修正
  2011/09/28	ver 1.0.1	FPS情報追加
- 2022/12/07 ver 1.0.2	パス情報追加
+ 2011/12/07 ver 1.0.2	パス情報追加
  */
 
-//#define kAnmXML_Version			0x00001000		///< バージョン 0x[00][000][000]
 #define kAnmXML_Version			0x01000002		///< バージョン 0x[00][000][000]
 
 #define kAnmXML_Attr_Version	"Version"

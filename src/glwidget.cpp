@@ -26,9 +26,9 @@ AnimeGLWidget::AnimeGLWidget(CEditData *editData, CSettings *pSetting, QWidget *
 	m_backImageTex = 0 ;
 }
 
-GLuint AnimeGLWidget::bindTexture(QImage &image)
+GLuint AnimeGLWidget::bindTexture(QImage &image, QGLContext::BindOptions options)
 {
-	return QGLWidget::bindTexture(image, GL_TEXTURE_2D, GL_RGBA, QGLContext::InvertedYBindOption) ;
+	return QGLWidget::bindTexture(image, GL_TEXTURE_2D, GL_RGBA, options) ;
 }
 
 void AnimeGLWidget::slot_actDel( void )

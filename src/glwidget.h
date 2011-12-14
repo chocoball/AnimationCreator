@@ -28,7 +28,7 @@ public:
 public:
 	explicit AnimeGLWidget(CEditData *editData, CSettings *pSetting, QWidget *parent = 0);
 
-	GLuint bindTexture(QImage &image) ;
+	GLuint bindTexture(QImage &image, QGLContext::BindOptions options = QGLContext::InvertedYBindOption) ;
 
 signals:
 	void sig_dropedImage(QRect rect, QPoint pos, int index) ;
