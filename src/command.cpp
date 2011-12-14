@@ -58,9 +58,9 @@ void Command_DelItem::redo()
 		if ( !m_pItem ) {
 			m_pItem = new ObjectItem(pItem->getName(), pItem->parent()) ;
 			m_pItem->copy(pItem) ;
-			m_pEditData->getObjectModel()->updateIndex() ;
 
 			m_pEditData->getObjectModel()->removeItem(index) ;
+			m_pEditData->getObjectModel()->updateIndex() ;
 			qDebug() << "Command_DelItem redo exec" ;
 		}
 	}
