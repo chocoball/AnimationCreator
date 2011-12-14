@@ -89,7 +89,6 @@ private:
 	QList<FrameData>	m_frameDatas ;
 
 	QVariant			m_checkStateData ;
-	QVariant			m_foregroundData ;
 };
 
 #endif // OBJECTITEM_H

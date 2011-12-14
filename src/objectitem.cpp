@@ -105,7 +105,6 @@ void ObjectItem::copy(ObjectItem *p)
 	this->m_nFps			= p->m_nFps ;
 	this->m_frameDatas		= p->m_frameDatas ;
 	this->m_checkStateData	= p->m_checkStateData ;
-	this->m_foregroundData	= p->m_foregroundData ;
 
 	for ( int i = 0 ; i < p->m_children.size() ; i ++ ) {
 		insertChild(i, new ObjectItem(p->m_children[i]->m_name, this)) ;
@@ -141,7 +140,16 @@ QVariant ObjectItem::data(int role)
 		case Qt::CheckStateRole:
 			return m_checkStateData ;
 		case Qt::ForegroundRole:
-			return m_foregroundData ;
+		{
+			QBrush brush ;
+			if ( m_checkStateData.toInt() & kState_Lock ) {
+				brush.setColor(QColor(255, 0, 0));
+			}
+			else {
+				brush.setColor(QColor(0, 0, 0));
+			}
+			return brush ;
+		}
 	}
 	return QVariant() ;
 }
@@ -154,9 +162,6 @@ void ObjectItem::setData(const QVariant &value, int role)
 			setName(value.toString()) ;
 		case Qt::CheckStateRole:
 			m_checkStateData = value ;
-			break ;
-		case Qt::ForegroundRole:
-			m_foregroundData = value ;
 			break ;
 	}
 }

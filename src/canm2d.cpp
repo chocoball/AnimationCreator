@@ -582,6 +582,7 @@ bool CAnm2DXml::makeLayer(ObjectItem *root, QDomElement &element, QDomDocument &
 	elmLayer.setAttribute(kAnmXML_Attr_Name, QString(root->getName().toUtf8()));
 	elmLayer.setAttribute(kAnmXML_Attr_FrameNum, root->getFrameData().size()) ;
 	elmLayer.setAttribute(kAnmXML_Attr_ChildNum, root->childCount()) ;
+	elmLayer.setAttribute(kAnmXML_Attr_State, root->data(Qt::CheckStateRole).toInt()) ;	// レイヤ状態(after ver 1.0.3)
 	element.appendChild(elmLayer) ;
 
 	const QList<FrameData> &datas = root->getFrameData() ;
@@ -1121,14 +1122,18 @@ bool CAnm2DXml::addLayer_01000000( QDomNode &node, ObjectItem *pRoot, int maxLay
 			QString name ;
 			int frameDataNum = 0 ;
 			int childNum = 0 ;
+			int state = ObjectItem::kState_Disp ;
 
 			name = nodeMap.namedItem(kAnmXML_Attr_Name).toAttr().value() ;
 			frameDataNum = nodeMap.namedItem(kAnmXML_Attr_FrameNum).toAttr().value().toInt() ;
 			childNum = nodeMap.namedItem(kAnmXML_Attr_ChildNum).toAttr().value().toInt() ;
+			if ( !nodeMap.namedItem(kAnmXML_Attr_State).isNull() ) {
+				state = nodeMap.namedItem(kAnmXML_Attr_State).toAttr().value().toInt() ;
+			}
 
 			QModelIndex index = pModel->addItem(name, pRoot->getIndex()) ;
 			ObjectItem *pItem = pModel->getItemFromIndex(index) ;
-			pItem->setData(ObjectItem::kState_Disp, Qt::CheckStateRole) ;
+			pItem->setData(state, Qt::CheckStateRole) ;
 
 			QDomNode child = node.firstChild() ;
 			if ( !addFrameData_00001000(child, pItem, frameDataNum) ) {

@@ -990,7 +990,6 @@ void AnimationForm::slot_changeLayerLock( void )
 		brush.setColor(QColor(255, 0, 0));
 	}
 	pItem->setData(f, Qt::CheckStateRole);
-	pItem->setData(brush, Qt::ForegroundRole) ;
 	m_pGlWidget->update();
 }
 
