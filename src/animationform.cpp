@@ -70,12 +70,6 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	ui->spinBox_a->setMinimum(0);
 	ui->spinBox_a->setMaximum(255);
 	ui->checkBox_grid->setChecked(true);
-/*
-	ui->comboBox_fps->addItem(tr("60 fps"));
-	ui->comboBox_fps->addItem(tr("30 fps"));
-	ui->comboBox_fps->addItem(tr("15 fps"));
-	ui->comboBox_fps->setCurrentIndex(0);
-*/
 	ui->spinBox_fps->setValue(60) ;
 	ui->checkBox_frame->setChecked(pSetting->getDrawFrame());
 	ui->checkBox_center->setChecked(pSetting->getDrawCenter());

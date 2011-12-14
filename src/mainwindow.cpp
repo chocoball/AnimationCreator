@@ -8,6 +8,8 @@
 #include "util.h"
 #include "colorpickerform.h"
 
+#define kExecName	"Animation Creator2"
+
 #define FILE_EXT_ANM2D_XML	".xml"
 #define FILE_EXT_ANM2D_BIN	".anm2"
 #define FILE_EXT_JSON		".json"
@@ -31,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 	readRootSetting() ;
 
-	setWindowTitle(tr("Animation Creator"));
+	setWindowTitle(tr(kExecName));
 	setUnifiedTitleAndToolBarOnMac(true);
 
 	connect(m_pMdiArea, SIGNAL(dropFiles(QString)), this, SLOT(slot_dropFiles(QString))) ;
@@ -44,6 +46,7 @@ MainWindow::MainWindow(QWidget *parent)
 	m_pLoupeWindow = NULL ;
 	m_pAnimationForm = NULL ;
 	m_pExportPNGForm = NULL ;
+	m_pCurveEditorForm = NULL ;
 
 	setObjectName("AnimationCreator MainWindow");
 /*
@@ -158,10 +161,10 @@ void MainWindow::slot_dropFiles(QString fileName)
 void MainWindow::slot_checkDataModified(int index)
 {
 	if ( m_UndoIndex == index ) {
-		setWindowTitle(tr("Animation Creator[%1]").arg(m_StrSaveFileName));
+		setWindowTitle(tr(kExecName"[%1]").arg(m_StrSaveFileName));
 	}
 	else {	// 編集してる
-		setWindowTitle(tr("Animation Creator[%1]*").arg(m_StrSaveFileName));
+		setWindowTitle(tr(kExecName"[%1]*").arg(m_StrSaveFileName));
 	}
 }
 
@@ -216,7 +219,7 @@ void MainWindow::slot_exportPNG( void )
 			return ;
 		}
 		m_pExportPNGForm = new ExportPNGForm(&m_EditData, &setting, this) ;
-		m_pExpngSubWindow = m_pMdiArea->addSubWindow( m_pExportPNGForm ) ;
+		m_pSubWindow_Expng = m_pMdiArea->addSubWindow( m_pExportPNGForm ) ;
 		m_pExportPNGForm->show() ;
 		connect(m_pAnimationForm->getGLWidget(), SIGNAL(sig_exportPNGRectChange()), m_pExportPNGForm, SLOT(slot_changeRect())) ;
 		connect(m_pExportPNGForm, SIGNAL(sig_changeRect()), m_pAnimationForm->getGLWidget(), SLOT(update())) ;
@@ -230,10 +233,10 @@ void MainWindow::slot_exportPNG( void )
 // 連番PNG 閉じる
 void MainWindow::slot_closeExportPNGForm( void )
 {
-	m_pMdiArea->removeSubWindow(m_pExpngSubWindow);
+	m_pMdiArea->removeSubWindow(m_pSubWindow_Expng);
 	delete m_pExportPNGForm ;
 	m_pExportPNGForm = NULL ;
-	m_pExpngSubWindow = NULL ;
+	m_pSubWindow_Expng = NULL ;
 }
 
 void MainWindow::slot_portCheckDrawCenter(bool flag)
@@ -281,6 +284,15 @@ void MainWindow::slot_destroyLoupeWindow( void )
 		setting.setLoupeWindowGeometry(m_pSubWindow_Loupe->saveGeometry()) ;
 	}
 	m_pSubWindow_Loupe = NULL ;
+}
+
+void MainWindow::slot_destroyCurveWindow(void)
+{
+	if ( m_pSubWindow_Curve ) {
+		qDebug("destroyCurveWindow save setting");
+		setting.setCurveWindowGeometry(m_pSubWindow_Curve->saveGeometry()) ;
+	}
+	m_pSubWindow_Curve = NULL ;
 }
 
 void MainWindow::slot_reqFinished(QNetworkReply *reply)
@@ -512,6 +524,7 @@ void MainWindow::createWindows( void )
 	makeAnimeWindow() ;
 	makeImageWindow() ;
 	makeLoupeWindow() ;
+	makeCurveWindow() ;
 }
 
 // imageDataのサイズを2の累乗に修正
@@ -538,6 +551,7 @@ bool MainWindow::fileOpen( QString fileName )
 		slot_destroyAnmWindow();
 		slot_destroyImgWindow();
 		slot_destroyLoupeWindow();
+		slot_destroyCurveWindow() ;
 		m_pMdiArea->closeAllSubWindows() ;	// 全部閉じる
 	}
 	m_EditData.resetData();
@@ -608,7 +622,7 @@ bool MainWindow::fileOpen( QString fileName )
 		resizeImage(p->Image);
 	}
 
-	setWindowTitle(tr("Animation Creator[%1]").arg(m_StrSaveFileName));
+	setWindowTitle(tr(kExecName"[%1]").arg(m_StrSaveFileName));
 
 	createWindows() ;
 
@@ -651,7 +665,7 @@ bool MainWindow::saveFile( QString fileName )
 		QApplication::restoreOverrideCursor();
 
 		m_UndoIndex = m_EditData.getUndoStack()->index() ;
-		setWindowTitle(tr("Animation Creator[%1]").arg(fileName));
+		setWindowTitle(tr(kExecName"[%1]").arg(fileName));
 		return true ;
 	}
 	// バイナリ
@@ -682,7 +696,7 @@ bool MainWindow::saveFile( QString fileName )
 		QApplication::restoreOverrideCursor();
 
 		m_UndoIndex = m_EditData.getUndoStack()->index() ;
-		setWindowTitle(tr("Animation Creator[%1]").arg(fileName));
+		setWindowTitle(tr(kExecName"[%1]").arg(fileName));
 		qDebug() << "save successed" ;
 		return true ;
 	}
@@ -764,6 +778,17 @@ void MainWindow::makeAnimeWindow( void )
 	connect(m_pAnimationForm, SIGNAL(sig_pushColorToolButton()), this, SLOT(slot_pushColorToolButton())) ;
 
 	connect(m_pSubWindow_Anm, SIGNAL(destroyed()), this, SLOT(slot_destroyAnmWindow())) ;
+}
+
+// カーブエディタフォーム作成
+void MainWindow::makeCurveWindow( void )
+{
+	m_pCurveEditorForm = new CurveEditorForm(&m_EditData, &setting, m_pMdiArea) ;
+	m_pSubWindow_Curve = m_pMdiArea->addSubWindow(m_pCurveEditorForm) ;
+	m_pCurveEditorForm->show() ;
+	m_pSubWindow_Curve->restoreGeometry(setting.getCurveWindowGeometry()) ;
+
+	connect(m_pSubWindow_Curve, SIGNAL(destroyed()), this, SLOT(slot_destroyCurveWindow())) ;
 }
 
 // 読み込んでるイメージデータの最終更新日時をチェック

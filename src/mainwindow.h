@@ -11,6 +11,7 @@
 #include "cloupewindow.h"
 #include "helpwindow.h"
 #include "exportpngform.h"
+#include "curveeditorform.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -59,6 +60,7 @@ public slots:
 	void slot_destroyAnmWindow( void ) ;
 	void slot_destroyImgWindow( void ) ;
 	void slot_destroyLoupeWindow( void ) ;
+	void slot_destroyCurveWindow(void) ;
 
 	void slot_reqFinished(QNetworkReply *reply) ;
 	void slot_exportJSON() ;
@@ -87,6 +89,7 @@ private:
 	void makeImageWindow( void ) ;
 	void makeLoupeWindow( void ) ;
 	void makeAnimeWindow( void ) ;
+	void makeCurveWindow( void ) ;
 
 	void checkFileModified( void ) ;
 
@@ -103,7 +106,13 @@ private:
 	CLoupeWindow		*m_pLoupeWindow ;		// ルーペウィンドウ
 	AnimationForm		*m_pAnimationForm ;		// アニメーションフォーム
 	ExportPNGForm		*m_pExportPNGForm ;		// PNG吐き出しフォーム
-	QMdiSubWindow		*m_pExpngSubWindow ;
+	CurveEditorForm		*m_pCurveEditorForm ;	// カーブエディタフォーム
+
+	QMdiSubWindow		*m_pSubWindow_Anm ;
+	QMdiSubWindow		*m_pSubWindow_Img ;
+	QMdiSubWindow		*m_pSubWindow_Loupe ;
+	QMdiSubWindow		*m_pSubWindow_Expng ;
+	QMdiSubWindow		*m_pSubWindow_Curve ;
 
 	// 編集データ ----
 	QString				m_StrSaveFileName ;		// 保存ファイル名
@@ -140,10 +149,6 @@ private:
 	QAction				*m_pActDbgDump ;
 	QAction				*m_pActDbgFlat ;
 #endif
-
-	QMdiSubWindow		*m_pSubWindow_Anm ;
-	QMdiSubWindow		*m_pSubWindow_Img ;
-	QMdiSubWindow		*m_pSubWindow_Loupe ;
 };
 
 #endif // MAINWINDOW_H

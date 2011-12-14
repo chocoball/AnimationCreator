@@ -29,6 +29,7 @@ public:
 	kAccessor(QByteArray,	m_anmWindowGeometry,		AnmWindowGeometry)
 	kAccessor(QByteArray,	m_imgWindowGeometry,		ImgWindowGeometry)
 	kAccessor(QByteArray,	m_loupeWindowGeometry,		LoupeWindowGeometry)
+	kAccessor(QByteArray,	m_curveWindowGeometry,		CurveWindowGeometry)
 	kAccessor(int,			m_anmWindowTreeWidth,		AnmWindowTreeWidth)
 	kAccessor(int,			m_anmWindowTreeWidthIndex,	AnmWindowTreeWidthIndex)
 	kAccessor(int,			m_anmWindowScreenW,			AnmWindowScreenW)
