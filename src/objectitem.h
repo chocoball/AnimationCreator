@@ -66,7 +66,7 @@ public:
 	QMatrix4x4 getParentDispMatrix(int frame, bool *bValid = 0) ;
 	FrameData *getFrameDataFromPrevFrame(int frame, bool bRepeat = false) ;
 	FrameData *getFrameDataFromNextFrame(int frame) ;
-	bool isContain(ObjectItem **ppRet, QPoint &pos, int frame, bool bChild = true) ;
+	bool isContain(ObjectItem **ppRet, QPoint &pos, int frame, bool bChild = true, bool bCheckFlag = true) ;
 
 	QPointF getBezierPos(int frame, bool *pValid) ;
 

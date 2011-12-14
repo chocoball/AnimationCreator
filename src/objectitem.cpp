@@ -234,11 +234,18 @@ FrameData *ObjectItem::getFrameDataFromNextFrame(int frame)
 	return NULL ;
 }
 
-bool ObjectItem::isContain(ObjectItem **ppRet, QPoint &pos, int frame, bool bChild)
+bool ObjectItem::isContain(ObjectItem **ppRet, QPoint &pos, int frame, bool bChild, bool bCheckFlag)
 {
 	if ( bChild ) {
 		for ( int i = childCount()-1 ; i >= 0  ; i -- ) {
 			if ( child(i)->isContain(ppRet, pos, frame, true) ) { return true ; }
+		}
+	}
+
+	if ( bCheckFlag ) {
+		int flag = data(Qt::CheckStateRole).toInt() ;
+		if ( !(flag & kState_Disp) || (flag & kState_Lock) ) {	// 非表示
+			return false ;
 		}
 	}
 

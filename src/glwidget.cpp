@@ -619,19 +619,28 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 		}
 
 		if ( pItem->isContain(&pItem, localPos, frame) ) {
-			int flag = pItem->data(Qt::CheckStateRole).toInt() ;
-			if ( !(flag & ObjectItem::kState_Disp) || (flag & ObjectItem::kState_Lock) ) {	// 非表示
-				qDebug() << "mousePressEvent not display:" << flag ;
-				event->ignore();
-				return ;
-			}
-
 			if ( !pItem->getFrameDataPtr(frame) ) {
 				// データがないので追加
 				FrameData data = pItem->getDisplayFrameData(frame) ;
 				emit sig_selectPrevLayer(pItem->getIndex(), frame, data) ;
 			}
 
+			FrameData *p = pItem->getFrameDataPtr(frame) ;
+			if ( p ) {
+				m_editFrameDataOld = *p ;
+				m_rotStart = (float)p->rot_z * M_PI / 180.0f ;
+
+				emit sig_selectLayerChanged(pItem->getIndex()) ;
+				m_dragMode = kDragMode_Edit ;
+			}
+		}
+		else if ( pModel->isLayer(index) ) {
+			pItem = pModel->getItemFromIndex(index) ;
+			if ( !pItem->getFrameDataPtr(frame) ) {
+				// データがないので追加
+				FrameData data = pItem->getDisplayFrameData(frame) ;
+				emit sig_selectPrevLayer(pItem->getIndex(), frame, data) ;
+			}
 			FrameData *p = pItem->getFrameDataPtr(frame) ;
 			if ( p ) {
 				m_editFrameDataOld = *p ;
