@@ -28,7 +28,8 @@ CurveEditorForm::CurveEditorForm(CEditData *pEditData, CSettings *pSetting, QWid
 	pModel->setStringList(list) ;
 	ui->listView->setModel(pModel) ;
 
-	m_pGraphLabel = new CurveGraphLabel(this) ;
+	m_pGraphLabel = new CurveGraphLabel(pEditData, this) ;
+	m_pGraphLabel->setCurrentMag(m_fMag) ;
 	ui->scrollArea->setWidget(m_pGraphLabel) ;
 
 	connect(ui->listView, SIGNAL(clicked(QModelIndex)), this, SLOT(slot_clickedListView(QModelIndex))) ;
@@ -50,7 +51,7 @@ void CurveEditorForm::paintEvent(QPaintEvent *event)
 // リストビュークリック時
 void CurveEditorForm::slot_clickedListView(QModelIndex index)
 {
-
+	m_pGraphLabel->setCurrentDispType(index.row()) ;
 }
 
 // フレーム リサイズ時

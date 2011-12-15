@@ -764,9 +764,9 @@ void MainWindow::makeAnimeWindow( void )
 	m_pAnimationForm = new AnimationForm( &m_EditData, &setting, m_pMdiArea ) ;
 	m_pSubWindow_Anm = m_pMdiArea->addSubWindow( m_pAnimationForm ) ;
 	m_pAnimationForm->show();
-	m_pAnimationForm->setBarCenter();
 	m_pAnimationForm->slot_endedOption();
 	m_pSubWindow_Anm->restoreGeometry(setting.getAnmWindowGeometry()) ;
+	m_pAnimationForm->setBarCenter();
 
 	m_pActAnimeWindow->setEnabled(true);
 	m_pActAnimeWindow->setChecked(true);

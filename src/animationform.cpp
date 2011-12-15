@@ -328,9 +328,9 @@ void AnimationForm::setBarCenter( void )
 {
 	QScrollBar *pBar ;
 	pBar = ui->scrollArea_anime->horizontalScrollBar() ;
-	pBar->setValue( (pBar->maximum()-pBar->minimum()) / 2 );
+	pBar->setValue( pBar->maximum() / 2 ) ;
 	pBar = ui->scrollArea_anime->verticalScrollBar() ;
-	pBar->setValue( (pBar->maximum()-pBar->minimum()) / 2 );
+	pBar->setValue( pBar->maximum() / 2 ) ;
 }
 
 // デバッグ用。オブジェクト情報ダンプ
