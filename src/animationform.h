@@ -41,6 +41,7 @@ signals:
 	void sig_portCheckDrawCenter(bool) ;
 	void sig_portDragedImage(FrameData) ;
 	void sig_pushColorToolButton( void ) ;
+	void sig_changeSelectLayer(QModelIndex) ;
 
 public slots:
 	void slot_createNewObject( void ) ;

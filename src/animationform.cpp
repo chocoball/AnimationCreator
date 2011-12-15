@@ -498,6 +498,8 @@ void AnimationForm::slot_selectLayerChanged( QModelIndex indexLayer )
 	}
 
 	m_pGlWidget->update();
+
+	emit sig_changeSelectLayer(indexLayer) ;
 }
 
 // UI数値セット
@@ -814,6 +816,7 @@ void AnimationForm::slot_changeSelectObject(QModelIndex index)
 		if ( valid ) {
 			slot_setUI(data) ;
 		}
+		emit sig_changeSelectLayer(index) ;
 	}
 
 	ObjectItem *pObj = pModel->getObject(index) ;

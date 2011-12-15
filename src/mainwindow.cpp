@@ -341,6 +341,11 @@ void MainWindow::slot_exportJSON()
 	msgBox.exec() ;
 }
 
+void MainWindow::slot_changeSelectLayer(QModelIndex index)
+{
+	emit sig_changeSelectLayer(index) ;
+}
+
 #ifndef QT_NO_DEBUG
 void MainWindow::slot_dbgObjectDump( void )
 {
@@ -776,6 +781,7 @@ void MainWindow::makeAnimeWindow( void )
 	connect(m_pAnimationForm, SIGNAL(sig_portCheckDrawCenter(bool)), this, SLOT(slot_portCheckDrawCenter(bool))) ;
 	connect(m_pAnimationForm, SIGNAL(sig_portDragedImage(FrameData)), this, SLOT(slot_portDragedImage(FrameData))) ;
 	connect(m_pAnimationForm, SIGNAL(sig_pushColorToolButton()), this, SLOT(slot_pushColorToolButton())) ;
+	connect(m_pAnimationForm, SIGNAL(sig_changeSelectLayer(QModelIndex)), this, SLOT(slot_changeSelectLayer(QModelIndex))) ;
 
 	connect(m_pSubWindow_Anm, SIGNAL(destroyed()), this, SLOT(slot_destroyAnmWindow())) ;
 }
@@ -788,6 +794,7 @@ void MainWindow::makeCurveWindow( void )
 	m_pCurveEditorForm->show() ;
 	m_pSubWindow_Curve->restoreGeometry(setting.getCurveWindowGeometry()) ;
 
+	connect(this, SIGNAL(sig_changeSelectLayer(QModelIndex)), m_pCurveEditorForm, SLOT(slot_changeSelLayer(QModelIndex))) ;
 	connect(m_pSubWindow_Curve, SIGNAL(destroyed()), this, SLOT(slot_destroyCurveWindow())) ;
 }
 

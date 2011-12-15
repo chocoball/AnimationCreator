@@ -25,6 +25,7 @@ protected:
 public slots:
 	void slot_clickedListView(QModelIndex index) ;
 	void slot_resizeFrame(QResizeEvent *) ;
+	void slot_changeSelLayer(QModelIndex) ;
 
 private:
 	Ui::CurveEditorForm *ui ;

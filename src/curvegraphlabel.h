@@ -34,6 +34,7 @@ public:
 		kDispType_ColorA
 	} ;
 
+	void adjustSize() ;
 signals:
 
 public slots:
@@ -48,6 +49,7 @@ protected:
 private:
 	QList< QPair<int, float> > getDatasFromCurrentType(ObjectItem *pLayer) ;
 	QPair<float, float> getDataSubMaxMin(const QList< QPair<int, float> > &datas) ;
+	void drawFrameNum(QPainter &painter, int max) ;
 
 private:
 	CEditData		*m_pEditData ;

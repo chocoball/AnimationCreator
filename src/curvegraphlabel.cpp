@@ -1,5 +1,7 @@
 #include "curvegraphlabel.h"
 
+#define kFrameNumWidth		20
+#define kDataSubNumWidth	20
 
 CurveGraphLabel::CurveGraphLabel(CEditData *pEditData, QWidget *parent) :
     QLabel(parent)
@@ -8,6 +10,40 @@ CurveGraphLabel::CurveGraphLabel(CEditData *pEditData, QWidget *parent) :
 	m_currDispType = kDispType_None ;
 }
 
+// ラベルサイズ調整
+void CurveGraphLabel::adjustSize()
+{
+	if ( m_currDispType == kDispType_None ) { return ; }
+
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	if ( !pModel->isLayer(m_currIndex) ) { return ; }
+	ObjectItem *pItem = pModel->getItemFromIndex(m_currIndex) ;
+	if ( !pItem ) { return ; }
+
+	QList< QPair<int, float> > datas = getDatasFromCurrentType(pItem) ;
+	if ( datas.size() < 1 ) { return ; }
+
+	// フレーム数の最小、最大
+	QPair<int, int> frameMaxMin = qMakePair(datas.first().first, datas.last().first) ;
+	// データ差分の最小、最大
+	QPair<float, float> dataSubMaxMin = getDataSubMaxMin(datas) ;
+
+	float dataAbs = fabs(dataSubMaxMin.first)>fabs(dataSubMaxMin.second) ? dataSubMaxMin.first : dataSubMaxMin.second ;
+	dataAbs = fabs(dataAbs) ;
+	float dataSingleStep ;
+	if ( dataAbs < 1 ) { dataSingleStep = 0.5 ; }
+	else if ( dataAbs < 10 ) { dataSingleStep = 1 ; }
+	else { dataSingleStep = 5 ; }
+
+	QSize size ;
+	size.setWidth((frameMaxMin.second+20)*kFrameNumWidth + 20);
+	size.setHeight(dataAbs/dataSingleStep*2*kDataSubNumWidth + 20);
+	resize(size) ;
+
+	qDebug() << "CurveGraphLabel size" << size ;
+}
+
+// ペイントイベント
 void CurveGraphLabel::paintEvent(QPaintEvent *event)
 {
 	if ( m_currDispType == kDispType_None ) { return ; }
@@ -25,7 +61,15 @@ void CurveGraphLabel::paintEvent(QPaintEvent *event)
 	// データ差分の最小、最大
 	QPair<float, float> dataSubMaxMin = getDataSubMaxMin(datas) ;
 
+	float dataAbs = fabs(dataSubMaxMin.first)>fabs(dataSubMaxMin.second) ? dataSubMaxMin.first : dataSubMaxMin.second ;
+	dataAbs = fabs(dataAbs) ;
+	float dataSingleStep ;
+	if ( dataAbs < 1 ) { dataSingleStep = 0.5 ; }
+	else if ( dataAbs < 10 ) { dataSingleStep = 1 ; }
+	else { dataSingleStep = 5 ; }
 
+	QPainter painter(this) ;
+	drawFrameNum(painter, frameMaxMin.second) ;
 }
 
 // 現在の表示タイプからデータ取得
@@ -83,3 +127,12 @@ QPair<float, float> CurveGraphLabel::getDataSubMaxMin(const QList< QPair<int, fl
 	}
 	return qMakePair(min, max) ;
 }
+
+void CurveGraphLabel::drawFrameNum(QPainter &painter, int max)
+{
+	for ( int i = 0 ; i < max+20 ; i ++ ) {
+		painter.drawLine(20 + i*kFrameNumWidth, height()-20, 20 + i*kFrameNumWidth, height()) ;
+	}
+}
+
+

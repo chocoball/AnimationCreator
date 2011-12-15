@@ -64,6 +64,7 @@ public slots:
 
 	void slot_reqFinished(QNetworkReply *reply) ;
 	void slot_exportJSON() ;
+	void slot_changeSelectLayer(QModelIndex) ;
 
 #ifndef QT_NO_DEBUG
 	void slot_dbgObjectDump( void ) ;
@@ -98,6 +99,7 @@ signals:
 	void sig_endedOption( void ) ;
 	void sig_portCheckDrawCenter(bool) ;
 	void sig_portDragedImage(FrameData) ;
+	void sig_changeSelectLayer(QModelIndex) ;
 
 private:
 	CDropableMdiArea	*m_pMdiArea ;

@@ -52,6 +52,8 @@ void CurveEditorForm::paintEvent(QPaintEvent *event)
 void CurveEditorForm::slot_clickedListView(QModelIndex index)
 {
 	m_pGraphLabel->setCurrentDispType(index.row()) ;
+	m_pGraphLabel->adjustSize() ;
+	m_pGraphLabel->repaint() ;
 }
 
 // フレーム リサイズ時
@@ -61,3 +63,10 @@ void CurveEditorForm::slot_resizeFrame(QResizeEvent *event)
 	ui->scrollArea->resize(size.width()-10-10, size.height()-10-10);
 }
 
+// 選択レイヤ変更時
+void CurveEditorForm::slot_changeSelLayer(QModelIndex index)
+{
+	m_pGraphLabel->setCurrentIndex(index) ;
+	m_pGraphLabel->adjustSize() ;
+	m_pGraphLabel->repaint() ;
+}
