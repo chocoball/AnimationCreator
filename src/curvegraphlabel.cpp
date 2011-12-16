@@ -20,6 +20,7 @@ void CurveGraphLabel::adjustSize()
 	ObjectItem *pItem = pModel->getItemFromIndex(m_currIndex) ;
 	if ( !pItem ) { return ; }
 
+
 	QList< QPair<int, float> > datas = getDatasFromCurrentType(pItem) ;
 	if ( datas.size() < 1 ) { return ; }
 
@@ -131,7 +132,10 @@ QPair<float, float> CurveGraphLabel::getDataSubMaxMin(const QList< QPair<int, fl
 void CurveGraphLabel::drawFrameNum(QPainter &painter, int max)
 {
 	for ( int i = 0 ; i < max+20 ; i ++ ) {
-		painter.drawLine(20 + i*kFrameNumWidth, height()-20, 20 + i*kFrameNumWidth, height()) ;
+		painter.drawLine(20 + i*kFrameNumWidth, height()-10, 20 + i*kFrameNumWidth, height()) ;
+		if ( !(i % 10) ) {
+			painter.drawText(QRect(20 + i*kFrameNumWidth+2, height()-10, 20, 10), QString("%1").arg(i)) ;
+		}
 	}
 }
 

@@ -45,7 +45,7 @@ void CurveEditorForm::paintEvent(QPaintEvent *event)
 	int h_pos = ui->scrollArea->horizontalScrollBar()->value() ;
 	int v_pos = ui->scrollArea->verticalScrollBar()->value() ;
 
-	qDebug() << "h_pos:" << h_pos << " v_pos:" << v_pos ;
+//	qDebug() << "h_pos:" << h_pos << " v_pos:" << v_pos ;
 }
 
 // リストビュークリック時

@@ -35,9 +35,8 @@ SOURCES		+=	src/animationform.cpp			\
 				src/objectitem.cpp				\
 				src/setting.cpp					\
 				src/keyboardmodel.cpp			\
-				src/curveeditorform.cpp \
-    src/curveeditorframe.cpp \
-    src/curvegraphlabel.cpp
+				src/curveeditorform.cpp			\
+				src/curvegraphlabel.cpp
 
 HEADERS		+=	src/Anm2dTypes.h				\
 				src/animationform.h				\
@@ -67,9 +66,8 @@ HEADERS		+=	src/Anm2dTypes.h				\
 				src/objectitem.h				\
 				src/framedata.h					\
 				src/keyboardmodel.h				\
-				src/curveeditorform.h \
-    src/curveeditorframe.h \
-    src/curvegraphlabel.h
+				src/curveeditorform.h			\
+				src/curvegraphlabel.h
 
 RESOURCES	+=	Resource.qrc
 
@@ -82,8 +80,6 @@ FORMS		+= 	ui/animationform.ui				\
 				ui/curveeditorform.ui
 
 CONFIG		+=	help
-
-
 
 
 
