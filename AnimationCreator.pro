@@ -34,10 +34,6 @@ SOURCES		+=	src/animationform.cpp			\
 				src/debug.cpp					\
 				src/objectitem.cpp				\
 				src/setting.cpp					\
-				src/keyboardmodel.cpp			\
-				src/curveeditorform.cpp			\
-				src/curvegraphlabel.cpp
-
 HEADERS		+=	src/Anm2dTypes.h				\
 				src/animationform.h				\
 				src/canm2d.h					\
@@ -65,10 +61,6 @@ HEADERS		+=	src/Anm2dTypes.h				\
 				src/include.h					\
 				src/objectitem.h				\
 				src/framedata.h					\
-				src/keyboardmodel.h				\
-				src/curveeditorform.h			\
-				src/curvegraphlabel.h
-
 RESOURCES	+=	Resource.qrc
 
 FORMS		+= 	ui/animationform.ui				\
@@ -76,8 +68,8 @@ FORMS		+= 	ui/animationform.ui				\
 				ui/exportpngform.ui				\
 				ui/OptionAnimationTab.ui		\
 				ui/colorpickerform.ui			\
-				ui/KeyboardTab.ui				\
-				ui/curveeditorform.ui
+				ui/KeyboardTab.ui
+
 
 CONFIG		+=	help
 
