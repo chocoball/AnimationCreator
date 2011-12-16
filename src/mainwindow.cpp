@@ -46,7 +46,6 @@ MainWindow::MainWindow(QWidget *parent)
 	m_pLoupeWindow = NULL ;
 	m_pAnimationForm = NULL ;
 	m_pExportPNGForm = NULL ;
-	m_pCurveEditorForm = NULL ;
 
 	setObjectName("AnimationCreator MainWindow");
 /*
@@ -524,7 +523,6 @@ void MainWindow::createWindows( void )
 	makeAnimeWindow() ;
 	makeImageWindow() ;
 	makeLoupeWindow() ;
-	makeCurveWindow() ;
 }
 
 // imageDataのサイズを2の累乗に修正
@@ -778,17 +776,6 @@ void MainWindow::makeAnimeWindow( void )
 	connect(m_pAnimationForm, SIGNAL(sig_pushColorToolButton()), this, SLOT(slot_pushColorToolButton())) ;
 
 	connect(m_pSubWindow_Anm, SIGNAL(destroyed()), this, SLOT(slot_destroyAnmWindow())) ;
-}
-
-// カーブエディタフォーム作成
-void MainWindow::makeCurveWindow( void )
-{
-	m_pCurveEditorForm = new CurveEditorForm(&m_EditData, &setting, m_pMdiArea) ;
-	m_pSubWindow_Curve = m_pMdiArea->addSubWindow(m_pCurveEditorForm) ;
-	m_pCurveEditorForm->show() ;
-	m_pSubWindow_Curve->restoreGeometry(setting.getCurveWindowGeometry()) ;
-
-	connect(m_pSubWindow_Curve, SIGNAL(destroyed()), this, SLOT(slot_destroyCurveWindow())) ;
 }
 
 // 読み込んでるイメージデータの最終更新日時をチェック

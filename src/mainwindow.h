@@ -11,7 +11,6 @@
 #include "cloupewindow.h"
 #include "helpwindow.h"
 #include "exportpngform.h"
-#include "curveeditorform.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -89,7 +88,6 @@ private:
 	void makeImageWindow( void ) ;
 	void makeLoupeWindow( void ) ;
 	void makeAnimeWindow( void ) ;
-	void makeCurveWindow( void ) ;
 
 	void checkFileModified( void ) ;
 
@@ -106,7 +104,6 @@ private:
 	CLoupeWindow		*m_pLoupeWindow ;		// ルーペウィンドウ
 	AnimationForm		*m_pAnimationForm ;		// アニメーションフォーム
 	ExportPNGForm		*m_pExportPNGForm ;		// PNG吐き出しフォーム
-	CurveEditorForm		*m_pCurveEditorForm ;	// カーブエディタフォーム
 
 	QMdiSubWindow		*m_pSubWindow_Anm ;
 	QMdiSubWindow		*m_pSubWindow_Img ;
