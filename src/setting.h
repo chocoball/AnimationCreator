@@ -34,6 +34,8 @@ public:
 	kAccessor(int,			m_anmWindowTreeWidthIndex,	AnmWindowTreeWidthIndex)
 	kAccessor(int,			m_anmWindowScreenW,			AnmWindowScreenW)
 	kAccessor(int,			m_anmWindowScreenH,			AnmWindowScreenH)
+	kAccessor(int,			m_curveSplitterWidth,		CurveSplitterWidth)
+	kAccessor(int,			m_curveSplitterWidthIndex,	CurveSplitterWidthIndex)
 
 	kAccessor(QKeySequence,	m_scPosSelect,				ShortcutPosSelect)
 	kAccessor(QKeySequence,	m_scRotSelect,				ShortcutRotSelect)

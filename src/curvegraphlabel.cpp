@@ -20,7 +20,6 @@ void CurveGraphLabel::adjustSize()
 	ObjectItem *pItem = pModel->getItemFromIndex(m_currIndex) ;
 	if ( !pItem ) { return ; }
 
-
 	QList< QPair<int, float> > datas = getDatasFromCurrentType(pItem) ;
 	if ( datas.size() < 1 ) { return ; }
 
@@ -32,16 +31,35 @@ void CurveGraphLabel::adjustSize()
 	float dataAbs = fabs(dataSubMaxMin.first)>fabs(dataSubMaxMin.second) ? dataSubMaxMin.first : dataSubMaxMin.second ;
 	dataAbs = fabs(dataAbs) ;
 	float dataSingleStep ;
-	if ( dataAbs < 1 ) { dataSingleStep = 0.5 ; }
-	else if ( dataAbs < 10 ) { dataSingleStep = 1 ; }
-	else { dataSingleStep = 5 ; }
+	if ( dataAbs < 1 ) {
+		dataSingleStep = 0.5 ;
+		dataSubMaxMin.first = 1 ;
+	}
+	else if ( dataAbs < 10 ) {
+		dataSingleStep = 1 ;
+		dataSubMaxMin.first = 10 ;
+	}
+	else if ( dataAbs < 100 ) {
+		dataSingleStep = 10 ;
+		dataSubMaxMin.first = (int)(dataAbs / 10) + 10 ;
+	}
+	else {
+		dataSingleStep = 100 ;
+		dataSubMaxMin.first = (int)(dataAbs / 100) + 100 ;
+	}
+	dataSubMaxMin.second = -dataSubMaxMin.first ;
 
-	QSize size ;
-	size.setWidth((frameMaxMin.second+20)*kFrameNumWidth + 20);
-	size.setHeight(dataAbs/dataSingleStep*2*kDataSubNumWidth + 20);
-	resize(size) ;
+	int w = (frameMaxMin.second+20)*kFrameNumWidth + 20 ;
+	if ( w < this->parentWidget()->height() ) {
+		w = this->parentWidget()->height() ;
+	}
+	int h = dataAbs/dataSingleStep*2*kDataSubNumWidth + 20 ;
+	if ( h < this->parentWidget()->height() ) {
+		h = this->parentWidget()->height() ;
+	}
+	resize(w, h) ;
 
-	qDebug() << "CurveGraphLabel size" << size ;
+	qDebug() << "CurveGraphLabel size" << QSize(w,h) ;
 }
 
 // ペイントイベント
@@ -54,23 +72,51 @@ void CurveGraphLabel::paintEvent(QPaintEvent *event)
 	ObjectItem *pItem = pModel->getItemFromIndex(m_currIndex) ;
 	if ( !pItem ) { return ; }
 
-	QList< QPair<int, float> > datas = getDatasFromCurrentType(pItem) ;
-	if ( datas.size() < 1 ) { return ; }
+	m_currDispDatas = getDatasFromCurrentType(pItem) ;
+	if ( m_currDispDatas.size() < 1 ) { return ; }
 
 	// フレーム数の最小、最大
-	QPair<int, int> frameMaxMin = qMakePair(datas.first().first, datas.last().first) ;
+	QPair<int, int> frameMaxMin = qMakePair(m_currDispDatas.first().first, m_currDispDatas.last().first) ;
 	// データ差分の最小、最大
-	QPair<float, float> dataSubMaxMin = getDataSubMaxMin(datas) ;
+	QPair<float, float> dataSubMaxMin = getDataSubMaxMin(m_currDispDatas) ;
 
 	float dataAbs = fabs(dataSubMaxMin.first)>fabs(dataSubMaxMin.second) ? dataSubMaxMin.first : dataSubMaxMin.second ;
 	dataAbs = fabs(dataAbs) ;
-	float dataSingleStep ;
-	if ( dataAbs < 1 ) { dataSingleStep = 0.5 ; }
-	else if ( dataAbs < 10 ) { dataSingleStep = 1 ; }
-	else { dataSingleStep = 5 ; }
+	m_dataSingleStep = 0 ;
+	if ( dataAbs < 1 ) {
+		m_dataSingleStep = 0.5 ;
+		dataAbs = 1 ;
+	}
+	else if ( dataAbs < 10 ) {
+		m_dataSingleStep = 1 ;
+		dataAbs = 10 ;
+	}
+	else if ( dataAbs < 100 ) {
+		m_dataSingleStep = 10 ;
+		dataAbs = ((int)(dataAbs / 10)+1) * 10 ;
+	}
+	else {
+		m_dataSingleStep = 100 ;
+		dataAbs = ((int)(dataAbs / 100)+1) * 100 ;
+	}
+	int cnt = 0 ;
+	float curr = 1 ;
+	while ( curr < dataAbs ) {
+		cnt ++ ;
+		curr += m_dataSingleStep ;
+	}
+	m_dispStepH = (float)height()*0.5f / (dataAbs/m_dataSingleStep) ;
+	qDebug() << "dispStepH" << m_dispStepH << "singleStep" << m_dataSingleStep << "dataAbs" << dataAbs ;
 
 	QPainter painter(this) ;
 	drawFrameNum(painter, frameMaxMin.second) ;
+	painter.setRenderHint(QPainter::Antialiasing) ;
+	painter.setPen(QColor(255, 0, 0)) ;
+	drawDatas(painter) ;
+
+	painter.setRenderHint(QPainter::Antialiasing, false) ;
+	painter.setPen(QColor(0, 0, 0)) ;
+	drawDataSub(painter, dataAbs, m_dataSingleStep) ;
 }
 
 // 現在の表示タイプからデータ取得
@@ -132,11 +178,53 @@ QPair<float, float> CurveGraphLabel::getDataSubMaxMin(const QList< QPair<int, fl
 void CurveGraphLabel::drawFrameNum(QPainter &painter, int max)
 {
 	for ( int i = 0 ; i < max+20 ; i ++ ) {
-		painter.drawLine(20 + i*kFrameNumWidth, height()-10, 20 + i*kFrameNumWidth, height()) ;
+		if ( mapToParent(QPoint(25+i*kFrameNumWidth, 0)).x() < 25 ) { continue ; }
+
 		if ( !(i % 10) ) {
-			painter.drawText(QRect(20 + i*kFrameNumWidth+2, height()-10, 20, 10), QString("%1").arg(i)) ;
+			painter.drawText(QRect(25 + i*kFrameNumWidth+2, height()-10, 20, 10), QString("%1").arg(i)) ;
+			painter.setPen(QColor(128, 128, 0)) ;
 		}
+		else {
+			painter.setPen(QColor(0, 0, 0)) ;
+		}
+		painter.drawLine(25 + i*kFrameNumWidth, 0, 25 + i*kFrameNumWidth, height()) ;
 	}
 }
 
+void CurveGraphLabel::drawDataSub(QPainter &painter, float dataSubAbs, float step)
+{
+	int ofs_x = mapFromParent(QPoint(0, 0)).x() ;
 
+	painter.eraseRect(ofs_x, 0, 25, height()) ;
+
+	painter.setPen(QColor(128, 128, 0)) ;
+
+	int cnt = 0 ;
+	float curr = 0 ;
+	while ( curr < dataSubAbs ) {
+		painter.drawLine(20 + ofs_x, height()/2 - cnt*m_dispStepH, width(), height()/2 - cnt*m_dispStepH) ;
+		if ( !cnt ) {
+			painter.setPen(QColor(0, 0, 0)) ;
+		}
+
+		painter.drawText(QRect(1 + ofs_x, height()/2 - cnt*m_dispStepH - 5, 20, 10), QString("%1").arg(curr)) ;
+		if ( cnt ) {
+			painter.drawLine(20 + ofs_x, height()/2 + cnt*m_dispStepH, width(), height()/2 + cnt*m_dispStepH) ;
+			painter.drawText(QRect(1 + ofs_x, height()/2 + cnt*m_dispStepH - 5, 20, 10), QString("%1").arg(-curr)) ;
+		}
+		curr += step ;
+		cnt ++ ;
+	}
+}
+
+void CurveGraphLabel::drawDatas(QPainter &painter)
+{
+	const QPair<int, float> first = m_currDispDatas.at(0) ;
+	QPoint oldPos = QPoint(25 + first.first*kFrameNumWidth, height()/2) ;
+	for ( int i = 1 ; i < m_currDispDatas.size() ; i ++ ) {
+		const QPair<int, float> d = m_currDispDatas.at(i) ;
+		QPoint pos = QPoint(25 + d.first*kFrameNumWidth, height()/2 + (first.second-d.second)/m_dataSingleStep*m_dispStepH) ;
+		painter.drawLine(oldPos, pos) ;
+		oldPos = pos ;
+	}
+}

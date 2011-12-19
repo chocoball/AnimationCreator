@@ -76,7 +76,8 @@ FORMS		+= 	ui/animationform.ui				\
 				ui/exportpngform.ui				\
 				ui/OptionAnimationTab.ui		\
 				ui/colorpickerform.ui			\
-				ui/KeyboardTab.ui
+				ui/KeyboardTab.ui				\
+				ui/curveeditorform.ui
 
 
 CONFIG		+=	help

@@ -49,10 +49,17 @@ protected:
 private:
 	QList< QPair<int, float> > getDatasFromCurrentType(ObjectItem *pLayer) ;
 	QPair<float, float> getDataSubMaxMin(const QList< QPair<int, float> > &datas) ;
+
 	void drawFrameNum(QPainter &painter, int max) ;
+	void drawDataSub(QPainter &painter, float dataSubAbs, float step) ;
+	void drawDatas(QPainter &painter) ;
 
 private:
-	CEditData		*m_pEditData ;
+	CEditData					*m_pEditData ;
+
+	QList< QPair<int, float> >	m_currDispDatas ;
+	float						m_dispStepH ;
+	float						m_dataSingleStep ;
 };
 
 #endif // CURVEGRAPHLABEL_H

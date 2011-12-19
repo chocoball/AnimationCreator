@@ -384,6 +384,9 @@ void MainWindow::writeRootSetting( void )
 	if ( m_pSubWindow_Loupe ) {
 		setting.setLoupeWindowGeometry(m_pSubWindow_Loupe->saveGeometry()) ;
 	}
+	if ( m_pSubWindow_Curve ) {
+		setting.setCurveWindowGeometry(m_pSubWindow_Curve->saveGeometry()) ;
+	}
 
 	setting.write();
 }
@@ -793,6 +796,7 @@ void MainWindow::makeCurveWindow( void )
 	m_pSubWindow_Curve = m_pMdiArea->addSubWindow(m_pCurveEditorForm) ;
 	m_pCurveEditorForm->show() ;
 	m_pSubWindow_Curve->restoreGeometry(setting.getCurveWindowGeometry()) ;
+	m_pCurveEditorForm->setSplitterPos() ;
 
 	connect(this, SIGNAL(sig_changeSelectLayer(QModelIndex)), m_pCurveEditorForm, SLOT(slot_changeSelLayer(QModelIndex))) ;
 	connect(m_pSubWindow_Curve, SIGNAL(destroyed()), this, SLOT(slot_destroyCurveWindow())) ;

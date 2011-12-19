@@ -13,13 +13,14 @@ CurveEditorForm::CurveEditorForm(CEditData *pEditData, CSettings *pSetting, QWid
 	m_pSetting = pSetting ;
 
 	ui->setupUi(this) ;
+	setWindowTitle("GraphWindow") ;	// TODO:編集できるようになるまでこれで。
 
-	QSplitter *pSplitter = new QSplitter(this) ;
-	pSplitter->addWidget(ui->listView) ;
-	pSplitter->addWidget(ui->scrollArea) ;
+	m_pSplitter = new AnimationWindowSplitter(this) ;
+	m_pSplitter->addWidget(ui->listView) ;
+	m_pSplitter->addWidget(ui->scrollArea) ;
 
 	QHBoxLayout *pLayout = new QHBoxLayout(this) ;
-	pLayout->addWidget(pSplitter) ;
+	pLayout->addWidget(m_pSplitter) ;
 
 	QStringList list ;
 	list << "pos_x" << "pos_y" << "pos_z" << "rot_x" << "rot_y" << "rot_z" << "center_x" << "center_y" << "scale_x" << "scale_y" ;
@@ -33,6 +34,9 @@ CurveEditorForm::CurveEditorForm(CEditData *pEditData, CSettings *pSetting, QWid
 	ui->scrollArea->setWidget(m_pGraphLabel) ;
 
 	connect(ui->listView, SIGNAL(clicked(QModelIndex)), this, SLOT(slot_clickedListView(QModelIndex))) ;
+	connect(ui->scrollArea->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(slot_movedSlider(int))) ;
+	connect(ui->scrollArea->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(slot_movedSlider(int))) ;
+	connect(m_pSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(slot_movedSplitter(int, int))) ;
 }
 
 CurveEditorForm::~CurveEditorForm()
@@ -40,12 +44,15 @@ CurveEditorForm::~CurveEditorForm()
     delete ui;
 }
 
-void CurveEditorForm::paintEvent(QPaintEvent *event)
+void CurveEditorForm::setSplitterPos()
 {
-	int h_pos = ui->scrollArea->horizontalScrollBar()->value() ;
-	int v_pos = ui->scrollArea->verticalScrollBar()->value() ;
+	m_pSplitter->MoveSplitter(m_pSetting->getCurveSplitterWidth(), m_pSetting->getCurveSplitterWidthIndex()) ;
+}
 
-//	qDebug() << "h_pos:" << h_pos << " v_pos:" << v_pos ;
+void CurveEditorForm::resizeEvent(QResizeEvent *event)
+{
+	m_pGraphLabel->adjustSize() ;
+	m_pGraphLabel->repaint() ;
 }
 
 // リストビュークリック時
@@ -56,17 +63,21 @@ void CurveEditorForm::slot_clickedListView(QModelIndex index)
 	m_pGraphLabel->repaint() ;
 }
 
-// フレーム リサイズ時
-void CurveEditorForm::slot_resizeFrame(QResizeEvent *event)
-{
-	QSize size = event->size() ;
-	ui->scrollArea->resize(size.width()-10-10, size.height()-10-10);
-}
-
 // 選択レイヤ変更時
 void CurveEditorForm::slot_changeSelLayer(QModelIndex index)
 {
 	m_pGraphLabel->setCurrentIndex(index) ;
 	m_pGraphLabel->adjustSize() ;
 	m_pGraphLabel->repaint() ;
+}
+
+void CurveEditorForm::slot_movedSlider(int val)
+{
+	m_pGraphLabel->repaint() ;
+}
+
+void CurveEditorForm::slot_movedSplitter(int pos, int index)
+{
+	m_pSetting->setCurveSplitterWidth(pos) ;
+	m_pSetting->setCurveSplitterWidthIndex(index) ;
 }

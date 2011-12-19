@@ -55,6 +55,12 @@ void CSettings::read()
 	m_loupeWindowGeometry = settings.value("geometry").toByteArray() ;
 	settings.endGroup();
 
+	settings.beginGroup("CurveEditorWindow") ;
+	m_curveWindowGeometry = settings.value("geometry").toByteArray() ;
+	m_curveSplitterWidth = settings.value("splitter_width", -1).toInt() ;
+	m_curveSplitterWidthIndex = settings.value("splitter_width_idx", -1).toInt() ;
+	settings.endGroup() ;
+
 	settings.beginGroup("Shortcut");
 	m_scPosSelect = QKeySequence(settings.value("pos", "Z").toString()) ;
 	m_scRotSelect = QKeySequence(settings.value("rot", "X").toString()) ;
@@ -108,6 +114,12 @@ void CSettings::write()
 	settings.beginGroup("LoupeWindow");
 	settings.setValue("geometry",		m_loupeWindowGeometry) ;
 	settings.endGroup();
+
+	settings.beginGroup("CurveEditorWindow") ;
+	settings.setValue("geometry", m_curveWindowGeometry) ;
+	settings.setValue("splitter_width", m_curveSplitterWidth) ;
+	settings.setValue("splitter_width_idx", m_curveSplitterWidthIndex) ;
+	settings.endGroup() ;
 
 	settings.beginGroup("Shortcut");
 	settings.setValue("pos",			m_scPosSelect.toString()) ;

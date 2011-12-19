@@ -6,6 +6,7 @@
 #include "editdata.h"
 #include "setting.h"
 #include "curvegraphlabel.h"
+#include "AnimationWindowSplitter.h"
 
 namespace Ui {
     class CurveEditorForm;
@@ -19,21 +20,26 @@ public:
 	explicit CurveEditorForm(CEditData *pEditData, CSettings *pSetting, QWidget *parent = 0);
     ~CurveEditorForm();
 
+	void setSplitterPos() ;
+
 protected:
-	void paintEvent(QPaintEvent *event) ;
+	void resizeEvent(QResizeEvent *event) ;
 
 public slots:
 	void slot_clickedListView(QModelIndex index) ;
-	void slot_resizeFrame(QResizeEvent *) ;
 	void slot_changeSelLayer(QModelIndex) ;
+	void slot_movedSlider(int val) ;
+	void slot_movedSplitter(int pos, int index) ;
 
 private:
-	Ui::CurveEditorForm *ui ;
-	CEditData			*m_pEditData ;
-	CSettings			*m_pSetting ;
+	Ui::CurveEditorForm		*ui ;
+	CEditData				*m_pEditData ;
+	CSettings				*m_pSetting ;
 
-	CurveGraphLabel		*m_pGraphLabel ;
-	float				m_fMag ;
+	CurveGraphLabel			*m_pGraphLabel ;
+	float					m_fMag ;
+
+	AnimationWindowSplitter	*m_pSplitter ;
 };
 
 #endif // CURVEEDITORFORM_H
