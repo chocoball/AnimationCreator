@@ -221,10 +221,13 @@ void CurveGraphLabel::drawDatas(QPainter &painter)
 {
 	const QPair<int, float> first = m_currDispDatas.at(0) ;
 	QPoint oldPos = QPoint(25 + first.first*kFrameNumWidth, height()/2) ;
+
+	painter.fillRect(oldPos.x()-2, oldPos.y()-2, 4, 4, painter.pen().color());
 	for ( int i = 1 ; i < m_currDispDatas.size() ; i ++ ) {
 		const QPair<int, float> d = m_currDispDatas.at(i) ;
 		QPoint pos = QPoint(25 + d.first*kFrameNumWidth, height()/2 + (first.second-d.second)/m_dataSingleStep*m_dispStepH) ;
 		painter.drawLine(oldPos, pos) ;
+		painter.fillRect(pos.x()-2, pos.y()-2, 4, 4, painter.pen().color());
 		oldPos = pos ;
 	}
 }
