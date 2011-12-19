@@ -285,15 +285,6 @@ void MainWindow::slot_destroyLoupeWindow( void )
 	m_pSubWindow_Loupe = NULL ;
 }
 
-void MainWindow::slot_destroyCurveWindow(void)
-{
-	if ( m_pSubWindow_Curve ) {
-		qDebug("destroyCurveWindow save setting");
-		setting.setCurveWindowGeometry(m_pSubWindow_Curve->saveGeometry()) ;
-	}
-	m_pSubWindow_Curve = NULL ;
-}
-
 void MainWindow::slot_reqFinished(QNetworkReply *reply)
 {
 	if ( reply->error() ) {
@@ -549,7 +540,6 @@ bool MainWindow::fileOpen( QString fileName )
 		slot_destroyAnmWindow();
 		slot_destroyImgWindow();
 		slot_destroyLoupeWindow();
-		slot_destroyCurveWindow() ;
 		m_pMdiArea->closeAllSubWindows() ;	// 全部閉じる
 	}
 	m_EditData.resetData();

@@ -59,7 +59,6 @@ public slots:
 	void slot_destroyAnmWindow( void ) ;
 	void slot_destroyImgWindow( void ) ;
 	void slot_destroyLoupeWindow( void ) ;
-	void slot_destroyCurveWindow(void) ;
 
 	void slot_reqFinished(QNetworkReply *reply) ;
 	void slot_exportJSON() ;
@@ -109,7 +108,6 @@ private:
 	QMdiSubWindow		*m_pSubWindow_Img ;
 	QMdiSubWindow		*m_pSubWindow_Loupe ;
 	QMdiSubWindow		*m_pSubWindow_Expng ;
-	QMdiSubWindow		*m_pSubWindow_Curve ;
 
 	// 編集データ ----
 	QString				m_StrSaveFileName ;		// 保存ファイル名
