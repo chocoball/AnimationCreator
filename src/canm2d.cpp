@@ -1415,7 +1415,7 @@ void CAnm2DAsm::makeFromEditDataTip(QString qsLabel, ObjectItem *pObj)
 	
 	// キーフレーム
 	addString("\t.key:\n");
-	for(int i=0; i<pObj->getMaxFrameNum(false); i++){
+	for(int i=0; i<=pObj->getMaxFrameNum(false); i++){
 		bool		valid;
 		FrameData	frameData = pObj->getDisplayFrameData(i, &valid);
 		if(valid == false) continue;
@@ -1427,7 +1427,7 @@ void CAnm2DAsm::makeFromEditDataTip(QString qsLabel, ObjectItem *pObj)
 		addString("\t\t\tdw\t\t" + QString("%1").arg(frameData.rot_z) + "\t\t; sRot\n");
 		addString("\t\t\tdw\t\t" + QString("%1, %2").arg((int)(frameData.fScaleX * 4096.0f)).arg((int)(frameData.fScaleY * 4096.0f)) + "\t\t; svSca\n");
 		addString("\t\t\tdw\t\t" + QString("%1, %2").arg(frameData.center_x).arg(frameData.center_y) + "\t\t; svCenter\n");
-		addString("\t\t\tdw\t\t" + QString("%1, %2, %3, %4").arg(frameData.left).arg(frameData.right).arg(frameData.top).arg(frameData.bottom) + "\t\t; svUV\n");
+		addString("\t\t\tdw\t\t" + QString("%1, %2, %3, %4").arg(frameData.left).arg(frameData.top).arg(frameData.right).arg(frameData.bottom) + "\t\t; svUV\n");
 		addString("\t\t\tdb\t\t" + QString("%1, %2, %3, %4").arg(frameData.rgba[0]).arg(frameData.rgba[1]).arg(frameData.rgba[2]).arg(frameData.rgba[3]) + "\t\t; bvRGBA\n");
 		addString("\t\t\t\n");
 	}
@@ -1473,6 +1473,11 @@ bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 	addString(";---------------------------------------------------------------- ANM_HEAD\n");
 	addString("\t\t\tdb\t\t'ANM0'\t\t; ANM0\n");
 	addString("\t\t\tdb\t\t0, 0, 0, 0\t\t; uVersion\n");
+	if(pObj->getLoop()){
+		addString("\t\t\tdd\t\t00000001h\t\t; bFlag\n");
+	} else {
+		addString("\t\t\tdd\t\t00000000h\t\t; bFlag\n");
+	}
 	addString("\t\t\tdd\t\t" + QString("%1").arg(rEditData.getImageDataListSize()) + "\t\t; nVram\n");
 	addString("\t\t\tdd\t\t.vram\t\t; pauVram\n");
 	addString("\t\t\tdd\t\t" + QString("%1").arg(pRoot->childCount()) + "\t\t; nObject\n");
