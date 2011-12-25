@@ -341,6 +341,35 @@ void MainWindow::slot_exportJSON()
 	msgBox.exec() ;
 }
 
+// asm 吐き出し
+void MainWindow::slot_exportASM()
+{
+	QString	fileName = QFileDialog::getSaveFileName(this, trUtf8("名前を付けて保存"), setting.getSaveAsmDir(), tr("asm (*.asm)"));
+	
+	if ( fileName.isEmpty() ) { return ; }
+	
+	setting.setSaveAsmDir(fileName) ;
+	
+	CAnm2DAsm	data(setting.getFlat());
+	if ( !data.makeFromEditData(m_EditData) ) {
+		if ( data.getErrorNo() != CAnm2DBase::kErrorNo_Cancel ) {
+			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("コンバート失敗 %1:\n%2").arg(fileName).arg(data.getErrorNo())) ;
+		}
+		return ;
+	}
+	
+	QFile file(fileName) ;
+	if ( !file.open(QFile::WriteOnly) ) {
+		QMessageBox::warning(this, trUtf8("エラー"), trUtf8("保存失敗 %1:\n%2").arg(fileName).arg(file.errorString())) ;
+		return ;
+	}
+	file.write(data.getData().toAscii()) ;
+	
+	QMessageBox msgBox ;
+	msgBox.setText(trUtf8("asm吐き出し終了:")+fileName) ;
+	msgBox.exec() ;
+}
+
 void MainWindow::slot_changeSelectLayer(QModelIndex index)
 {
 	emit sig_changeSelectLayer(index) ;
@@ -420,6 +449,10 @@ void MainWindow::createActions( void )
 	m_pActExportJson = new QAction(trUtf8("JSON"), this) ;
 	connect(m_pActExportJson, SIGNAL(triggered()), this, SLOT(slot_exportJSON())) ;
 
+	// asm吐き出し
+	m_pActExportAsm = new QAction(trUtf8("asm"), this) ;
+	connect(m_pActExportAsm, SIGNAL(triggered()), this, SLOT(slot_exportASM())) ;
+
 	// 終了
 	m_pActExit = new QAction(trUtf8("E&xit"), this) ;
 	m_pActExit->setShortcuts(QKeySequence::Quit);
@@ -488,6 +521,7 @@ void MainWindow::createMenus( void )
 		QMenu *p = pMenu->addMenu(trUtf8("Export")) ;
 		p->addAction(m_pActExportPNG) ;
 		p->addAction(m_pActExportJson) ;
+		p->addAction(m_pActExportAsm);
 	}
 	pMenu->addSeparator() ;
 	pMenu->addAction(m_pActExit) ;

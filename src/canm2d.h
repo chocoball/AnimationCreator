@@ -226,4 +226,27 @@ private:
 	int				m_ObjNum, m_ImageNum ;
 };
 
+// asm形式
+#define		KM_VRAM_MAX		32
+class CAnm2DAsm : public CAnm2DBase
+{
+public:
+	CAnm2DAsm(bool bFlat);
+	~CAnm2DAsm();
+
+	void makeFromEditDataTip(QString qsLabel, ObjectItem *pObj);
+	bool makeFromEditData(CEditData &rEditData);
+
+	QString getData() { return m_Data; }
+
+private:
+	void addString(QString str, int tab=0);
+
+private:
+	bool			m_bFlat;
+	CObjectModel	*m_pModel;
+	QString			m_Data;
+	QString			m_aqsVramID[KM_VRAM_MAX];
+};
+
 #endif // CANM2D_H
