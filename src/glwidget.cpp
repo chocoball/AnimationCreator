@@ -629,6 +629,7 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 			if ( p ) {
 				m_editFrameDataOld = *p ;
 				m_rotStart = (float)p->rot_z * M_PI / 180.0f ;
+				m_dragStart = event->pos() ;
 
 				emit sig_selectLayerChanged(pItem->getIndex()) ;
 				m_dragMode = kDragMode_Edit ;
@@ -645,6 +646,7 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 			if ( p ) {
 				m_editFrameDataOld = *p ;
 				m_rotStart = (float)p->rot_z * M_PI / 180.0f ;
+				m_dragStart = event->pos() ;
 
 				emit sig_selectLayerChanged(pItem->getIndex()) ;
 				m_dragMode = kDragMode_Edit ;
@@ -682,7 +684,7 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 				bool valid ;
 				QMatrix4x4 mat = pItem->getDisplayMatrix(m_pEditData->getSelectFrame(), &valid) ;
 				if ( !valid ) { mat.setToIdentity(); }
-				QPoint ret = editData(pData, event->pos(), m_DragOffset, mat) ;
+				QPoint ret = editData(pData, event->pos(), m_DragOffset, mat, pItem, m_pEditData->getSelectFrame()) ;
 				m_DragOffset = ret ;
 				emit sig_dragedImage(*pData) ;
 				update() ;
@@ -720,7 +722,7 @@ void AnimeGLWidget::contextMenuEvent(QContextMenuEvent *event)
 /**
   データ編集
   */
-QPoint AnimeGLWidget::editData(FrameData *pData, QPoint nowPos, QPoint oldPos, QMatrix4x4 mat)
+QPoint AnimeGLWidget::editData(FrameData *pData, QPoint nowPos, QPoint oldPos, QMatrix4x4 mat, ObjectItem *pItem, int frame)
 {
 	if ( !pData ) {
 		return QPoint(0, 0) ;
@@ -760,13 +762,25 @@ QPoint AnimeGLWidget::editData(FrameData *pData, QPoint nowPos, QPoint oldPos, Q
 	else {
 		switch ( m_editMode ) {
 			case kEditMode_Pos:
-				pData->pos_x += sub.x() ;
-				pData->pos_y += sub.y() ;
+			{
+				sub = nowPos - m_dragStart ;
+
+				bool valid = false ;
+				QMatrix4x4 parentMatrix = pItem->getParentDispMatrix(frame, &valid) ;
+				if ( valid ) {
+					parentMatrix.setColumn(3, QVector4D(0, 0, 0, parentMatrix(3, 3))) ;
+					parentMatrix = parentMatrix.inverted(&valid) ;
+					sub = parentMatrix.map(sub) ;
+				}
+				pData->pos_x = m_editFrameDataOld.pos_x + sub.x() ;
+				pData->pos_y = m_editFrameDataOld.pos_y + sub.y() ;
+			}
 				break ;
 			case kEditMode_Rot:
 				{
-					QVector2D vOld = QVector2D(oldPos-QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) - QPoint(pData->pos_x, pData->pos_y)) ;
-					QVector2D vNow = QVector2D(nowPos-QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) - QPoint(pData->pos_x, pData->pos_y)) ;
+					QVector2D vOld = QVector2D(oldPos-QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) - QPoint(mat.column(3).x(), mat.column(3).y())) ;
+					QVector2D vNow = QVector2D(nowPos-QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) - QPoint(mat.column(3).x(), mat.column(3).y())) ;
+
 					vOld.normalize();
 					vNow.normalize();
 					float old = atan2(vOld.y(), vOld.x()) ;
@@ -782,19 +796,21 @@ QPoint AnimeGLWidget::editData(FrameData *pData, QPoint nowPos, QPoint oldPos, Q
 				}
 				break ;
 			case kEditMode_Center:
-#if 1
+#if 0
 				pData->center_x += sub.x() ;
 				pData->center_y += sub.y() ;
 #else
-				{
-					mat = pData->getMatrix() * mat ;
-					mat.setColumn(3, QVector4D(0, 0, 0, 1)) ;
-					qDebug() << "mat:" << mat ;
-					qDebug() << "inv:" << mat.inverted() ;
-					QVector3D v = mat.inverted() * QVector3D(sub.x(), sub.y(), 0) ;
-					pData->center_x += v.x() ;
-					pData->center_y += v.y() ;
-				}
+			{
+				sub = nowPos - m_dragStart ;
+
+				bool valid = false ;
+				mat.setColumn(3, QVector4D(0, 0, 0, mat(3, 3))) ;
+				mat = mat.inverted(&valid) ;
+				sub = mat.map(sub) ;
+
+				pData->center_x = m_editFrameDataOld.center_x - sub.x() ;
+				pData->center_y = m_editFrameDataOld.center_y - sub.y() ;
+			}
 #endif
 				break ;
 			case kEditMode_Scale:

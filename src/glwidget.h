@@ -75,7 +75,7 @@ protected:
 
 	void contextMenuEvent(QContextMenuEvent *event) ;
 
-	QPoint editData(FrameData *pData, QPoint nowPos, QPoint oldPos, QMatrix4x4 mat) ;
+	QPoint editData(FrameData *pData, QPoint nowPos, QPoint oldPos, QMatrix4x4 mat, ObjectItem *pItem, int frame) ;
 
 	void writePNGFromFrameBuffer( void ) ;
 	int getDigit(int num) ;
@@ -127,6 +127,7 @@ private:
 
 	float				m_rotStart ;				///< 回転変更時の開始ラジアン
 	int					m_dragPathIndex ;			///< ドラッグしてるパスインデックス(-1で無効)
+	QPoint				m_dragStart ;				///< マウス開始ポス
 
 	unsigned int		m_backImageTex ;
 	QImage				m_BackImage ;
