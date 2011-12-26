@@ -8,7 +8,6 @@
 #include "cdatamarkerlabel.h"
 #include "AnimationWindowSplitter.h"
 
-#define LAYOUT_OWN
 
 namespace Ui {
     class AnimationForm;
@@ -42,6 +41,8 @@ signals:
 	void sig_portDragedImage(FrameData) ;
 	void sig_pushColorToolButton( void ) ;
 	void sig_changeSelectLayer(QModelIndex) ;
+	void sig_changeFrameStart(int) ;
+	void sig_changeFrameEnd(int) ;
 
 public slots:
 	void slot_createNewObject( void ) ;
@@ -69,6 +70,8 @@ public slots:
 	void slot_changeUvBottom( int val ) ;
 	void slot_changeCenterX( int val ) ;
 	void slot_changeCenterY( int val ) ;
+	void slot_changeFrameStart(int val) ;
+	void slot_changeFrameEnd(int val) ;
 
 	void slot_treeViewMenuReq(QPoint treeViewLocalPos) ;
 	void slot_treeViewDoubleClicked(QModelIndex index) ;
@@ -142,9 +145,7 @@ protected:
 	void keyReleaseEvent(QKeyEvent *event);
 	void copyFrameData( void ) ;
 	void pasteFrameData( void ) ;
-#ifdef LAYOUT_OWN
 	void resizeEvent(QResizeEvent *event) ;
-#endif
 	void closeEvent(QCloseEvent *event) ;
 
 	void dumpObjects(ObjectItem *p, int tab) ;
@@ -174,6 +175,8 @@ private:
 	bool					m_bDontSetData ;
 
 	QSize					m_oldWinSize ;
+
+	int						m_frameStart, m_frameEnd ;
 };
 
 #endif // ANIMATIONFORM_H

@@ -11,6 +11,8 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	m_pEditData		= pImageData ;
 	m_pSetting		= pSetting ;
 	m_bDontSetData	= false ;
+	m_frameStart	= 0 ;
+	m_frameEnd		= 30 ;
 
 	m_oldWinSize = QSize(-1, -1) ;
 
@@ -27,29 +29,27 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	m_pGlWidget->show();
 
 	ui->radioButton_pos->setChecked(true);
-	ui->spinBox_nowSequence->setMaximum(CEditData::kMaxFrame);
-	ui->horizontalSlider_nowSequence->setMaximum(CEditData::kMaxFrame);
-	ui->spinBox_pos_x->setMinimum(-1028);
-	ui->spinBox_pos_x->setMaximum(1028);
-	ui->spinBox_pos_y->setMinimum(-1028);
-	ui->spinBox_pos_y->setMaximum(1028);
-	ui->spinBox_pos_z->setMinimum(-4096);
-	ui->spinBox_pos_z->setMaximum(4096);
+	ui->spinBox_pos_x->setMinimum(-9999);
+	ui->spinBox_pos_x->setMaximum(9999);
+	ui->spinBox_pos_y->setMinimum(-9999);
+	ui->spinBox_pos_y->setMaximum(9999);
+	ui->spinBox_pos_z->setMinimum(-9999);
+	ui->spinBox_pos_z->setMaximum(9999);
 	ui->spinBox_rot_x->setMinimum(-360);
 	ui->spinBox_rot_x->setMaximum(360);
 	ui->spinBox_rot_y->setMinimum(-360);
 	ui->spinBox_rot_y->setMaximum(360);
 	ui->spinBox_rot_z->setMinimum(-360);
 	ui->spinBox_rot_z->setMaximum(360);
-	ui->spinBox_center_x->setMinimum(-1028);
-	ui->spinBox_center_x->setMaximum(1028);
-	ui->spinBox_center_y->setMinimum(-1028);
-	ui->spinBox_center_y->setMaximum(1028);
-	ui->doubleSpinBox_scale_x->setMinimum(-1024.0);
-	ui->doubleSpinBox_scale_x->setMaximum(1024.0);
+	ui->spinBox_center_x->setMinimum(-9999);
+	ui->spinBox_center_x->setMaximum(9999);
+	ui->spinBox_center_y->setMinimum(-9999);
+	ui->spinBox_center_y->setMaximum(9999);
+	ui->doubleSpinBox_scale_x->setMinimum(-9999.0);
+	ui->doubleSpinBox_scale_x->setMaximum(9999.0);
 	ui->doubleSpinBox_scale_x->setSingleStep(0.01);
-	ui->doubleSpinBox_scale_y->setMinimum(-1024.0);
-	ui->doubleSpinBox_scale_y->setMaximum(1024.0);
+	ui->doubleSpinBox_scale_y->setMinimum(-9999.0);
+	ui->doubleSpinBox_scale_y->setMaximum(9999.0);
 	ui->doubleSpinBox_scale_y->setSingleStep(0.01);
 	ui->spinBox_uv_left->setMinimum(0);
 	ui->spinBox_uv_left->setMaximum(4096);
@@ -60,7 +60,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	ui->spinBox_uv_bottom->setMinimum(0);
 	ui->spinBox_uv_bottom->setMaximum(4096);
 	ui->spinBox_loop->setMinimum(-1);
-	ui->spinBox_loop->setMaximum(1024);
+	ui->spinBox_loop->setMaximum(9999);
 	ui->spinBox_r->setMinimum(0);
 	ui->spinBox_r->setMaximum(255);
 	ui->spinBox_g->setMinimum(0);
@@ -73,6 +73,10 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	ui->spinBox_fps->setValue(60) ;
 	ui->checkBox_frame->setChecked(pSetting->getDrawFrame());
 	ui->checkBox_center->setChecked(pSetting->getDrawCenter());
+	ui->spinBox_frame_start->setValue(m_frameStart) ;
+	ui->spinBox_frame_end->setValue(m_frameEnd) ;
+	ui->label_frame->slot_setFrameStart(m_frameStart) ;
+	ui->label_frame->slot_setFrameEnd(m_frameEnd) ;
 
 	for ( int i = 0 ; i < m_pEditData->getImageDataListSize() ; i ++ ) {
 		CEditData::ImageData *p = m_pEditData->getImageData(i) ;
@@ -121,14 +125,10 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	m_pTimer = new QTimer(this) ;
 	m_pTimer->setInterval((int)(100.0f/6.0f));
 
-	m_pDataMarker = new CDataMarkerLabel(m_pEditData, this) ;
-	m_pDataMarker->setGeometry(ui->horizontalSlider_nowSequence->x()+5,
-							   ui->horizontalSlider_nowSequence->y() + ui->horizontalSlider_nowSequence->height(),
-							   ui->horizontalSlider_nowSequence->width()-10,
-							   8);
-	m_pDataMarker->setForegroundRole(QPalette::Highlight);
-	m_pDataMarker->show();
+	ui->label_frame->setEditData(m_pEditData) ;
+	m_pDataMarker = ui->label_frame ;
 
+	connect(ui->label_frame, SIGNAL(sig_changeValue(int)), this, SLOT(slot_frameChanged(int))) ;
 	connect(ui->radioButton_pos, SIGNAL(clicked(bool)), this, SLOT(slot_clickedRadioPos(bool))) ;
 	connect(ui->radioButton_rot, SIGNAL(clicked(bool)), this, SLOT(slot_clickedRadioRot(bool))) ;
 	connect(ui->radioButton_center, SIGNAL(clicked(bool)), this, SLOT(slot_clickedRadioCenter(bool))) ;
@@ -146,7 +146,6 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(m_pGlWidget, SIGNAL(sig_frameDataMoveEnd(FrameData)), this, SLOT(slot_frameDataMoveEnd(FrameData))) ;
 	connect(m_pGlWidget, SIGNAL(sig_dragedImage(FrameData)), this, SLOT(slot_portDragedImage(FrameData))) ;
 
-	connect(ui->horizontalSlider_nowSequence, SIGNAL(valueChanged(int)),this, SLOT(slot_frameChanged(int))) ;
 	connect(ui->spinBox_pos_x,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changePosX(int))) ;
 	connect(ui->spinBox_pos_y,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changePosY(int))) ;
 	connect(ui->spinBox_pos_z,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changePosZ(int))) ;
@@ -161,6 +160,8 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(ui->spinBox_uv_bottom,		SIGNAL(valueChanged(int)),		this, SLOT(slot_changeUvBottom(int))) ;
 	connect(ui->spinBox_center_x,		SIGNAL(valueChanged(int)),		this, SLOT(slot_changeCenterX(int))) ;
 	connect(ui->spinBox_center_y,		SIGNAL(valueChanged(int)),		this, SLOT(slot_changeCenterY(int))) ;
+	connect(ui->spinBox_frame_start,	SIGNAL(valueChanged(int)),		this, SLOT(slot_changeFrameStart(int))) ;
+	connect(ui->spinBox_frame_end,		SIGNAL(valueChanged(int)),		this, SLOT(slot_changeFrameEnd(int))) ;
 
 	connect(m_pActTreeViewAdd,			SIGNAL(triggered()),			this, SLOT(slot_createNewObject())) ;
 	connect(m_pActTreeViewCopy,			SIGNAL(triggered()),			this, SLOT(slot_copyObject())) ;
@@ -185,29 +186,12 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(ui->checkBox_frame,			SIGNAL(clicked(bool)),			this, SLOT(slot_changeDrawFrame(bool))) ;
 	connect(ui->checkBox_center,		SIGNAL(clicked(bool)),			this, SLOT(slot_changeDrawCenter(bool))) ;
 	connect(ui->checkBox_linear_filter,	SIGNAL(clicked(bool)),			this, SLOT(slot_changeLinearFilter(bool))) ;
-
 	connect(ui->toolButton_picker,		SIGNAL(clicked()),				this, SLOT(slot_clickPicker())) ;
-
 	connect(m_pSplitter,				SIGNAL(splitterMoved(int,int)), this, SLOT(slot_splitterMoved(int, int))) ;
-
 	connect(m_pEditData->getObjectModel(), SIGNAL(sig_copyIndex(int,ObjectItem*,QModelIndex,Qt::DropAction)), this, SLOT(slot_copyIndex(int, ObjectItem*, QModelIndex,Qt::DropAction))) ;
 
-#ifndef LAYOUT_OWN
-	QGridLayout *pLayout = new QGridLayout(this) ;
-	pLayout->addWidget(ui->listWidget, 0, 0, 5, 1);
-	pLayout->addWidget(ui->spinBox_nowSequence, 0, 1, 1, 1);
-	pLayout->addWidget(ui->horizontalSlider_nowSequence, 0, 2, 1, 1);
-	pLayout->addWidget(ui->scrollArea, 1, 1, 4, 4);
-	pLayout->addWidget(ui->label_x, 1, 6, 1, 1);
-	pLayout->addWidget(ui->spinBox_x, 1, 7, 1, 1);
-	pLayout->addWidget(ui->label_y, 2, 6, 1, 1);
-	pLayout->addWidget(ui->spinBox_y, 2, 7, 1, 1);
-	pLayout->addWidget(ui->label_w, 3, 6, 1, 1);
-	pLayout->addWidget(ui->spinBox_w, 3, 7, 1, 1);
-	pLayout->addWidget(ui->label_h, 4, 6, 1, 1);
-	pLayout->addWidget(ui->spinBox_h, 4, 7, 1, 1);
-	setLayout(pLayout) ;
-#endif
+	connect(this, SIGNAL(sig_changeFrameStart(int)),	ui->label_frame, SLOT(slot_setFrameStart(int))) ;
+	connect(this, SIGNAL(sig_changeFrameEnd(int)),		ui->label_frame, SLOT(slot_setFrameEnd(int))) ;
 }
 
 AnimationForm::~AnimationForm()
@@ -215,7 +199,6 @@ AnimationForm::~AnimationForm()
 	delete ui;
 }
 
-#ifdef LAYOUT_OWN
 // サイズ変更イベント
 void AnimationForm::resizeEvent(QResizeEvent *event)
 {
@@ -240,13 +223,12 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 	ui->comboBox_image_no->move(ui->comboBox_image_no->pos() + add_w_p);
 	ui->groupBox->move(ui->groupBox->pos() + add_w_p);
 
-	ui->horizontalSlider_nowSequence->resize(ui->horizontalSlider_nowSequence->size() + QSize(add.width(), 0)) ;
+	ui->label_frame->resize(ui->label_frame->size()+QSize(add.width(), 0)) ;
 	ui->pushButton_backward->move(ui->pushButton_backward->pos() + add_w_p) ;
 	ui->pushButton_forward->move(ui->pushButton_forward->pos() + add_w_p) ;
 	ui->spinBox_nowSequence->move(ui->spinBox_nowSequence->pos() + add_w_p) ;
 	ui->label_fps->move(ui->label_fps->pos() + add_w_p) ;
 	ui->spinBox_fps->move(ui->spinBox_fps->pos() + add_w_p) ;
-	m_pDataMarker->resize(m_pDataMarker->size() + QSize(add.width(), 0)) ;
 
 	QWidget *tmp[] = {
 		ui->label_x,
@@ -290,13 +272,13 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 		ui->checkBox_frame,
 		ui->checkBox_grid,
 		ui->toolButton_picker,
-		ui->checkBox_linear_filter
+		ui->checkBox_linear_filter,
+		ui->spinBox_frame_end
 	} ;
 	for ( int i = 0 ; i < ARRAY_NUM(tmp) ; i ++ ) {
 		tmp[i]->move(tmp[i]->pos() + QPoint(add.width(), 0));
 	}
 }
-#endif
 
 void AnimationForm::closeEvent(QCloseEvent */*event*/)
 {
@@ -401,7 +383,7 @@ void AnimationForm::slot_deleteFrameData(void)
 void AnimationForm::slot_dropedImage( QRect rect, QPoint pos, int imageIndex )
 {
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	int frameNum  = ui->horizontalSlider_nowSequence->value() ;
+	int frameNum  = ui->label_frame->value() ;
 	QModelIndex index = ui->treeView->currentIndex() ;
 
 	if ( !index.isValid() ) {
@@ -758,6 +740,18 @@ void AnimationForm::slot_changeCenterY( int val )
 	addCommandEdit(*p) ;
 }
 
+void AnimationForm::slot_changeFrameStart(int val)
+{
+	m_frameStart = val ;
+	emit sig_changeFrameStart(val) ;
+}
+
+void AnimationForm::slot_changeFrameEnd(int val)
+{
+	m_frameEnd = val ;
+	emit sig_changeFrameEnd(val) ;
+}
+
 // ツリービュー メニューリクエスト
 void AnimationForm::slot_treeViewMenuReq(QPoint treeViewLocalPos)
 {
@@ -833,7 +827,7 @@ void AnimationForm::slot_changeSelectObject(QModelIndex index)
 void AnimationForm::slot_playAnimation( void )
 {
 	if ( !m_pEditData->getPauseAnime() ) {	// ポーズ中じゃなかったら０フレームから再生
-		ui->horizontalSlider_nowSequence->setValue(0);
+		ui->label_frame->setValue(0);
 		m_pEditData->setCurrLoopNum(0);
 	}
 
@@ -883,7 +877,7 @@ void AnimationForm::slot_stopAnimation( void )
 
 	m_pEditData->setPlayAnime(false) ;
 	m_pEditData->setPauseAnime(false);
-	ui->horizontalSlider_nowSequence->setValue(0);
+	ui->label_frame->setValue(0);
 
 	QIcon icon;
 	icon.addFile(QString::fromUtf8(":/root/Resources/images/Button Play_32.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -924,7 +918,7 @@ void AnimationForm::slot_forwardFrameData( void )
 // タイマイベント。フレームを進める
 void AnimationForm::slot_timerEvent( void )
 {
-	int frame = ui->horizontalSlider_nowSequence->value() ;
+	int frame = ui->label_frame->value() ;
 
 	// PNG吐き出し中
 	if ( m_pEditData->isExportPNG() ) {
@@ -940,13 +934,13 @@ void AnimationForm::slot_timerEvent( void )
 			// ループ終了
 			m_pEditData->endExportPNG() ;
 			slot_stopAnimation() ;
-			ui->horizontalSlider_nowSequence->setValue(frame-1);
+			ui->label_frame->setValue(frame-1);
 			return ;
 		}
 		frame = 0 ;
 	}
 
-	ui->horizontalSlider_nowSequence->setValue(frame);
+	ui->label_frame->setValue(frame);
 }
 
 // フレームデータ追加
