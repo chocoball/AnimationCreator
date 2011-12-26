@@ -1032,12 +1032,17 @@ void AnimationForm::slot_addImage( int imageNo )
 //	ui->comboBox_image_no->addItem(tr("%1").arg(imageNo));
 	ui->comboBox_image_no->insertItem(imageNo, tr("%1").arg(imageNo));
 
+	QGLContext::BindOptions options = QGLContext::InvertedYBindOption ;
+	if ( ui->checkBox_linear_filter->isChecked() ) {
+		options |= QGLContext::LinearFilteringBindOption ;
+	}
+
 	for ( int i = 0 ; i < m_pEditData->getImageDataListSize() ; i ++ ) {
 		CEditData::ImageData *p = m_pEditData->getImageData(i) ;
 		if ( !p ) { continue ; }
 		if ( p->nNo != imageNo ) { continue ; }
 		if ( p->nTexObj ) { continue ; }
-		p->nTexObj = m_pGlWidget->bindTexture(p->Image) ;
+		p->nTexObj = m_pGlWidget->bindTexture(p->Image, options) ;
 	}
 }
 
@@ -1075,12 +1080,17 @@ void AnimationForm::slot_changeUVAnime( bool flag )
 // イメージ更新
 void AnimationForm::slot_modifiedImage(int index)
 {
+	QGLContext::BindOptions options = QGLContext::InvertedYBindOption ;
+	if ( ui->checkBox_linear_filter->isChecked() ) {
+		options |= QGLContext::LinearFilteringBindOption ;
+	}
+
 	CEditData::ImageData *p = m_pEditData->getImageData(index) ;
 	if ( !p ) { return ; }
 	if ( p->nTexObj ) {
 		m_pGlWidget->deleteTexture(p->nTexObj);
 	}
-	p->nTexObj = m_pGlWidget->bindTexture(p->Image) ;
+	p->nTexObj = m_pGlWidget->bindTexture(p->Image, options) ;
 
 	m_pGlWidget->update();
 }
