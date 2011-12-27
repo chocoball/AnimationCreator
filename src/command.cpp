@@ -114,7 +114,7 @@ void Command_AddFrameData::redo()
 
 	FrameData *p = pItem->getFrameDataPtr(m_frameData.frame) ;
 	if ( p ) {
-		QMessageBox::warning(m_UpdateWidgetList[0], QObject::trUtf8("エラー"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
+		QMessageBox::warning(m_UpdateWidgetList[0], QObject::trUtf8("エラー 0"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
 		return ;
 	}
 
@@ -379,6 +379,81 @@ void Command_CopyIndex::undo()
 }
 
 
+/**
+  フレームデータ移動
+  */
+Command_MoveFrameData::Command_MoveFrameData(CEditData *pEditData, QModelIndex &index, int prevFrame, int nextFrame, QList<QWidget *> &updateWidget) :
+	QUndoCommand(QObject::trUtf8("フレームデータ移動"))
+{
+	m_pEditData			= pEditData ;
+	m_row				= m_pEditData->getObjectModel()->getRow(index) ;
+	m_UpdateWidgetList	= updateWidget ;
+	m_srcFrame			= prevFrame ;
+	m_dstFrame			= nextFrame ;
+
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	QModelIndex i = pModel->getIndex(m_row) ;
+	ObjectItem *pItem = pModel->getItemFromIndex(i) ;
+	FrameData *pData ;
+	pData = pItem->getFrameDataPtr(m_srcFrame) ;
+	if ( pData ) { m_srcData = *pData ; }
+	pData = pItem->getFrameDataPtr(m_dstFrame) ;
+	if ( pData ) { m_dstData = *pData ; }
+}
+
+void Command_MoveFrameData::redo()
+{
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	QModelIndex index = pModel->getIndex(m_row) ;
+	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
+	if ( !pItem ) { return ; }
+
+	// 移動先にコピー
+	FrameData *pData = pItem->getFrameDataPtr(m_dstFrame) ;
+	m_srcData.frame = m_dstFrame ;
+	if ( pData ) { *pData = m_srcData ; }
+	else { pItem->addFrameData(m_srcData) ; }
+
+	// 移動元を消す
+	pItem->removeFrameData(m_srcFrame) ;
+
+	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
+		m_UpdateWidgetList[i]->update();
+	}
+}
+
+void Command_MoveFrameData::undo()
+{
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	QModelIndex index = pModel->getIndex(m_row) ;
+	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
+	if ( !pItem ) { return ; }
+
+	// 移動元に戻す
+	m_srcData.frame = m_srcFrame ;
+	FrameData *pData = pItem->getFrameDataPtr(m_srcFrame) ;
+	if ( pData ) {	// 移動元にデータがあるのはおかしい
+		QMessageBox::warning(m_UpdateWidgetList[0], QObject::trUtf8("エラー 1"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
+		return ;
+	}
+	pItem->addFrameData(m_srcData) ;
+
+	if ( m_dstData.frame != 0xffff ) {	// 元から移動先のデータがあった場合は戻す
+		pData = pItem->getFrameDataPtr(m_dstFrame) ;
+		if ( !pData ) {	// 移動先にデータがないのはおかしい
+			QMessageBox::warning(m_UpdateWidgetList[0], QObject::trUtf8("エラー 2"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
+			return ;
+		}
+		*pData = m_dstData ;
+	}
+	else {	// ない場合は消す
+		pItem->removeFrameData(m_dstFrame) ;
+	}
+
+	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
+		m_UpdateWidgetList[i]->update();
+	}
+}
 
 
 

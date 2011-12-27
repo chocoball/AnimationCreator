@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>811</width>
-    <height>461</height>
+    <height>497</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -68,30 +68,14 @@
   <widget class="QSpinBox" name="spinBox_nowSequence">
    <property name="geometry">
     <rect>
-     <x>600</x>
+     <x>610</x>
      <y>10</y>
-     <width>57</width>
+     <width>51</width>
      <height>31</height>
     </rect>
    </property>
    <property name="maximum">
-    <number>1024</number>
-   </property>
-  </widget>
-  <widget class="QSlider" name="horizontalSlider_nowSequence">
-   <property name="geometry">
-    <rect>
-     <x>130</x>
-     <y>10</y>
-     <width>381</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="maximum">
-    <number>1024</number>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
+    <number>9999</number>
    </property>
   </widget>
   <widget class="QSpinBox" name="spinBox_pos_y">
@@ -358,7 +342,7 @@
   <widget class="QPushButton" name="pushButton_play">
    <property name="geometry">
     <rect>
-     <x>50</x>
+     <x>10</x>
      <y>10</y>
      <width>31</width>
      <height>31</height>
@@ -381,7 +365,7 @@
   <widget class="QPushButton" name="pushButton_stop">
    <property name="geometry">
     <rect>
-     <x>90</x>
+     <x>50</x>
      <y>10</y>
      <width>31</width>
      <height>31</height>
@@ -747,7 +731,7 @@
   <widget class="QPushButton" name="pushButton_backward">
    <property name="geometry">
     <rect>
-     <x>520</x>
+     <x>530</x>
      <y>10</y>
      <width>31</width>
      <height>31</height>
@@ -770,7 +754,7 @@
   <widget class="QPushButton" name="pushButton_forward">
    <property name="geometry">
     <rect>
-     <x>560</x>
+     <x>570</x>
      <y>10</y>
      <width>31</width>
      <height>31</height>
@@ -877,11 +861,69 @@
     <string>なめらか</string>
    </property>
   </widget>
+  <widget class="QSpinBox" name="spinBox_frame_start">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>10</y>
+     <width>51</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <number>9999</number>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="spinBox_frame_end">
+   <property name="geometry">
+    <rect>
+     <x>470</x>
+     <y>10</y>
+     <width>51</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="maximum">
+    <number>9999</number>
+   </property>
+  </widget>
+  <widget class="CDataMarkerLabel" name="label_frame">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>10</y>
+     <width>311</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QScrollBar" name="horizontalScrollBar_frame">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>33</y>
+     <width>311</width>
+     <height>12</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CDataMarkerLabel</class>
+   <extends>QLabel</extends>
+   <header>src/cdatamarkerlabel.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>pushButton_play</tabstop>
   <tabstop>pushButton_stop</tabstop>
-  <tabstop>horizontalSlider_nowSequence</tabstop>
   <tabstop>spinBox_nowSequence</tabstop>
   <tabstop>checkBox_grid</tabstop>
   <tabstop>treeView</tabstop>
@@ -904,38 +946,5 @@
  <resources>
   <include location="../Resource.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>spinBox_nowSequence</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>horizontalSlider_nowSequence</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>35</x>
-     <y>21</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>138</x>
-     <y>16</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalSlider_nowSequence</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>spinBox_nowSequence</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>174</x>
-     <y>23</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>38</x>
-     <y>28</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

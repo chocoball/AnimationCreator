@@ -120,6 +120,11 @@ void CEditData::cmd_copyIndex(int row, ObjectItem *pItem, QModelIndex parent, QL
 	m_pUndoStack->push(new Command_CopyIndex(this, row, pItem, parent, updateWidget)) ;
 }
 
+void CEditData::cmd_moveFrameData(QModelIndex &index, int prevFrame, int nextFrame, QList<QWidget *> &updateWidget)
+{
+	m_pUndoStack->push(new Command_MoveFrameData(this, index, prevFrame, nextFrame, updateWidget)) ;
+}
+
 // 選択しているフレームデータ取得
 bool CEditData::getNowSelectFrameData(FrameData &ret)
 {

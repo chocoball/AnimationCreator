@@ -89,6 +89,7 @@ public:
 							QList<QWidget *>	&updateWidget ) ;
 	void cmd_copyObject(QModelIndex &index, QList<QWidget *> &updateWidget) ;
 	void cmd_copyIndex(int row, ObjectItem *pItem, QModelIndex parent, QList<QWidget *> &updateWidget) ;
+	void cmd_moveFrameData(QModelIndex &index, int prevFrame, int nextFrame, QList<QWidget *> &updateWidget) ;
 
 	void setCurrLoopNum( int num )
 	{
