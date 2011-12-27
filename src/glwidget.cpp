@@ -24,6 +24,7 @@ AnimeGLWidget::AnimeGLWidget(CEditData *editData, CSettings *pSetting, QWidget *
 	m_dragMode = kDragMode_None ;
 
 	m_backImageTex = 0 ;
+	m_bPressWindowMove = false ;
 }
 
 GLuint AnimeGLWidget::bindTexture(QImage &image, QGLContext::BindOptions options)
@@ -538,7 +539,6 @@ void AnimeGLWidget::dragEnterEvent(QDragEnterEvent *event)
 void AnimeGLWidget::dropEvent(QDropEvent *event)
 {
 	if ( event->mimeData()->hasFormat("editor/selected-image") ) {
-		QPixmap pix ;
 		QRect rect ;
 		int scale ;
 		QPoint pos ;
@@ -564,6 +564,11 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 {
 	m_dragMode = kDragMode_None ;
 	if ( m_pEditData->getPlayAnime() ) { return ; }
+
+	if ( m_bPressWindowMove ) {
+		m_DragOffset = event->pos() ;
+		return ;
+	}
 
 	if ( event->button() == Qt::LeftButton ) {	// 左ボタン
 		// 連番PNG吐き出し時
@@ -670,6 +675,14 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 		m_pEditData->setExportPNGRect(rect);
 		emit sig_exportPNGRectChange() ;
 		update() ;
+		return ;
+	}
+
+	// ウィンドウ移動
+	if ( m_bPressWindowMove ) {
+		QPoint move = event->pos() - m_DragOffset ;
+		emit sig_scrollWindow(move) ;
+		m_DragOffset = event->pos()-move ;
 		return ;
 	}
 

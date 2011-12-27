@@ -70,6 +70,16 @@ void CSettings::read()
 	m_scPathSelect		= QKeySequence(settings.value("path", "B").toString()) ;
 	m_scCopyFrame		= QKeySequence(settings.value("copy_frame", "Ctrl+C").toString()) ;
 	m_scPasteFrame		= QKeySequence(settings.value("paste_frame", "Ctrl+V").toString()) ;
+	m_scPlayAnime		= QKeySequence(settings.value("play_anime", "").toString()) ;
+	m_scStopAnime		= QKeySequence(settings.value("stop_anime", "").toString()) ;
+	m_scJumpStartFrame	= QKeySequence(settings.value("jump_start", "").toString()) ;
+	m_scJumpEndFrame	= QKeySequence(settings.value("jump_end", "").toString()) ;
+	m_scAddFrameData	= QKeySequence(settings.value("add_frame", "").toString()) ;
+	m_scDelFrameData	= QKeySequence(settings.value("del_frame", "").toString()) ;
+	m_scDelItem			= QKeySequence(settings.value("del_item", "").toString()) ;
+	m_scDispItem		= QKeySequence(settings.value("disp_item", "").toString()) ;
+	m_scLockItem		= QKeySequence(settings.value("lock_item", "").toString()) ;
+	m_scMoveAnimeWindow	= QKeySequence(settings.value("move_anm_win", "").toString()) ;
 	settings.endGroup();
 }
 
@@ -132,5 +142,15 @@ void CSettings::write()
 	settings.setValue("path",			m_scPathSelect.toString()) ;
 	settings.setValue("copy_frame",		m_scCopyFrame.toString()) ;
 	settings.setValue("paste_frame",	m_scPasteFrame.toString()) ;
+	settings.setValue("play_anime",		m_scPlayAnime) ;
+	settings.setValue("stop_anime",		m_scStopAnime) ;
+	settings.setValue("jump_start",		m_scJumpStartFrame) ;
+	settings.setValue("jump_end",		m_scJumpEndFrame) ;
+	settings.setValue("add_frame",		m_scAddFrameData) ;
+	settings.setValue("del_frame",		m_scDelFrameData) ;
+	settings.setValue("del_item",		m_scDelItem) ;
+	settings.setValue("disp_item",		m_scDispItem) ;
+	settings.setValue("lock_item",		m_scLockItem) ;
+	settings.setValue("move_anm_win",	m_scMoveAnimeWindow) ;
 	settings.endGroup();
 }

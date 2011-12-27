@@ -136,6 +136,7 @@ public slots:
 	void slot_copyIndex(int row, ObjectItem *pItem, QModelIndex index, Qt::DropAction action) ;
 
 	void slot_moveFrameData(int prevFrame, int nextFrame) ;
+	void slot_scrollWindow(QPoint move) ;
 
 protected:
 	FrameData *getNowSelectFrameData( void ) ;
@@ -153,6 +154,9 @@ protected:
 	void pasteFrameData( void ) ;
 	void resizeEvent(QResizeEvent *event) ;
 	void closeEvent(QCloseEvent *event) ;
+
+	void jumpStartFrame() ;
+	void jumpEndFrame() ;
 
 	void dumpObjects(ObjectItem *p, int tab) ;
 

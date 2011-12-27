@@ -274,6 +274,36 @@ QList<QStringList> KeyboardTab::getData()
 	list << trUtf8("フレームデータ ペースト") << m_pSetting->getShortcutPasteFrame().toString() ;
 	datas << list ;
 	list.clear() ;
+	list << trUtf8("アニメーション開始/一時停止") << m_pSetting->getShortcutPlayAnime().toString() ;
+	datas << list ;
+	list.clear() ;
+	list << trUtf8("アニメーション停止") << m_pSetting->getShortcutStopAnime().toString() ;
+	datas << list ;
+	list.clear() ;
+	list << trUtf8("開始フレームに移動") << m_pSetting->getShortcutJumpStartFrame().toString() ;
+	datas << list ;
+	list.clear() ;
+	list << trUtf8("最終フレームに移動") << m_pSetting->getShortcutJumpEndFrame().toString() ;
+	datas << list ;
+	list.clear() ;
+	list << trUtf8("フレームデータ追加") << m_pSetting->getShortcutAddFrameData().toString() ;
+	datas << list ;
+	list.clear() ;
+	list << trUtf8("フレームデータ削除") << m_pSetting->getShortcutDelFrameData().toString() ;
+	datas << list ;
+	list.clear() ;
+	list << trUtf8("アイテム削除") << m_pSetting->getShortcutDelItem().toString() ;
+	datas << list ;
+	list.clear() ;
+	list << trUtf8("アイテム表示") << m_pSetting->getShortcutDispItem().toString() ;
+	datas << list ;
+	list.clear() ;
+	list << trUtf8("アイテムロック") << m_pSetting->getShortcutLockItem().toString() ;
+	datas << list ;
+	list.clear() ;
+	list << trUtf8("アニメーションウィンドウ移動") << m_pSetting->getShortcutMoveAnimeWindow().toString() ;
+	datas << list ;
+	list.clear() ;
 
 	return datas ;
 }
@@ -281,13 +311,23 @@ QList<QStringList> KeyboardTab::getData()
 void KeyboardTab::setShortcut(int type, QKeySequence ks)
 {
 	switch ( type ) {
-		case 0:	m_pSetting->setShortcutPosSelect(ks) ;		break ;	// POS
-		case 1:	m_pSetting->setShortcutRotSelect(ks) ;		break ;	// ROT
-		case 2:	m_pSetting->setShortcutCenterSelect(ks) ;	break ;	// CENTER
-		case 3:	m_pSetting->setShortcutScaleSelect(ks) ;	break ;	// SCALE
-		case 4:	m_pSetting->setShortcutPathSelect(ks) ;		break ;	// PATH
-		case 5:	m_pSetting->setShortcutCopyFrame(ks) ;		break ;	// framedata copy
-		case 6:	m_pSetting->setShortcutPasteFrame(ks) ;		break ;	// framedata paste
+		case  0:	m_pSetting->setShortcutPosSelect(ks) ;		break ;	// POS
+		case  1:	m_pSetting->setShortcutRotSelect(ks) ;		break ;	// ROT
+		case  2:	m_pSetting->setShortcutCenterSelect(ks) ;	break ;	// CENTER
+		case  3:	m_pSetting->setShortcutScaleSelect(ks) ;	break ;	// SCALE
+		case  4:	m_pSetting->setShortcutPathSelect(ks) ;		break ;	// PATH
+		case  5:	m_pSetting->setShortcutCopyFrame(ks) ;		break ;	// framedata copy
+		case  6:	m_pSetting->setShortcutPasteFrame(ks) ;		break ;	// framedata paste
+		case  7:	m_pSetting->setShortcutPlayAnime(ks) ;		break ;	// play animation
+		case  8:	m_pSetting->setShortcutStopAnime(ks) ;		break ;	// stop animation
+		case  9:	m_pSetting->setShortcutJumpStartFrame(ks) ;	break ;	// jump start frame
+		case 10:	m_pSetting->setShortcutJumpEndFrame(ks) ;	break ;	// jump end frame
+		case 11:	m_pSetting->setShortcutAddFrameData(ks) ;	break ;	// add framedata
+		case 12:	m_pSetting->setShortcutDelFrameData(ks) ;	break ;	// del framedata
+		case 13:	m_pSetting->setShortcutDelItem(ks) ;		break ;	// del item
+		case 14:	m_pSetting->setShortcutDispItem(ks) ;		break ;	// disp item
+		case 15:	m_pSetting->setShortcutLockItem(ks) ;		break ;	// lock item
+		case 16:	m_pSetting->setShortcutMoveAnimeWindow(ks) ;break ;	// move animation window
 	}
 
 	ui->lineEdit->setText(ks.toString()) ;

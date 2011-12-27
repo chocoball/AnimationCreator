@@ -30,6 +30,8 @@ public:
 
 	GLuint bindTexture(QImage &image, QGLContext::BindOptions options = QGLContext::InvertedYBindOption) ;
 
+	void setPressWindowMove(bool f) { m_bPressWindowMove = f ; }
+
 signals:
 	void sig_dropedImage(QRect rect, QPoint pos, int index) ;
     void sig_selectLayerChanged( QModelIndex indexLayer ) ;
@@ -38,6 +40,7 @@ signals:
     void sig_selectPrevLayer( QModelIndex indexLayer, int frame, FrameData data ) ;
 	void sig_frameDataMoveEnd( FrameData data ) ;
 	void sig_exportPNGRectChange( void ) ;
+	void sig_scrollWindow(QPoint move) ;
 
 public slots:
 	void slot_actDel( void ) ;
@@ -115,6 +118,7 @@ private:
 
 	bool				m_bDrawGrid ;				///< グリッド描画するならtrue
 	bool				m_bPressCtrl ;				///< Ctrlが押されてたらtrue
+	bool				m_bPressWindowMove ;		///< WindowMoveショートカットが押されてたらtrue
 
 	QPoint				m_DragOffset ;
 	QPoint				m_SelPluralStartPos ;		///< レイヤ複数選択開始位置

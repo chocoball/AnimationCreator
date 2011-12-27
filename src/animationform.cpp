@@ -107,6 +107,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 		ui->treeView->setAcceptDrops(true) ;
 		ui->treeView->setDropIndicatorShown(true) ;
 		ui->treeView->setDragDropMode(QAbstractItemView::DragDrop) ;
+		ui->treeView->setFocusPolicy(Qt::NoFocus);
 
 		ObjectItem *root = pModel->getItemFromIndex(QModelIndex()) ;
 		if ( !root->childCount() ) {
@@ -198,6 +199,8 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(ui->spinBox_nowSequence, SIGNAL(valueChanged(int)), this, SLOT(slot_frameChanged(int))) ;
 	connect(ui->horizontalScrollBar_frame, SIGNAL(valueChanged(int)), ui->label_frame, SLOT(slot_moveScrollBar(int))) ;
 	connect(ui->label_frame, SIGNAL(sig_moveFrameData(int,int)), this, SLOT(slot_moveFrameData(int,int))) ;
+
+	connect(m_pGlWidget, SIGNAL(sig_scrollWindow(QPoint)), this, SLOT(slot_scrollWindow(QPoint))) ;
 }
 
 AnimationForm::~AnimationForm()
@@ -378,9 +381,7 @@ void AnimationForm::slot_createNewObject( void )
 // オブジェクト削除
 void AnimationForm::slot_deleteObject( void )
 {
-//	QStandardItemModel *pTreeModel = m_pEditData->getTreeModel() ;
-	QModelIndex index = ui->treeView->currentIndex() ;
-
+	QModelIndex index = m_pEditData->getSelIndex() ;
 	if ( !index.isValid() ) { return ; }
 
 	m_pEditData->cmd_delItem(index) ;
@@ -390,10 +391,15 @@ void AnimationForm::slot_deleteObject( void )
 // フレームデータ削除
 void AnimationForm::slot_deleteFrameData(void)
 {
-	QModelIndex index = ui->treeView->currentIndex() ;
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	QModelIndex index = m_pEditData->getSelIndex() ;
 	if ( !index.isValid() ) { return ; }
+	if ( !pModel->isLayer(index) ) { return ; }
+	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
+	if ( !pItem ) { return ; }
 
 	int frame = m_pEditData->getSelectFrame() ;
+	if ( !pItem->getFrameDataPtr(frame) ) { return ; }
 
 	QList<QWidget *> update ;
 	update << m_pDataMarker << m_pGlWidget ;
@@ -818,6 +824,7 @@ void AnimationForm::slot_treeViewDoubleClicked(QModelIndex index)
 	else								{ f |= ObjectItem::kState_Disp ; }
 	pItem->setData(f, Qt::CheckStateRole);
 	m_pGlWidget->update();
+	ui->treeView->update(index) ;
 }
 
 // 選択オブジェクト変更
@@ -993,7 +1000,7 @@ void AnimationForm::slot_changeLayerDisp( void )
 void AnimationForm::slot_changeLayerLock( void )
 {
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	QModelIndex index = ui->treeView->currentIndex() ;
+	QModelIndex index = m_pEditData->getSelIndex() ;
 
 	if ( !pModel->isLayer(index) ) { return ; }
 	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
@@ -1009,6 +1016,7 @@ void AnimationForm::slot_changeLayerLock( void )
 	}
 	pItem->setData(f, Qt::CheckStateRole);
 	m_pGlWidget->update();
+	ui->treeView->update(index) ;
 }
 
 // 選択中レイヤのUV変更
@@ -1374,6 +1382,22 @@ void AnimationForm::slot_moveFrameData(int prevFrame, int nextFrame)
 	m_pEditData->cmd_moveFrameData(index, prevFrame, nextFrame, widgets) ;
 }
 
+void AnimationForm::slot_scrollWindow(QPoint move)
+{
+	QScrollBar *p ;
+
+	setCursor(QCursor(Qt::ClosedHandCursor)) ;
+
+	p = ui->scrollArea_anime->horizontalScrollBar() ;
+	if ( p->isEnabled() && !p->isHidden() ) {
+		p->setValue(p->value()-move.x());
+	}
+	p = ui->scrollArea_anime->verticalScrollBar() ;
+	if ( p->isEnabled() && !p->isHidden() ) {
+		p->setValue(p->value()-move.y());
+	}
+}
+
 // オブジェクト追加
 void AnimationForm::addNewObject( QString str )
 {
@@ -1473,6 +1497,49 @@ void AnimationForm::keyPressEvent(QKeyEvent *event)
 		ui->radioButton_path->setChecked(true) ;
 		slot_clickedRadioPath(true) ;
 	}
+	else if ( ks == m_pSetting->getShortcutPlayAnime() ) {
+		if ( m_pEditData->getPlayAnime() ) {
+			slot_pauseAnimation() ;
+		}
+		else {
+			slot_playAnimation() ;
+		}
+	}
+	else if ( ks == m_pSetting->getShortcutStopAnime() ) {
+		slot_stopAnimation() ;
+	}
+	else if ( ks == m_pSetting->getShortcutJumpStartFrame() ) {
+		jumpStartFrame() ;
+	}
+	else if ( ks == m_pSetting->getShortcutJumpEndFrame() ) {
+		jumpEndFrame() ;
+	}
+	else if ( ks == m_pSetting->getShortcutAddFrameData() ) {
+		CObjectModel *pModel = m_pEditData->getObjectModel() ;
+		QModelIndex index = m_pEditData->getSelIndex() ;
+		int frame = m_pEditData->getSelectFrame() ;
+		if ( !pModel->isLayer(index) ) { return ; }
+		ObjectItem *pItem = pModel->getItemFromIndex(index) ;
+		FrameData data = pItem->getDisplayFrameData(frame) ;
+		data.frame = frame ;
+		slot_addNewFrameData(index, frame, data) ;
+	}
+	else if ( ks == m_pSetting->getShortcutDelFrameData() ) {
+		slot_deleteFrameData() ;
+	}
+	else if ( ks == m_pSetting->getShortcutDelItem() ) {
+		slot_deleteObject() ;
+	}
+	else if ( ks == m_pSetting->getShortcutDispItem() ) {
+		slot_changeLayerDisp() ;
+	}
+	else if ( ks == m_pSetting->getShortcutLockItem() ) {
+		slot_changeLayerLock() ;
+	}
+	else if ( ks == m_pSetting->getShortcutMoveAnimeWindow() ) {
+		m_pGlWidget->setPressWindowMove(true) ;
+		setCursor(QCursor(Qt::OpenHandCursor));
+	}
 }
 
 // キー離しイベント
@@ -1482,6 +1549,8 @@ void AnimationForm::keyReleaseEvent(QKeyEvent *event)
 		m_pGlWidget->setPressCtrl(false) ;
 		m_pGlWidget->update() ;
 	}
+	m_pGlWidget->setPressWindowMove(false) ;
+	setCursor(QCursor()) ;
 }
 
 // フレームデータ コピー
@@ -1531,3 +1600,42 @@ void AnimationForm::pasteFrameData( void )
 	qDebug() << "Paste Framedata" ;
 }
 
+void AnimationForm::jumpStartFrame()
+{
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	QModelIndex index = m_pEditData->getSelIndex() ;
+	if ( !pModel->isLayer(index) ) { return ; }
+	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
+	if ( !pItem ) { return ; }
+
+	int minFrame = 0x7fffffff ;
+	const QList<FrameData> &datas = pItem->getFrameData() ;
+	for ( int i = 0 ; i < datas.size() ; i ++ ) {
+		if ( minFrame > datas.at(i).frame ) {
+			minFrame = datas.at(i).frame ;
+		}
+	}
+	if ( !pItem->getFrameDataPtr(minFrame) ) { return ; }
+
+	slot_frameChanged(minFrame) ;
+}
+
+void AnimationForm::jumpEndFrame()
+{
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	QModelIndex index = m_pEditData->getSelIndex() ;
+	if ( !pModel->isLayer(index) ) { return ; }
+	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
+	if ( !pItem ) { return ; }
+
+	int maxFrame = -1 ;
+	const QList<FrameData> &datas = pItem->getFrameData() ;
+	for ( int i = 0 ; i < datas.size() ; i ++ ) {
+		if ( maxFrame < datas.at(i).frame ) {
+			maxFrame = datas.at(i).frame ;
+		}
+	}
+	if ( !pItem->getFrameDataPtr(maxFrame) ) { return ; }
+
+	slot_frameChanged(maxFrame) ;
+}
