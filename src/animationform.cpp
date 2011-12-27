@@ -246,6 +246,8 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 	ui->label_fps->move(ui->label_fps->pos() + add_w_p) ;
 	ui->spinBox_fps->move(ui->spinBox_fps->pos() + add_w_p) ;
 
+	ui->label_frame->setScrollBarSize() ;
+
 	QWidget *tmp[] = {
 		ui->label_x,
 		ui->label_y,
