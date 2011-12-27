@@ -893,11 +893,24 @@
      <x>150</x>
      <y>10</y>
      <width>311</width>
-     <height>31</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="text">
     <string/>
+   </property>
+  </widget>
+  <widget class="QScrollBar" name="horizontalScrollBar_frame">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>33</y>
+     <width>311</width>
+     <height>12</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
    </property>
   </widget>
  </widget>

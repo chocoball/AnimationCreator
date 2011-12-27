@@ -23,7 +23,11 @@ public:
 	explicit AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget *parent = 0);
     ~AnimationForm();
 
+	void Init() ;
+
 	void setBarCenter() ;
+	void setFrame() ;
+
 	void dbgDumpObject() ;
 
 	AnimeGLWidget *getGLWidget( void )
@@ -130,6 +134,8 @@ public slots:
 
 	void slot_splitterMoved(int pos, int index) ;
 	void slot_copyIndex(int row, ObjectItem *pItem, QModelIndex index, Qt::DropAction action) ;
+
+	void slot_moveFrameData(int prevFrame, int nextFrame) ;
 
 protected:
 	FrameData *getNowSelectFrameData( void ) ;

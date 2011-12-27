@@ -11,14 +11,18 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	m_pEditData		= pImageData ;
 	m_pSetting		= pSetting ;
 	m_bDontSetData	= false ;
-	m_frameStart	= 0 ;
-	m_frameEnd		= 30 ;
+	m_frameStart	= pSetting->getFrameStart() ;
+	m_frameEnd		= pSetting->getFrameEnd() ;
 
 	m_oldWinSize = QSize(-1, -1) ;
 
 	ui->setupUi(this);
 
 	m_pEditData->setTreeView(ui->treeView) ;
+
+	ui->label_frame->setEditData(m_pEditData) ;
+	ui->label_frame->setHorizontalBar(ui->horizontalScrollBar_frame) ;
+	m_pDataMarker = ui->label_frame ;
 
 	setFocusPolicy(Qt::StrongFocus);
 
@@ -125,9 +129,6 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	m_pTimer = new QTimer(this) ;
 	m_pTimer->setInterval((int)(100.0f/6.0f));
 
-	ui->label_frame->setEditData(m_pEditData) ;
-	m_pDataMarker = ui->label_frame ;
-
 	connect(ui->label_frame, SIGNAL(sig_changeValue(int)), this, SLOT(slot_frameChanged(int))) ;
 	connect(ui->radioButton_pos, SIGNAL(clicked(bool)), this, SLOT(slot_clickedRadioPos(bool))) ;
 	connect(ui->radioButton_rot, SIGNAL(clicked(bool)), this, SLOT(slot_clickedRadioRot(bool))) ;
@@ -192,11 +193,23 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 
 	connect(this, SIGNAL(sig_changeFrameStart(int)),	ui->label_frame, SLOT(slot_setFrameStart(int))) ;
 	connect(this, SIGNAL(sig_changeFrameEnd(int)),		ui->label_frame, SLOT(slot_setFrameEnd(int))) ;
+
+	connect(ui->label_frame, SIGNAL(sig_changeValue(int)), ui->spinBox_nowSequence, SLOT(setValue(int))) ;
+	connect(ui->spinBox_nowSequence, SIGNAL(valueChanged(int)), this, SLOT(slot_frameChanged(int))) ;
+	connect(ui->horizontalScrollBar_frame, SIGNAL(valueChanged(int)), ui->label_frame, SLOT(slot_moveScrollBar(int))) ;
+	connect(ui->label_frame, SIGNAL(sig_moveFrameData(int,int)), this, SLOT(slot_moveFrameData(int,int))) ;
 }
 
 AnimationForm::~AnimationForm()
 {
 	delete ui;
+}
+
+void AnimationForm::Init()
+{
+	slot_endedOption();
+	setBarCenter();
+	setFrame() ;
 }
 
 // サイズ変更イベント
@@ -211,6 +224,7 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 
 	QSize add = event->size() - m_oldWinSize ;
 	QSize add_h = QSize(0, add.height()) ;
+	QSize add_w = QSize(add.width(), 0) ;
 	QPoint add_w_p = QPoint(add.width(), 0) ;
 
 	m_oldWinSize = event->size() ;
@@ -218,12 +232,14 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 	ui->treeView->resize(ui->treeView->size()+add_h);
 	ui->scrollArea_anime->resize(ui->scrollArea_anime->size()+add);
 	m_pSplitter->resize(m_pSplitter->size()+add);
+	ui->label_frame->resize(ui->label_frame->size()+add_w) ;
+	ui->horizontalScrollBar_frame->resize(ui->horizontalScrollBar_frame->size()+add_w);
+
 	setSplitterPos(m_pSetting->getAnmWindowTreeWidth(), m_pSetting->getAnmWindowTreeWidthIndex());
 
 	ui->comboBox_image_no->move(ui->comboBox_image_no->pos() + add_w_p);
 	ui->groupBox->move(ui->groupBox->pos() + add_w_p);
 
-	ui->label_frame->resize(ui->label_frame->size()+QSize(add.width(), 0)) ;
 	ui->pushButton_backward->move(ui->pushButton_backward->pos() + add_w_p) ;
 	ui->pushButton_forward->move(ui->pushButton_forward->pos() + add_w_p) ;
 	ui->spinBox_nowSequence->move(ui->spinBox_nowSequence->pos() + add_w_p) ;
@@ -313,6 +329,11 @@ void AnimationForm::setBarCenter( void )
 	pBar->setValue( pBar->maximum() / 2 ) ;
 	pBar = ui->scrollArea_anime->verticalScrollBar() ;
 	pBar->setValue( pBar->maximum() / 2 ) ;
+}
+
+void AnimationForm::setFrame()
+{
+	ui->label_frame->setScrollBarSize() ;
 }
 
 // デバッグ用。オブジェクト情報ダンプ
@@ -448,6 +469,7 @@ void AnimationForm::slot_dropedImage( QRect rect, QPoint pos, int imageIndex )
 void AnimationForm::slot_frameChanged(int frame)
 {
 	bool bChange = (m_pEditData->getSelectFrame() != frame) ;
+	ui->label_frame->setValue(frame) ;
 	m_pEditData->setSelectFrame( frame ) ;
 	if ( bChange ) {
 		if ( m_pEditData->getSelIndex().isValid() ) {
@@ -743,12 +765,14 @@ void AnimationForm::slot_changeCenterY( int val )
 void AnimationForm::slot_changeFrameStart(int val)
 {
 	m_frameStart = val ;
+	m_pSetting->setFrameStart(val) ;
 	emit sig_changeFrameStart(val) ;
 }
 
 void AnimationForm::slot_changeFrameEnd(int val)
 {
 	m_frameEnd = val ;
+	m_pSetting->setFrameEnd(val) ;
 	emit sig_changeFrameEnd(val) ;
 }
 
@@ -1318,6 +1342,24 @@ void AnimationForm::slot_copyIndex(int row, ObjectItem *pItem, QModelIndex index
 	QList<QWidget *> widgets ;
 	widgets << m_pGlWidget ;
 	m_pEditData->cmd_copyIndex(row, pItem, index, widgets) ;
+}
+
+// フレームデータ 移動
+void AnimationForm::slot_moveFrameData(int prevFrame, int nextFrame)
+{
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	QModelIndex index = m_pEditData->getSelIndex() ;
+
+	if ( !pModel->isLayer(index) ) { return ; }
+	if ( prevFrame < 0 || nextFrame < 0 ) { return ; }
+
+	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
+	if ( !pItem ) { return ; }
+	if ( !pItem->getFrameDataPtr(prevFrame) ) { return ; }
+
+	QList<QWidget *> widgets ;
+	widgets << m_pDataMarker << m_pGlWidget ;
+	m_pEditData->cmd_moveFrameData(index, prevFrame, nextFrame, widgets) ;
 }
 
 // オブジェクト追加

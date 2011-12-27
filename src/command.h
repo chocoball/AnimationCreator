@@ -144,5 +144,23 @@ private:
 	QList<QWidget *>	m_UpdateWidgetList ;
 } ;
 
+// フレームデータ移動
+class Command_MoveFrameData : public QUndoCommand
+{
+public:
+	Command_MoveFrameData(CEditData *pEditData, QModelIndex &index, int prevFrame, int nextFrame, QList<QWidget *> &updateWidget) ;
+
+	void redo() ;
+	void undo() ;
+
+private:
+	CEditData			*m_pEditData ;
+	int					m_row ;
+	QList<QWidget *>	m_UpdateWidgetList ;
+
+	int					m_srcFrame, m_dstFrame ;
+	FrameData			m_srcData, m_dstData ;
+};
+
 
 #endif // COMMAND_H

@@ -46,6 +46,9 @@ public:
 	kAccessor(QKeySequence,	m_scCopyFrame,				ShortcutCopyFrame)
 	kAccessor(QKeySequence,	m_scPasteFrame,				ShortcutPasteFrame)
 
+	kAccessor(int,			m_frameStart,				FrameStart)
+	kAccessor(int,			m_frameEnd,					FrameEnd)
+
 private:
 };
 

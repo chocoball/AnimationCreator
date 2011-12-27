@@ -16,35 +16,36 @@ void CSettings::read()
 #else
 	#error OSが定義されてないよ
 #endif
-	m_fileSaveDir = settings.value("save_dir", m_fileOpenDir).toString() ;
-	m_pngSaveDir = settings.value("png_dir", m_fileOpenDir).toString() ;
-	m_jsonSaveDir = settings.value("json_dir", m_fileOpenDir).toString() ;
+	m_fileSaveDir	= settings.value("save_dir", m_fileOpenDir).toString() ;
+	m_pngSaveDir	= settings.value("png_dir", m_fileOpenDir).toString() ;
+	m_jsonSaveDir	= settings.value("json_dir", m_fileOpenDir).toString() ;
 
-	QRgb col ;
-	col = settings.value("anime_color", 0).toUInt() ;
-	m_animeBGColor = QColor(qRed(col), qGreen(col), qBlue(col), qAlpha(col)) ;
-	col = settings.value("image_color", 0).toUInt() ;
-	m_imageBGColor = QColor(qRed(col), qGreen(col), qBlue(col), qAlpha(col)) ;
-	m_bSaveImage = settings.value("save_image", false).toBool() ;
-	m_bFlat = settings.value("save_flat_json", false).toBool() ;
-	m_bLayerHierarchy = settings.value("layer_hierarchy", false).toBool() ;
+	QRgb col_anm = settings.value("anime_color", 0).toUInt() ;
+	QRgb col_img = settings.value("image_color", 0).toUInt() ;
+	m_animeBGColor		= QColor(qRed(col_anm), qGreen(col_anm), qBlue(col_anm), qAlpha(col_anm)) ;
+	m_imageBGColor		= QColor(qRed(col_img), qGreen(col_img), qBlue(col_img), qAlpha(col_img)) ;
+	m_bSaveImage		= settings.value("save_image", false).toBool() ;
+	m_bFlat				= settings.value("save_flat_json", false).toBool() ;
+	m_bLayerHierarchy	= settings.value("layer_hierarchy", false).toBool() ;
+	m_frameStart		= settings.value("frame_start", 0).toInt() ;
+	m_frameEnd			= settings.value("frame_end", 30).toInt() ;
 	settings.endGroup();
 
 	settings.beginGroup("MainWindow");
-	m_mainWindowGeometry = settings.value("geometry").toByteArray() ;
-	m_mainWindowState = settings.value("state").toByteArray() ;
+	m_mainWindowGeometry	= settings.value("geometry").toByteArray() ;
+	m_mainWindowState		= settings.value("state").toByteArray() ;
 	settings.endGroup();
 
 	settings.beginGroup("AnimationWindow");
-	m_anmWindowGeometry = settings.value("geometry").toByteArray() ;
-	m_bUseBackImage = settings.value("use_back_image", false).toBool() ;
-	m_backImagePath = settings.value("back_image", "").toString() ;
-	m_bDrawFrame = settings.value("disp_frame", true).toBool() ;
-	m_bDrawCenter = settings.value("disp_center", false).toBool() ;
-	m_anmWindowTreeWidth = settings.value("tree_width", -1).toInt() ;
-	m_anmWindowTreeWidthIndex = settings.value("tree_width_idx", -1).toInt() ;
-	m_anmWindowScreenW = settings.value("scr_w", 0).toInt() ;
-	m_anmWindowScreenH = settings.value("scr_h", 0).toInt() ;
+	m_anmWindowGeometry			= settings.value("geometry").toByteArray() ;
+	m_bUseBackImage				= settings.value("use_back_image", false).toBool() ;
+	m_backImagePath				= settings.value("back_image", "").toString() ;
+	m_bDrawFrame				= settings.value("disp_frame", true).toBool() ;
+	m_bDrawCenter				= settings.value("disp_center", false).toBool() ;
+	m_anmWindowTreeWidth		= settings.value("tree_width", -1).toInt() ;
+	m_anmWindowTreeWidthIndex	= settings.value("tree_width_idx", -1).toInt() ;
+	m_anmWindowScreenW			= settings.value("scr_w", 0).toInt() ;
+	m_anmWindowScreenH			= settings.value("scr_h", 0).toInt() ;
 	settings.endGroup();
 
 	settings.beginGroup("ImageWindow");
@@ -56,19 +57,19 @@ void CSettings::read()
 	settings.endGroup();
 
 	settings.beginGroup("CurveEditorWindow") ;
-	m_curveWindowGeometry = settings.value("geometry").toByteArray() ;
-	m_curveSplitterWidth = settings.value("splitter_width", -1).toInt() ;
-	m_curveSplitterWidthIndex = settings.value("splitter_width_idx", -1).toInt() ;
+	m_curveWindowGeometry		= settings.value("geometry").toByteArray() ;
+	m_curveSplitterWidth		= settings.value("splitter_width", -1).toInt() ;
+	m_curveSplitterWidthIndex	= settings.value("splitter_width_idx", -1).toInt() ;
 	settings.endGroup() ;
 
 	settings.beginGroup("Shortcut");
-	m_scPosSelect = QKeySequence(settings.value("pos", "Z").toString()) ;
-	m_scRotSelect = QKeySequence(settings.value("rot", "X").toString()) ;
-	m_scCenterSelect = QKeySequence(settings.value("center", "C").toString()) ;
-	m_scScaleSelect = QKeySequence(settings.value("scale", "V").toString()) ;
-	m_scPathSelect = QKeySequence(settings.value("path", "B").toString()) ;
-	m_scCopyFrame = QKeySequence(settings.value("copy_frame", "Ctrl+C").toString()) ;
-	m_scPasteFrame = QKeySequence(settings.value("paste_frame", "Ctrl+V").toString()) ;
+	m_scPosSelect		= QKeySequence(settings.value("pos", "Z").toString()) ;
+	m_scRotSelect		= QKeySequence(settings.value("rot", "X").toString()) ;
+	m_scCenterSelect	= QKeySequence(settings.value("center", "C").toString()) ;
+	m_scScaleSelect		= QKeySequence(settings.value("scale", "V").toString()) ;
+	m_scPathSelect		= QKeySequence(settings.value("path", "B").toString()) ;
+	m_scCopyFrame		= QKeySequence(settings.value("copy_frame", "Ctrl+C").toString()) ;
+	m_scPasteFrame		= QKeySequence(settings.value("paste_frame", "Ctrl+V").toString()) ;
 	settings.endGroup();
 }
 
@@ -88,6 +89,8 @@ void CSettings::write()
 	settings.setValue("save_image",		m_bSaveImage) ;
 	settings.setValue("save_flat_json",	m_bFlat) ;
 	settings.setValue("layer_hierarchy",m_bLayerHierarchy) ;
+	settings.setValue("frame_start",	m_frameStart) ;
+	settings.setValue("frame_end",		m_frameEnd) ;
 	settings.endGroup();
 
 	settings.beginGroup("MainWindow");
@@ -108,17 +111,17 @@ void CSettings::write()
 	settings.endGroup();
 
 	settings.beginGroup("ImageWindow");
-	settings.setValue("geometry",		m_imgWindowGeometry) ;
+	settings.setValue("geometry", m_imgWindowGeometry) ;
 	settings.endGroup();
 
 	settings.beginGroup("LoupeWindow");
-	settings.setValue("geometry",		m_loupeWindowGeometry) ;
+	settings.setValue("geometry", m_loupeWindowGeometry) ;
 	settings.endGroup();
 
 	settings.beginGroup("CurveEditorWindow") ;
-	settings.setValue("geometry", m_curveWindowGeometry) ;
-	settings.setValue("splitter_width", m_curveSplitterWidth) ;
-	settings.setValue("splitter_width_idx", m_curveSplitterWidthIndex) ;
+	settings.setValue("geometry",			m_curveWindowGeometry) ;
+	settings.setValue("splitter_width",		m_curveSplitterWidth) ;
+	settings.setValue("splitter_width_idx",	m_curveSplitterWidthIndex) ;
 	settings.endGroup() ;
 
 	settings.beginGroup("Shortcut");
