@@ -19,8 +19,7 @@ public:
 	} ImageData ;
 
 	enum {
-		kMaxFrame	= 1024,		// 最大アニメーションフレーム数
-		kGLWidgetSize = 2048	// アニメーションのGLWidgetのサイズ
+		kMaxFrame	= 1024		// 最大アニメーションフレーム数
 	} ;
 
 	// edit mode

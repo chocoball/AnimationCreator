@@ -310,7 +310,7 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 					QMatrix4x4 mat = pItem->getDisplayMatrix(selFrame) ;
 
 					QPoint c = QPoint(mat.column(3).x(), mat.column(3).y()) ;
-					QPoint p0 = m_DragOffset - QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) ;
+					QPoint p0 = m_DragOffset - QPoint((m_pSetting->getAnmWindowW()/2), (m_pSetting->getAnmWindowH()/2)) ;
 
 					float len = QVector2D(p0-c).length() ;
 					drawLine(c, p0, col, 0);
@@ -454,8 +454,8 @@ void AnimeGLWidget::drawCenter( void )
 
 	QMatrix4x4 m = m_pEditData->getNowSelectMatrix() ;
 	QColor col = QColor(0, 0, 255, 255) ;
-	drawLine(QPoint(-(CEditData::kGLWidgetSize/2), m.column(3).y()), QPoint((CEditData::kGLWidgetSize/2), m.column(3).y()), col, 1.0) ;
-	drawLine(QPoint(m.column(3).x(), -(CEditData::kGLWidgetSize/2)), QPoint(m.column(3).x(), (CEditData::kGLWidgetSize/2)), col, 1.0) ;
+	drawLine(QPoint(-(m_pSetting->getAnmWindowW()/2), m.column(3).y()), QPoint((m_pSetting->getAnmWindowH()/2), m.column(3).y()), col, 1.0) ;
+	drawLine(QPoint(m.column(3).x(), -(m_pSetting->getAnmWindowW()/2)), QPoint(m.column(3).x(), (m_pSetting->getAnmWindowH()/2)), col, 1.0) ;
 }
 
 // ライン描画
@@ -574,15 +574,15 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 		// 連番PNG吐き出し時
 		if ( m_pEditData->getEditMode() == CEditData::kEditMode_ExportPNG ) {
 			int rect[4] = { 0, 0, 0, 0 } ;
-			rect[0] = rect[2] = event->pos().x()-(CEditData::kGLWidgetSize/2) ;
-			rect[1] = rect[3] = event->pos().y()-(CEditData::kGLWidgetSize/2)+1 ;
+			rect[0] = rect[2] = event->pos().x()-(m_pSetting->getAnmWindowW()/2) ;
+			rect[1] = rect[3] = event->pos().y()-(m_pSetting->getAnmWindowH()/2)+1 ;
 			m_pEditData->setExportPNGRect(rect);
 			emit sig_exportPNGRectChange() ;
 			update() ;
 			return ;
 		}
 
-		QPoint localPos = event->pos() - QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) ;
+		QPoint localPos = event->pos() - QPoint((m_pSetting->getAnmWindowW()/2), (m_pSetting->getAnmWindowH()/2)) ;
 		m_DragOffset = event->pos() ;
 
 		CObjectModel *pModel = m_pEditData->getObjectModel() ;
@@ -670,8 +670,8 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 	if ( m_pEditData->getEditMode() == CEditData::kEditMode_ExportPNG ) {
 		int rect[4] = { 0, 0, 0, 0 } ;
 		m_pEditData->getExportPNGRect(rect);
-		rect[2] = event->pos().x()-(CEditData::kGLWidgetSize/2) ;
-		rect[3] = event->pos().y()-(CEditData::kGLWidgetSize/2)+1 ;
+		rect[2] = event->pos().x()-(m_pSetting->getAnmWindowW()/2) ;
+		rect[3] = event->pos().y()-(m_pSetting->getAnmWindowH()/2)+1 ;
 		m_pEditData->setExportPNGRect(rect);
 		emit sig_exportPNGRectChange() ;
 		update() ;
@@ -791,8 +791,8 @@ QPoint AnimeGLWidget::editData(FrameData *pData, QPoint nowPos, QPoint oldPos, Q
 				break ;
 			case kEditMode_Rot:
 				{
-					QVector2D vOld = QVector2D(oldPos-QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) - QPoint(mat.column(3).x(), mat.column(3).y())) ;
-					QVector2D vNow = QVector2D(nowPos-QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) - QPoint(mat.column(3).x(), mat.column(3).y())) ;
+					QVector2D vOld = QVector2D(oldPos-QPoint((m_pSetting->getAnmWindowW()/2), (m_pSetting->getAnmWindowH()/2)) - QPoint(mat.column(3).x(), mat.column(3).y())) ;
+					QVector2D vNow = QVector2D(nowPos-QPoint((m_pSetting->getAnmWindowW()/2), (m_pSetting->getAnmWindowH()/2)) - QPoint(mat.column(3).x(), mat.column(3).y())) ;
 
 					vOld.normalize();
 					vNow.normalize();
@@ -860,10 +860,10 @@ void AnimeGLWidget::writePNGFromFrameBuffer( void )
 	name = dir + "/" + name + ".png" ;
 	int rect[4] ;
 	m_pEditData->getExportPNGRect(rect);
-	rect[0] += (CEditData::kGLWidgetSize/2) ;
-	rect[1] += (CEditData::kGLWidgetSize/2) ;
-	rect[2] += (CEditData::kGLWidgetSize/2) ;
-	rect[3] += (CEditData::kGLWidgetSize/2) ;
+	rect[0] += (m_pSetting->getAnmWindowW()/2) ;
+	rect[1] += (m_pSetting->getAnmWindowH()/2) ;
+	rect[2] += (m_pSetting->getAnmWindowW()/2) ;
+	rect[3] += (m_pSetting->getAnmWindowH()/2) ;
 	if ( rect[0] > rect[2] ) {
 		int tmp = rect[0] ;
 		rect[0] = rect[2] ;
@@ -928,6 +928,10 @@ void AnimeGLWidget::setBackImage( QString path )
 		this->deleteTexture(m_backImageTex);
 	}
 
+	GLint maxTextureSize ;
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
+	qDebug("GL_MAX_TEXTURE_SIZE: %d", maxTextureSize);
+
 	qDebug() << "back image path:" << path << " " << path.isEmpty() ;
 	m_backImageTex = 0 ;
 	if ( path.isEmpty() ) { return ; }
@@ -939,7 +943,7 @@ void AnimeGLWidget::setBackImage( QString path )
 	m_backImageW = m_BackImage.width() ;
 	m_backImageH = m_BackImage.height() ;
 
-	util::resizeImage(m_BackImage) ;
+	util::resizeImage(m_BackImage, maxTextureSize) ;
 
 	m_backImageTex = this->bindTexture(m_BackImage) ;
 }

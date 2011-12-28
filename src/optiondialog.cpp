@@ -87,11 +87,18 @@ AnimeWindowTab::AnimeWindowTab(CSettings *pSetting, QWidget *parent)
 	pTextEdit->setEnabled(pSetting->getUseBackImage());
 	pTextEdit->setText(pSetting->getBackImagePath());
 
+	ui->spinBox_scrw->setValue(pSetting->getAnmWindowScreenW()) ;
+	ui->spinBox_scrh->setValue(pSetting->getAnmWindowScreenH()) ;
+	ui->spinBox_winw->setValue(pSetting->getAnmWindowW()) ;
+	ui->spinBox_winh->setValue(pSetting->getAnmWindowH()) ;
+
 	connect(pComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(slot_changeBGColor(QString))) ;
 	connect(pCheckBox, SIGNAL(clicked(bool)), this, SLOT(slot_changeUseBackImage(bool))) ;
 	connect(ui->pushButton_imagePath, SIGNAL(clicked()), this, SLOT(slot_openFileDialog())) ;
 	connect(ui->spinBox_scrw, SIGNAL(valueChanged(int)), this, SLOT(slot_changeScreenW(int))) ;
 	connect(ui->spinBox_scrh, SIGNAL(valueChanged(int)), this, SLOT(slot_changeScreenH(int))) ;
+	connect(ui->spinBox_winw, SIGNAL(valueChanged(int)), this, SLOT(slot_changeWindowW(int))) ;
+	connect(ui->spinBox_winh, SIGNAL(valueChanged(int)), this, SLOT(slot_changeWindowH(int))) ;
 }
 
 AnimeWindowTab::~AnimeWindowTab()
@@ -134,6 +141,16 @@ void AnimeWindowTab::slot_changeScreenW(int val)
 void AnimeWindowTab::slot_changeScreenH(int val)
 {
 	m_pSetting->setAnmWindowScreenH(val) ;
+}
+
+void AnimeWindowTab::slot_changeWindowW(int val)
+{
+	m_pSetting->setAnmWindowW(val) ;
+}
+
+void AnimeWindowTab::slot_changeWindowH(int val)
+{
+	m_pSetting->setAnmWindowH(val) ;
 }
 
 // イメージウィンドウ タブ

@@ -35,6 +35,8 @@ public:
 	kAccessor(int,			m_anmWindowTreeWidthIndex,	AnmWindowTreeWidthIndex)
 	kAccessor(int,			m_anmWindowScreenW,			AnmWindowScreenW)
 	kAccessor(int,			m_anmWindowScreenH,			AnmWindowScreenH)
+	kAccessor(int,			m_anmWindowW,				AnmWindowW)
+	kAccessor(int,			m_anmWindowH,				AnmWindowH)
 	kAccessor(int,			m_curveSplitterWidth,		CurveSplitterWidth)
 	kAccessor(int,			m_curveSplitterWidthIndex,	CurveSplitterWidthIndex)
 

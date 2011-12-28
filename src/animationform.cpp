@@ -28,8 +28,8 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 
 	m_pGlWidget = new AnimeGLWidget(pImageData, pSetting, this) ;
 	ui->scrollArea_anime->setWidget(m_pGlWidget);
-	m_pGlWidget->resize(CEditData::kGLWidgetSize, CEditData::kGLWidgetSize);
-	m_pGlWidget->setDrawArea(CEditData::kGLWidgetSize, CEditData::kGLWidgetSize);
+	m_pGlWidget->resize(m_pSetting->getAnmWindowW(), m_pSetting->getAnmWindowH());
+	m_pGlWidget->setDrawArea(m_pSetting->getAnmWindowW(), m_pSetting->getAnmWindowH());
 	m_pGlWidget->show();
 
 	ui->radioButton_pos->setChecked(true);
@@ -430,7 +430,7 @@ void AnimationForm::slot_dropedImage( QRect rect, QPoint pos, int imageIndex )
 		index = pObjItem->getIndex() ;
 	}
 
-	pos -= QPoint((CEditData::kGLWidgetSize/2), (CEditData::kGLWidgetSize/2)) ;	// GLWidgetのローカルポスに変換
+	pos -= QPoint((m_pSetting->getAnmWindowW()/2), (m_pSetting->getAnmWindowH()/2)) ;	// GLWidgetのローカルポスに変換
 
 	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
 	bool valid ;
@@ -1131,6 +1131,8 @@ void AnimationForm::slot_endedOption( void )
 		path = m_pSetting->getBackImagePath() ;
 	}
 	m_pGlWidget->setBackImage(path) ;
+	m_pGlWidget->resize(m_pSetting->getAnmWindowW(), m_pSetting->getAnmWindowH());
+	m_pGlWidget->setDrawArea(m_pSetting->getAnmWindowW(), m_pSetting->getAnmWindowH());
 	m_pGlWidget->update();
 }
 

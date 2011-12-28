@@ -44,6 +44,9 @@ public slots:
 	void slot_changeScreenW(int val) ;
 	void slot_changeScreenH(int val) ;
 
+	void slot_changeWindowW(int val) ;
+	void slot_changeWindowH(int val) ;
+
 private:
 	Ui::OptionAnimationTab	*ui ;
 	CSettings				*m_pSetting ;

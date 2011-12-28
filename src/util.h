@@ -5,7 +5,7 @@
 
 namespace util {
 
-	void resizeImage( QImage &imageData ) ;
+	void resizeImage( QImage &imageData, int limitSize = 1024 ) ;
 	QPointF getBezierPoint(QList<QPointF> &pointList, float t) ;
 
 }

@@ -46,6 +46,8 @@ void CSettings::read()
 	m_anmWindowTreeWidthIndex	= settings.value("tree_width_idx", -1).toInt() ;
 	m_anmWindowScreenW			= settings.value("scr_w", 0).toInt() ;
 	m_anmWindowScreenH			= settings.value("scr_h", 0).toInt() ;
+	m_anmWindowW				= settings.value("win_w", 2048).toInt() ;
+	m_anmWindowH				= settings.value("win_h", 2048).toInt() ;
 	settings.endGroup();
 
 	settings.beginGroup("ImageWindow");
@@ -118,6 +120,8 @@ void CSettings::write()
 	settings.setValue("tree_width_idx",	m_anmWindowTreeWidthIndex);
 	settings.setValue("scr_w",			m_anmWindowScreenW) ;
 	settings.setValue("scr_h",			m_anmWindowScreenH) ;
+	settings.setValue("win_w",			m_anmWindowW) ;
+	settings.setValue("win_h",			m_anmWindowH) ;
 	settings.endGroup();
 
 	settings.beginGroup("ImageWindow");
