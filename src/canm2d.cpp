@@ -1423,7 +1423,7 @@ void CAnm2DAsm::makeFromEditDataTip(QString qsLabel, ObjectItem *pObj)
 		addString("\t\t\tdd\t\t1\t\t; [NORMAL]\n");
 		addString("\t\t\tdw\t\t" + QString("%1").arg(frameData.frame) + "\t\t; uTime\n");
 		addString("\t\t\tdw\t\t" + m_aqsVramID[frameData.nImage] + "\t\t; uVramID\n");
-		addString("\t\t\tdw\t\t" + QString("%1, %2, %3").arg(frameData.pos_x).arg(frameData.pos_y).arg(frameData.pos_z) + "\t\t; svPos\n");
+		addString("\t\t\tdw\t\t" + QString("%1, %2, %3").arg(frameData.pos_x).arg(frameData.pos_y).arg(-frameData.pos_z) + "\t\t; svPos\n");
 		addString("\t\t\tdw\t\t" + QString("%1").arg(frameData.rot_z * 4096 / 360) + "\t\t; sRot\n");
 		addString("\t\t\tdw\t\t" + QString("%1, %2").arg((int)(frameData.fScaleX * 4096.0f)).arg((int)(frameData.fScaleY * 4096.0f)) + "\t\t; svSca\n");
 		addString("\t\t\tdw\t\t" + QString("%1, %2").arg(frameData.center_x).arg(frameData.center_y) + "\t\t; svCenter\n");
