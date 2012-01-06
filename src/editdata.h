@@ -206,7 +206,7 @@ private:
 	void sortFrameDatas(ObjectItem *pItem) ;
 
 	kAccessor(int, m_editMode, EditMode)
-	kAccessor(QRect, m_catchRect, CatchRect)
+	kAccessor(QRectF, m_catchRect, CatchRect)
 	kAccessor(QPoint, m_center, Center)
 	kAccessor(QTreeView*, m_pTreeViewRef, TreeView)
 	kAccessor(bool, m_bPlayAnime, PlayAnime)

@@ -33,7 +33,7 @@ public:
 	void setPressWindowMove(bool f) { m_bPressWindowMove = f ; }
 
 signals:
-	void sig_dropedImage(QRect rect, QPoint pos, int index) ;
+	void sig_dropedImage(QRectF rect, QPoint pos, int index) ;
     void sig_selectLayerChanged( QModelIndex indexLayer ) ;
     void sig_dragedImage( FrameData data ) ;
 	void sig_deleteFrameData( void ) ;

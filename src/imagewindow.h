@@ -50,11 +50,11 @@ public slots:
 	void slot_delImage( void ) ;
 	void slot_modifiedImage( int index ) ;
 
-	void slot_changeUVBottom( int val ) ;
-	void slot_changeUVTop( int val ) ;
-	void slot_changeUVLeft( int val ) ;
-	void slot_changeUVRight( int val ) ;
-	void slot_setUI( QRect rect ) ;
+	void slot_changeUVBottom( double val ) ;
+	void slot_changeUVTop( double val ) ;
+	void slot_changeUVLeft( double val ) ;
+	void slot_changeUVRight( double val ) ;
+	void slot_setUI( QRectF rect ) ;
 
 	void slot_endedOption( void ) ;
 	void slot_changeDrawCenter( bool flag ) ;

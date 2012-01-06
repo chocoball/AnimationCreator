@@ -359,8 +359,8 @@ void AnimeGLWidget::drawFrameData( const FrameData &data, QMatrix4x4 mat, QColor
 	if ( !p ) { return ; }
 
 	QImage &Image = p->Image ;
-	QRectF rect ;
-	QRect uv = data.getRect() ;
+	QRect rect ;
+	QRectF uv = data.getRect() ;
 	QRectF uvF ;
 
 	glPushMatrix() ;
@@ -539,7 +539,7 @@ void AnimeGLWidget::dragEnterEvent(QDragEnterEvent *event)
 void AnimeGLWidget::dropEvent(QDropEvent *event)
 {
 	if ( event->mimeData()->hasFormat("editor/selected-image") ) {
-		QRect rect ;
+		QRectF rect ;
 		int scale ;
 		QPoint pos ;
 		int index ;

@@ -33,36 +33,6 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	m_pGlWidget->show();
 
 	ui->radioButton_pos->setChecked(true);
-	ui->spinBox_pos_x->setMinimum(-9999);
-	ui->spinBox_pos_x->setMaximum(9999);
-	ui->spinBox_pos_y->setMinimum(-9999);
-	ui->spinBox_pos_y->setMaximum(9999);
-	ui->spinBox_pos_z->setMinimum(-9999);
-	ui->spinBox_pos_z->setMaximum(9999);
-	ui->spinBox_rot_x->setMinimum(-360);
-	ui->spinBox_rot_x->setMaximum(360);
-	ui->spinBox_rot_y->setMinimum(-360);
-	ui->spinBox_rot_y->setMaximum(360);
-	ui->spinBox_rot_z->setMinimum(-360);
-	ui->spinBox_rot_z->setMaximum(360);
-	ui->spinBox_center_x->setMinimum(-9999);
-	ui->spinBox_center_x->setMaximum(9999);
-	ui->spinBox_center_y->setMinimum(-9999);
-	ui->spinBox_center_y->setMaximum(9999);
-	ui->doubleSpinBox_scale_x->setMinimum(-9999.0);
-	ui->doubleSpinBox_scale_x->setMaximum(9999.0);
-	ui->doubleSpinBox_scale_x->setSingleStep(0.01);
-	ui->doubleSpinBox_scale_y->setMinimum(-9999.0);
-	ui->doubleSpinBox_scale_y->setMaximum(9999.0);
-	ui->doubleSpinBox_scale_y->setSingleStep(0.01);
-	ui->spinBox_uv_left->setMinimum(0);
-	ui->spinBox_uv_left->setMaximum(4096);
-	ui->spinBox_uv_right->setMinimum(0);
-	ui->spinBox_uv_right->setMaximum(4096);
-	ui->spinBox_uv_top->setMinimum(0);
-	ui->spinBox_uv_top->setMaximum(4096);
-	ui->spinBox_uv_bottom->setMinimum(0);
-	ui->spinBox_uv_bottom->setMaximum(4096);
 	ui->spinBox_loop->setMinimum(-1);
 	ui->spinBox_loop->setMaximum(9999);
 	ui->spinBox_r->setMinimum(0);
@@ -140,7 +110,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(ui->treeView, SIGNAL(customContextMenuRequested(QPoint)),	this, SLOT(slot_treeViewMenuReq(QPoint))) ;
 	connect(ui->treeView, SIGNAL(clicked(QModelIndex)),					this, SLOT(slot_changeSelectObject(QModelIndex))) ;
 
-	connect(m_pGlWidget, SIGNAL(sig_dropedImage(QRect, QPoint, int)), this, SLOT(slot_dropedImage(QRect, QPoint, int))) ;
+	connect(m_pGlWidget, SIGNAL(sig_dropedImage(QRectF, QPoint, int)), this, SLOT(slot_dropedImage(QRectF, QPoint, int))) ;
 	connect(m_pGlWidget, SIGNAL(sig_selectLayerChanged(QModelIndex)), this, SLOT(slot_selectLayerChanged(QModelIndex))) ;
 	connect(m_pGlWidget, SIGNAL(sig_dragedImage(FrameData)), this, SLOT(slot_setUI(FrameData))) ;
 	connect(m_pGlWidget, SIGNAL(sig_deleteFrameData()), this, SLOT(slot_deleteFrameData())) ;
@@ -148,20 +118,20 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(m_pGlWidget, SIGNAL(sig_frameDataMoveEnd(FrameData)), this, SLOT(slot_frameDataMoveEnd(FrameData))) ;
 	connect(m_pGlWidget, SIGNAL(sig_dragedImage(FrameData)), this, SLOT(slot_portDragedImage(FrameData))) ;
 
-	connect(ui->spinBox_pos_x,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changePosX(int))) ;
-	connect(ui->spinBox_pos_y,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changePosY(int))) ;
-	connect(ui->spinBox_pos_z,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changePosZ(int))) ;
-	connect(ui->spinBox_rot_x,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changeRotX(int))) ;
-	connect(ui->spinBox_rot_y,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changeRotY(int))) ;
-	connect(ui->spinBox_rot_z,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changeRotZ(int))) ;
+	connect(ui->doubleSpinBox_pos_x,	SIGNAL(valueChanged(double)),	this, SLOT(slot_changePosX(double))) ;
+	connect(ui->doubleSpinBox_pos_y,	SIGNAL(valueChanged(double)),	this, SLOT(slot_changePosY(double))) ;
+	connect(ui->doubleSpinBox_pos_z,	SIGNAL(valueChanged(double)),	this, SLOT(slot_changePosZ(double))) ;
+	connect(ui->doubleSpinBox_rot_x,	SIGNAL(valueChanged(double)),	this, SLOT(slot_changeRotX(double))) ;
+	connect(ui->doubleSpinBox_rot_y,	SIGNAL(valueChanged(double)),	this, SLOT(slot_changeRotY(double))) ;
+	connect(ui->doubleSpinBox_rot_z,	SIGNAL(valueChanged(double)),	this, SLOT(slot_changeRotZ(double))) ;
 	connect(ui->doubleSpinBox_scale_x,	SIGNAL(valueChanged(double)),	this, SLOT(slot_changeScaleX(double))) ;
 	connect(ui->doubleSpinBox_scale_y,	SIGNAL(valueChanged(double)),	this, SLOT(slot_changeScaleY(double))) ;
-	connect(ui->spinBox_uv_left,		SIGNAL(valueChanged(int)),		this, SLOT(slot_changeUvLeft(int))) ;
-	connect(ui->spinBox_uv_right,		SIGNAL(valueChanged(int)),		this, SLOT(slot_changeUvRight(int))) ;
-	connect(ui->spinBox_uv_top,			SIGNAL(valueChanged(int)),		this, SLOT(slot_changeUvTop(int))) ;
-	connect(ui->spinBox_uv_bottom,		SIGNAL(valueChanged(int)),		this, SLOT(slot_changeUvBottom(int))) ;
-	connect(ui->spinBox_center_x,		SIGNAL(valueChanged(int)),		this, SLOT(slot_changeCenterX(int))) ;
-	connect(ui->spinBox_center_y,		SIGNAL(valueChanged(int)),		this, SLOT(slot_changeCenterY(int))) ;
+	connect(ui->doubleSpinBox_uv_left,	SIGNAL(valueChanged(double)),	this, SLOT(slot_changeUvLeft(double))) ;
+	connect(ui->doubleSpinBox_uv_right,	SIGNAL(valueChanged(double)),	this, SLOT(slot_changeUvRight(double))) ;
+	connect(ui->doubleSpinBox_uv_top,	SIGNAL(valueChanged(double)),	this, SLOT(slot_changeUvTop(double))) ;
+	connect(ui->doubleSpinBox_uv_bottom,SIGNAL(valueChanged(double)),	this, SLOT(slot_changeUvBottom(double))) ;
+	connect(ui->doubleSpinBox_center_x,	SIGNAL(valueChanged(double)),	this, SLOT(slot_changeCenterX(double))) ;
+	connect(ui->doubleSpinBox_center_y,	SIGNAL(valueChanged(double)),	this, SLOT(slot_changeCenterY(double))) ;
 	connect(ui->spinBox_frame_start,	SIGNAL(valueChanged(int)),		this, SLOT(slot_changeFrameStart(int))) ;
 	connect(ui->spinBox_frame_end,		SIGNAL(valueChanged(int)),		this, SLOT(slot_changeFrameEnd(int))) ;
 
@@ -192,6 +162,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(m_pSplitter,				SIGNAL(splitterMoved(int,int)), this, SLOT(slot_splitterMoved(int, int))) ;
 	connect(m_pEditData->getObjectModel(), SIGNAL(sig_copyIndex(int,ObjectItem*,QModelIndex,Qt::DropAction)), this, SLOT(slot_copyIndex(int, ObjectItem*, QModelIndex,Qt::DropAction))) ;
 
+	connect(ui->pushButton_del_path,	SIGNAL(clicked()),				this, SLOT(slot_delPath())) ;
 	connect(this, SIGNAL(sig_changeFrameStart(int)),	ui->label_frame, SLOT(slot_setFrameStart(int))) ;
 	connect(this, SIGNAL(sig_changeFrameEnd(int)),		ui->label_frame, SLOT(slot_setFrameEnd(int))) ;
 
@@ -267,18 +238,18 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 		ui->label_g,
 		ui->label_b,
 		ui->label_a,
-		ui->spinBox_pos_x,
-		ui->spinBox_pos_y,
-		ui->spinBox_pos_z,
-		ui->spinBox_rot_x,
-		ui->spinBox_rot_y,
-		ui->spinBox_rot_z,
-		ui->spinBox_uv_left,
-		ui->spinBox_uv_right,
-		ui->spinBox_uv_top,
-		ui->spinBox_uv_bottom,
-		ui->spinBox_center_x,
-		ui->spinBox_center_y,
+		ui->doubleSpinBox_pos_x,
+		ui->doubleSpinBox_pos_y,
+		ui->doubleSpinBox_pos_z,
+		ui->doubleSpinBox_rot_x,
+		ui->doubleSpinBox_rot_y,
+		ui->doubleSpinBox_rot_z,
+		ui->doubleSpinBox_uv_left,
+		ui->doubleSpinBox_uv_right,
+		ui->doubleSpinBox_uv_top,
+		ui->doubleSpinBox_uv_bottom,
+		ui->doubleSpinBox_center_x,
+		ui->doubleSpinBox_center_y,
 		ui->spinBox_loop,
 		ui->spinBox_r,
 		ui->spinBox_g,
@@ -294,7 +265,8 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 		ui->checkBox_grid,
 		ui->toolButton_picker,
 		ui->checkBox_linear_filter,
-		ui->spinBox_frame_end
+		ui->spinBox_frame_end,
+		ui->pushButton_del_path
 	} ;
 	for ( int i = 0 ; i < ARRAY_NUM(tmp) ; i ++ ) {
 		tmp[i]->move(tmp[i]->pos() + QPoint(add.width(), 0));
@@ -409,7 +381,7 @@ void AnimationForm::slot_deleteFrameData(void)
 
 // ドロップ時のスロット
 // レイヤ追加
-void AnimationForm::slot_dropedImage( QRect rect, QPoint pos, int imageIndex )
+void AnimationForm::slot_dropedImage( QRectF rect, QPoint pos, int imageIndex )
 {
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
 	int frameNum  = ui->label_frame->value() ;
@@ -518,22 +490,22 @@ void AnimationForm::slot_selectLayerChanged( QModelIndex indexLayer )
 void AnimationForm::slot_setUI(FrameData data)
 {
 	m_bDontSetData = true ;
-	if ( data.pos_x != ui->spinBox_pos_x->value() ) { ui->spinBox_pos_x->setValue(data.pos_x); }
-	if ( data.pos_y != ui->spinBox_pos_y->value() ) { ui->spinBox_pos_y->setValue(data.pos_y); }
-	if ( data.pos_z != ui->spinBox_pos_z->value() ) { ui->spinBox_pos_z->setValue(data.pos_z); }
-	if ( data.rot_x != ui->spinBox_rot_x->value() ) { ui->spinBox_rot_x->setValue(data.rot_x); }
-	if ( data.rot_y != ui->spinBox_rot_y->value() ) { ui->spinBox_rot_y->setValue(data.rot_y); }
-	if ( data.rot_z != ui->spinBox_rot_z->value() ) { ui->spinBox_rot_z->setValue(data.rot_z); }
+	if ( data.pos_x != ui->doubleSpinBox_pos_x->value() ) { ui->doubleSpinBox_pos_x->setValue(data.pos_x); }
+	if ( data.pos_y != ui->doubleSpinBox_pos_y->value() ) { ui->doubleSpinBox_pos_y->setValue(data.pos_y); }
+	if ( data.pos_z != ui->doubleSpinBox_pos_z->value() ) { ui->doubleSpinBox_pos_z->setValue(data.pos_z); }
+	if ( data.rot_x != ui->doubleSpinBox_rot_x->value() ) { ui->doubleSpinBox_rot_x->setValue(data.rot_x); }
+	if ( data.rot_y != ui->doubleSpinBox_rot_y->value() ) { ui->doubleSpinBox_rot_y->setValue(data.rot_y); }
+	if ( data.rot_z != ui->doubleSpinBox_rot_z->value() ) { ui->doubleSpinBox_rot_z->setValue(data.rot_z); }
 	if ( data.fScaleX != (float)ui->doubleSpinBox_scale_x->value() ) { ui->doubleSpinBox_scale_x->setValue(data.fScaleX) ; }
 	if ( data.fScaleY != (float)ui->doubleSpinBox_scale_y->value() ) { ui->doubleSpinBox_scale_y->setValue(data.fScaleY) ; }
 
-	if ( data.left != ui->spinBox_uv_left->value() ) { ui->spinBox_uv_left->setValue(data.left); }
-	if ( data.right != ui->spinBox_uv_right->value() ) { ui->spinBox_uv_right->setValue(data.right); }
-	if ( data.top != ui->spinBox_uv_top->value() ) { ui->spinBox_uv_top->setValue(data.top); }
-	if ( data.bottom != ui->spinBox_uv_bottom->value() ) { ui->spinBox_uv_bottom->setValue(data.bottom); }
+	if ( data.left   != ui->doubleSpinBox_uv_left->value() ) { ui->doubleSpinBox_uv_left->setValue(data.left); }
+	if ( data.right  != ui->doubleSpinBox_uv_right->value() ) { ui->doubleSpinBox_uv_right->setValue(data.right); }
+	if ( data.top    != ui->doubleSpinBox_uv_top->value() ) { ui->doubleSpinBox_uv_top->setValue(data.top); }
+	if ( data.bottom != ui->doubleSpinBox_uv_bottom->value() ) { ui->doubleSpinBox_uv_bottom->setValue(data.bottom); }
 
-	if ( data.center_x != ui->spinBox_center_x->value() ) { ui->spinBox_center_x->setValue(data.center_x); }
-	if ( data.center_y != ui->spinBox_center_y->value() ) { ui->spinBox_center_y->setValue(data.center_y); }
+	if ( data.center_x != ui->doubleSpinBox_center_x->value() ) { ui->doubleSpinBox_center_x->setValue(data.center_x); }
+	if ( data.center_y != ui->doubleSpinBox_center_y->value() ) { ui->doubleSpinBox_center_y->setValue(data.center_y); }
 	if ( data.nImage != ui->comboBox_image_no->currentText().toInt() ) {
 		for ( int i = 0 ; i < ui->comboBox_image_no->count() ; i ++ ) {
 			if ( ui->comboBox_image_no->itemText(i).toInt() == data.nImage ) {
@@ -551,7 +523,7 @@ void AnimationForm::slot_setUI(FrameData data)
 	m_bDontSetData = false ;
 
 	if ( data.getRect() != m_pEditData->getCatchRect() ) {
-		QRect rect = data.getRect() ;
+		QRectF rect = data.getRect() ;
 		m_pEditData->setCatchRect(rect);
 		emit sig_imageChangeRect(rect) ;
 		emit sig_imageRepaint() ;
@@ -559,7 +531,7 @@ void AnimationForm::slot_setUI(FrameData data)
 }
 
 // pos x 変更
-void AnimationForm::slot_changePosX( int val )
+void AnimationForm::slot_changePosX( double val )
 {
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
@@ -573,7 +545,7 @@ void AnimationForm::slot_changePosX( int val )
 }
 
 // pos y 変更
-void AnimationForm::slot_changePosY( int val )
+void AnimationForm::slot_changePosY( double val )
 {
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
@@ -587,7 +559,7 @@ void AnimationForm::slot_changePosY( int val )
 }
 
 // pos z 変更
-void AnimationForm::slot_changePosZ( int val )
+void AnimationForm::slot_changePosZ( double val )
 {
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
@@ -601,7 +573,7 @@ void AnimationForm::slot_changePosZ( int val )
 }
 
 // rot x 変更
-void AnimationForm::slot_changeRotX( int val )
+void AnimationForm::slot_changeRotX( double val )
 {
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
@@ -615,7 +587,7 @@ void AnimationForm::slot_changeRotX( int val )
 }
 
 // rot y 変更
-void AnimationForm::slot_changeRotY( int val )
+void AnimationForm::slot_changeRotY( double val )
 {
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
@@ -629,7 +601,7 @@ void AnimationForm::slot_changeRotY( int val )
 }
 
 // rot z 変更
-void AnimationForm::slot_changeRotZ( int val )
+void AnimationForm::slot_changeRotZ( double val )
 {
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
@@ -671,7 +643,7 @@ void AnimationForm::slot_changeScaleY( double val )
 }
 
 // uv left 変更
-void AnimationForm::slot_changeUvLeft( int val )
+void AnimationForm::slot_changeUvLeft( double val )
 {
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
@@ -683,13 +655,13 @@ void AnimationForm::slot_changeUvLeft( int val )
 	p->left = val ;
 	addCommandEdit(*p) ;
 
-	QRect rect = p->getRect() ;
+	QRectF rect = p->getRect() ;
 	m_pEditData->setCatchRect(rect);
 	emit sig_imageRepaint() ;
 }
 
 // uv right 変更
-void AnimationForm::slot_changeUvRight( int val )
+void AnimationForm::slot_changeUvRight( double val )
 {
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
@@ -701,13 +673,13 @@ void AnimationForm::slot_changeUvRight( int val )
 	p->right = val ;
 	addCommandEdit(*p) ;
 
-	QRect rect = p->getRect() ;
+	QRectF rect = p->getRect() ;
 	m_pEditData->setCatchRect(rect);
 	emit sig_imageRepaint() ;
 }
 
 // uv top 変更
-void AnimationForm::slot_changeUvTop( int val )
+void AnimationForm::slot_changeUvTop( double val )
 {
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
@@ -719,13 +691,13 @@ void AnimationForm::slot_changeUvTop( int val )
 	p->top = val ;
 	addCommandEdit(*p) ;
 
-	QRect rect = p->getRect() ;
+	QRectF rect = p->getRect() ;
 	m_pEditData->setCatchRect(rect);
 	emit sig_imageRepaint() ;
 }
 
 // uv bottom 変更
-void AnimationForm::slot_changeUvBottom( int val )
+void AnimationForm::slot_changeUvBottom( double val )
 {
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
@@ -737,13 +709,13 @@ void AnimationForm::slot_changeUvBottom( int val )
 	p->bottom = val ;
 	addCommandEdit(*p) ;
 
-	QRect rect = p->getRect() ;
+	QRectF rect = p->getRect() ;
 	m_pEditData->setCatchRect(rect);
 	emit sig_imageRepaint() ;
 }
 
 // center x 変更
-void AnimationForm::slot_changeCenterX( int val )
+void AnimationForm::slot_changeCenterX( double val )
 {
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
@@ -757,7 +729,7 @@ void AnimationForm::slot_changeCenterX( int val )
 }
 
 // center y 変更
-void AnimationForm::slot_changeCenterY( int val )
+void AnimationForm::slot_changeCenterY( double val )
 {
 	if ( m_pGlWidget->getDragMode() != AnimeGLWidget::kDragMode_None ) { return ; }
 	if ( m_bDontSetData ) { return ; }
@@ -1020,7 +992,7 @@ void AnimationForm::slot_changeLayerLock( void )
 }
 
 // 選択中レイヤのUV変更
-void AnimationForm::slot_changeSelectLayerUV( QRect rect )
+void AnimationForm::slot_changeSelectLayerUV( QRectF rect )
 {
 	addNowSelectLayerAndFrame();
 	FrameData *p = getNowSelectFrameData() ;
@@ -1400,6 +1372,20 @@ void AnimationForm::slot_scrollWindow(QPoint move)
 	}
 }
 
+void AnimationForm::slot_delPath()
+{
+	FrameData *p = getNowSelectFrameData() ;
+	if ( !p ) { return ; }
+
+	p->path[0].bValid = false ;
+	p->path[0].v.setX(0) ;
+	p->path[0].v.setY(0) ;
+	p->path[1].bValid = false ;
+	p->path[1].v.setX(0) ;
+	p->path[1].v.setY(0) ;
+	addCommandEdit(*p) ;
+}
+
 // オブジェクト追加
 void AnimationForm::addNewObject( QString str )
 {
@@ -1419,6 +1405,7 @@ void AnimationForm::addCommandEdit( FrameData data, FrameData *pOld )
 
 	update << m_pGlWidget << this ;
 	m_pEditData->cmd_editFrameData(m_pEditData->getSelIndex(), frame, data, pOld, update);
+	emit sig_changeSelectLayer(m_pEditData->getSelIndex()) ;
 }
 
 // 指定フレームのフレームデータを選択する

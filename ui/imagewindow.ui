@@ -77,16 +77,6 @@
     <string>UV</string>
    </property>
   </widget>
-  <widget class="QSpinBox" name="spinBox_uv_top">
-   <property name="geometry">
-    <rect>
-     <x>490</x>
-     <y>90</y>
-     <width>57</width>
-     <height>25</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QLabel" name="label_uv_top">
    <property name="geometry">
     <rect>
@@ -111,26 +101,6 @@
    </property>
    <property name="text">
     <string>left</string>
-   </property>
-  </widget>
-  <widget class="QSpinBox" name="spinBox_uv_left">
-   <property name="geometry">
-    <rect>
-     <x>430</x>
-     <y>130</y>
-     <width>57</width>
-     <height>25</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QSpinBox" name="spinBox_uv_bottom">
-   <property name="geometry">
-    <rect>
-     <x>490</x>
-     <y>160</y>
-     <width>57</width>
-     <height>25</height>
-    </rect>
    </property>
   </widget>
   <widget class="QLabel" name="label_uv_bottom">
@@ -159,14 +129,80 @@
     <string>right</string>
    </property>
   </widget>
-  <widget class="QSpinBox" name="spinBox_uv_right">
+  <widget class="QDoubleSpinBox" name="doubleSpinBox_uv_bottom">
    <property name="geometry">
     <rect>
-     <x>550</x>
-     <y>130</y>
-     <width>57</width>
-     <height>25</height>
+     <x>470</x>
+     <y>160</y>
+     <width>71</width>
+     <height>22</height>
     </rect>
+   </property>
+   <property name="decimals">
+    <number>3</number>
+   </property>
+   <property name="maximum">
+    <double>4096.000000000000000</double>
+   </property>
+   <property name="singleStep">
+    <double>0.001000000000000</double>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="doubleSpinBox_uv_left">
+   <property name="geometry">
+    <rect>
+     <x>430</x>
+     <y>130</y>
+     <width>71</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="decimals">
+    <number>3</number>
+   </property>
+   <property name="maximum">
+    <double>4096.000000000000000</double>
+   </property>
+   <property name="singleStep">
+    <double>0.001000000000000</double>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="doubleSpinBox_uv_top">
+   <property name="geometry">
+    <rect>
+     <x>470</x>
+     <y>90</y>
+     <width>71</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="decimals">
+    <number>3</number>
+   </property>
+   <property name="maximum">
+    <double>4096.000000000000000</double>
+   </property>
+   <property name="singleStep">
+    <double>0.001000000000000</double>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="doubleSpinBox_uv_right">
+   <property name="geometry">
+    <rect>
+     <x>520</x>
+     <y>130</y>
+     <width>71</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="decimals">
+    <number>3</number>
+   </property>
+   <property name="maximum">
+    <double>4096.000000000000000</double>
+   </property>
+   <property name="singleStep">
+    <double>0.001000000000000</double>
    </property>
   </widget>
  </widget>

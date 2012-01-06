@@ -22,20 +22,16 @@ ImageWindow::ImageWindow(CSettings *p, CEditData *pEditImage, AnimationForm *pAn
 	setAcceptDrops(true) ;
 
 	ui->checkBox->setChecked(true);
-	ui->spinBox_uv_bottom->setMaximum(1024);
-	ui->spinBox_uv_top->setMaximum(1024);
-	ui->spinBox_uv_left->setMaximum(1024);
-	ui->spinBox_uv_right->setMaximum(1024);
 
 	m_pActDelImage = new QAction(trUtf8("Delete"), this) ;
 
 	connect(m_pActDelImage, SIGNAL(triggered()), this, SLOT(slot_delImage())) ;
 	connect(this, SIGNAL(sig_addImage(int)), m_pAnimationForm, SLOT(slot_addImage(int))) ;
 	connect(this, SIGNAL(sig_delImage(int)), m_pAnimationForm, SLOT(slot_delImage(int))) ;
-	connect(ui->spinBox_uv_bottom,	SIGNAL(valueChanged(int)), this, SLOT(slot_changeUVBottom(int))) ;
-	connect(ui->spinBox_uv_top,		SIGNAL(valueChanged(int)), this, SLOT(slot_changeUVTop(int))) ;
-	connect(ui->spinBox_uv_left,	SIGNAL(valueChanged(int)), this, SLOT(slot_changeUVLeft(int))) ;
-	connect(ui->spinBox_uv_right,	SIGNAL(valueChanged(int)), this, SLOT(slot_changeUVRight(int))) ;
+	connect(ui->doubleSpinBox_uv_bottom,SIGNAL(valueChanged(double)), this, SLOT(slot_changeUVBottom(double))) ;
+	connect(ui->doubleSpinBox_uv_top,	SIGNAL(valueChanged(double)), this, SLOT(slot_changeUVTop(double))) ;
+	connect(ui->doubleSpinBox_uv_left,	SIGNAL(valueChanged(double)), this, SLOT(slot_changeUVLeft(double))) ;
+	connect(ui->doubleSpinBox_uv_right,	SIGNAL(valueChanged(double)), this, SLOT(slot_changeUVRight(double))) ;
 
 	ui->tabWidget->clear();
 	for ( int i = 0 ; i < m_pEditData->getImageDataListSize() ; i ++ ) {
@@ -123,10 +119,10 @@ void ImageWindow::addTab(int imageIndex)
 	ui->tabWidget->insertTab(imageIndex, pScrollArea, QIcon(), tr("%1").arg(imageIndex)) ;
 
 	connect(ui->checkBox, SIGNAL(clicked(bool)), pGridLabel, SLOT(slot_gridOnOff(bool))) ;
-	connect(pGridLabel, SIGNAL(sig_changeSelectLayerUV(QRect)), m_pAnimationForm, SLOT(slot_changeSelectLayerUV(QRect))) ;
-	connect(pGridLabel, SIGNAL(sig_changeCatchRect(QRect)), this, SLOT(slot_setUI(QRect))) ;
+	connect(pGridLabel, SIGNAL(sig_changeSelectLayerUV(QRectF)), m_pAnimationForm, SLOT(slot_changeSelectLayerUV(QRectF))) ;
+	connect(pGridLabel, SIGNAL(sig_changeCatchRect(QRectF)), this, SLOT(slot_setUI(QRectF))) ;
 	connect(m_pAnimationForm, SIGNAL(sig_imageRepaint()), pGridLabel, SLOT(update())) ;
-	connect(m_pAnimationForm, SIGNAL(sig_imageChangeRect(QRect)), this, SLOT(slot_setUI(QRect))) ;
+	connect(m_pAnimationForm, SIGNAL(sig_imageChangeRect(QRectF)), this, SLOT(slot_setUI(QRectF))) ;
 	connect(m_pAnimationForm, SIGNAL(sig_imageChangeTab(int)), this, SLOT(slot_changeTab(int))) ;
 }
 
@@ -158,13 +154,28 @@ void ImageWindow::resizeEvent(QResizeEvent *event)
 	}
 
 	QSize add = event->size() - m_oldWinSize ;
-	QSize add_h = QSize(0, add.height()) ;
-	QSize add_w = QSize(add.width(), 0) ;
+//	QSize add_h = QSize(0, add.height()) ;
+//	QSize add_w = QSize(add.width(), 0) ;
 
 	m_oldWinSize = event->size() ;
 
 	ui->tabWidget->resize(ui->tabWidget->size()+add);
-
+#if 1
+	QWidget *pTmp[] = {
+		ui->label_uv,
+		ui->label_uv_bottom,
+		ui->label_uv_left,
+		ui->label_uv_right,
+		ui->label_uv_top,
+		ui->doubleSpinBox_uv_bottom,
+		ui->doubleSpinBox_uv_left,
+		ui->doubleSpinBox_uv_right,
+		ui->doubleSpinBox_uv_top,
+	} ;
+	for ( int i = 0 ; i < ARRAY_NUM(pTmp) ; i ++ ) {
+		pTmp[i]->move(pTmp[i]->pos() + QPoint(add.width(), 0));
+	}
+#else
 	QLabel *pTmpLabel[] = {
 		ui->label_uv,
 		ui->label_uv_bottom,
@@ -176,15 +187,16 @@ void ImageWindow::resizeEvent(QResizeEvent *event)
 		pTmpLabel[i]->move(pTmpLabel[i]->pos() + QPoint(add.width(), 0));
 	}
 
-	QSpinBox *pTmpBox[] = {
-		ui->spinBox_uv_bottom,
-		ui->spinBox_uv_left,
-		ui->spinBox_uv_right,
-		ui->spinBox_uv_top,
+	QDoubleSpinBox *pTmpBox[] = {
+		ui->doubleSpinBox_uv_bottom,
+		ui->doubleSpinBox_uv_left,
+		ui->doubleSpinBox_uv_right,
+		ui->doubleSpinBox_uv_top,
 	} ;
 	for ( int i = 0 ; i < ARRAY_NUM(pTmpBox) ; i ++ ) {
 		pTmpBox[i]->move(pTmpBox[i]->pos() + QPoint(add.width(), 0));
 	}
+#endif
 }
 
 // 未使用タブ取得
@@ -237,9 +249,9 @@ void ImageWindow::slot_modifiedImage( int index )
 }
 
 // UV 下 変更
-void ImageWindow::slot_changeUVBottom( int val )
+void ImageWindow::slot_changeUVBottom( double val )
 {
-	QRect r = m_pEditData->getCatchRect() ;
+	QRectF r = m_pEditData->getCatchRect() ;
 	r.setBottom(val);
 	m_pEditData->setCatchRect(r);
 
@@ -247,9 +259,9 @@ void ImageWindow::slot_changeUVBottom( int val )
 }
 
 // UV 上 変更
-void ImageWindow::slot_changeUVTop( int val )
+void ImageWindow::slot_changeUVTop( double val )
 {
-	QRect r = m_pEditData->getCatchRect() ;
+	QRectF r = m_pEditData->getCatchRect() ;
 	r.setTop(val);
 	m_pEditData->setCatchRect(r);
 
@@ -257,9 +269,9 @@ void ImageWindow::slot_changeUVTop( int val )
 }
 
 // UV 左 変更
-void ImageWindow::slot_changeUVLeft( int val )
+void ImageWindow::slot_changeUVLeft( double val )
 {
-	QRect r = m_pEditData->getCatchRect() ;
+	QRectF r = m_pEditData->getCatchRect() ;
 	r.setLeft(val);
 	m_pEditData->setCatchRect(r);
 
@@ -267,9 +279,9 @@ void ImageWindow::slot_changeUVLeft( int val )
 }
 
 // UV 右 変更
-void ImageWindow::slot_changeUVRight( int val )
+void ImageWindow::slot_changeUVRight( double val )
 {
-	QRect r = m_pEditData->getCatchRect() ;
+	QRectF r = m_pEditData->getCatchRect() ;
 	r.setRight(val);
 	m_pEditData->setCatchRect(r);
 
@@ -277,12 +289,12 @@ void ImageWindow::slot_changeUVRight( int val )
 }
 
 // UI セット
-void ImageWindow::slot_setUI( QRect rect )
+void ImageWindow::slot_setUI( QRectF rect )
 {
-	if ( rect.bottom() != ui->spinBox_uv_bottom->value() ) { ui->spinBox_uv_bottom->setValue(rect.bottom()); }
-	if ( rect.top() != ui->spinBox_uv_top->value() ) { ui->spinBox_uv_top->setValue(rect.top()); }
-	if ( rect.left() != ui->spinBox_uv_left->value() ) { ui->spinBox_uv_left->setValue(rect.left()); }
-	if ( rect.right() != ui->spinBox_uv_right->value() ) { ui->spinBox_uv_right->setValue(rect.right()); }
+	if ( rect.bottom() != ui->doubleSpinBox_uv_bottom->value() ) { ui->doubleSpinBox_uv_bottom->setValue(rect.bottom()); }
+	if ( rect.top() != ui->doubleSpinBox_uv_top->value() ) { ui->doubleSpinBox_uv_top->setValue(rect.top()); }
+	if ( rect.left() != ui->doubleSpinBox_uv_left->value() ) { ui->doubleSpinBox_uv_left->setValue(rect.left()); }
+	if ( rect.right() != ui->doubleSpinBox_uv_right->value() ) { ui->doubleSpinBox_uv_right->setValue(rect.right()); }
 }
 
 // オプション終了時

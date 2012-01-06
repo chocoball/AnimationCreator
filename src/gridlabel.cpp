@@ -84,7 +84,7 @@ void CGridLabel::paintEvent(QPaintEvent *event)
 		}
 		painter.setPen(pen);
 
-		QRect rect = m_pEditData->getCatchRect() ;
+		QRectF rect = m_pEditData->getCatchRect() ;
 		rect.setLeft(rect.left());
 		rect.setRight(rect.right()-1);
 		rect.setTop(rect.top());
@@ -136,7 +136,7 @@ void CGridLabel::mousePressEvent(QMouseEvent *ev)
 	else {
 		int x = ev->pos().x() / mScale ;
 		int y = ev->pos().y() / mScale ;
-		QRect r = QRect(x, y, 1, 1) ;
+		QRectF r = QRectF(x, y, 1, 1) ;
 		m_pEditData->setCatchRect(r);
 		repaint() ;
 
@@ -150,7 +150,7 @@ void CGridLabel::mouseMoveEvent(QMouseEvent *ev)
 	if ( !m_pEditData || !m_bCatchable ) { return ; }
 	if ( !bCatching ) { return ; }
 
-	QRect r = m_pEditData->getCatchRect() ;
+	QRectF r = m_pEditData->getCatchRect() ;
 	CEditData::ImageData *p = m_pEditData->getImageDataFromNo(m_Index) ;
 	if ( !p ) { return ; }
 
@@ -226,10 +226,10 @@ void CGridLabel::mouseReleaseEvent(QMouseEvent *ev)
 	int img_w = p->Image.width() ;
 	int img_h = p->Image.height() ;
 
-	QRect r = m_pEditData->getCatchRect() ;
+	QRectF r = m_pEditData->getCatchRect() ;
 
-	int x = ev->pos().x() / mScale ;
-	int y = ev->pos().y() / mScale ;
+	float x = ev->pos().x() / mScale ;
+	float y = ev->pos().y() / mScale ;
 
 	if ( x < 0 ) { x = 0 ; }
 	if ( x > img_w ) { x = img_w ; }
@@ -285,12 +285,12 @@ void CGridLabel::startDragAndDrop( QMouseEvent *ev )
 	CEditData::ImageData *p = m_pEditData->getImageDataFromNo(m_Index) ;
 	if ( !p ) { return ; }
 
-	QImage img = p->Image.copy(m_pEditData->getCatchRect()) ;
+	QImage img = p->Image.copy(m_pEditData->getCatchRect().toRect()) ;
 	QPixmap pix = QPixmap::fromImage(img);
 
 	QByteArray itemData ;
 	QDataStream stream(&itemData, QIODevice::WriteOnly) ;
-	QRect rect = m_pEditData->getCatchRect() ;
+	QRectF rect = m_pEditData->getCatchRect() ;
 	stream << rect << mScale << m_Index ;
 
 	QMimeData *mimeData = new QMimeData ;
@@ -315,7 +315,7 @@ void CGridLabel::startDragAndDrop( QMouseEvent *ev )
 
 void CGridLabel::selectAll( void )
 {
-	QRect r ;
+	QRectF r ;
 	CEditData::ImageData *p = m_pEditData->getImageDataFromNo(m_Index) ;
 	if ( !p ) { return ; }
 
@@ -332,7 +332,7 @@ void CGridLabel::selectAll( void )
 
 void CGridLabel::deselect( void )
 {
-	QRect r ;
+	QRectF r ;
 	r.setLeft(-2);
 	r.setRight(-2);
 	r.setTop(-1);

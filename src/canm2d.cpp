@@ -914,9 +914,9 @@ bool CAnm2DXml::addFrameData_00001000( QDomNode &node, ObjectItem *pItem, int ma
 						m_nError = kErrorNo_InvalidNode ;
 						return false ;
 					}
-					data.pos_x = pos[0].toInt() ;
-					data.pos_y = pos[1].toInt() ;
-					data.pos_z = pos[2].toInt() ;
+					data.pos_x = pos[0].toFloat() ;
+					data.pos_y = pos[1].toFloat() ;
+					data.pos_z = pos[2].toFloat() ;
 				}
 				else if ( dataNode.nodeName() == "rot" ) {
 					if ( !dataNode.hasChildNodes() ) {
@@ -928,9 +928,9 @@ bool CAnm2DXml::addFrameData_00001000( QDomNode &node, ObjectItem *pItem, int ma
 						m_nError = kErrorNo_InvalidNode ;
 						return false ;
 					}
-					data.rot_x = rot[0].toInt() ;
-					data.rot_y = rot[1].toInt() ;
-					data.rot_z = rot[2].toInt() ;
+					data.rot_x = rot[0].toFloat() ;
+					data.rot_y = rot[1].toFloat() ;
+					data.rot_z = rot[2].toFloat() ;
 				}
 				else if ( dataNode.nodeName() == "center" ) {
 					if ( !dataNode.hasChildNodes() ) {
@@ -942,8 +942,8 @@ bool CAnm2DXml::addFrameData_00001000( QDomNode &node, ObjectItem *pItem, int ma
 						m_nError = kErrorNo_InvalidNode ;
 						return false ;
 					}
-					data.center_x = center[0].toInt() ;
-					data.center_y = center[1].toInt() ;
+					data.center_x = center[0].toFloat() ;
+					data.center_y = center[1].toFloat() ;
 				}
 				else if ( dataNode.nodeName() == "UV" ) {
 					if ( !dataNode.hasChildNodes() ) {
@@ -955,10 +955,10 @@ bool CAnm2DXml::addFrameData_00001000( QDomNode &node, ObjectItem *pItem, int ma
 						m_nError = kErrorNo_InvalidNode ;
 						return false ;
 					}
-					data.left	= uv[0].toInt() ;
-					data.top	= uv[1].toInt() ;
-					data.right	= uv[2].toInt() ;
-					data.bottom	= uv[3].toInt() ;
+					data.left	= uv[0].toFloat() ;
+					data.top	= uv[1].toFloat() ;
+					data.right	= uv[2].toFloat() ;
+					data.bottom	= uv[3].toFloat() ;
 				}
 				else if ( dataNode.nodeName() == "ImageNo" ) {
 					if ( !dataNode.hasChildNodes() ) {

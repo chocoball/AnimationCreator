@@ -40,7 +40,7 @@ public:
 signals:
 	void sig_imageChangeTab(int nImage) ;
 	void sig_imageRepaint( void ) ;
-	void sig_imageChangeRect(QRect rect) ;
+	void sig_imageChangeRect(QRectF rect) ;
 	void sig_portCheckDrawCenter(bool) ;
 	void sig_portDragedImage(FrameData) ;
 	void sig_pushColorToolButton( void ) ;
@@ -53,27 +53,27 @@ public slots:
 	void slot_deleteObject( void ) ;
 	void slot_deleteFrameData( void ) ;
 
-	void slot_dropedImage( QRect rect, QPoint pos, int imageIndex ) ;
+	void slot_dropedImage( QRectF rect, QPoint pos, int imageIndex ) ;
 
 	void slot_frameChanged(int frame) ;
     void slot_selectLayerChanged( QModelIndex indexLayer ) ;
 
 	void slot_setUI(FrameData data) ;
 
-	void slot_changePosX( int val ) ;
-	void slot_changePosY( int val ) ;
-	void slot_changePosZ( int val ) ;
-	void slot_changeRotX( int val ) ;
-	void slot_changeRotY( int val ) ;
-	void slot_changeRotZ( int val ) ;
+	void slot_changePosX( double val ) ;
+	void slot_changePosY( double val ) ;
+	void slot_changePosZ( double val ) ;
+	void slot_changeRotX( double val ) ;
+	void slot_changeRotY( double val ) ;
+	void slot_changeRotZ( double val ) ;
 	void slot_changeScaleX( double val ) ;
 	void slot_changeScaleY( double val ) ;
-	void slot_changeUvLeft( int val ) ;
-	void slot_changeUvRight( int val ) ;
-	void slot_changeUvTop( int val ) ;
-	void slot_changeUvBottom( int val ) ;
-	void slot_changeCenterX( int val ) ;
-	void slot_changeCenterY( int val ) ;
+	void slot_changeUvLeft( double val ) ;
+	void slot_changeUvRight( double val ) ;
+	void slot_changeUvTop( double val ) ;
+	void slot_changeUvBottom( double val ) ;
+	void slot_changeCenterX( double val ) ;
+	void slot_changeCenterY( double val ) ;
 	void slot_changeFrameStart(int val) ;
 	void slot_changeFrameEnd(int val) ;
 
@@ -93,7 +93,7 @@ public slots:
 	void slot_changeLayerDisp( void ) ;
 	void slot_changeLayerLock( void ) ;
 
-	void slot_changeSelectLayerUV( QRect rect ) ;
+	void slot_changeSelectLayerUV( QRectF rect ) ;
 	void slot_changeAnimeSpeed(int index) ;
 
 	void slot_addImage( int imageNo ) ;
@@ -138,6 +138,7 @@ public slots:
 	void slot_moveFrameData(int prevFrame, int nextFrame) ;
 	void slot_scrollWindow(QPoint move) ;
 
+	void slot_delPath() ;
 protected:
 	FrameData *getNowSelectFrameData( void ) ;
 	void addNewObject( QString str ) ;

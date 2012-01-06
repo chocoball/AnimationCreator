@@ -34,9 +34,9 @@ typedef struct _tagPathData {
 
 typedef struct _tagFrameData {
 	unsigned short	frame ;
-	short			pos_x, pos_y, pos_z ;		///< global position
-	short			rot_x, rot_y, rot_z ;		///< rotation
-	short			center_x, center_y ;		///< local center position
+	float			pos_x, pos_y, pos_z ;		///< global position
+	float			rot_x, rot_y, rot_z ;		///< rotation
+	float			center_x, center_y ;		///< local center position
 	short			left, right, top, bottom ;	///< UV
 	short			nImage ;					///< Image No.
 	float			fScaleX, fScaleY ;			///< scale
@@ -90,19 +90,19 @@ typedef struct _tagFrameData {
 		return (*this == r ? false : true) ;
 	}
 
-	void setRect( QRect &rect )
+	void setRect( QRectF &rect )
 	{
 		left	= rect.left() ;
 		right	= rect.right() ;
 		top		= rect.top() ;
 		bottom	= rect.bottom() ;
 	}
-	QRect getRect() const
+	QRectF getRect() const
 	{
-		return QRect(left, top, right-left+1, bottom-top+1) ;
+		return QRectF(left, top, right-left, bottom-top) ;
 	}
-	int width() const { return right - left ; }
-	int height() const { return bottom - top ; }
+	float width() const { return right - left ; }
+	float height() const { return bottom - top ; }
 	Vertex getVertex() const
 	{
 		Vertex v ;

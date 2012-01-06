@@ -14,9 +14,10 @@
  2011/09/28	ver 1.0.1	FPS情報追加
  2011/12/07 ver 1.0.2	パス情報追加
  2011/12/14 ver 1.0.3	レイヤ状態情報 追加
+ 2012/01/06 ver 1.0.4	フレームデータの色以外をfloatにした
  */
 
-#define kAnmXML_Version			0x01000003		///< バージョン 0x[00][000][000]
+#define kAnmXML_Version			0x01000004		///< バージョン 0x[00][000][000]
 
 #define kAnmXML_Attr_Version	"Version"
 #define kAnmXML_Attr_ObjNum		"ObjNum"

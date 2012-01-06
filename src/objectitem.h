@@ -1,7 +1,6 @@
 #ifndef OBJECTITEM_H
 #define OBJECTITEM_H
 
-#include <QRect>
 #include <QList>
 #include <QModelIndex>
 #include <QBrush>
