@@ -1472,12 +1472,7 @@ bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 	addString("data:\n");
 	addString(";---------------------------------------------------------------- ANM_HEAD\n");
 	addString("\t\t\tdb\t\t'ANM0'\t\t; ANM0\n");
-	addString("\t\t\tdb\t\t0, 0, 0, 0\t\t; uVersion\n");
-	if(pObj->getLoop()){
-		addString("\t\t\tdd\t\t00000001h\t\t; bFlag\n");
-	} else {
-		addString("\t\t\tdd\t\t00000000h\t\t; bFlag\n");
-	}
+	addString("\t\t\tdd\t\t00000001h\t\t; uVersion\n");
 	addString("\t\t\tdd\t\t" + QString("%1").arg(rEditData.getImageDataListSize()) + "\t\t; nVram\n");
 	addString("\t\t\tdd\t\t.vram\t\t; pauVram\n");
 	addString("\t\t\tdd\t\t" + QString("%1").arg(pRoot->childCount()) + "\t\t; nObject\n");
@@ -1509,6 +1504,11 @@ bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 		addString("; " + QString(pObj->getName().toUtf8()) + "\n");
 		addString("anmobj" + QString("%1").arg(i) + ":\n");
 		if(pObj->childCount()){
+			if(pObj->getLoop()){
+				addString("\t\t\tdd\t\t00000001h\t\t; bFlag\n");
+			} else {
+				addString("\t\t\tdd\t\t00000000h\t\t; bFlag\n");
+			}
 			addString("\t\t\tdd\t\t" + QString("%1").arg(pObj->childCount()) + "\t\t; nTip\n");
 			addString("\t\t\tdd\t\t.tips\t\t; papTip\n");
 			addString("\t\n");
