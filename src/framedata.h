@@ -37,7 +37,7 @@ typedef struct _tagFrameData {
 	float			pos_x, pos_y, pos_z ;		///< global position
 	float			rot_x, rot_y, rot_z ;		///< rotation
 	float			center_x, center_y ;		///< local center position
-	short			left, right, top, bottom ;	///< UV
+	float			left, right, top, bottom ;	///< UV
 	short			nImage ;					///< Image No.
 	float			fScaleX, fScaleY ;			///< scale
 	bool			bUVAnime ;					///< UVアニメするならtrue
