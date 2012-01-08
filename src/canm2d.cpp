@@ -1427,7 +1427,7 @@ void CAnm2DAsm::makeFromEditDataTip(QString qsLabel, ObjectItem *pObj)
 		addString("\t\t\tdd\t\t" + QString("F32(%1)").arg(frameData.rot_z * M_PI / 180.0f, 0, 'f') + "\t\t; sRot\n");
 		addString("\t\t\tdd\t\t" + QString("F32(%1), F32(%2)").arg(frameData.fScaleX, 0, 'f').arg(frameData.fScaleY, 0, 'f') + "\t\t; svSca\n");
 		addString("\t\t\tdd\t\t" + QString("F32(%1), F32(%2)").arg(frameData.center_x, 0, 'f').arg(frameData.center_y, 0, 'f') + "\t\t; svCenter\n");
-		addString("\t\t\tdd\t\t" + QString("F32(%1), F32(%2), F32(%3), F32(%4)").arg((double)frameData.left, 0, 'f').arg((double)frameData.top, 0, 'f').arg((double)frameData.right, 0, 'f').arg((double)frameData.bottom, 0, 'f') + "\t\t; svUV\n");
+		addString("\t\t\tdd\t\t" + QString("F32(%1), F32(%2), F32(%3), F32(%4)").arg(frameData.left, 0, 'f').arg(frameData.top, 0, 'f').arg(frameData.right, 0, 'f').arg(frameData.bottom, 0, 'f') + "\t\t; svUV\n");
 		addString("\t\t\tdb\t\t" + QString("%1, %2, %3, %4").arg(frameData.rgba[0]).arg(frameData.rgba[1]).arg(frameData.rgba[2]).arg(frameData.rgba[3]) + "\t\t; bvRGBA\n");
 		addString("\t\t\t\n");
 	}
