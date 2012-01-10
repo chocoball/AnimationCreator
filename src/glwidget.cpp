@@ -310,7 +310,7 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 					QMatrix4x4 mat = pItem->getDisplayMatrix(selFrame) ;
 
 					QPoint c = QPoint(mat.column(3).x(), mat.column(3).y()) ;
-					QPoint p0 = m_DragOffset - QPoint((m_pSetting->getAnmWindowW()/2), (m_pSetting->getAnmWindowH()/2)) ;
+					QPoint p0 = m_dragStart - QPoint((m_pSetting->getAnmWindowW()/2), (m_pSetting->getAnmWindowH()/2)) ;
 
 					float len = QVector2D(p0-c).length() ;
 					drawLine(c, p0, col, 0);
@@ -799,32 +799,25 @@ QPoint AnimeGLWidget::editData(FrameData *pData, QPoint nowPos, QPoint oldPos, Q
 					float old = atan2(vOld.y(), vOld.x()) ;
 					float now = atan2(vNow.y(), vNow.x()) ;
 					now -= old ;
-					if ( now >= M_PI*2 ) { now -= M_PI*2 ; }
-					if ( now < -M_PI*2 ) { now += M_PI*2 ; }
-					now += m_rotStart ;
-					if ( now >= M_PI*2 ) { now -= M_PI*2 ; }
-					if ( now < -M_PI*2 ) { now += M_PI*2 ; }
-					pData->rot_z = now*180.0f/M_PI ;
-					if ( pData->rot_z < -360 ) { pData->rot_z += 360 ; }
+					while ( now < -M_PI ) { now += M_PI*2 ; }
+					while ( now >= M_PI ) { now -= M_PI*2 ; }
+					pData->rot_z += now*180.0f/M_PI ;
+					while ( pData->rot_z < -360 ) { pData->rot_z += 360*2 ; }
+					while ( pData->rot_z >  360 ) { pData->rot_z -= 360*2 ; }
 				}
 				break ;
 			case kEditMode_Center:
-#if 0
-				pData->center_x += sub.x() ;
-				pData->center_y += sub.y() ;
-#else
-			{
-				sub = nowPos - m_dragStart ;
+				{
+					sub = nowPos - m_dragStart ;
 
-				bool valid = false ;
-				mat.setColumn(3, QVector4D(0, 0, 0, mat(3, 3))) ;
-				mat = mat.inverted(&valid) ;
-				sub = mat.map(sub) ;
+					bool valid = false ;
+					mat.setColumn(3, QVector4D(0, 0, 0, mat(3, 3))) ;
+					mat = mat.inverted(&valid) ;
+					sub = mat.map(sub) ;
 
-				pData->center_x = m_editFrameDataOld.center_x - sub.x() ;
-				pData->center_y = m_editFrameDataOld.center_y - sub.y() ;
-			}
-#endif
+					pData->center_x = m_editFrameDataOld.center_x - sub.x() ;
+					pData->center_y = m_editFrameDataOld.center_y - sub.y() ;
+				}
 				break ;
 			case kEditMode_Scale:
 				pData->fScaleX += (float)sub.x() * 0.01f ;
@@ -836,9 +829,9 @@ QPoint AnimeGLWidget::editData(FrameData *pData, QPoint nowPos, QPoint oldPos, Q
 				pPath->v += QVector2D(sub) ;
 				break ;
 		}
-		if ( m_editMode != kEditMode_Rot ) {
+//		if ( m_editMode != kEditMode_Rot ) {
 			ret = nowPos ;
-		}
+//		}
 	}
 	return ret ;
 }
