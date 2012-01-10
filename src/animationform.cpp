@@ -33,16 +33,6 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	m_pGlWidget->show();
 
 	ui->radioButton_pos->setChecked(true);
-	ui->spinBox_loop->setMinimum(-1);
-	ui->spinBox_loop->setMaximum(9999);
-	ui->spinBox_r->setMinimum(0);
-	ui->spinBox_r->setMaximum(255);
-	ui->spinBox_g->setMinimum(0);
-	ui->spinBox_g->setMaximum(255);
-	ui->spinBox_b->setMinimum(0);
-	ui->spinBox_b->setMaximum(255);
-	ui->spinBox_a->setMinimum(0);
-	ui->spinBox_a->setMaximum(255);
 	ui->checkBox_grid->setChecked(true);
 	ui->spinBox_fps->setValue(60) ;
 	ui->checkBox_frame->setChecked(pSetting->getDrawFrame());

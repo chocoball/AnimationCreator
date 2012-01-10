@@ -249,7 +249,7 @@
     <double>9999.998999999999796</double>
    </property>
    <property name="singleStep">
-    <double>0.001000000000000</double>
+    <double>1.000000000000000</double>
    </property>
   </widget>
   <widget class="QDoubleSpinBox" name="doubleSpinBox_scale_y">
@@ -271,7 +271,7 @@
     <double>9999.998999999999796</double>
    </property>
    <property name="singleStep">
-    <double>0.001000000000000</double>
+    <double>1.000000000000000</double>
    </property>
   </widget>
   <widget class="QLabel" name="label_z">
@@ -498,7 +498,7 @@
     <number>-1</number>
    </property>
    <property name="maximum">
-    <number>1024</number>
+    <number>9999</number>
    </property>
   </widget>
   <widget class="QLabel" name="label_color">
@@ -601,6 +601,9 @@
      <height>22</height>
     </rect>
    </property>
+   <property name="maximum">
+    <number>255</number>
+   </property>
   </widget>
   <widget class="QSpinBox" name="spinBox_g">
    <property name="geometry">
@@ -610,6 +613,9 @@
      <width>46</width>
      <height>22</height>
     </rect>
+   </property>
+   <property name="maximum">
+    <number>255</number>
    </property>
   </widget>
   <widget class="QSpinBox" name="spinBox_b">
@@ -621,6 +627,9 @@
      <height>22</height>
     </rect>
    </property>
+   <property name="maximum">
+    <number>255</number>
+   </property>
   </widget>
   <widget class="QSpinBox" name="spinBox_a">
    <property name="geometry">
@@ -630,6 +639,9 @@
      <width>46</width>
      <height>22</height>
     </rect>
+   </property>
+   <property name="maximum">
+    <number>255</number>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_backward">
@@ -836,7 +848,7 @@
     <double>9999.998999999999796</double>
    </property>
    <property name="singleStep">
-    <double>0.001000000000000</double>
+    <double>1.000000000000000</double>
    </property>
   </widget>
   <widget class="QDoubleSpinBox" name="doubleSpinBox_pos_x">
@@ -861,7 +873,7 @@
     <double>9999.998999999999796</double>
    </property>
    <property name="singleStep">
-    <double>0.001000000000000</double>
+    <double>1.000000000000000</double>
    </property>
   </widget>
   <widget class="QDoubleSpinBox" name="doubleSpinBox_pos_y">
@@ -883,7 +895,7 @@
     <double>9999.998999999999796</double>
    </property>
    <property name="singleStep">
-    <double>0.001000000000000</double>
+    <double>1.000000000000000</double>
    </property>
   </widget>
   <widget class="QDoubleSpinBox" name="doubleSpinBox_rot_x">
@@ -908,7 +920,7 @@
     <double>360.000000000000000</double>
    </property>
    <property name="singleStep">
-    <double>0.001000000000000</double>
+    <double>1.000000000000000</double>
    </property>
   </widget>
   <widget class="QDoubleSpinBox" name="doubleSpinBox_rot_y">
@@ -930,7 +942,7 @@
     <double>360.000000000000000</double>
    </property>
    <property name="singleStep">
-    <double>0.001000000000000</double>
+    <double>1.000000000000000</double>
    </property>
   </widget>
   <widget class="QDoubleSpinBox" name="doubleSpinBox_rot_z">
@@ -952,7 +964,7 @@
     <double>360.000000000000000</double>
    </property>
    <property name="singleStep">
-    <double>0.001000000000000</double>
+    <double>1.000000000000000</double>
    </property>
   </widget>
   <widget class="QDoubleSpinBox" name="doubleSpinBox_center_y">
@@ -974,7 +986,7 @@
     <double>9999.998999999999796</double>
    </property>
    <property name="singleStep">
-    <double>0.001000000000000</double>
+    <double>1.000000000000000</double>
    </property>
   </widget>
   <widget class="QDoubleSpinBox" name="doubleSpinBox_center_x">
@@ -999,7 +1011,7 @@
     <double>9999.998999999999796</double>
    </property>
    <property name="singleStep">
-    <double>0.001000000000000</double>
+    <double>1.000000000000000</double>
    </property>
   </widget>
   <widget class="QDoubleSpinBox" name="doubleSpinBox_uv_top">
