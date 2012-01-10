@@ -339,9 +339,9 @@ bool ObjectItem::isContain(FrameData &displayData, QPoint &pos, const QMatrix4x4
 		QVector3D c0 = QVector3D::crossProduct(p0, p1) ;
 		QVector3D c1 = QVector3D::crossProduct(p1, p2) ;
 		QVector3D c2 = QVector3D::crossProduct(p2, p0) ;
-		if ( QVector3D::dotProduct(c0, c1) >= 0
-		  && QVector3D::dotProduct(c1, c2) >= 0
-		  && QVector3D::dotProduct(c2, c0) >= 0 ) {
+		if ( QVector3D::dotProduct(c0, c1) > 0
+		  && QVector3D::dotProduct(c1, c2) > 0
+		  && QVector3D::dotProduct(c2, c0) > 0 ) {
 			return true ;
 		}
 	}
