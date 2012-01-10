@@ -503,7 +503,7 @@ bool CAnm2DXml::makeFromFile(QDomDocument &xml, CEditData &rEditData)
 		m_ObjNum = nodeMap.namedItem(kAnmXML_Attr_ObjNum).toAttr().value().toInt() ;
 		m_ImageNum = nodeMap.namedItem(kAnmXML_Attr_ImageNum).toAttr().value().toInt() ;
 
-		qDebug("objNum:%d imageNum:%d", m_ObjNum, m_ImageNum) ;
+//		qDebug("objNum:%d imageNum:%d", m_ObjNum, m_ImageNum) ;
 
 		QDomNode n = root.firstChild() ;
 		if ( !addElement_00001000(n, rEditData) ) {
@@ -522,7 +522,7 @@ bool CAnm2DXml::makeFromFile(QDomDocument &xml, CEditData &rEditData)
 		m_ObjNum = nodeMap.namedItem(kAnmXML_Attr_ObjNum).toAttr().value().toInt() ;
 		m_ImageNum = nodeMap.namedItem(kAnmXML_Attr_ImageNum).toAttr().value().toInt() ;
 
-		qDebug("objNum:%d imageNum:%d", m_ObjNum, m_ImageNum) ;
+//		qDebug("objNum:%d imageNum:%d", m_ObjNum, m_ImageNum) ;
 
 		QDomNode n = root.firstChild() ;
 		if ( !addElement_01000000(n, rEditData) ) {

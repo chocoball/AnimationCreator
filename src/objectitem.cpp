@@ -55,11 +55,11 @@ void ObjectItem::addFrameData(FrameData &data)
 {
 	FrameData *p = getFrameDataPtr(data.frame) ;
 	if ( p ) {
-		qDebug() << "addFrameData frame:" << data.frame << " modify" ;
+//		qDebug() << "addFrameData frame:" << data.frame << " modify" ;
 		*p = data ;
 	}
 	else {
-		qDebug() << "addFrameData frame:" << data.frame << " size:" << m_frameDatas.size() << " add" ;
+//		qDebug() << "addFrameData frame:" << data.frame << " size:" << m_frameDatas.size() << " add" ;
 		m_frameDatas.append(data) ;
 	}
 }

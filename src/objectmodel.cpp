@@ -61,7 +61,7 @@ bool CObjectModel::setData(const QModelIndex &index, const QVariant &value, int 
 
 bool CObjectModel::insertRows(int row, int count, const QModelIndex &parent)
 {
-	qDebug() << "insertRows " << row << count << parent ;
+//	qDebug() << "insertRows " << row << count << parent ;
 	beginInsertRows(parent, row, row+count-1) ;
 
 	ObjectItem *p = getItemFromIndex(parent) ;
@@ -180,7 +180,7 @@ QModelIndex CObjectModel::insertItem(int row, QString name, const QModelIndex &p
 	ObjectItem *p = static_cast<ObjectItem *>(index.internalPointer()) ;
 	p->setIndex(index) ;
 	setData(index, name, Qt::EditRole) ;
-	qDebug() << "insertItem row:" << row << " name:" << name << " p:" << p ;
+//	qDebug() << "insertItem row:" << row << " name:" << name << " p:" << p ;
 	return index ;
 }
 

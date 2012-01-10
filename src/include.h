@@ -1,6 +1,9 @@
 #ifndef INCLUDE_H
 #define INCLUDE_H
 
+#define kExecName	"Animation Creator2"
+#define kVersion	"2.0.0"
+
 #define kAccessor(type, member, func_name)					\
 	public:													\
 		type get##func_name () { return member ; }			\
