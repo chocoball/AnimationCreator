@@ -129,7 +129,6 @@ private:
 	int					m_editMode ;				///< 編集モード kEditMode_~
 	int					m_dragMode ;				///< ドラッグモード kDragMode_~
 
-	float				m_rotStart ;				///< 回転変更時の開始ラジアン
 	int					m_dragPathIndex ;			///< ドラッグしてるパスインデックス(-1で無効)
 	QPoint				m_dragStart ;				///< マウス開始ポス
 

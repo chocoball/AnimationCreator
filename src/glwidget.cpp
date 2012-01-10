@@ -633,7 +633,6 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 			FrameData *p = pItem->getFrameDataPtr(frame) ;
 			if ( p ) {
 				m_editFrameDataOld = *p ;
-				m_rotStart = (float)p->rot_z * M_PI / 180.0f ;
 				m_dragStart = event->pos() ;
 
 				emit sig_selectLayerChanged(pItem->getIndex()) ;
@@ -650,7 +649,6 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 			FrameData *p = pItem->getFrameDataPtr(frame) ;
 			if ( p ) {
 				m_editFrameDataOld = *p ;
-				m_rotStart = (float)p->rot_z * M_PI / 180.0f ;
 				m_dragStart = event->pos() ;
 
 				emit sig_selectLayerChanged(pItem->getIndex()) ;
