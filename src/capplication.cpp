@@ -128,6 +128,23 @@ int CApplication::execute()
 						return 1 ;
 					}
 					file.write(data.getData().toAscii()) ;
+
+					QString		incFileName = m_inputFile;
+					incFileName.replace(QString(".asm"), QString(".inc"));
+					CAnm2DAsm	dataInc(false);
+					if(!dataInc.makeFromEditData2Inc(editData)){
+						if(dataInc.getErrorNo() != CAnm2DBase::kErrorNo_Cancel){
+							qDebug() << trUtf8("コンバート失敗[") << incFileName << "]:" << data.getErrorString() ;
+							print_usage();
+						}
+						return 1 ;
+					}
+					QFile	fileInc(incFileName);
+					if(!fileInc.open(QFile::WriteOnly)){
+						qDebug() << trUtf8("ファイル書き込み失敗[") << incFileName << "]:" << data.getErrorString() ;
+						return 1 ;
+					}
+					fileInc.write(dataInc.getData().toAscii());
 				}
 			}
 			break ;
