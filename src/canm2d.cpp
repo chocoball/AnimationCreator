@@ -1533,6 +1533,29 @@ bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 	return true;
 }
 
+bool CAnm2DAsm::makeFromEditData2Inc(CEditData &rEditData)
+{
+	m_pModel = rEditData.getObjectModel();
+	if(m_bFlat){
+		CObjectModel	*p = new CObjectModel();
+		p->copy(m_pModel);
+		p->flat();
+		m_pModel = p;
+	}
+	
+	ObjectItem	*pRoot = m_pModel->getItemFromIndex(QModelIndex()) ;
+	ObjectItem	*pObj = pRoot->child(0);
+	
+	addString("; このファイルはAnimationCreatorにより生成されました。\n");
+	for(int i=0; i<pRoot->childCount(); i++){
+		ObjectItem	*pObj = pRoot->child(i);
+		addString("%define\t\tACO_" + QString(pObj->getName().toUpper().toUtf8()) + QString("\t\t%1").arg(i) + "\n");
+	}
+	addString("\n");
+
+	return true;
+}
+
 void CAnm2DAsm::addString(QString str, int tab)
 {
 	QString	t;

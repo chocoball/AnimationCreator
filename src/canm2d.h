@@ -237,6 +237,7 @@ public:
 
 	void makeFromEditDataTip(QString qsLabel, ObjectItem *pObj);
 	bool makeFromEditData(CEditData &rEditData);
+	bool makeFromEditData2Inc(CEditData &rEditData);
 
 	QString getData() { return m_Data; }
 
