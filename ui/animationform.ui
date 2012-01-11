@@ -1114,12 +1114,46 @@
  <tabstops>
   <tabstop>pushButton_play</tabstop>
   <tabstop>pushButton_stop</tabstop>
+  <tabstop>spinBox_frame_start</tabstop>
+  <tabstop>spinBox_frame_end</tabstop>
+  <tabstop>pushButton_backward</tabstop>
+  <tabstop>pushButton_forward</tabstop>
   <tabstop>spinBox_nowSequence</tabstop>
-  <tabstop>checkBox_grid</tabstop>
-  <tabstop>treeView</tabstop>
-  <tabstop>scrollArea_anime</tabstop>
+  <tabstop>spinBox_fps</tabstop>
+  <tabstop>comboBox_image_no</tabstop>
+  <tabstop>spinBox_loop</tabstop>
+  <tabstop>doubleSpinBox_pos_x</tabstop>
+  <tabstop>doubleSpinBox_pos_y</tabstop>
+  <tabstop>doubleSpinBox_pos_z</tabstop>
+  <tabstop>doubleSpinBox_rot_x</tabstop>
+  <tabstop>doubleSpinBox_rot_y</tabstop>
+  <tabstop>doubleSpinBox_rot_z</tabstop>
+  <tabstop>doubleSpinBox_center_x</tabstop>
+  <tabstop>doubleSpinBox_center_y</tabstop>
   <tabstop>doubleSpinBox_scale_x</tabstop>
   <tabstop>doubleSpinBox_scale_y</tabstop>
+  <tabstop>pushButton_del_path</tabstop>
+  <tabstop>checkBox_uv_anime</tabstop>
+  <tabstop>doubleSpinBox_uv_top</tabstop>
+  <tabstop>doubleSpinBox_uv_right</tabstop>
+  <tabstop>doubleSpinBox_uv_bottom</tabstop>
+  <tabstop>doubleSpinBox_uv_left</tabstop>
+  <tabstop>spinBox_r</tabstop>
+  <tabstop>spinBox_g</tabstop>
+  <tabstop>spinBox_b</tabstop>
+  <tabstop>spinBox_a</tabstop>
+  <tabstop>toolButton_picker</tabstop>
+  <tabstop>checkBox_grid</tabstop>
+  <tabstop>checkBox_frame</tabstop>
+  <tabstop>checkBox_center</tabstop>
+  <tabstop>checkBox_linear_filter</tabstop>
+  <tabstop>treeView</tabstop>
+  <tabstop>scrollArea_anime</tabstop>
+  <tabstop>radioButton_pos</tabstop>
+  <tabstop>radioButton_rot</tabstop>
+  <tabstop>radioButton_center</tabstop>
+  <tabstop>radioButton_scale</tabstop>
+  <tabstop>radioButton_path</tabstop>
  </tabstops>
  <resources>
   <include location="../Resource.qrc"/>

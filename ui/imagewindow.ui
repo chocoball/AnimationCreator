@@ -206,6 +206,14 @@
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>checkBox</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>doubleSpinBox_uv_top</tabstop>
+  <tabstop>doubleSpinBox_uv_right</tabstop>
+  <tabstop>doubleSpinBox_uv_bottom</tabstop>
+  <tabstop>doubleSpinBox_uv_left</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

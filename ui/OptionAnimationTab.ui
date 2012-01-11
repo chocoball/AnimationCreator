@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>304</width>
-    <height>225</height>
+    <height>263</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -221,7 +221,45 @@
     </property>
    </widget>
   </widget>
+  <widget class="QCheckBox" name="checkBox_useDepthTest">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>220</y>
+     <width>111</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>DepthTestを行う</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="checkBox_useZSort">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>240</y>
+     <width>111</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Zソートを行う</string>
+   </property>
+  </widget>
  </widget>
+ <tabstops>
+  <tabstop>comboBox_bgColor</tabstop>
+  <tabstop>checkBox_useImage</tabstop>
+  <tabstop>lineEdit_imagePath</tabstop>
+  <tabstop>pushButton_imagePath</tabstop>
+  <tabstop>spinBox_scrw</tabstop>
+  <tabstop>spinBox_scrh</tabstop>
+  <tabstop>spinBox_winw</tabstop>
+  <tabstop>spinBox_winh</tabstop>
+  <tabstop>checkBox_useDepthTest</tabstop>
+  <tabstop>checkBox_useZSort</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

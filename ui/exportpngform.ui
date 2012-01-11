@@ -210,6 +210,16 @@
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>textEdit</tabstop>
+  <tabstop>pushButton_sel_dir</tabstop>
+  <tabstop>spinBox_top</tabstop>
+  <tabstop>spinBox_right</tabstop>
+  <tabstop>spinBox_bottom</tabstop>
+  <tabstop>spinBox_left</tabstop>
+  <tabstop>pushButton_ok</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
