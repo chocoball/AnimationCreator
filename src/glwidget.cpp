@@ -88,8 +88,8 @@ void AnimeGLWidget::paintGL()
 
 	// 背景画像描画
 	if ( m_backImageTex ) {
-		QRect rect ;
-		QRectF uvF ;
+		CRectF rect ;
+		CRectF uvF ;
 		QColor col = QColor(255, 255, 255, 255) ;
 
 		glEnable(GL_TEXTURE_2D) ;
@@ -410,9 +410,9 @@ void AnimeGLWidget::drawFrameData( const FrameData &data, QMatrix4x4 mat, QColor
 	if ( !p ) { return ; }
 
 	QImage &Image = p->Image ;
-	QRect rect ;
-	QRectF uv = data.getRect() ;
-	QRectF uvF ;
+	CRectF rect ;
+	CRectF uv = data.getRect() ;
+	CRectF uvF ;
 
 	glPushMatrix() ;
 	{
@@ -521,7 +521,7 @@ void AnimeGLWidget::drawLine( QPoint pos0, QPoint pos1, QColor col, float z )
 }
 
 // 矩形描画
-void AnimeGLWidget::drawRect(QRectF rc, QRectF uv, float z, QColor col)
+void AnimeGLWidget::drawRect(CRectF rc, CRectF uv, float z, QColor col)
 {
 	glColor4ub(col.red(), col.green(), col.blue(), col.alpha());
 
@@ -590,14 +590,17 @@ void AnimeGLWidget::dragEnterEvent(QDragEnterEvent *event)
 void AnimeGLWidget::dropEvent(QDropEvent *event)
 {
 	if ( event->mimeData()->hasFormat("editor/selected-image") ) {
-		QRectF rect ;
+		CRectF rect ;
 		int scale ;
 		QPoint pos ;
 		int index ;
 
 		QByteArray itemData = event->mimeData()->data("editor/selected-image");
 		QDataStream stream( &itemData, QIODevice::ReadOnly ) ;
-		stream >> rect >> scale >> index ;
+//		stream >> rect >> scale >> index ;
+		float l, t, r, b ;
+		stream >> l >> t >> r >> b >> scale >> index ;
+		rect = CRectF(l, t, r, b) ;
 
 		pos = event->pos() ;
 

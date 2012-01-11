@@ -54,7 +54,7 @@ public slots:
 	void slot_changeUVTop( double val ) ;
 	void slot_changeUVLeft( double val ) ;
 	void slot_changeUVRight( double val ) ;
-	void slot_setUI( QRectF rect ) ;
+	void slot_setUI( CRectF rect ) ;
 
 	void slot_endedOption( void ) ;
 	void slot_changeDrawCenter( bool flag ) ;

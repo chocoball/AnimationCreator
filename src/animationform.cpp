@@ -100,7 +100,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(ui->treeView, SIGNAL(customContextMenuRequested(QPoint)),	this, SLOT(slot_treeViewMenuReq(QPoint))) ;
 	connect(ui->treeView, SIGNAL(clicked(QModelIndex)),					this, SLOT(slot_changeSelectObject(QModelIndex))) ;
 
-	connect(m_pGlWidget, SIGNAL(sig_dropedImage(QRectF, QPoint, int)), this, SLOT(slot_dropedImage(QRectF, QPoint, int))) ;
+	connect(m_pGlWidget, SIGNAL(sig_dropedImage(CRectF, QPoint, int)), this, SLOT(slot_dropedImage(CRectF, QPoint, int))) ;
 	connect(m_pGlWidget, SIGNAL(sig_selectLayerChanged(QModelIndex)), this, SLOT(slot_selectLayerChanged(QModelIndex))) ;
 	connect(m_pGlWidget, SIGNAL(sig_dragedImage(FrameData)), this, SLOT(slot_setUI(FrameData))) ;
 	connect(m_pGlWidget, SIGNAL(sig_deleteFrameData()), this, SLOT(slot_deleteFrameData())) ;
@@ -371,7 +371,7 @@ void AnimationForm::slot_deleteFrameData(void)
 
 // ドロップ時のスロット
 // レイヤ追加
-void AnimationForm::slot_dropedImage( QRectF rect, QPoint pos, int imageIndex )
+void AnimationForm::slot_dropedImage( CRectF rect, QPoint pos, int imageIndex )
 {
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
 	int frameNum  = ui->label_frame->value() ;
@@ -513,7 +513,7 @@ void AnimationForm::slot_setUI(FrameData data)
 	m_bDontSetData = false ;
 
 	if ( data.getRect() != m_pEditData->getCatchRect() ) {
-		QRectF rect = data.getRect() ;
+		CRectF rect = data.getRect() ;
 		m_pEditData->setCatchRect(rect);
 		emit sig_imageChangeRect(rect) ;
 		emit sig_imageRepaint() ;
@@ -645,7 +645,7 @@ void AnimationForm::slot_changeUvLeft( double val )
 	p->left = val ;
 	addCommandEdit(*p) ;
 
-	QRectF rect = p->getRect() ;
+	CRectF rect = p->getRect() ;
 	m_pEditData->setCatchRect(rect);
 	emit sig_imageRepaint() ;
 }
@@ -663,7 +663,7 @@ void AnimationForm::slot_changeUvRight( double val )
 	p->right = val ;
 	addCommandEdit(*p) ;
 
-	QRectF rect = p->getRect() ;
+	CRectF rect = p->getRect() ;
 	m_pEditData->setCatchRect(rect);
 	emit sig_imageRepaint() ;
 }
@@ -681,7 +681,7 @@ void AnimationForm::slot_changeUvTop( double val )
 	p->top = val ;
 	addCommandEdit(*p) ;
 
-	QRectF rect = p->getRect() ;
+	CRectF rect = p->getRect() ;
 	m_pEditData->setCatchRect(rect);
 	emit sig_imageRepaint() ;
 }
@@ -699,7 +699,7 @@ void AnimationForm::slot_changeUvBottom( double val )
 	p->bottom = val ;
 	addCommandEdit(*p) ;
 
-	QRectF rect = p->getRect() ;
+	CRectF rect = p->getRect() ;
 	m_pEditData->setCatchRect(rect);
 	emit sig_imageRepaint() ;
 }
@@ -982,7 +982,7 @@ void AnimationForm::slot_changeLayerLock( void )
 }
 
 // 選択中レイヤのUV変更
-void AnimationForm::slot_changeSelectLayerUV( QRectF rect )
+void AnimationForm::slot_changeSelectLayerUV( CRectF rect )
 {
 	addNowSelectLayerAndFrame();
 	FrameData *p = getNowSelectFrameData() ;

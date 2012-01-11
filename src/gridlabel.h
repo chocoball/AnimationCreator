@@ -38,8 +38,8 @@ signals:
 	void sig_moveCatchRect( QMouseEvent *ev ) ;
 	void sig_releaseCatchRect( QMouseEvent *ev ) ;
 
-	void sig_changeSelectLayerUV( QRectF rect ) ;
-	void sig_changeCatchRect(QRectF rect) ;
+	void sig_changeSelectLayerUV( CRectF rect ) ;
+	void sig_changeCatchRect(CRectF rect) ;
 
 private:
 	void startDragAndDrop( QMouseEvent *ev ) ;

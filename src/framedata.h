@@ -6,6 +6,7 @@
 #include <QMatrix4x4>
 #include <math.h>
 #include "util.h"
+#include "CRect.h"
 
 typedef struct {
 	float		x0, y0 ;
@@ -90,16 +91,16 @@ typedef struct _tagFrameData {
 		return (*this == r ? false : true) ;
 	}
 
-	void setRect( QRectF &rect )
+	void setRect( CRectF &rect )
 	{
 		left	= rect.left() ;
 		right	= rect.right() ;
 		top		= rect.top() ;
 		bottom	= rect.bottom() ;
 	}
-	QRectF getRect() const
+	CRectF getRect() const
 	{
-		return QRectF(left, top, right-left, bottom-top) ;
+		return CRectF(left, top, right, bottom) ;
 	}
 	float width() const { return right - left ; }
 	float height() const { return bottom - top ; }
@@ -220,9 +221,12 @@ typedef struct _tagFrameData {
 		rot_y = ry * 180 / M_PI ;
 		rot_z = rz * 180 / M_PI ;
 
-		if ( rot_x < 0 ) { rot_x += 360 ; }
-		if ( rot_y < 0 ) { rot_y += 360 ; }
-		if ( rot_z < 0 ) { rot_z += 360 ; }
+		if ( rot_x < -360 ) { rot_x += 360*2 ; }
+		if ( rot_x >  360 ) { rot_x -= 360*2 ; }
+		if ( rot_y < -360 ) { rot_y += 360*2 ; }
+		if ( rot_y >  360 ) { rot_y -= 360*2 ; }
+		if ( rot_z < -360 ) { rot_z += 360*2 ; }
+		if ( rot_z >  360 ) { rot_z -= 360*2 ; }
 	}
 
 } FrameData ;

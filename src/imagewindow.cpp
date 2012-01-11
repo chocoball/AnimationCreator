@@ -119,10 +119,10 @@ void ImageWindow::addTab(int imageIndex)
 	ui->tabWidget->insertTab(imageIndex, pScrollArea, QIcon(), tr("%1").arg(imageIndex)) ;
 
 	connect(ui->checkBox, SIGNAL(clicked(bool)), pGridLabel, SLOT(slot_gridOnOff(bool))) ;
-	connect(pGridLabel, SIGNAL(sig_changeSelectLayerUV(QRectF)), m_pAnimationForm, SLOT(slot_changeSelectLayerUV(QRectF))) ;
-	connect(pGridLabel, SIGNAL(sig_changeCatchRect(QRectF)), this, SLOT(slot_setUI(QRectF))) ;
+	connect(pGridLabel, SIGNAL(sig_changeSelectLayerUV(CRectF)), m_pAnimationForm, SLOT(slot_changeSelectLayerUV(CRectF))) ;
+	connect(pGridLabel, SIGNAL(sig_changeCatchRect(CRectF)), this, SLOT(slot_setUI(CRectF))) ;
 	connect(m_pAnimationForm, SIGNAL(sig_imageRepaint()), pGridLabel, SLOT(update())) ;
-	connect(m_pAnimationForm, SIGNAL(sig_imageChangeRect(QRectF)), this, SLOT(slot_setUI(QRectF))) ;
+	connect(m_pAnimationForm, SIGNAL(sig_imageChangeRect(CRectF)), this, SLOT(slot_setUI(CRectF))) ;
 	connect(m_pAnimationForm, SIGNAL(sig_imageChangeTab(int)), this, SLOT(slot_changeTab(int))) ;
 }
 
@@ -251,7 +251,7 @@ void ImageWindow::slot_modifiedImage( int index )
 // UV 下 変更
 void ImageWindow::slot_changeUVBottom( double val )
 {
-	QRectF r = m_pEditData->getCatchRect() ;
+	CRectF r = m_pEditData->getCatchRect() ;
 	r.setBottom(val);
 	m_pEditData->setCatchRect(r);
 
@@ -261,7 +261,7 @@ void ImageWindow::slot_changeUVBottom( double val )
 // UV 上 変更
 void ImageWindow::slot_changeUVTop( double val )
 {
-	QRectF r = m_pEditData->getCatchRect() ;
+	CRectF r = m_pEditData->getCatchRect() ;
 	r.setTop(val);
 	m_pEditData->setCatchRect(r);
 
@@ -271,7 +271,7 @@ void ImageWindow::slot_changeUVTop( double val )
 // UV 左 変更
 void ImageWindow::slot_changeUVLeft( double val )
 {
-	QRectF r = m_pEditData->getCatchRect() ;
+	CRectF r = m_pEditData->getCatchRect() ;
 	r.setLeft(val);
 	m_pEditData->setCatchRect(r);
 
@@ -281,7 +281,7 @@ void ImageWindow::slot_changeUVLeft( double val )
 // UV 右 変更
 void ImageWindow::slot_changeUVRight( double val )
 {
-	QRectF r = m_pEditData->getCatchRect() ;
+	CRectF r = m_pEditData->getCatchRect() ;
 	r.setRight(val);
 	m_pEditData->setCatchRect(r);
 
@@ -289,7 +289,7 @@ void ImageWindow::slot_changeUVRight( double val )
 }
 
 // UI セット
-void ImageWindow::slot_setUI( QRectF rect )
+void ImageWindow::slot_setUI( CRectF rect )
 {
 	if ( rect.bottom() != ui->doubleSpinBox_uv_bottom->value() ) { ui->doubleSpinBox_uv_bottom->setValue(rect.bottom()); }
 	if ( rect.top() != ui->doubleSpinBox_uv_top->value() ) { ui->doubleSpinBox_uv_top->setValue(rect.top()); }

@@ -39,7 +39,7 @@ public:
 	void setPressWindowMove(bool f) { m_bPressWindowMove = f ; }
 
 signals:
-	void sig_dropedImage(QRectF rect, QPoint pos, int index) ;
+	void sig_dropedImage(CRectF rect, QPoint pos, int index) ;
     void sig_selectLayerChanged( QModelIndex indexLayer ) ;
     void sig_dragedImage( FrameData data ) ;
 	void sig_deleteFrameData( void ) ;
@@ -70,7 +70,7 @@ protected:
 	void drawCenter( void ) ;
 
 	void drawLine( QPoint pos0, QPoint pos1, QColor col, float z = 1.0f ) ;
-	void drawRect( QRectF rc, QRectF uv, float z, QColor col ) ;
+	void drawRect( CRectF rc, CRectF uv, float z, QColor col ) ;
 	void drawCircle(QPoint p, float length, int div) ;
 
 	void drawBezierLine(ObjectItem *pLayerItem, int prevFrame, int nextFrame) ;

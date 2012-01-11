@@ -7,6 +7,7 @@
 #include "glwidget.h"
 #include "cdatamarkerlabel.h"
 #include "AnimationWindowSplitter.h"
+#include "CRect.h"
 
 
 namespace Ui {
@@ -40,7 +41,7 @@ public:
 signals:
 	void sig_imageChangeTab(int nImage) ;
 	void sig_imageRepaint( void ) ;
-	void sig_imageChangeRect(QRectF rect) ;
+	void sig_imageChangeRect(CRectF rect) ;
 	void sig_portCheckDrawCenter(bool) ;
 	void sig_portDragedImage(FrameData) ;
 	void sig_pushColorToolButton( void ) ;
@@ -53,7 +54,7 @@ public slots:
 	void slot_deleteObject( void ) ;
 	void slot_deleteFrameData( void ) ;
 
-	void slot_dropedImage( QRectF rect, QPoint pos, int imageIndex ) ;
+	void slot_dropedImage( CRectF rect, QPoint pos, int imageIndex ) ;
 
 	void slot_frameChanged(int frame) ;
     void slot_selectLayerChanged( QModelIndex indexLayer ) ;
@@ -93,7 +94,7 @@ public slots:
 	void slot_changeLayerDisp( void ) ;
 	void slot_changeLayerLock( void ) ;
 
-	void slot_changeSelectLayerUV( QRectF rect ) ;
+	void slot_changeSelectLayerUV( CRectF rect ) ;
 	void slot_changeAnimeSpeed(int index) ;
 
 	void slot_addImage( int imageNo ) ;

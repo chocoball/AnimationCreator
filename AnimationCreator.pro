@@ -69,7 +69,8 @@ HEADERS		+=	src/Anm2dTypes.h				\
 				src/keyboardmodel.h				\
 				src/curveeditorform.h			\
 				src/curvegraphlabel.h			\
-				src/capplication.h
+				src/capplication.h				\
+				src/CRect.h
 
 RESOURCES	+=	Resource.qrc
 
@@ -83,6 +84,7 @@ FORMS		+= 	ui/animationform.ui				\
 
 
 CONFIG		+=	help console
+
 
 
 
