@@ -367,7 +367,7 @@ void MainWindow::slot_exportASM()
 	QString		incFileName = fileName;
 	incFileName.replace(QString(".asm"), QString(".inc"));
 	CAnm2DAsm	dataInc(setting.getFlat());
-	if(!dataInc.makeFromEditData2Inc(m_EditData)){
+	if(!dataInc.makeFromEditData2Inc(m_EditData, incFileName)){
 		if(dataInc.getErrorNo() != CAnm2DBase::kErrorNo_Cancel){
 			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("コンバート失敗 %1:\n%2").arg(incFileName).arg(dataInc.getErrorNo()));
 		}

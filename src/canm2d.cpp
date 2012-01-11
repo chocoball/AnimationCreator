@@ -1463,7 +1463,7 @@ bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 	ObjectItem	*pObj = pRoot->child(0);
 	
 	addString(";----------------------------------------------------------------\n");
-	addString("; @kamefile\t" + QString(pObj->getName().toUtf8()) + "\n");
+	addString("; @kamefile\t" + pRoot->getName().toUtf8() + "\n");
 	addString(";---------------------------------------------------------------- HEADER\n");
 	addString("\t\t\%include\t\"../imageid.inc\"\n");
 	addString("\n");
@@ -1533,8 +1533,22 @@ bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 	return true;
 }
 
-bool CAnm2DAsm::makeFromEditData2Inc(CEditData &rEditData)
+void CAnm2DAsm::makeFromEditData2IncTip(QString qsLabel, ObjectItem *pObj)
 {
+	addString("%define\t\t" + qsLabel + pObj->getName().replace(" ", "_").toUpper().toUtf8() + QString("\t\t%1\n").arg(m_nCnt++));
+	
+	// 子供の処理
+	if(pObj->childCount()){
+		for(int i=0; i<pObj->childCount(); i++){
+			ObjectItem	*pChild = pObj->child(i);
+			makeFromEditData2IncTip(qsLabel, pChild);
+		}
+	}
+}
+
+bool CAnm2DAsm::makeFromEditData2Inc(CEditData &rEditData, QString qsFname)
+{
+	qsFname = QFileInfo(qsFname).baseName().toUpper();
 	m_pModel = rEditData.getObjectModel();
 	if(m_bFlat){
 		CObjectModel	*p = new CObjectModel();
@@ -1547,11 +1561,23 @@ bool CAnm2DAsm::makeFromEditData2Inc(CEditData &rEditData)
 	ObjectItem	*pObj = pRoot->child(0);
 	
 	addString("; このファイルはAnimationCreatorにより生成されました。\n");
+	addString("\n");
 	for(int i=0; i<pRoot->childCount(); i++){
 		ObjectItem	*pObj = pRoot->child(i);
-		addString("%define\t\tACO_" + QString(pObj->getName().replace(" ", "_").toUpper().toUtf8()) + QString("\t\t%1").arg(i) + "\n");
+		addString("%define\t\tACO_" + qsFname + "__" + pObj->getName().replace(" ", "_").toUpper().toUtf8() + QString("\t\t%1").arg(i) + "\n");
 	}
 	addString("\n");
+	for(int i=0; i<pRoot->childCount(); i++){
+		ObjectItem	*pObj = pRoot->child(i);
+		QString		qsLabel = "ACL_" + qsFname + "__" + pObj->getName().replace(" ", "_").toUpper().toUtf8() + "__";
+		addString("%define\t\t" + qsLabel + "ROOT\t\t0\n");
+		m_nCnt = 1;
+		for(int j=0; j<pObj->childCount(); j++){
+			ObjectItem	*pChild = pObj->child(j);
+			makeFromEditData2IncTip(qsLabel, pChild);
+		}
+		addString("\n");
+	}
 
 	return true;
 }
