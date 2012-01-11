@@ -363,6 +363,23 @@ void MainWindow::slot_exportASM()
 	}
 	file.write(data.getData().toAscii()) ;
 	
+	// inc出力
+	QString		incFileName = fileName;
+	incFileName.replace(QString(".asm"), QString(".inc"));
+	CAnm2DAsm	dataInc(setting.getFlat());
+	if(!dataInc.makeFromEditData2Inc(m_EditData)){
+		if(dataInc.getErrorNo() != CAnm2DBase::kErrorNo_Cancel){
+			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("コンバート失敗 %1:\n%2").arg(incFileName).arg(dataInc.getErrorNo()));
+		}
+		return;
+	}
+	QFile	fileInc(incFileName);
+	if(!fileInc.open(QFile::WriteOnly)){
+		QMessageBox::warning(this, trUtf8("エラー"), trUtf8("保存失敗 %1:\n%2").arg(incFileName).arg(fileInc.errorString()));
+		return;
+	}
+	fileInc.write(dataInc.getData().toAscii());
+	
 	QMessageBox msgBox ;
 	msgBox.setText(trUtf8("asm吐き出し終了:")+fileName) ;
 	msgBox.exec() ;
