@@ -1549,7 +1549,7 @@ bool CAnm2DAsm::makeFromEditData2Inc(CEditData &rEditData)
 	addString("; このファイルはAnimationCreatorにより生成されました。\n");
 	for(int i=0; i<pRoot->childCount(); i++){
 		ObjectItem	*pObj = pRoot->child(i);
-		addString("%define\t\tACO_" + QString(pObj->getName().toUpper().toUtf8()) + QString("\t\t%1").arg(i) + "\n");
+		addString("%define\t\tACO_" + QString(pObj->getName().replace(" ", "_").toUpper().toUtf8()) + QString("\t\t%1").arg(i) + "\n");
 	}
 	addString("\n");
 
