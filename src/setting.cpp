@@ -19,6 +19,7 @@ void CSettings::read()
 	m_fileSaveDir	= settings.value("save_dir", m_fileOpenDir).toString() ;
 	m_pngSaveDir	= settings.value("png_dir", m_fileOpenDir).toString() ;
 	m_jsonSaveDir	= settings.value("json_dir", m_fileOpenDir).toString() ;
+	m_asmSaveDir	= settings.value("asm_dir", m_fileOpenDir).toString() ;
 
 	QRgb col_anm = settings.value("anime_color", 0).toUInt() ;
 	QRgb col_img = settings.value("image_color", 0).toUInt() ;
@@ -105,6 +106,7 @@ void CSettings::write()
 	settings.setValue("layer_hierarchy",m_bLayerHierarchy) ;
 	settings.setValue("frame_start",	m_frameStart) ;
 	settings.setValue("frame_end",		m_frameEnd) ;
+	settings.setValue("asm_dir",		m_asmSaveDir) ;
 	settings.endGroup();
 
 	settings.beginGroup("MainWindow");
