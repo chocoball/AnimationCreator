@@ -202,7 +202,7 @@ void MainWindow::slot_triggeredAnimeWindow( bool flag )
 // オプション選択時
 void MainWindow::slot_option( void )
 {
-	OptionDialog dialog(&setting, this) ;
+	OptionDialog dialog(&setting, (m_pAnimationForm ? m_pAnimationForm->getGLWidget() : NULL), this) ;
 	dialog.exec() ;
 
 	emit sig_endedOption() ;

@@ -6,6 +6,7 @@
 #include "ui_OptionAnimationTab.h"
 #include "ui_KeyboardTab.h"
 #include "keyboardmodel.h"
+#include "glwidget.h"
 
 namespace Ui {
 	class OptionAnimationTab ;
@@ -33,7 +34,7 @@ class AnimeWindowTab : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit AnimeWindowTab(CSettings *pSetting, QWidget *parent = 0) ;
+	explicit AnimeWindowTab(CSettings *pSetting, AnimeGLWidget *pGlWidget, QWidget *parent = 0) ;
 	~AnimeWindowTab() ;
 
 public slots:
@@ -47,9 +48,13 @@ public slots:
 	void slot_changeWindowW(int val) ;
 	void slot_changeWindowH(int val) ;
 
+	void slot_changeUseDepthTest(bool flag) ;
+	void slot_changeUseZSort(bool flag) ;
+
 private:
 	Ui::OptionAnimationTab	*ui ;
 	CSettings				*m_pSetting ;
+	AnimeGLWidget			*m_pGlWidget ;
 };
 
 // イメージウィンドウ タブ
@@ -101,7 +106,7 @@ class OptionDialog : public QDialog
 {
     Q_OBJECT
 public:
-	explicit OptionDialog(CSettings *pSetting, QWidget *parent = 0);
+	explicit OptionDialog(CSettings *pSetting, AnimeGLWidget *pGlWidget, QWidget *parent = 0);
 
 signals:
 

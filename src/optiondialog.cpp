@@ -1,10 +1,10 @@
 #include "optiondialog.h"
 
-OptionDialog::OptionDialog(CSettings *pSetting, QWidget *parent) :
+OptionDialog::OptionDialog(CSettings *pSetting, AnimeGLWidget *pGlWidget, QWidget *parent) :
     QDialog(parent)
 {
 	FileTab *pFileTab = new FileTab(pSetting) ;
-	AnimeWindowTab *pAnimeTab = new AnimeWindowTab(pSetting) ;
+	AnimeWindowTab *pAnimeTab = new AnimeWindowTab(pSetting, pGlWidget) ;
 	ImageWindowTab *pImageTab = new ImageWindowTab(pSetting) ;
 	KeyboardTab *pKeyboardTab = new KeyboardTab(pSetting) ;
 
@@ -61,9 +61,10 @@ void FileTab::slot_clickedHierarchy(bool flag)
 }
 
 // アニメーションウィンドウ タブ
-AnimeWindowTab::AnimeWindowTab(CSettings *pSetting, QWidget *parent)
+AnimeWindowTab::AnimeWindowTab(CSettings *pSetting, AnimeGLWidget *pGlWidget, QWidget *parent)
 	: QWidget(parent),
-	ui(new Ui::OptionAnimationTab)
+	ui(new Ui::OptionAnimationTab),
+	m_pGlWidget(pGlWidget)
 {
 	ui->setupUi(this);
 
@@ -91,14 +92,18 @@ AnimeWindowTab::AnimeWindowTab(CSettings *pSetting, QWidget *parent)
 	ui->spinBox_scrh->setValue(pSetting->getAnmWindowScreenH()) ;
 	ui->spinBox_winw->setValue(pSetting->getAnmWindowW()) ;
 	ui->spinBox_winh->setValue(pSetting->getAnmWindowH()) ;
+	ui->checkBox_useDepthTest->setChecked(pSetting->getUseDepthTest()) ;
+	ui->checkBox_useZSort->setChecked(pSetting->getUseZSort()) ;
 
 	connect(pComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(slot_changeBGColor(QString))) ;
-	connect(pCheckBox, SIGNAL(clicked(bool)), this, SLOT(slot_changeUseBackImage(bool))) ;
+	connect(pCheckBox, SIGNAL(toggled(bool)), this, SLOT(slot_changeUseBackImage(bool))) ;
 	connect(ui->pushButton_imagePath, SIGNAL(clicked()), this, SLOT(slot_openFileDialog())) ;
 	connect(ui->spinBox_scrw, SIGNAL(valueChanged(int)), this, SLOT(slot_changeScreenW(int))) ;
 	connect(ui->spinBox_scrh, SIGNAL(valueChanged(int)), this, SLOT(slot_changeScreenH(int))) ;
 	connect(ui->spinBox_winw, SIGNAL(valueChanged(int)), this, SLOT(slot_changeWindowW(int))) ;
 	connect(ui->spinBox_winh, SIGNAL(valueChanged(int)), this, SLOT(slot_changeWindowH(int))) ;
+	connect(ui->checkBox_useDepthTest, SIGNAL(toggled(bool)), this, SLOT(slot_changeUseDepthTest(bool))) ;
+	connect(ui->checkBox_useZSort, SIGNAL(toggled(bool)), this, SLOT(slot_changeUseZSort(bool))) ;
 }
 
 AnimeWindowTab::~AnimeWindowTab()
@@ -152,6 +157,23 @@ void AnimeWindowTab::slot_changeWindowH(int val)
 {
 	m_pSetting->setAnmWindowH(val) ;
 }
+
+void AnimeWindowTab::slot_changeUseDepthTest(bool flag)
+{
+	m_pSetting->setUseDepthTest(flag) ;
+	if ( m_pGlWidget ) {
+		m_pGlWidget->update();
+	}
+}
+
+void AnimeWindowTab::slot_changeUseZSort(bool flag)
+{
+	m_pSetting->setUseZSort(flag) ;
+	if ( m_pGlWidget ) {
+		m_pGlWidget->update();
+	}
+}
+
 
 // イメージウィンドウ タブ
 ImageWindowTab::ImageWindowTab(CSettings *pSetting, QWidget *parent)

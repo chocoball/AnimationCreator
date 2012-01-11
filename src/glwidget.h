@@ -25,6 +25,12 @@ public:
         kDragMode_Edit			///< 編集モード
 	} ;
 
+	typedef struct {
+		QMatrix4x4	mat ;
+		FrameData	data ;
+		QColor		frameCol ;
+	} DRAW_FRAMEDATA ;
+
 public:
 	explicit AnimeGLWidget(CEditData *editData, CSettings *pSetting, QWidget *parent = 0);
 
@@ -86,6 +92,9 @@ protected:
 	void multMatrix(const QMatrix4x4 &mat) ;
 	void convMat(double *ret, const QMatrix4x4 &mat) ;
 
+	void sortDrawList() ;
+	void drawList() ;
+
 public:
 	void setDrawArea( int w, int h ) ;
 	void setGridSpace( int w, int h )
@@ -137,6 +146,8 @@ private:
 	int					m_backImageW, m_backImageH ;
 
 	FrameData			m_editFrameDataOld ;
+
+	QList<DRAW_FRAMEDATA>	m_drawList ;
 };
 
 #endif // GLWIDGET_H

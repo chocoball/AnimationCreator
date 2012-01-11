@@ -1,6 +1,8 @@
 #include "glwidget.h"
 #include "util.h"
 
+#define kUseAlphaTest
+
 #define kPathSelectLen	5.0
 
 AnimeGLWidget::AnimeGLWidget(CEditData *editData, CSettings *pSetting, QWidget *parent) :
@@ -47,11 +49,10 @@ void AnimeGLWidget::initializeGL()
 {
 	glEnable(GL_BLEND) ;
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+#ifdef kUseAlphaTest
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0);
-
-//	glEnable(GL_DEPTH_TEST);
+#endif
 
 	for ( int i = 0 ; i < m_pEditData->getImageDataListSize() ; i ++ ) {
 		CEditData::ImageData *p = m_pEditData->getImageData(i) ;
@@ -82,6 +83,9 @@ void AnimeGLWidget::paintGL()
 	glMatrixMode(GL_MODELVIEW) ;
 	glLoadIdentity() ;
 
+	if ( m_pSetting->getUseDepthTest() ) { glEnable(GL_DEPTH_TEST) ; }
+	else { glDisable(GL_DEPTH_TEST) ; }
+
 	// 背景画像描画
 	if ( m_backImageTex ) {
 		QRect rect ;
@@ -103,6 +107,9 @@ void AnimeGLWidget::paintGL()
 		drawLayers() ;
 	}
 
+	bool bDepth = glIsEnabled(GL_DEPTH_TEST) ;
+	glDisable(GL_DEPTH_TEST);
+
 	if ( m_bDrawGrid ) {
 		if ( !m_pEditData->isExportPNG() ) {
 			drawGrid() ;
@@ -121,12 +128,13 @@ void AnimeGLWidget::paintGL()
 		int rect[4] ;
 		QColor col = QColor(255, 0, 0, 255) ;
 		m_pEditData->getExportPNGRect(rect);
-//		glDisable(GL_DEPTH_TEST);
 		drawLine(QPoint(rect[0], rect[1]), QPoint(rect[2], rect[1]), col, 1.0) ;
 		drawLine(QPoint(rect[2], rect[1]), QPoint(rect[2], rect[3]), col, 1.0) ;
 		drawLine(QPoint(rect[2], rect[3]), QPoint(rect[0], rect[3]), col, 1.0) ;
 		drawLine(QPoint(rect[0], rect[3]), QPoint(rect[0], rect[1]), col, 1.0) ;
-//		glEnable(GL_DEPTH_TEST);
+	}
+	if ( bDepth ) {
+		glEnable(GL_DEPTH_TEST);
 	}
 }
 
@@ -169,7 +177,15 @@ void AnimeGLWidget::drawLayers_Anime()
 	ObjectItem *pItem = pModel->getObject(m_pEditData->getSelIndex()) ;
 	if ( !pItem ) { return ; }
 
+	if ( m_pSetting->getUseZSort() ) {
+		m_drawList.clear() ;
+	}
 	drawLayers(pItem) ;
+
+	if ( m_pSetting->getUseZSort() ) {
+		sortDrawList() ;
+		drawList() ;
+	}
 }
 
 void AnimeGLWidget::drawLayers(ObjectItem *pLayerItem)
@@ -182,23 +198,50 @@ void AnimeGLWidget::drawLayers(ObjectItem *pLayerItem)
 		d = pLayerItem->getDisplayFrameData(selFrame, &valid) ;
 		if ( valid ) {
 			QMatrix4x4 mat = pLayerItem->getDisplayMatrix(selFrame) ;
-			drawFrameData(d, mat) ;
+			if ( m_pSetting->getUseZSort() ) {
+				DRAW_FRAMEDATA draw ;
+				draw.mat = mat ;
+				draw.data = d ;
 
-			if ( m_pSetting->getDrawFrame() && !m_pEditData->isExportPNG() ) {
-				QColor col ;
-				ObjectItem *p = m_pEditData->getObjectModel()->getItemFromIndex(m_pEditData->getSelIndex()) ;
-				if ( pLayerItem == p )	{
-					if ( m_bPressCtrl ) {
-						col = QColor(0, 255, 0, 255) ;
+				if ( m_pSetting->getDrawFrame() && !m_pEditData->isExportPNG() ) {
+					ObjectItem *p = m_pEditData->getObjectModel()->getItemFromIndex(m_pEditData->getSelIndex()) ;
+					if ( pLayerItem == p )	{
+						if ( m_bPressCtrl ) {
+							draw.frameCol = QColor(0, 255, 0, 255) ;
+						}
+						else {
+							draw.frameCol = QColor(255, 0, 0, 255) ;
+						}
 					}
 					else {
-						col = QColor(255, 0, 0, 255) ;
+						draw.frameCol = QColor(64, 64, 64, 255) ;
 					}
 				}
 				else {
-					col = QColor(64, 64, 64, 255) ;
+					draw.frameCol = QColor(0, 0, 0, 0) ;
 				}
-				drawFrame(d, mat, col) ;
+
+				m_drawList.append(draw) ;
+			}
+			else {
+				drawFrameData(d, mat) ;
+
+				if ( m_pSetting->getDrawFrame() && !m_pEditData->isExportPNG() ) {
+					QColor col ;
+					ObjectItem *p = m_pEditData->getObjectModel()->getItemFromIndex(m_pEditData->getSelIndex()) ;
+					if ( pLayerItem == p )	{
+						if ( m_bPressCtrl ) {
+							col = QColor(0, 255, 0, 255) ;
+						}
+						else {
+							col = QColor(255, 0, 0, 255) ;
+						}
+					}
+					else {
+						col = QColor(64, 64, 64, 255) ;
+					}
+					drawFrame(d, mat, col) ;
+				}
 			}
 		}
 	}
@@ -286,8 +329,11 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 	if ( !m_pEditData->getObjectModel()->isLayer(index) ) { return ; }
 
 	glDisable(GL_TEXTURE_2D) ;
+#ifdef kUseAlphaTest
 	glDisable(GL_ALPHA_TEST);
-//	glDisable(GL_DEPTH_TEST);
+#endif
+	bool bDepth = glIsEnabled(GL_DEPTH_TEST) ;
+	glDisable(GL_DEPTH_TEST);
 
 	// 枠
 	QColor col ;
@@ -348,8 +394,13 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 		}
 	}
 
+#ifdef kUseAlphaTest
 	glEnable(GL_ALPHA_TEST);
+#endif
 	glEnable(GL_TEXTURE_2D) ;
+	if ( bDepth ) {
+		glEnable(GL_DEPTH_TEST) ;
+	}
 }
 
 // フレームデータ描画
@@ -365,7 +416,7 @@ void AnimeGLWidget::drawFrameData( const FrameData &data, QMatrix4x4 mat, QColor
 
 	glPushMatrix() ;
 	{
-		mat.data()[14] /= 4096.0 ;
+//		mat.data()[14] /= 4096.0 ;
 		multMatrix(mat) ;
 
 		Vertex v = data.getVertex() ;
@@ -401,7 +452,7 @@ void AnimeGLWidget::drawFrame(const FrameData &data, QMatrix4x4 mat, QColor col)
 
 	glPushMatrix();
 	{
-		mat.data()[14] /= 4096.0 ;
+//		mat.data()[14] /= 4096.0 ;
 		multMatrix(mat) ;
 
 		drawLine(QPoint(v.x0, v.y0), QPoint(v.x0, v.y1), col, 0);
@@ -902,6 +953,34 @@ void AnimeGLWidget::convMat(double *ret, const QMatrix4x4 &mat)
 	const qreal *p = mat.data() ;
 	for ( int i = 0 ; i < 16 ; i ++ ) {
 		ret[i] = p[i] ;
+	}
+}
+
+void AnimeGLWidget::sortDrawList()
+{
+	for ( int i = 0 ; i < m_drawList.size() ; i ++ ) {
+		for ( int j = 0 ; j < i ; j ++ ) {
+			if ( m_drawList.at(i).mat.column(3).z() < m_drawList.at(j).mat.column(3).z() ) {
+				m_drawList.swap(i, j) ;
+			}
+		}
+	}
+}
+
+void AnimeGLWidget::drawList()
+{
+	for ( int i = 0 ; i < m_drawList.size() ; i ++ ) {
+		drawFrameData(m_drawList[i].data, m_drawList[i].mat) ;
+	}
+
+	bool bDepth = glIsEnabled(GL_DEPTH_TEST) ;
+	glDisable(GL_DEPTH_TEST) ;
+	for ( int i = 0 ; i < m_drawList.size() ; i ++ ) {
+		if ( m_drawList[i].frameCol.alpha() == 0 ) { continue ; }
+		drawFrame(m_drawList[i].data, m_drawList[i].mat, m_drawList[i].frameCol) ;
+	}
+	if ( bDepth ) {
+		glEnable(GL_DEPTH_TEST) ;
 	}
 }
 

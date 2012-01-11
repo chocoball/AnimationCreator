@@ -48,6 +48,8 @@ void CSettings::read()
 	m_anmWindowScreenH			= settings.value("scr_h", 0).toInt() ;
 	m_anmWindowW				= settings.value("win_w", 2048).toInt() ;
 	m_anmWindowH				= settings.value("win_h", 2048).toInt() ;
+	m_bUseDepthTest				= settings.value("use_depth_test", true).toBool() ;
+	m_bUseZSort					= settings.value("use_zsort", true).toBool() ;
 	settings.endGroup();
 
 	settings.beginGroup("ImageWindow");
@@ -122,6 +124,8 @@ void CSettings::write()
 	settings.setValue("scr_h",			m_anmWindowScreenH) ;
 	settings.setValue("win_w",			m_anmWindowW) ;
 	settings.setValue("win_h",			m_anmWindowH) ;
+	settings.setValue("use_depth_test",	m_bUseDepthTest);
+	settings.setValue("use_zsort",		m_bUseZSort);
 	settings.endGroup();
 
 	settings.beginGroup("ImageWindow");
