@@ -135,7 +135,7 @@ int CApplication::execute()
                     QString		incFileName = m_outputFile;
                     incFileName.replace(QString(".asm"), QString(".inc"));
                     CAnm2DAsm	dataInc(false);
-                    if(!dataInc.makeFromEditData2Inc(editData)){
+                    if(!dataInc.makeFromEditData2Inc(editData, incFileName)){
                         if(dataInc.getErrorNo() != CAnm2DBase::kErrorNo_Cancel){
                             qDebug() << trUtf8("コンバート失敗[") << incFileName << "]:" << data.getErrorString() ;
                             print_usage();
