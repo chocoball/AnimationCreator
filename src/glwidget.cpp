@@ -78,7 +78,7 @@ void AnimeGLWidget::paintGL()
 
 	glMatrixMode(GL_PROJECTION) ;
 	glLoadIdentity() ;
-	glOrtho(-m_DrawWidth/2, m_DrawWidth/2, m_DrawHeight/2, -m_DrawHeight/2, -1000, 1000);
+	glOrtho(-m_DrawWidth/2, m_DrawWidth/2, m_DrawHeight/2, -m_DrawHeight/2, -10000, 10000);
 
 	glMatrixMode(GL_MODELVIEW) ;
 	glLoadIdentity() ;
@@ -97,7 +97,7 @@ void AnimeGLWidget::paintGL()
 
 		rect.setRect(-m_backImageW/2, m_backImageH/2, m_backImageW, -m_backImageH);
 		uvF.setRect(0.0, (float)(m_BackImage.height()-m_backImageH)/m_BackImage.height(), (float)m_backImageW/m_BackImage.width(), (float)m_backImageH/m_BackImage.height());
-		drawRect(rect, uvF, -1, col) ;
+		drawRect(rect, uvF, -9999.9, col) ;
 
 		glBindTexture(GL_TEXTURE_2D, 0) ;
 		glDisable(GL_TEXTURE_2D) ;
