@@ -237,7 +237,8 @@ public:
 
 	void makeFromEditDataTip(QString qsLabel, ObjectItem *pObj);
 	bool makeFromEditData(CEditData &rEditData);
-	bool makeFromEditData2Inc(CEditData &rEditData);
+	void makeFromEditData2IncTip(QString qsLabel, ObjectItem *pObj);
+	bool makeFromEditData2Inc(CEditData &rEditData, QString qsFname);
 
 	QString getData() { return m_Data; }
 
@@ -249,6 +250,7 @@ private:
 	CObjectModel	*m_pModel;
 	QString			m_Data;
 	QString			m_aqsVramID[KM_VRAM_MAX];
+	int				m_nCnt;
 };
 
 #endif // CANM2D_H
