@@ -1399,6 +1399,36 @@ CAnm2DAsm::~CAnm2DAsm()
 	}
 }
 
+QVector4D makeFromEditDataArea(ObjectItem *pObj, QVector4D qv4Area)
+{
+	QMatrix4x4	mat = pObj->getDisplayMatrix(0);
+	FrameData	frameData = pObj->getDisplayFrameData(0);
+	QVector3D	v[4];
+	frameData.getVertexApplyMatrix(v, mat);
+	for(int i=0; i<4; i++){
+		if(qv4Area.x() == 0.0f && qv4Area.y() == 0.0f && qv4Area.z() == 0.0f && qv4Area.w() == 0.0f){
+			qv4Area.setX(v[i].x());
+			qv4Area.setY(v[i].y());
+			qv4Area.setZ(v[i].x());
+			qv4Area.setW(v[i].y());
+		} else {
+			if(qv4Area.x() > v[i].x()) qv4Area.setX(v[i].x());
+			if(qv4Area.y() > v[i].y()) qv4Area.setY(v[i].y());
+			if(qv4Area.z() < v[i].x()) qv4Area.setZ(v[i].x());
+			if(qv4Area.w() < v[i].y()) qv4Area.setW(v[i].y());
+		}
+	}
+	
+	if(pObj->childCount()){
+		for(int i=0; i<pObj->childCount(); i++){
+			ObjectItem	*pChild = pObj->child(i);
+			qv4Area = makeFromEditDataArea(pChild, qv4Area);
+		}
+	}
+	
+	return qv4Area;
+}
+
 void CAnm2DAsm::makeFromEditDataTip(QString qsLabel, ObjectItem *pObj)
 {
 	addString(";---------------------------------------------------------------- ANM_TIP\n");
@@ -1423,11 +1453,11 @@ void CAnm2DAsm::makeFromEditDataTip(QString qsLabel, ObjectItem *pObj)
 		addString("\t\t\tdd\t\t1\t\t; [NORMAL]\n");
 		addString("\t\t\tdw\t\t" + QString("%1").arg(frameData.frame) + "\t\t; uTime\n");
 		addString("\t\t\tdw\t\t" + m_aqsVramID[frameData.nImage] + "\t\t; uVramID\n");
-		addString("\t\t\tdd\t\t" + QString("F32(%1), F32(%2), F32(%3)").arg(frameData.pos_x, 0, 'f').arg(frameData.pos_y, 0, 'f').arg(-frameData.pos_z, 0, 'f') + "\t\t; svPos\n");
-		addString("\t\t\tdd\t\t" + QString("F32(%1)").arg(frameData.rot_z * M_PI / 180.0f, 0, 'f') + "\t\t; sRot\n");
-		addString("\t\t\tdd\t\t" + QString("F32(%1), F32(%2)").arg(frameData.fScaleX, 0, 'f').arg(frameData.fScaleY, 0, 'f') + "\t\t; svSca\n");
-		addString("\t\t\tdd\t\t" + QString("F32(%1), F32(%2)").arg(frameData.center_x, 0, 'f').arg(frameData.center_y, 0, 'f') + "\t\t; svCenter\n");
-		addString("\t\t\tdd\t\t" + QString("F32(%1), F32(%2), F32(%3), F32(%4)").arg(frameData.left, 0, 'f').arg(frameData.top, 0, 'f').arg(frameData.right, 0, 'f').arg(frameData.bottom, 0, 'f') + "\t\t; svUV\n");
+		addString("\t\t\tdd\t\t" + QString("F32(%1), F32(%2), F32(%3)").arg(frameData.pos_x, 0, 'f').arg(frameData.pos_y, 0, 'f').arg(-frameData.pos_z, 0, 'f') + "\t\t; fvPos\n");
+		addString("\t\t\tdd\t\t" + QString("F32(%1)").arg(frameData.rot_z * M_PI / 180.0f, 0, 'f') + "\t\t; fRot\n");
+		addString("\t\t\tdd\t\t" + QString("F32(%1), F32(%2)").arg(frameData.fScaleX, 0, 'f').arg(frameData.fScaleY, 0, 'f') + "\t\t; fvSca\n");
+		addString("\t\t\tdd\t\t" + QString("F32(%1), F32(%2)").arg(frameData.center_x, 0, 'f').arg(frameData.center_y, 0, 'f') + "\t\t; fvCenter\n");
+		addString("\t\t\tdd\t\t" + QString("F32(%1), F32(%2), F32(%3), F32(%4)").arg(frameData.left, 0, 'f').arg(frameData.top, 0, 'f').arg(frameData.right, 0, 'f').arg(frameData.bottom, 0, 'f') + "\t\t; fvUV\n");
 		addString("\t\t\tdb\t\t" + QString("%1, %2, %3, %4").arg(frameData.rgba[0]).arg(frameData.rgba[1]).arg(frameData.rgba[2]).arg(frameData.rgba[3]) + "\t\t; bvRGBA\n");
 		addString("\t\t\t\n");
 	}
@@ -1473,7 +1503,7 @@ bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 	addString("data:\n");
 	addString(";---------------------------------------------------------------- ANM_HEAD\n");
 	addString("\t\t\tdb\t\t'ANM0'\t\t; ANM0\n");
-	addString("\t\t\tdd\t\t00000002h\t\t; uVersion\n");
+	addString("\t\t\tdd\t\t00000003h\t\t; uVersion\n");
 	addString("\t\t\tdd\t\t" + QString("%1").arg(rEditData.getImageDataListSize()) + "\t\t; nVram\n");
 	addString("\t\t\tdd\t\t.vram\t\t; pauVram\n");
 	addString("\t\t\tdd\t\t" + QString("%1").arg(pRoot->childCount()) + "\t\t; nObject\n");
@@ -1501,6 +1531,7 @@ bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 	addString("\n");
 	for(int i=0; i<pRoot->childCount(); i++){
 		ObjectItem	*pObj = pRoot->child(i);
+		QVector4D	qv4Area = QVector4D(0, 0, 0, 0);
 		addString(";---------------------------------------------------------------- ANM_OBJ\n");
 		addString("; " + QString(pObj->getName().toUtf8()) + "\n");
 		addString("anmobj" + QString("%1").arg(i) + ":\n");
@@ -1510,6 +1541,12 @@ bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 			} else {
 				addString("\t\t\tdd\t\t00000000h\t\t; bFlag\n");
 			}
+			// 最小矩形算出
+			for(int j=0; j<pObj->childCount(); j++){
+				ObjectItem	*pChild = pObj->child(j);
+				qv4Area = makeFromEditDataArea(pChild, qv4Area);
+			}
+			addString("\t\t\tdd\t\t" + QString("%1, %2, %3, %4").arg((int)qv4Area.x()).arg((int)qv4Area.y()).arg((int)qv4Area.z()).arg((int)qv4Area.w()) + "\t\t; ivArea\n");
 			addString("\t\t\tdd\t\t" + QString("%1").arg(pObj->childCount()) + "\t\t; nTip\n");
 			addString("\t\t\tdd\t\t.tips\t\t; papTip\n");
 			addString("\t\n");
@@ -1524,6 +1561,8 @@ bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 				makeFromEditDataTip(qsLabel, pChild);
 			}
 		} else {
+			addString("\t\t\tdd\t\t00000000h\t\t; bFlag\n");
+			addString("\t\t\tdd\t\t0, 0, 0, 0\t\t; svArea\n");
 			addString("\t\t\tdd\t\t" + QString("%1").arg(pObj->childCount()) + "\t\t; nTip\n");
 			addString("\t\t\tdd\t\tNO_READ\t\t; papTip\n");
 		}
