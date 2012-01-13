@@ -1546,7 +1546,7 @@ bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 				ObjectItem	*pChild = pObj->child(j);
 				qv4Area = makeFromEditDataArea(pChild, qv4Area);
 			}
-			addString("\t\t\tdd\t\t" + QString("%1, %2, %3, %4").arg((int)qv4Area.x()).arg((int)qv4Area.y()).arg((int)qv4Area.z()).arg((int)qv4Area.w()) + "\t\t; ivArea\n");
+			addString("\t\t\tdd\t\t" + QString("F32(%1), F32(%2), F32(%3), F32(%4)").arg(qv4Area.x(), 0, 'f').arg(qv4Area.y(), 0, 'f').arg(qv4Area.z(), 0, 'f').arg(qv4Area.w(), 0, 'f') + "\t\t; fvArea\n");
 			addString("\t\t\tdd\t\t" + QString("%1").arg(pObj->childCount()) + "\t\t; nTip\n");
 			addString("\t\t\tdd\t\t.tips\t\t; papTip\n");
 			addString("\t\n");
