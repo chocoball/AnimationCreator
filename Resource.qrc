@@ -6,5 +6,7 @@
         <file>Resources/lang/linguist_ja.qm</file>
         <file>Resources/images/Button_Backward_32.png</file>
         <file>Resources/images/Button_Forward_32.png</file>
+        <file>Resources/images/Arrow_Up.png</file>
+        <file>Resources/images/Arrow_Down.png</file>
     </qresource>
 </RCC>

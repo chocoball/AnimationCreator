@@ -223,7 +223,7 @@
      <x>10</x>
      <y>50</y>
      <width>111</width>
-     <height>401</height>
+     <height>371</height>
     </rect>
    </property>
   </widget>
@@ -1101,6 +1101,40 @@
    </property>
    <property name="text">
     <string>パス削除</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_item_up">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>430</y>
+     <width>31</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset resource="../Resource.qrc">
+     <normaloff>:/root/Resources/images/Arrow_Up.png</normaloff>:/root/Resources/images/Arrow_Up.png</iconset>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_item_down">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>430</y>
+     <width>31</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset resource="../Resource.qrc">
+     <normaloff>:/root/Resources/images/Arrow_Down.png</normaloff>:/root/Resources/images/Arrow_Down.png</iconset>
    </property>
   </widget>
  </widget>

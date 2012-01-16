@@ -471,6 +471,46 @@ void Command_MoveFrameData::undo()
 }
 
 
+/**
+  ツリーアイテム上に移動
+  */
+Command_MoveItemUp::Command_MoveItemUp(CEditData *pEditData, const QModelIndex &index) :
+	QUndoCommand(QObject::trUtf8("アイテム上移動"))
+{
+	m_pEditData			= pEditData ;
+	m_srcRow			= m_pEditData->getObjectModel()->getRow(index) ;
+}
+
+void Command_MoveItemUp::redo()
+{
+
+}
+
+void Command_MoveItemUp::undo()
+{
+
+}
+
+
+/**
+  ツリーアイテム下に移動
+  */
+Command_MoveItemDown::Command_MoveItemDown(CEditData *pEditData, const QModelIndex &index) :
+	QUndoCommand(QObject::trUtf8("アイテム上移動"))
+{
+	m_pEditData			= pEditData ;
+	m_srcRow			= m_pEditData->getObjectModel()->getRow(index) ;
+}
+
+void Command_MoveItemDown::redo()
+{
+
+}
+
+void Command_MoveItemDown::undo()
+{
+
+}
 
 
 

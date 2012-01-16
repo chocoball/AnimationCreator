@@ -162,6 +162,9 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(ui->label_frame, SIGNAL(sig_moveFrameData(int,int)), this, SLOT(slot_moveFrameData(int,int))) ;
 
 	connect(m_pGlWidget, SIGNAL(sig_scrollWindow(QPoint)), this, SLOT(slot_scrollWindow(QPoint))) ;
+
+	connect(ui->pushButton_item_up, SIGNAL(clicked()), this, SLOT(slot_itemMoveUp())) ;
+	connect(ui->pushButton_item_down, SIGNAL(clicked()), this, SLOT(slot_itemMoveDown())) ;
 }
 
 AnimationForm::~AnimationForm()
@@ -1374,6 +1377,20 @@ void AnimationForm::slot_delPath()
 	p->path[1].v.setX(0) ;
 	p->path[1].v.setY(0) ;
 	addCommandEdit(*p) ;
+}
+
+// ツリーアイテムを上に移動
+void AnimationForm::slot_itemMoveUp()
+{
+	if ( !m_pEditData->getSelIndex().isValid() ) { return ; }
+	m_pEditData->cmd_moveItemUp(m_pEditData->getSelIndex()) ;
+}
+
+// ツリーアイテムを下に移動
+void AnimationForm::slot_itemMoveDown()
+{
+	if ( !m_pEditData->getSelIndex().isValid() ) { return ; }
+	m_pEditData->cmd_moveItemDown(m_pEditData->getSelIndex()) ;
 }
 
 // オブジェクト追加
