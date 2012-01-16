@@ -114,7 +114,11 @@ void Command_AddFrameData::redo()
 
 	FrameData *p = pItem->getFrameDataPtr(m_frameData.frame) ;
 	if ( p ) {
-		QMessageBox::warning(m_UpdateWidgetList[0], QObject::trUtf8("エラー 0"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
+		QMessageBox::warning(m_UpdateWidgetList[0], QObject::trUtf8("エラー 00"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
+		return ;
+	}
+	if ( m_frameData.frame > 9999 ) {
+		QMessageBox::warning(m_UpdateWidgetList[0], QObject::trUtf8("エラー 01"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
 		return ;
 	}
 
@@ -181,6 +185,11 @@ void Command_DelFrameData::redo()
 
 void Command_DelFrameData::undo()
 {
+	if ( m_FrameData.frame > 9999 ) {
+		QMessageBox::warning(m_UpdateWidgetList[0], QObject::trUtf8("エラー 10"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
+		return ;
+	}
+
 	QModelIndex index = m_pObjModel->getIndex(m_row) ;
 	if ( index.isValid() ) {
 		ObjectItem *pItem = m_pObjModel->getItemFromIndex(index) ;
@@ -412,7 +421,13 @@ void Command_MoveFrameData::redo()
 	FrameData *pData = pItem->getFrameDataPtr(m_dstFrame) ;
 	m_srcData.frame = m_dstFrame ;
 	if ( pData ) { *pData = m_srcData ; }
-	else { pItem->addFrameData(m_srcData) ; }
+	else {
+		if ( m_srcData.frame > 9999 ) {
+			QMessageBox::warning(m_UpdateWidgetList[0], QObject::trUtf8("エラー 20"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
+			return ;
+		}
+		pItem->addFrameData(m_srcData) ;
+	}
 
 	// 移動元を消す
 	pItem->removeFrameData(m_srcFrame) ;
@@ -433,7 +448,7 @@ void Command_MoveFrameData::undo()
 	m_srcData.frame = m_srcFrame ;
 	FrameData *pData = pItem->getFrameDataPtr(m_srcFrame) ;
 	if ( pData ) {	// 移動元にデータがあるのはおかしい
-		QMessageBox::warning(m_UpdateWidgetList[0], QObject::trUtf8("エラー 1"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
+		QMessageBox::warning(m_UpdateWidgetList[0], QObject::trUtf8("エラー 21"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
 		return ;
 	}
 	pItem->addFrameData(m_srcData) ;
@@ -441,7 +456,7 @@ void Command_MoveFrameData::undo()
 	if ( m_dstData.frame != 0xffff ) {	// 元から移動先のデータがあった場合は戻す
 		pData = pItem->getFrameDataPtr(m_dstFrame) ;
 		if ( !pData ) {	// 移動先にデータがないのはおかしい
-			QMessageBox::warning(m_UpdateWidgetList[0], QObject::trUtf8("エラー 2"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
+			QMessageBox::warning(m_UpdateWidgetList[0], QObject::trUtf8("エラー 22"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
 			return ;
 		}
 		*pData = m_dstData ;
