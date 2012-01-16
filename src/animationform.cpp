@@ -1499,9 +1499,18 @@ void AnimationForm::keyPressEvent(QKeyEvent *event)
 		int frame = m_pEditData->getSelectFrame() ;
 		if ( !pModel->isLayer(index) ) { return ; }
 		ObjectItem *pItem = pModel->getItemFromIndex(index) ;
+
 		FrameData data = pItem->getDisplayFrameData(frame) ;
 		data.frame = frame ;
-		slot_addNewFrameData(index, frame, data) ;
+		if ( pItem->getFrameDataPtr(frame) ) {		// 既にフレームデータある
+			FrameData *p = pItem->getFrameDataPtr(frame) ;
+			if ( *p != data ) {						// データが違う場合編集状態に。
+				addCommandEdit(data, p) ;
+			}
+		}
+		else {
+			slot_addNewFrameData(index, frame, data) ;
+		}
 	}
 	else if ( ks == m_pSetting->getShortcutDelFrameData() ) {
 		slot_deleteFrameData() ;
