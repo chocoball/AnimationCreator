@@ -1574,7 +1574,18 @@ bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 
 void CAnm2DAsm::makeFromEditData2IncTip(QString qsLabel, ObjectItem *pObj)
 {
-	addString("%define\t\t" + qsLabel + pObj->getName().replace(" ", "_").toUpper().toUtf8() + QString("\t\t%1\n").arg(m_nCnt++));
+	QString	qsTmp = qsLabel + pObj->getName().replace(" ", "_").toUpper().toUtf8();
+	bool	isAscii = true;
+	for(QChar *pszData=qsTmp.data(); *pszData!='\0'; pszData++){
+		if(*pszData >= 0x80){
+			isAscii = false;
+			break;
+		}
+	}
+	if(isAscii){
+		addString("%define\t\t" + qsTmp + QString("\t\t%1\n").arg(m_nCnt));
+	}
+	m_nCnt++;
 	
 	// 子供の処理
 	if(pObj->childCount()){
