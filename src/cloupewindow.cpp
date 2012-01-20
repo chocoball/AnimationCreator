@@ -121,14 +121,18 @@ void CLoupeWindow::fixImage( QSize &size )
 			image.setPixel(j, i-y, 0);
 		}
 	}
-	for ( i = x+width ; i > QApplication::desktop()->width() ; i -- ) {
-		for ( j = 0 ; j < height ; j ++ ) {
-			image.setPixel(width-(i-QApplication::desktop()->width()), j, 0);
+	if ( QApplication::desktop()->width() > 0 ) {
+		for ( i = x+width ; i > QApplication::desktop()->width() ; i -- ) {
+			for ( j = 0 ; j < height ; j ++ ) {
+				image.setPixel(width-(i-QApplication::desktop()->width()), j, 0);
+			}
 		}
 	}
-	for ( i = y+height ; i > QApplication::desktop()->height() ; i -- ) {
-		for ( j = 0 ; j < width ; j ++ ) {
-			image.setPixel(j, height-(i-QApplication::desktop()->height()), 0);
+	if ( QApplication::desktop()->height() > 0 ) {
+		for ( i = y+height ; i > QApplication::desktop()->height() ; i -- ) {
+			for ( j = 0 ; j < width ; j ++ ) {
+				image.setPixel(j, height-(i-QApplication::desktop()->height()), 0);
+			}
 		}
 	}
 
