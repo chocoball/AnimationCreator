@@ -416,8 +416,8 @@ void AnimationForm::slot_dropedImage( CRectF rect, QPoint pos, int imageIndex )
 	frameData.rot_x =
 	frameData.rot_y =
 	frameData.rot_z = 0 ;
-	frameData.center_x = (rect.width()) / 2 ;
-	frameData.center_y = (rect.height()) / 2 ;
+	frameData.center_x = (int)((rect.width()) / 2) ;
+	frameData.center_y = (int)((rect.height()) / 2) ;
 	frameData.frame = frameNum ;
 	frameData.fScaleX = frameData.fScaleY = 1.0f ;
 	frameData.setRect(rect);
