@@ -4,6 +4,7 @@
 #include <QtGui>
 #include <QWidget>
 #include "editdata.h"
+#include "setting.h"
 
 class MainWindow ;
 
@@ -11,9 +12,9 @@ class CLoupeWindow : public QWidget
 {
     Q_OBJECT
 public:
-	explicit CLoupeWindow(CEditData *pEditData, MainWindow *pMainWindow, QWidget *parent = 0);
+	explicit CLoupeWindow(CEditData *pEditData, CSettings *pSetting, QWidget *parent = 0);
 
-	void toggleLock( void ) ;
+	bool keyPress(QKeyEvent *event) ;
 
 signals:
 
@@ -25,9 +26,11 @@ protected:
 	void resizeEvent( QResizeEvent *event ) ;
 
 	void fixImage( QSize &size ) ;
+	void toggleLock( void ) ;
 
 private:
 	CEditData		*m_pEditData ;
+	CSettings		*m_pSetting ;
 	QLabel			*m_pLabel ;
 	MainWindow		*m_pMainWindow ;
 	QCheckBox		*m_pCheckBox_Cursor, *m_pCheckBox_Center ;

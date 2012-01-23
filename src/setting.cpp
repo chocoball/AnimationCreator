@@ -85,6 +85,7 @@ void CSettings::read()
 	m_scDispItem		= QKeySequence(settings.value("disp_item", "").toString()) ;
 	m_scLockItem		= QKeySequence(settings.value("lock_item", "").toString()) ;
 	m_scMoveAnimeWindow	= QKeySequence(settings.value("move_anm_win", "").toString()) ;
+	m_scLockLoupe		= QKeySequence(settings.value("lock_loupe", "").toString()) ;
 	settings.endGroup();
 }
 
@@ -162,5 +163,6 @@ void CSettings::write()
 	settings.setValue("disp_item",		m_scDispItem) ;
 	settings.setValue("lock_item",		m_scLockItem) ;
 	settings.setValue("move_anm_win",	m_scMoveAnimeWindow) ;
+	settings.setValue("lock_loupte",	m_scLockLoupe) ;
 	settings.endGroup();
 }

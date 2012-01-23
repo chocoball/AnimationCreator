@@ -38,6 +38,9 @@ public:
 
 	void setSplitterPos(int pos, int index) ;
 
+	bool keyPress(QKeyEvent *event) ;
+	void keyRelease(QKeyEvent *event);
+
 signals:
 	void sig_imageChangeTab(int nImage) ;
 	void sig_imageRepaint( void ) ;
@@ -150,8 +153,8 @@ protected:
 
 	void addNowSelectLayerAndFrame( void ) ;
 
-	void keyPressEvent(QKeyEvent *event) ;
-	void keyReleaseEvent(QKeyEvent *event);
+//	void keyPressEvent(QKeyEvent *event) ;
+//	void keyReleaseEvent(QKeyEvent *event);
 	void copyFrameData( void ) ;
 	void pasteFrameData( void ) ;
 	void resizeEvent(QResizeEvent *event) ;

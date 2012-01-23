@@ -33,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 	setWindowTitle(tr(kExecName));
 	setUnifiedTitleAndToolBarOnMac(true);
+	setFocusPolicy(Qt::StrongFocus) ;
 
 	connect(m_pMdiArea, SIGNAL(dropFiles(QString)), this, SLOT(slot_dropFiles(QString))) ;
 	QUndoStack *pUndoStack = m_EditData.getUndoStack() ;
@@ -82,8 +83,17 @@ void MainWindow::closeEvent(QCloseEvent *event)
 // キー押しイベント
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-	if ( event->modifiers() & Qt::ControlModifier && event->key() == Qt::Key_L ) {
-		m_pLoupeWindow->toggleLock() ;
+	if ( m_pAnimationForm && m_pAnimationForm->keyPress(event) ) {
+	}
+	else if ( m_pLoupeWindow && m_pLoupeWindow->keyPress(event) ) {
+	}
+}
+
+// キー離しイベント
+void MainWindow::keyReleaseEvent(QKeyEvent *event)
+{
+	if ( m_pAnimationForm ) {
+		m_pAnimationForm->keyRelease(event) ;
 	}
 }
 
@@ -803,7 +813,7 @@ void MainWindow::makeImageWindow( void )
 // ルーペウィンドウ作成
 void MainWindow::makeLoupeWindow( void )
 {
-	m_pLoupeWindow = new CLoupeWindow(&m_EditData, this, m_pMdiArea) ;
+	m_pLoupeWindow = new CLoupeWindow(&m_EditData, &setting, m_pMdiArea) ;
 	m_pSubWindow_Loupe = m_pMdiArea->addSubWindow( m_pLoupeWindow ) ;
 	m_pLoupeWindow->show();
 

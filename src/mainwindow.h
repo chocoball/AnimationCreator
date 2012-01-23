@@ -33,6 +33,7 @@ public:
 protected:
 	void closeEvent(QCloseEvent *event) ;
 	void keyPressEvent(QKeyEvent *event) ;
+	void keyReleaseEvent(QKeyEvent *event) ;
 	void enterEvent(QEvent *);
 
 public slots:

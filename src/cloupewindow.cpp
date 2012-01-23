@@ -3,11 +3,11 @@
 #include "cloupewindow.h"
 #include "mainwindow.h"
 
-CLoupeWindow::CLoupeWindow(CEditData *pEditData, MainWindow *pMainWindow, QWidget *parent) :
+CLoupeWindow::CLoupeWindow(CEditData *pEditData, CSettings *pSetting, QWidget *parent) :
     QWidget(parent)
 {
 	m_pEditData = pEditData ;
-	m_pMainWindow = pMainWindow ;
+	m_pSetting = pSetting ;
 
 	QLabel *pLabelScale = new QLabel(trUtf8("倍率"), this) ;
 
@@ -55,9 +55,20 @@ CLoupeWindow::CLoupeWindow(CEditData *pEditData, MainWindow *pMainWindow, QWidge
 	m_CenterPos = QApplication::desktop()->cursor().pos() ;
 }
 
-void CLoupeWindow::toggleLock( void )
+bool CLoupeWindow::keyPress(QKeyEvent *event)
 {
-	m_pCheckBox_Cursor->setChecked( !m_pCheckBox_Cursor->isChecked() );
+	int key = event->key() ;
+	if ( event->modifiers() & Qt::ShiftModifier ) { key |= Qt::SHIFT ; }
+	if ( event->modifiers() & Qt::ControlModifier ) { key |= Qt::CTRL ; }
+	if ( event->modifiers() & Qt::MetaModifier ) { key |= Qt::META ; }
+	if ( event->modifiers() & Qt::AltModifier ) { key |= Qt::ALT ; }
+	QKeySequence ks(key) ;
+
+	if ( ks == m_pSetting->getShortcutLockLoupe() ) {
+		toggleLock() ;
+		return true ;
+	}
+	return false ;
 }
 
 void CLoupeWindow::slot_cursorScreenShort()
@@ -156,4 +167,10 @@ void CLoupeWindow::fixImage( QSize &size )
 	pix = QPixmap::fromImage(image) ;
 	m_pLabel->setPixmap(pix);
 }
+
+void CLoupeWindow::toggleLock( void )
+{
+	m_pCheckBox_Cursor->setChecked( !m_pCheckBox_Cursor->isChecked() );
+}
+
 

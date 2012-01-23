@@ -1490,7 +1490,7 @@ bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 	}
 	
 	ObjectItem	*pRoot = m_pModel->getItemFromIndex(QModelIndex()) ;
-	ObjectItem	*pObj = pRoot->child(0);
+//	ObjectItem	*pObj = pRoot->child(0);
 	
 	addString(";----------------------------------------------------------------\n");
 	addString("; @kamefile\t" + pRoot->getName().toUtf8() + "\n");
@@ -1608,7 +1608,7 @@ bool CAnm2DAsm::makeFromEditData2Inc(CEditData &rEditData, QString qsFname)
 	}
 	
 	ObjectItem	*pRoot = m_pModel->getItemFromIndex(QModelIndex()) ;
-	ObjectItem	*pObj = pRoot->child(0);
+//	ObjectItem	*pObj = pRoot->child(0);
 	
 	addString("; このファイルはAnimationCreatorにより生成されました。\n");
 	addString("\n");

@@ -18,7 +18,7 @@ CGridLabel::CGridLabel(CEditData *pEditData, int nTabIndex, QWidget *parent)
 	m_Index			= nTabIndex ;
 	m_bDrawCenter	= false ;
 
-	setFocusPolicy(Qt::StrongFocus);
+//	setFocusPolicy(Qt::StrongFocus);
 }
 
 void CGridLabel::setDrawCenter( bool flag )

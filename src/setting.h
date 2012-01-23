@@ -59,6 +59,7 @@ public:
 	kAccessor(QKeySequence,	m_scDispItem,				ShortcutDispItem)
 	kAccessor(QKeySequence,	m_scLockItem,				ShortcutLockItem)
 	kAccessor(QKeySequence,	m_scMoveAnimeWindow,		ShortcutMoveAnimeWindow)
+	kAccessor(QKeySequence,	m_scLockLoupe,				ShortcutLockLoupe)
 
 	kAccessor(int,			m_frameStart,				FrameStart)
 	kAccessor(int,			m_frameEnd,					FrameEnd)

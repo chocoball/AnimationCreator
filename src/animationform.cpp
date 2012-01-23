@@ -24,7 +24,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	ui->label_frame->setHorizontalBar(ui->horizontalScrollBar_frame) ;
 	m_pDataMarker = ui->label_frame ;
 
-	setFocusPolicy(Qt::StrongFocus);
+//	setFocusPolicy(Qt::StrongFocus);
 
 	m_pGlWidget = new AnimeGLWidget(pImageData, pSetting, this) ;
 	ui->scrollArea_anime->setWidget(m_pGlWidget);
@@ -1436,7 +1436,7 @@ void AnimationForm::addNowSelectLayerAndFrame( void )
 }
 
 // キー押しイベント
-void AnimationForm::keyPressEvent(QKeyEvent *event)
+bool AnimationForm::keyPress(QKeyEvent *event)
 {
 	if ( event->key() == Qt::Key_Control ) {
 		m_pGlWidget->setPressCtrl(true) ;
@@ -1452,29 +1452,36 @@ void AnimationForm::keyPressEvent(QKeyEvent *event)
 
 	if ( ks == m_pSetting->getShortcutCopyFrame() ) {
 		copyFrameData() ;
+		return true ;
 	}
 	else if ( ks == m_pSetting->getShortcutPasteFrame() ) {
 		pasteFrameData() ;
+		return true ;
 	}
 	else if ( ks == m_pSetting->getShortcutPosSelect() ) {
 		ui->radioButton_pos->setChecked(true) ;
 		slot_clickedRadioPos(true) ;
+		return true ;
 	}
 	else if ( ks == m_pSetting->getShortcutRotSelect() ) {
 		ui->radioButton_rot->setChecked(true) ;
 		slot_clickedRadioRot(true) ;
+		return true ;
 	}
 	else if ( ks == m_pSetting->getShortcutCenterSelect() ) {
 		ui->radioButton_center->setChecked(true) ;
 		slot_clickedRadioCenter(true) ;
+		return true ;
 	}
 	else if ( ks == m_pSetting->getShortcutScaleSelect() ) {
 		ui->radioButton_scale->setChecked(true) ;
 		slot_clickedRadioScale(true) ;
+		return true ;
 	}
 	else if ( ks == m_pSetting->getShortcutPathSelect() ) {
 		ui->radioButton_path->setChecked(true) ;
 		slot_clickedRadioPath(true) ;
+		return true ;
 	}
 	else if ( ks == m_pSetting->getShortcutPlayAnime() ) {
 		if ( m_pEditData->getPlayAnime() ) {
@@ -1483,21 +1490,25 @@ void AnimationForm::keyPressEvent(QKeyEvent *event)
 		else {
 			slot_playAnimation() ;
 		}
+		return true ;
 	}
 	else if ( ks == m_pSetting->getShortcutStopAnime() ) {
 		slot_stopAnimation() ;
+		return true ;
 	}
 	else if ( ks == m_pSetting->getShortcutJumpStartFrame() ) {
 		jumpStartFrame() ;
+		return true ;
 	}
 	else if ( ks == m_pSetting->getShortcutJumpEndFrame() ) {
 		jumpEndFrame() ;
+		return true ;
 	}
 	else if ( ks == m_pSetting->getShortcutAddFrameData() ) {
 		CObjectModel *pModel = m_pEditData->getObjectModel() ;
 		QModelIndex index = m_pEditData->getSelIndex() ;
 		int frame = m_pEditData->getSelectFrame() ;
-		if ( !pModel->isLayer(index) ) { return ; }
+		if ( !pModel->isLayer(index) ) { return false ; }
 		ObjectItem *pItem = pModel->getItemFromIndex(index) ;
 
 		FrameData data = pItem->getDisplayFrameData(frame) ;
@@ -1511,27 +1522,34 @@ void AnimationForm::keyPressEvent(QKeyEvent *event)
 		else {
 			slot_addNewFrameData(index, frame, data) ;
 		}
+		return true ;
 	}
 	else if ( ks == m_pSetting->getShortcutDelFrameData() ) {
 		slot_deleteFrameData() ;
+		return true ;
 	}
 	else if ( ks == m_pSetting->getShortcutDelItem() ) {
 		slot_deleteObject() ;
+		return true ;
 	}
 	else if ( ks == m_pSetting->getShortcutDispItem() ) {
 		slot_changeLayerDisp() ;
+		return true ;
 	}
 	else if ( ks == m_pSetting->getShortcutLockItem() ) {
 		slot_changeLayerLock() ;
+		return true ;
 	}
 	else if ( ks == m_pSetting->getShortcutMoveAnimeWindow() ) {
 		m_pGlWidget->setPressWindowMove(true) ;
 		setCursor(QCursor(Qt::OpenHandCursor));
+		return true ;
 	}
+	return false ;
 }
 
 // キー離しイベント
-void AnimationForm::keyReleaseEvent(QKeyEvent *event)
+void AnimationForm::keyRelease(QKeyEvent *event)
 {
 	if ( event->key() == Qt::Key_Control ) {
 		m_pGlWidget->setPressCtrl(false) ;

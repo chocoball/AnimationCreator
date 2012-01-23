@@ -343,6 +343,9 @@ QList<QStringList> KeyboardTab::getData()
 	list << trUtf8("アニメーションウィンドウ移動") << m_pSetting->getShortcutMoveAnimeWindow().toString() ;
 	datas << list ;
 	list.clear() ;
+	list << trUtf8("ルーペウィンドウ ロック") << m_pSetting->getShortcutLockLoupe().toString() ;
+	datas << list ;
+	list.clear() ;
 
 	return datas ;
 }
@@ -367,6 +370,7 @@ void KeyboardTab::setShortcut(int type, QKeySequence ks)
 		case 14:	m_pSetting->setShortcutDispItem(ks) ;		break ;	// disp item
 		case 15:	m_pSetting->setShortcutLockItem(ks) ;		break ;	// lock item
 		case 16:	m_pSetting->setShortcutMoveAnimeWindow(ks) ;break ;	// move animation window
+		case 17:	m_pSetting->setShortcutLockLoupe(ks) ;		break ;	// lock loupe window
 	}
 
 	ui->lineEdit->setText(ks.toString()) ;
