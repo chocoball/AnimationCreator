@@ -163,6 +163,6 @@ void CSettings::write()
 	settings.setValue("disp_item",		m_scDispItem) ;
 	settings.setValue("lock_item",		m_scLockItem) ;
 	settings.setValue("move_anm_win",	m_scMoveAnimeWindow) ;
-	settings.setValue("lock_loupte",	m_scLockLoupe) ;
+	settings.setValue("lock_loupe",		m_scLockLoupe) ;
 	settings.endGroup();
 }
