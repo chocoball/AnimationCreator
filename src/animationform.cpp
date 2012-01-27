@@ -193,6 +193,7 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 	QSize add_h = QSize(0, add.height()) ;
 	QSize add_w = QSize(add.width(), 0) ;
 	QPoint add_w_p = QPoint(add.width(), 0) ;
+	QPoint add_h_p = QPoint(0, add.height()) ;
 
 	m_oldWinSize = event->size() ;
 
@@ -206,6 +207,8 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 
 	ui->comboBox_image_no->move(ui->comboBox_image_no->pos() + add_w_p);
 	ui->groupBox->move(ui->groupBox->pos() + add_w_p);
+	ui->pushButton_item_up->move(ui->pushButton_item_up->pos() + add_h_p);
+	ui->pushButton_item_down->move(ui->pushButton_item_down->pos() + add_h_p);
 
 	ui->pushButton_backward->move(ui->pushButton_backward->pos() + add_w_p) ;
 	ui->pushButton_forward->move(ui->pushButton_forward->pos() + add_w_p) ;
@@ -1382,15 +1385,21 @@ void AnimationForm::slot_delPath()
 // ツリーアイテムを上に移動
 void AnimationForm::slot_itemMoveUp()
 {
-	if ( !m_pEditData->getSelIndex().isValid() ) { return ; }
-	m_pEditData->cmd_moveItemUp(m_pEditData->getSelIndex()) ;
+	QModelIndex index = m_pEditData->getSelIndex() ;
+	if ( !index.isValid() ) { return ; }
+	if ( index.row() <= 0 ) { return ; }
+	m_pEditData->cmd_moveItemUp(index) ;
 }
 
 // ツリーアイテムを下に移動
 void AnimationForm::slot_itemMoveDown()
 {
-	if ( !m_pEditData->getSelIndex().isValid() ) { return ; }
-	m_pEditData->cmd_moveItemDown(m_pEditData->getSelIndex()) ;
+	QModelIndex index = m_pEditData->getSelIndex() ;
+	if ( !index.isValid() ) { return ; }
+	ObjectItem *pItem = m_pEditData->getObjectModel()->getItemFromIndex(index.parent()) ;
+	if ( !pItem ) { return ; }
+	if ( index.row() == pItem->childCount()-1 ) { return ; }
+	m_pEditData->cmd_moveItemDown(index) ;
 }
 
 // オブジェクト追加

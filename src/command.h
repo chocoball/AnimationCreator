@@ -172,9 +172,9 @@ public:
 	void undo() ;
 
 private:
-	CEditData			*m_pEditData ;
-	int					m_srcRow ;
-	int					m_dstRow ;
+	CEditData		*m_pEditData ;
+	QModelIndex		m_index ;
+	ObjectItem		*m_pItem ;
 };
 
 // ツリーアイテム下に移動
@@ -187,9 +187,9 @@ public:
 	void undo() ;
 
 private:
-	CEditData			*m_pEditData ;
-	int					m_srcRow ;
-	int					m_dstRow ;
+	CEditData		*m_pEditData ;
+	QModelIndex		m_index ;
+	ObjectItem		*m_pItem ;
 };
 
 #endif // COMMAND_H
