@@ -120,9 +120,22 @@ void CEditData::cmd_copyIndex(int row, ObjectItem *pItem, QModelIndex parent, QL
 	m_pUndoStack->push(new Command_CopyIndex(this, row, pItem, parent, updateWidget)) ;
 }
 
+// フレームデータ移動
 void CEditData::cmd_moveFrameData(QModelIndex &index, int prevFrame, int nextFrame, QList<QWidget *> &updateWidget)
 {
 	m_pUndoStack->push(new Command_MoveFrameData(this, index, prevFrame, nextFrame, updateWidget)) ;
+}
+
+// ツリーアイテム上に移動
+void CEditData::cmd_moveItemUp(const QModelIndex &index)
+{
+	m_pUndoStack->push(new Command_MoveItemUp(this, index)) ;
+}
+
+// ツリーアイテム下に移動
+void CEditData::cmd_moveItemDown(const QModelIndex &index)
+{
+	m_pUndoStack->push(new Command_MoveItemDown(this, index)) ;
 }
 
 // 選択しているフレームデータ取得

@@ -471,6 +471,84 @@ void Command_MoveFrameData::undo()
 }
 
 
+/**
+  ツリーアイテム上に移動
+  */
+Command_MoveItemUp::Command_MoveItemUp(CEditData *pEditData, const QModelIndex &index) :
+	QUndoCommand(QObject::trUtf8("アイテム上移動"))
+{
+	m_pEditData	= pEditData ;
+	m_index		= index ;
+
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
+	m_pItem = new ObjectItem(pItem->getName(), NULL) ;
+	m_pItem->copy(pItem) ;
+}
+
+void Command_MoveItemUp::redo()
+{
+	QModelIndex oldIndex = m_index ;
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	pModel->removeItem(oldIndex) ;
+	m_index = pModel->insertItem(oldIndex.row()-1, m_pItem->getName(), oldIndex.parent()) ;
+	ObjectItem *pItem = pModel->getItemFromIndex(m_index) ;
+	pItem->copy(m_pItem) ;
+	pModel->updateIndex();
+	m_pEditData->getTreeView()->setCurrentIndex(m_index) ;
+}
+
+void Command_MoveItemUp::undo()
+{
+	QModelIndex oldIndex = m_index ;
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	pModel->removeItem(oldIndex) ;
+	m_index = pModel->insertItem(oldIndex.row()+1, m_pItem->getName(), oldIndex.parent()) ;
+	ObjectItem *pItem = pModel->getItemFromIndex(m_index) ;
+	pItem->copy(m_pItem) ;
+	pModel->updateIndex();
+	m_pEditData->getTreeView()->setCurrentIndex(m_index) ;
+}
+
+
+/**
+  ツリーアイテム下に移動
+  */
+Command_MoveItemDown::Command_MoveItemDown(CEditData *pEditData, const QModelIndex &index) :
+	QUndoCommand(QObject::trUtf8("アイテム下移動"))
+{
+	m_pEditData	= pEditData ;
+	m_index		= index ;
+
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
+	m_pItem = new ObjectItem(pItem->getName(), NULL) ;
+	m_pItem->copy(pItem) ;
+}
+
+void Command_MoveItemDown::redo()
+{
+	QModelIndex oldIndex = m_index ;
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	pModel->removeItem(oldIndex) ;
+	m_index = pModel->insertItem(oldIndex.row()+1, m_pItem->getName(), oldIndex.parent()) ;
+	ObjectItem *pItem = pModel->getItemFromIndex(m_index) ;
+	pItem->copy(m_pItem) ;
+	pModel->updateIndex();
+	m_pEditData->getTreeView()->setCurrentIndex(m_index) ;
+}
+
+void Command_MoveItemDown::undo()
+{
+	QModelIndex oldIndex = m_index ;
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	pModel->removeItem(oldIndex) ;
+	m_index = pModel->insertItem(oldIndex.row()-1, m_pItem->getName(), oldIndex.parent()) ;
+	ObjectItem *pItem = pModel->getItemFromIndex(m_index) ;
+	pItem->copy(m_pItem) ;
+	pModel->updateIndex();
+	m_pEditData->getTreeView()->setCurrentIndex(m_index) ;
+}
 
 
 

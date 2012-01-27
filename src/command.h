@@ -162,5 +162,34 @@ private:
 	FrameData			m_srcData, m_dstData ;
 };
 
+// ツリーアイテム上に移動
+class Command_MoveItemUp : public QUndoCommand
+{
+public:
+	Command_MoveItemUp(CEditData *pEditData, const QModelIndex &index) ;
+
+	void redo() ;
+	void undo() ;
+
+private:
+	CEditData		*m_pEditData ;
+	QModelIndex		m_index ;
+	ObjectItem		*m_pItem ;
+};
+
+// ツリーアイテム下に移動
+class Command_MoveItemDown : public QUndoCommand
+{
+public:
+	Command_MoveItemDown(CEditData *pEditData, const QModelIndex &index) ;
+
+	void redo() ;
+	void undo() ;
+
+private:
+	CEditData		*m_pEditData ;
+	QModelIndex		m_index ;
+	ObjectItem		*m_pItem ;
+};
 
 #endif // COMMAND_H

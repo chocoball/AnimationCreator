@@ -143,6 +143,10 @@ public slots:
 	void slot_scrollWindow(QPoint move) ;
 
 	void slot_delPath() ;
+
+	void slot_itemMoveUp() ;
+	void slot_itemMoveDown() ;
+
 protected:
 	FrameData *getNowSelectFrameData( void ) ;
 	void addNewObject( QString str ) ;
