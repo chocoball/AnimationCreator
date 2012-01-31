@@ -722,6 +722,7 @@ void AnimationForm::slot_changeCenterX( double val )
 
 	p->center_x = val ;
 	addCommandEdit(*p) ;
+	emit sig_imageRepaint() ;
 }
 
 // center y 変更
@@ -736,6 +737,7 @@ void AnimationForm::slot_changeCenterY( double val )
 
 	p->center_y = val ;
 	addCommandEdit(*p) ;
+	emit sig_imageRepaint() ;
 }
 
 void AnimationForm::slot_changeFrameStart(int val)
