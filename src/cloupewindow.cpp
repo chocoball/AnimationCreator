@@ -104,6 +104,8 @@ void CLoupeWindow::fixImage( QSize &size )
 {
 	int imgWidth = size.width() ;
 	int imgHeight = size.height() ;
+	if ( imgWidth < 0 || imgHeight < 0 ) { return ; }
+
 	QPoint pos = m_CenterPos ;
 	int width = imgWidth / m_Scale ;
 	int height = imgHeight / m_Scale ;
@@ -124,25 +126,37 @@ void CLoupeWindow::fixImage( QSize &size )
 	// デスクトップ範囲外を黒に。
 	for ( i = x ; i < 0 ; i ++ ) {
 		for ( j = 0 ; j < height ; j ++ ) {
-			image.setPixel(i-x, j, 0);
+			int xx = i - x ;
+			if ( xx >= 0 && xx < width && j >= 0 && j < height ) {
+				image.setPixel(xx, j, 0);
+			}
 		}
 	}
 	for ( i = y ; i < 0 ; i ++ ) {
 		for ( j = 0 ; j < width ; j ++ ) {
-			image.setPixel(j, i-y, 0);
+			int yy = i - y ;
+			if ( j >= 0 && j < width && yy >= 0 && yy < height ) {
+				image.setPixel(j, yy, 0);
+			}
 		}
 	}
 	if ( QApplication::desktop()->width() > 0 ) {
 		for ( i = x+width ; i > QApplication::desktop()->width() ; i -- ) {
 			for ( j = 0 ; j < height ; j ++ ) {
-				image.setPixel(width-(i-QApplication::desktop()->width()), j, 0);
+				int xx = width-(i-QApplication::desktop()->width()) ;
+				if ( xx >= 0 && xx < width && j >= 0 && j < height ) {
+					image.setPixel(xx, j, 0);
+				}
 			}
 		}
 	}
 	if ( QApplication::desktop()->height() > 0 ) {
 		for ( i = y+height ; i > QApplication::desktop()->height() ; i -- ) {
 			for ( j = 0 ; j < width ; j ++ ) {
-				image.setPixel(j, height-(i-QApplication::desktop()->height()), 0);
+				int yy = height-(i-QApplication::desktop()->height()) ;
+				if ( j >= 0 && j < width && yy >= 0 && yy < height ) {
+					image.setPixel(j, yy, 0);
+				}
 			}
 		}
 	}
