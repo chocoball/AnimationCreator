@@ -122,6 +122,21 @@ void MainWindow::slot_open( void )
 	fileOpen(fileName) ;
 }
 
+// 追加で開く
+void MainWindow::slot_addOpen(void)
+{
+	QString fileName = QFileDialog::getOpenFileName(
+											this,
+											tr("Open File"),
+											setting.getOpenDir(),
+											tr("All Files (*);;Image Files (*.png *.bmp *.jpg);;Text (*"FILE_EXT_ANM2D_XML");;Bin (*"FILE_EXT_ANM2D_BIN")")) ;
+	if ( fileName.isEmpty() ) {
+		return ;
+	}
+
+	fileOpen(fileName) ;
+}
+
 // 上書き保存
 void MainWindow::slot_save( void )
 {
@@ -454,6 +469,11 @@ void MainWindow::createActions( void )
 	m_pActOpen->setStatusTip(trUtf8("ファイルを開きます")) ;
 	connect(m_pActOpen, SIGNAL(triggered()), this, SLOT(slot_open())) ;
 
+	// 追加で開く
+	m_pActAddOpen = new QAction(trUtf8("追加で開く"), this) ;
+	m_pActAddOpen->setStatusTip(trUtf8("現在のデータに追加でファイルを開きます")) ;
+	connect(m_pActAddOpen, SIGNAL(triggered()), this, SLOT(slot_addOpen())) ;
+
 	// 保存
 	m_pActSave = new QAction(trUtf8("&Save"), this) ;
 	m_pActSave->setShortcuts(QKeySequence::Save) ;
@@ -601,7 +621,7 @@ void MainWindow::resizeImage( QImage &imageData )
 }
 
 // ファイル開く
-bool MainWindow::fileOpen( QString fileName )
+bool MainWindow::fileOpen( QString fileName, bool bAdd )
 {
 	setCurrentDir( fileName ) ;		// カレントディレクトリを設定
 
@@ -621,8 +641,10 @@ bool MainWindow::fileOpen( QString fileName )
 		slot_destroyCurveWindow() ;
 		m_pMdiArea->closeAllSubWindows() ;	// 全部閉じる
 	}
-	m_EditData.resetData();
-	m_UndoIndex = 0 ;
+	if ( !bAdd ) {
+		m_EditData.resetData();
+		m_UndoIndex = 0 ;
+	}
 
 	// XML アニメファイル
 	if ( fileName.indexOf(FILE_EXT_ANM2D_XML) > 0 ) {

@@ -28,7 +28,7 @@ public:
 	~MainWindow();
 
 	bool checkChangedFileSave( void ) ;
-	bool fileOpen( QString fileName ) ;
+	bool fileOpen( QString fileName, bool bAdd = false ) ;
 
 protected:
 	void closeEvent(QCloseEvent *event) ;
@@ -38,6 +38,7 @@ protected:
 
 public slots:
 	void slot_open( void ) ;
+	void slot_addOpen(void) ;
 	void slot_save( void ) ;
 	void slot_saveAs( void ) ;
 	void slot_dropFiles(QString fileName) ;
@@ -129,6 +130,7 @@ private:
 
 	// アクション ----
 	QAction				*m_pActOpen ;			// ファイルを開く
+	QAction				*m_pActAddOpen ;		// 追加でファイルを開く
 	QAction				*m_pActSave ;			// 保存
 	QAction				*m_pActSaveAs ;			// 名前を付けて保存
 	QAction				*m_pActExportPNG ;		// 連番PNGにエクスポート

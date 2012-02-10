@@ -436,6 +436,7 @@ CAnm2DXml::CAnm2DXml(bool bSaveImage)
 {
 	m_pProgress = NULL ;
 	m_bSaveImage = bSaveImage ;
+	m_bAdd = false ;
 }
 
 // 作成中のデータをアニメデータに変換
@@ -463,8 +464,9 @@ bool CAnm2DXml::makeFromEditData( CEditData &rEditData )
 }
 
 // アニメファイルから作成中データへ変換
-bool CAnm2DXml::makeFromFile(QDomDocument &xml, CEditData &rEditData)
+bool CAnm2DXml::makeFromFile(QDomDocument &xml, CEditData &rEditData, bool bAdd)
 {
+	m_bAdd = bAdd ;
 	m_Data = xml ;
 	if ( m_Data.doctype().name() != kAnmXML_ID_Anm2D ) {
 		m_nError = kErrorNo_InvalidID ;
@@ -490,6 +492,14 @@ bool CAnm2DXml::makeFromFile(QDomDocument &xml, CEditData &rEditData)
 		m_nError = kErrorNo_InvalidVersion ;
 		return false ;
 	}
+
+	if ( m_bAdd ) {
+		int num = rEditData.getImageDataListSize() ;
+		for ( int i = 0 ; i < num ; i ++ ) {
+			m_oldImageDatas << *rEditData.getImageData(i) ;
+		}
+	}
+
 	int version = nodeMap.namedItem(kAnmXML_Attr_Version).toAttr().value().toInt() ;
 	if ( version == 0x00001000 ) {
 		if ( nodeMap.namedItem(kAnmXML_Attr_ObjNum).isNull() ) {
@@ -971,6 +981,16 @@ bool CAnm2DXml::addFrameData_00001000( QDomNode &node, ObjectItem *pItem, int ma
 						return false ;
 					}
 					data.nImage = image.toInt() ;
+					if ( m_bAdd ) {
+						int max = -1 ;
+						for ( int i = 0 ; i < m_oldImageDatas.size() ; i ++ ) {
+							if ( max < m_oldImageDatas.at(i).nNo ) {
+								max = m_oldImageDatas.at(i).nNo ;
+							}
+						}
+						max ++ ;
+						data.nImage += max ;
+					}
 				}
 				else if ( dataNode.nodeName() == "scale" ) {
 					if ( !dataNode.hasChildNodes() ) {
