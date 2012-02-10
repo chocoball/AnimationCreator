@@ -1,4 +1,5 @@
 #include "canm2d.h"
+#include <float.h>
 
 
 /************************************************************
@@ -1404,34 +1405,29 @@ CAnm2DAsm::~CAnm2DAsm()
 	}
 }
 
-QVector4D makeFromEditDataArea(ObjectItem *pObj, QVector4D qv4Area)
+void makeFromEditDataArea(ObjectItem *pObj, QVector4D *pqv4AreaMin, QVector4D *pqv4AreaMax, bool isRecursive)
 {
 	QMatrix4x4	mat = pObj->getDisplayMatrix(0);
 	FrameData	frameData = pObj->getDisplayFrameData(0);
 	QVector3D	v[4];
 	frameData.getVertexApplyMatrix(v, mat);
 	for(int i=0; i<4; i++){
-		if(qv4Area.x() == 0.0f && qv4Area.y() == 0.0f && qv4Area.z() == 0.0f && qv4Area.w() == 0.0f){
-			qv4Area.setX(v[i].x());
-			qv4Area.setY(v[i].y());
-			qv4Area.setZ(v[i].x());
-			qv4Area.setW(v[i].y());
-		} else {
-			if(qv4Area.x() > v[i].x()) qv4Area.setX(v[i].x());
-			if(qv4Area.y() > v[i].y()) qv4Area.setY(v[i].y());
-			if(qv4Area.z() < v[i].x()) qv4Area.setZ(v[i].x());
-			if(qv4Area.w() < v[i].y()) qv4Area.setW(v[i].y());
-		}
+		if(pqv4AreaMin->x() > v[i].x()) pqv4AreaMin->setX(v[i].x());
+		if(pqv4AreaMin->y() > v[i].y()) pqv4AreaMin->setY(v[i].y());
+		if(pqv4AreaMin->z() > v[i].z()) pqv4AreaMin->setZ(v[i].z());
+		if(pqv4AreaMax->x() < v[i].x()) pqv4AreaMax->setX(v[i].x());
+		if(pqv4AreaMax->y() < v[i].y()) pqv4AreaMax->setY(v[i].y());
+		if(pqv4AreaMax->z() < v[i].z()) pqv4AreaMax->setZ(v[i].z());
 	}
+	
+	if(isRecursive == false) return;
 	
 	if(pObj->childCount()){
 		for(int i=0; i<pObj->childCount(); i++){
 			ObjectItem	*pChild = pObj->child(i);
-			qv4Area = makeFromEditDataArea(pChild, qv4Area);
+			makeFromEditDataArea(pChild, pqv4AreaMin, pqv4AreaMax, isRecursive);
 		}
 	}
-	
-	return qv4Area;
 }
 
 void CAnm2DAsm::makeFromEditDataTip(QString qsLabel, ObjectItem *pObj)
@@ -1536,7 +1532,8 @@ bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 	addString("\n");
 	for(int i=0; i<pRoot->childCount(); i++){
 		ObjectItem	*pObj = pRoot->child(i);
-		QVector4D	qv4Area = QVector4D(0, 0, 0, 0);
+		QVector4D	qv4AreaMin = QVector4D(FLT_MAX, FLT_MAX, FLT_MAX, 0);
+		QVector4D	qv4AreaMax = QVector4D(FLT_MIN, FLT_MIN, FLT_MIN, 0);
 		addString(";---------------------------------------------------------------- ANM_OBJ\n");
 		addString("; " + QString(pObj->getName().toUtf8()) + "\n");
 		addString("anmobj" + QString("%1").arg(i) + ":\n");
@@ -1549,9 +1546,9 @@ bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 			// 最小矩形算出
 			for(int j=0; j<pObj->childCount(); j++){
 				ObjectItem	*pChild = pObj->child(j);
-				qv4Area = makeFromEditDataArea(pChild, qv4Area);
+				makeFromEditDataArea(pChild, &qv4AreaMin, &qv4AreaMax, true);
 			}
-			addString("\t\t\tdd\t\t" + QString("F32(%1), F32(%2), F32(%3), F32(%4)").arg(qv4Area.x(), 0, 'f').arg(qv4Area.y(), 0, 'f').arg(qv4Area.z(), 0, 'f').arg(qv4Area.w(), 0, 'f') + "\t\t; fvArea\n");
+			addString("\t\t\tdd\t\t" + QString("F32(%1), F32(%2), F32(%3), F32(%4)").arg(qv4AreaMin.x(), 0, 'f').arg(qv4AreaMin.y(), 0, 'f').arg(qv4AreaMax.x(), 0, 'f').arg(qv4AreaMax.y(), 0, 'f') + "\t\t; fvArea\n");
 			addString("\t\t\tdd\t\t" + QString("%1").arg(pObj->childCount()) + "\t\t; nTip\n");
 			addString("\t\t\tdd\t\t.tips\t\t; papTip\n");
 			addString("\t\n");
@@ -1567,7 +1564,7 @@ bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 			}
 		} else {
 			addString("\t\t\tdd\t\t00000000h\t\t; bFlag\n");
-			addString("\t\t\tdd\t\t0, 0, 0, 0\t\t; svArea\n");
+			addString("\t\t\tdd\t\t0, 0, 0, 0\t\t; fvArea\n");
 			addString("\t\t\tdd\t\t" + QString("%1").arg(pObj->childCount()) + "\t\t; nTip\n");
 			addString("\t\t\tdd\t\tNO_READ\t\t; papTip\n");
 		}
@@ -1588,7 +1585,14 @@ void CAnm2DAsm::makeFromEditData2IncTip(QString qsLabel, ObjectItem *pObj)
 		}
 	}
 	if(isAscii){
+		QVector4D	qv4AreaMin = QVector4D(FLT_MAX, FLT_MAX, FLT_MAX, 0);
+		QVector4D	qv4AreaMax = QVector4D(FLT_MIN, FLT_MIN, FLT_MIN, 0);
 		addString("%define\t\t" + qsTmp + QString("\t\t%1\n").arg(m_nCnt));
+		makeFromEditDataArea(pObj, &qv4AreaMin, &qv4AreaMax, false);
+		addString("\t\t; Layer:" + QString("(%1, %2, %3)-(%4, %5, %6) size:(%7, %8, %9)")
+			.arg(qv4AreaMin.x(), 0, 'f').arg(qv4AreaMin.y(), 0, 'f').arg(qv4AreaMin.z(), 0, 'f')
+			.arg(qv4AreaMax.x(), 0, 'f').arg(qv4AreaMax.y(), 0, 'f').arg(qv4AreaMax.z(), 0, 'f')
+			.arg(qv4AreaMax.x()-qv4AreaMin.x(), 0, 'f').arg(qv4AreaMax.y()-qv4AreaMin.y(), 0, 'f').arg(qv4AreaMax.z()-qv4AreaMin.z(), 0, 'f') + "\n");
 	}
 	m_nCnt++;
 	
@@ -1624,8 +1628,15 @@ bool CAnm2DAsm::makeFromEditData2Inc(CEditData &rEditData, QString qsFname)
 	addString("\n");
 	for(int i=0; i<pRoot->childCount(); i++){
 		ObjectItem	*pObj = pRoot->child(i);
+		QVector4D	qv4AreaMin = QVector4D(FLT_MAX, FLT_MAX, FLT_MAX, 0);
+		QVector4D	qv4AreaMax = QVector4D(FLT_MIN, FLT_MIN, FLT_MIN, 0);
 		QString		qsLabel = "ACL_" + qsFname + "__" + pObj->getName().replace(" ", "_").toUpper().toUtf8() + "__";
 		addString("%define\t\t" + qsLabel + "ROOT\t\t0\n");
+		makeFromEditDataArea(pObj, &qv4AreaMin, &qv4AreaMax, true);
+		addString("\t\t; Area:" + QString("(%1, %2, %3)-(%4, %5, %6) size:(%7, %8, %9)")
+			.arg(qv4AreaMin.x(), 0, 'f').arg(qv4AreaMin.y(), 0, 'f').arg(qv4AreaMin.z(), 0, 'f')
+			.arg(qv4AreaMax.x(), 0, 'f').arg(qv4AreaMax.y(), 0, 'f').arg(qv4AreaMax.z(), 0, 'f')
+			.arg(qv4AreaMax.x()-qv4AreaMin.x(), 0, 'f').arg(qv4AreaMax.y()-qv4AreaMin.y(), 0, 'f').arg(qv4AreaMax.z()-qv4AreaMin.z(), 0, 'f') + "\n");
 		m_nCnt = 1;
 		for(int j=0; j<pObj->childCount(); j++){
 			ObjectItem	*pChild = pObj->child(j);
