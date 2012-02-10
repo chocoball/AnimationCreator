@@ -1024,7 +1024,12 @@ bool CAnm2DXml::addFrameData_00001000( QDomNode &node, ObjectItem *pItem, int ma
 				dataNode = dataNode.nextSibling() ;
 			}
 
-			pItem->addFrameData(data) ;
+			if ( data.frame == 0xffff ) {
+				maxFrameDataNum -- ;
+			}
+			else {
+				pItem->addFrameData(data) ;
+			}
 		}
 		node = node.nextSibling() ;
 	}
