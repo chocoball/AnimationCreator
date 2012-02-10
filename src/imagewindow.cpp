@@ -216,12 +216,16 @@ void ImageWindow::slot_delImage( void )
 {
 	int index = ui->tabWidget->currentIndex() ;
 	int no = ui->tabWidget->tabText(index).toInt() ;
-	ui->tabWidget->removeTab(index);
-#if 0
-	for ( int i = 0 ; i < ui->tabWidget->count() ; i ++ ) {
-		ui->tabWidget->setTabText(i, tr("%1").arg(i));
+
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	if ( pModel->isUseImage(no) ) {
+		int ret = QMessageBox::question(this, trUtf8("警告"), trUtf8("この画像は使用されています。削除しますか？"), trUtf8("削除"), trUtf8("キャンセル")) ;
+		qDebug() << "ret" << ret ;
+		if ( ret == 1 ) { return ; }
 	}
-#endif
+
+	ui->tabWidget->removeTab(index);
+
 	emit sig_delImage(no) ;
 }
 

@@ -68,6 +68,7 @@ public:
 	bool isContain(ObjectItem **ppRet, QPoint &pos, int frame, bool bChild = true, bool bCheckFlag = true) ;
 
 	QPointF getBezierPos(int frame, bool *pValid) ;
+	bool isUseImageRecv(int imageNo) ;
 
 	kAccessor(QString, m_name, Name)
 	kAccessor(int, m_nLoop, Loop)

@@ -54,6 +54,8 @@ public:
 
 	void flat() ;
 
+	bool isUseImage(int imageNo) ;
+
 	void copy(CObjectModel *p)
 	{
 		this->m_pRoot->copy(p->m_pRoot) ;

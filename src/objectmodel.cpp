@@ -318,5 +318,9 @@ void CObjectModel::flat()
 	updateIndex() ;
 }
 
+bool CObjectModel::isUseImage(int imageNo)
+{
+	return m_pRoot->isUseImageRecv(imageNo) ;
+}
 
 

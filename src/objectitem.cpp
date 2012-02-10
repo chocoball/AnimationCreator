@@ -313,6 +313,17 @@ __FAILED:
 	return QPointF(0, 0) ;
 }
 
+bool ObjectItem::isUseImageRecv(int imageNo)
+{
+	for ( int i = 0 ; i < m_frameDatas.size() ; i ++ ) {
+		if ( m_frameDatas.at(i).nImage == imageNo ) { return true ; }
+	}
+	for ( int i = 0 ; i < childCount() ; i ++ ) {
+		if ( child(i)->isUseImageRecv(imageNo) ) { return true ; }
+	}
+	return false ;
+}
+
 bool ObjectItem::isContain(FrameData &displayData, QPoint &pos, const QMatrix4x4 &matDisp)
 {
 	QVector3D v[4] ;
