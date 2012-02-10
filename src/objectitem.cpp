@@ -135,6 +135,9 @@ QVariant ObjectItem::data(int role)
 {
 	switch ( role ) {
 		case Qt::DisplayRole:
+			if ( m_pParent && !m_pParent->getIndex().isValid() ) {
+				return getName() + QString(" Layer=%1").arg(getAllChildNum(this)) ;
+			}
 		case Qt::EditRole:
 			return getName() ;
 		case Qt::CheckStateRole:
@@ -143,10 +146,10 @@ QVariant ObjectItem::data(int role)
 		{
 			QBrush brush ;
 			if ( m_checkStateData.toInt() & kState_Lock ) {
-				brush.setColor(QColor(255, 0, 0));
+				brush.setColor(Qt::red);
 			}
 			else {
-				brush.setColor(QColor(0, 0, 0));
+				brush.setColor(Qt::black);
 			}
 			return brush ;
 		}
@@ -429,3 +432,11 @@ FrameData *ObjectItem::getParentFrameDataPtr(int frame)
 	return NULL ;
 }
 
+int ObjectItem::getAllChildNum(ObjectItem *root)
+{
+	int num = 0 ;
+	for ( int i = 0 ; i < root->childCount() ; i ++ ) {
+		num += getAllChildNum(root->child(i)) ;
+	}
+	return root->childCount() + num ;
+}

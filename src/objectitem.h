@@ -82,6 +82,8 @@ private:
 	int getParentFrameMax() ;
 	FrameData *getParentFrameDataPtr(int frame) ;
 
+	int getAllChildNum(ObjectItem *root) ;
+
 private:
 	ObjectItem			*m_pParent ;
 	QList<ObjectItem *>	m_children ;
