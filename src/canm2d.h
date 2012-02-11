@@ -195,6 +195,8 @@ private:
 
 	bool addImage( QDomNode &node, CEditData::ImageData &data ) ;
 
+	int getNewImageStartNo() ;
+
 private:
 	QDomDocument				m_Data ;
 	QProgressDialog				*m_pProgress ;

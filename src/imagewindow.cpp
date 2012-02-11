@@ -217,11 +217,7 @@ void ImageWindow::slot_delImage( void )
 	int index = ui->tabWidget->currentIndex() ;
 	int no = ui->tabWidget->tabText(index).toInt() ;
 	ui->tabWidget->removeTab(index);
-#if 0
-	for ( int i = 0 ; i < ui->tabWidget->count() ; i ++ ) {
-		ui->tabWidget->setTabText(i, tr("%1").arg(i));
-	}
-#endif
+
 	emit sig_delImage(no) ;
 }
 

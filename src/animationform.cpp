@@ -272,6 +272,14 @@ void AnimationForm::resizeEvent(QResizeEvent *event)
 void AnimationForm::closeEvent(QCloseEvent */*event*/)
 {
 	m_pEditData->setTreeView(NULL) ;
+
+	for ( int i = 0 ; i < m_pEditData->getImageDataListSize() ; i ++ ) {
+		CEditData::ImageData *p = m_pEditData->getImageData(i) ;
+		if ( p->nTexObj ) {
+			m_pGlWidget->deleteTexture(p->nTexObj) ;
+			p->nTexObj = 0 ;
+		}
+	}
 }
 
 void AnimationForm::dumpObjects(ObjectItem *p, int tab)

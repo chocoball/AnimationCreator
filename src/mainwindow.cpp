@@ -129,12 +129,12 @@ void MainWindow::slot_addOpen(void)
 											this,
 											tr("Open File"),
 											setting.getOpenDir(),
-											tr("All Files (*);;Image Files (*.png *.bmp *.jpg);;Text (*"FILE_EXT_ANM2D_XML");;Bin (*"FILE_EXT_ANM2D_BIN")")) ;
+											tr("Text (*"FILE_EXT_ANM2D_XML")")) ;
 	if ( fileName.isEmpty() ) {
 		return ;
 	}
 
-	fileOpen(fileName) ;
+	fileOpen(fileName, true) ;
 }
 
 // 上書き保存
@@ -559,6 +559,7 @@ void MainWindow::createMenus( void )
 
 	pMenu = menuBar()->addMenu(trUtf8("&File")) ;
 	pMenu->addAction(m_pActOpen) ;
+	pMenu->addAction(m_pActAddOpen) ;
 	pMenu->addAction(m_pActSave) ;
 	pMenu->addAction(m_pActSaveAs) ;
 	pMenu->addSeparator() ;
@@ -658,7 +659,7 @@ bool MainWindow::fileOpen( QString fileName, bool bAdd )
 		QDomDocument xml ;
 		xml.setContent(&file) ;
 		data.setFilePath(fileName);
-		if ( !data.makeFromFile(xml, m_EditData) ) {
+		if ( !data.makeFromFile(xml, m_EditData, bAdd) ) {
 			QMessageBox::warning(this, trUtf8("エラー 1"), trUtf8("読み込みに失敗しました:%1").arg(data.getErrorString()) )  ;
 			return false ;
 		}
@@ -713,6 +714,7 @@ bool MainWindow::fileOpen( QString fileName, bool bAdd )
 
 	setWindowTitle(tr(kExecName"[%1]").arg(m_StrSaveFileName));
 
+	m_EditData.sortImageDatas() ;
 	createWindows() ;
 
 	return true ;
