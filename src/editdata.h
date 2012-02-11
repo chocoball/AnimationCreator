@@ -69,6 +69,17 @@ public:
 		}
 	}
 
+	void sortImageDatas()
+	{
+		for ( int i = 0 ; i < m_ImageDataList.size() ; i ++ ) {
+			for ( int j = 0 ; j < i ; j ++ ) {
+				if ( m_ImageDataList.at(i).nNo < m_ImageDataList.at(j).nNo ) {
+					m_ImageDataList.swap(i, j) ;
+				}
+			}
+		}
+	}
+
 	CObjectModel		*getObjectModel( void )	{ return m_pObjectModel ; }
 	QUndoStack			*getUndoStack( void )	{ return m_pUndoStack ; }
 

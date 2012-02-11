@@ -172,7 +172,7 @@ public:
 	CAnm2DXml(bool bSaveImage) ;
 
 	bool makeFromEditData( CEditData &rEditData ) ;
-	bool makeFromFile(QDomDocument &xml, CEditData &rEditData) ;
+	bool makeFromFile(QDomDocument &xml, CEditData &rEditData, bool bAdd = false) ;
 
 	QDomDocument &getData()					{ return m_Data ; }
 	void setProgress( QProgressDialog *p )	{ m_pProgress = p ; }
@@ -195,12 +195,16 @@ private:
 
 	bool addImage( QDomNode &node, CEditData::ImageData &data ) ;
 
-private:
-	QDomDocument	m_Data ;
-	QProgressDialog	*m_pProgress ;
+	int getNewImageStartNo() ;
 
-	int				m_ObjNum, m_ImageNum ;
-	bool			m_bSaveImage ;
+private:
+	QDomDocument				m_Data ;
+	QProgressDialog				*m_pProgress ;
+
+	int							m_ObjNum, m_ImageNum ;
+	bool						m_bSaveImage ;
+	bool						m_bAdd ;
+	QList<CEditData::ImageData>	m_oldImageDatas ;		// add 用
 };
 
 // JSON形式

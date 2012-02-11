@@ -122,6 +122,21 @@ void MainWindow::slot_open( void )
 	fileOpen(fileName) ;
 }
 
+// 追加で開く
+void MainWindow::slot_addOpen(void)
+{
+	QString fileName = QFileDialog::getOpenFileName(
+											this,
+											tr("Open File"),
+											setting.getOpenDir(),
+											tr("Text (*"FILE_EXT_ANM2D_XML")")) ;
+	if ( fileName.isEmpty() ) {
+		return ;
+	}
+
+	fileOpen(fileName, true) ;
+}
+
 // 上書き保存
 void MainWindow::slot_save( void )
 {
@@ -454,6 +469,11 @@ void MainWindow::createActions( void )
 	m_pActOpen->setStatusTip(trUtf8("ファイルを開きます")) ;
 	connect(m_pActOpen, SIGNAL(triggered()), this, SLOT(slot_open())) ;
 
+	// 追加で開く
+	m_pActAddOpen = new QAction(trUtf8("追加で開く"), this) ;
+	m_pActAddOpen->setStatusTip(trUtf8("現在のデータに追加でファイルを開きます")) ;
+	connect(m_pActAddOpen, SIGNAL(triggered()), this, SLOT(slot_addOpen())) ;
+
 	// 保存
 	m_pActSave = new QAction(trUtf8("&Save"), this) ;
 	m_pActSave->setShortcuts(QKeySequence::Save) ;
@@ -539,6 +559,7 @@ void MainWindow::createMenus( void )
 
 	pMenu = menuBar()->addMenu(trUtf8("&File")) ;
 	pMenu->addAction(m_pActOpen) ;
+	pMenu->addAction(m_pActAddOpen) ;
 	pMenu->addAction(m_pActSave) ;
 	pMenu->addAction(m_pActSaveAs) ;
 	pMenu->addSeparator() ;
@@ -601,7 +622,7 @@ void MainWindow::resizeImage( QImage &imageData )
 }
 
 // ファイル開く
-bool MainWindow::fileOpen( QString fileName )
+bool MainWindow::fileOpen( QString fileName, bool bAdd )
 {
 	setCurrentDir( fileName ) ;		// カレントディレクトリを設定
 
@@ -621,8 +642,10 @@ bool MainWindow::fileOpen( QString fileName )
 		slot_destroyCurveWindow() ;
 		m_pMdiArea->closeAllSubWindows() ;	// 全部閉じる
 	}
-	m_EditData.resetData();
-	m_UndoIndex = 0 ;
+	if ( !bAdd ) {
+		m_EditData.resetData();
+		m_UndoIndex = 0 ;
+	}
 
 	// XML アニメファイル
 	if ( fileName.indexOf(FILE_EXT_ANM2D_XML) > 0 ) {
@@ -636,7 +659,7 @@ bool MainWindow::fileOpen( QString fileName )
 		QDomDocument xml ;
 		xml.setContent(&file) ;
 		data.setFilePath(fileName);
-		if ( !data.makeFromFile(xml, m_EditData) ) {
+		if ( !data.makeFromFile(xml, m_EditData, bAdd) ) {
 			QMessageBox::warning(this, trUtf8("エラー 1"), trUtf8("読み込みに失敗しました:%1").arg(data.getErrorString()) )  ;
 			return false ;
 		}
@@ -691,6 +714,7 @@ bool MainWindow::fileOpen( QString fileName )
 
 	setWindowTitle(tr(kExecName"[%1]").arg(m_StrSaveFileName));
 
+	m_EditData.sortImageDatas() ;
 	createWindows() ;
 
 	return true ;
