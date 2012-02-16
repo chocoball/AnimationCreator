@@ -134,7 +134,12 @@ void MainWindow::slot_addOpen(void)
 		return ;
 	}
 
-	fileOpen(fileName, true) ;
+	QString oldSaveFile = m_StrSaveFileName ;
+
+	if ( !fileOpen(fileName, true) ) { return ; }
+
+	m_StrSaveFileName = oldSaveFile ;
+	setWindowTitle(tr(kExecName"[%1]").arg(m_StrSaveFileName));
 }
 
 // 上書き保存
@@ -376,7 +381,7 @@ void MainWindow::slot_exportASM()
 	CAnm2DAsm	data(setting.getFlat());
 	if ( !data.makeFromEditData(m_EditData) ) {
 		if ( data.getErrorNo() != CAnm2DBase::kErrorNo_Cancel ) {
-			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("コンバート失敗 %1:\n%2").arg(fileName).arg(data.getErrorNo())) ;
+			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("コンバート失敗 %1:\n%2").arg(fileName).arg(data.getErrorString())) ;
 		}
 		return ;
 	}

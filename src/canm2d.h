@@ -64,6 +64,7 @@ public:
 		kErrorNo_InvalidFilePath,		///< [12]イメージのファイルパスが不正
 		kErrorNo_InvalidObjectName,		///< [13]オブジェクト名が不正
 		kErrorNo_InvalidLayerName,		///< [14]レイヤ名が不正
+		kErrorNo_InvalidImageNo,		///< [15]画像番号が不正
 
 		kErrorNo_Max
 	} ;
@@ -87,7 +88,8 @@ public:
 			"イメージデータが不正です",
 			"イメージのファイルパスが不正です",
 			"オブジェクト名が不正です",
-			"レイヤ名が不正です"
+			"レイヤ名が不正です",
+			"登録されていない画像が使用されています"
 		} ;
 		if ( m_nError >= 0 && m_nError < kErrorNo_Max ) {
 			return QObject::trUtf8(str[m_nError]) ;
@@ -239,7 +241,7 @@ public:
 	CAnm2DAsm(bool bFlat);
 	~CAnm2DAsm();
 
-	void makeFromEditDataTip(QString qsLabel, ObjectItem *pObj);
+	bool makeFromEditDataTip(QString qsLabel, ObjectItem *pObj);
 	bool makeFromEditData(CEditData &rEditData);
 	void makeFromEditData2IncTip(QString qsLabel, ObjectItem *pObj);
 	bool makeFromEditData2Inc(CEditData &rEditData, QString qsFname);

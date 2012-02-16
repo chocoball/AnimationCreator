@@ -1460,7 +1460,7 @@ void makeFromEditDataArea(ObjectItem *pObj, QVector4D *pqv4AreaMin, QVector4D *p
 	}
 }
 
-void CAnm2DAsm::makeFromEditDataTip(QString qsLabel, ObjectItem *pObj)
+bool CAnm2DAsm::makeFromEditDataTip(QString qsLabel, ObjectItem *pObj)
 {
 	addString(";---------------------------------------------------------------- ANM_TIP\n");
 	addString(qsLabel + ":\n");
@@ -1480,6 +1480,10 @@ void CAnm2DAsm::makeFromEditDataTip(QString qsLabel, ObjectItem *pObj)
 		bool		valid;
 		FrameData	frameData = pObj->getDisplayFrameData(i, &valid);
 		if(valid == false) continue;
+		if ( m_aqsVramID[frameData.nImage].isEmpty() ) {
+			m_nError = kErrorNo_InvalidImageNo ;
+			return false ;
+		}
 		addString("\t\t\t; frame " + QString("%1").arg(i) + " --------------------------------\n");
 		addString("\t\t\tdd\t\t1\t\t; [NORMAL]\n");
 		addString("\t\t\tdw\t\t" + QString("%1").arg(frameData.frame) + "\t\t; uTime\n");
@@ -1505,9 +1509,10 @@ void CAnm2DAsm::makeFromEditDataTip(QString qsLabel, ObjectItem *pObj)
 		for(int i=0; i<pObj->childCount(); i++){
 			QString		qsLabelChild = qsLabel + QString("_%1").arg(i);
 			ObjectItem	*pChild = pObj->child(i);
-			makeFromEditDataTip(qsLabelChild, pChild);
+			if ( !makeFromEditDataTip(qsLabelChild, pChild) ) { return false ; }
 		}
 	}
+	return true ;
 }
 
 bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
@@ -1590,7 +1595,7 @@ bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 			for(int j=0; j<pObj->childCount(); j++){
 				QString		qsLabel = "obj" + QString("%1").arg(i) + "tip" + QString("%1").arg(j);
 				ObjectItem	*pChild = pObj->child(j);
-				makeFromEditDataTip(qsLabel, pChild);
+				if ( !makeFromEditDataTip(qsLabel, pChild) ) { return false ; }
 			}
 		} else {
 			addString("\t\t\tdd\t\t00000000h\t\t; bFlag\n");
