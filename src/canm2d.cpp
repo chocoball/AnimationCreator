@@ -1464,7 +1464,7 @@ bool CAnm2DAsm::makeFromEditDataTip(QString qsLabel, ObjectItem *pObj)
 {
 	addString(";---------------------------------------------------------------- ANM_TIP\n");
 	addString(qsLabel + ":\n");
-	addString("\t\t\tdd\t\t" + QString("%1").arg(pObj->getMaxFrameNum(false)) + "\t\t; nKeyFrame\n"); 
+	addString("\t\t\tdd\t\t" + QString("%1").arg(pObj->getMaxFrameNum(false)) + "\t\t; nKeyFrame\n");
 	addString("\t\t\tdd\t\t.key\t\t; pKey\n");
 	addString("\t\t\tdd\t\t" + QString("%1").arg(pObj->childCount()) + "\t\t; nTip\n");
 	if(pObj->childCount()){
@@ -1483,6 +1483,9 @@ bool CAnm2DAsm::makeFromEditDataTip(QString qsLabel, ObjectItem *pObj)
 		if ( m_aqsVramID[frameData.nImage].isEmpty() ) {
 			m_nError = kErrorNo_InvalidImageNo ;
 			return false ;
+		}
+		if ( pObj->getName().indexOf("null") >= 0 ) {
+			frameData.rgba[3] = 0 ;
 		}
 		addString("\t\t\t; frame " + QString("%1").arg(i) + " --------------------------------\n");
 		addString("\t\t\tdd\t\t1\t\t; [NORMAL]\n");
