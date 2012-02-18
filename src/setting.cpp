@@ -30,6 +30,8 @@ void CSettings::read()
 	m_bLayerHierarchy	= settings.value("layer_hierarchy", false).toBool() ;
 	m_frameStart		= settings.value("frame_start", 0).toInt() ;
 	m_frameEnd			= settings.value("frame_end", 30).toInt() ;
+	m_bBackup			= settings.value("backup", false).toBool() ;
+	m_backupNum			= settings.value("backup_num", 1).toInt() ;
 	settings.endGroup();
 
 	settings.beginGroup("MainWindow");
@@ -100,6 +102,7 @@ void CSettings::write()
 	settings.setValue("save_dir",		m_fileSaveDir) ;
 	settings.setValue("png_dir",		m_pngSaveDir) ;
 	settings.setValue("json_dir",		m_jsonSaveDir) ;
+	settings.setValue("asm_dir",		m_asmSaveDir) ;
 	settings.setValue("anime_color",	m_animeBGColor.rgba()) ;
 	settings.setValue("image_color",	m_imageBGColor.rgba()) ;
 	settings.setValue("save_image",		m_bSaveImage) ;
@@ -107,7 +110,9 @@ void CSettings::write()
 	settings.setValue("layer_hierarchy",m_bLayerHierarchy) ;
 	settings.setValue("frame_start",	m_frameStart) ;
 	settings.setValue("frame_end",		m_frameEnd) ;
-	settings.setValue("asm_dir",		m_asmSaveDir) ;
+
+	settings.setValue("backup",			m_bBackup) ;
+	settings.setValue("backup_num",		m_backupNum) ;
 	settings.endGroup();
 
 	settings.beginGroup("MainWindow");

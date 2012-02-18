@@ -23,26 +23,30 @@ OptionDialog::OptionDialog(CSettings *pSetting, AnimeGLWidget *pGlWidget, QWidge
 
 // ファイル タブ
 FileTab::FileTab(CSettings *pSetting, QWidget *parent)
-	: QWidget(parent)
+	: QWidget(parent),
+	ui(new Ui::OptionFileTab)
 {
+	ui->setupUi(this);
+
 	m_pSetting = pSetting ;
 
-	QCheckBox *pCheckBox = new QCheckBox(trUtf8("XML形式で保存時、画像データを保存する"), this) ;
-	pCheckBox->setChecked(pSetting->getSaveImage());
-	connect(pCheckBox, SIGNAL(clicked(bool)), this, SLOT(slot_clickedSaveImage(bool))) ;
+	ui->checkBox_saveImage->setChecked(pSetting->getSaveImage()) ;
+	ui->checkBox_flat->setChecked(pSetting->getFlat());
+	ui->checkBox_hierarchyLayer->setChecked(pSetting->getLayerHierarchy());
+	ui->checkBox_backup->setChecked(pSetting->getBackup());
+	ui->spinBox_backupNum->setValue(pSetting->getBackupNum()) ;
+	ui->spinBox_backupNum->setEnabled(pSetting->getBackup());
 
-	QCheckBox *pCheckBox2 = new QCheckBox(trUtf8("JSON形式で保存時、レイヤの親子関係をなくす"), this) ;
-	pCheckBox2->setChecked(pSetting->getFlat());
-	connect(pCheckBox2, SIGNAL(clicked(bool)), this, SLOT(slot_clickedFlat(bool))) ;
+	connect(ui->checkBox_saveImage, SIGNAL(toggled(bool)), this, SLOT(slot_clickedSaveImage(bool))) ;
+	connect(ui->checkBox_flat, SIGNAL(toggled(bool)), this, SLOT(slot_clickedFlat(bool))) ;
+	connect(ui->checkBox_hierarchyLayer, SIGNAL(toggled(bool)), this, SLOT(slot_clickedHierarchy(bool))) ;
+	connect(ui->checkBox_backup, SIGNAL(toggled(bool)), this, SLOT(slot_clickedBackup(bool))) ;
+	connect(ui->spinBox_backupNum, SIGNAL(valueChanged(int)), this, SLOT(slot_changeBackupNum(int))) ;
+}
 
-	QCheckBox *pCheckBox3 = new QCheckBox(trUtf8("レイヤに階層を持たせる"), this) ;
-	pCheckBox3->setChecked(pSetting->getLayerHierarchy());
-	connect(pCheckBox3, SIGNAL(clicked(bool)), this, SLOT(slot_clickedHierarchy(bool))) ;
-
-	QVBoxLayout *pLayout = new QVBoxLayout(this) ;
-	pLayout->addWidget(pCheckBox);
-	pLayout->addWidget(pCheckBox2);
-	pLayout->addWidget(pCheckBox3);
+FileTab::~FileTab()
+{
+	delete ui ;
 }
 
 void FileTab::slot_clickedSaveImage(bool flag)
@@ -58,6 +62,17 @@ void FileTab::slot_clickedFlat(bool flag)
 void FileTab::slot_clickedHierarchy(bool flag)
 {
 	m_pSetting->setLayerHierarchy(flag) ;
+}
+
+void FileTab::slot_clickedBackup(bool flag)
+{
+	m_pSetting->setBackup(flag) ;
+	ui->spinBox_backupNum->setEnabled(flag) ;
+}
+
+void FileTab::slot_changeBackupNum(int num)
+{
+	m_pSetting->setBackupNum(num) ;
 }
 
 // アニメーションウィンドウ タブ

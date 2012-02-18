@@ -80,10 +80,12 @@ FORMS		+= 	ui/animationform.ui				\
 				ui/OptionAnimationTab.ui		\
 				ui/colorpickerform.ui			\
 				ui/KeyboardTab.ui				\
-				ui/curveeditorform.ui
+				ui/curveeditorform.ui			\
+				ui/OptionFileTab.ui
 
 
 CONFIG		+=	help console
+
 
 
 

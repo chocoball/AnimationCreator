@@ -3,12 +3,14 @@
 
 #include <QDialog>
 #include "setting.h"
+#include "ui_OptionFileTab.h"
 #include "ui_OptionAnimationTab.h"
 #include "ui_KeyboardTab.h"
 #include "keyboardmodel.h"
 #include "glwidget.h"
 
 namespace Ui {
+	class OptionFileTab ;
 	class OptionAnimationTab ;
 	class KeyboardTab ;
 }
@@ -19,14 +21,18 @@ class FileTab : public QWidget
 	Q_OBJECT
 public:
 	explicit FileTab(CSettings *pSetting, QWidget *parent = 0) ;
+	~FileTab() ;
 
 public slots:
 	void slot_clickedSaveImage(bool) ;
 	void slot_clickedFlat(bool) ;
 	void slot_clickedHierarchy(bool) ;
+	void slot_clickedBackup(bool) ;
+	void slot_changeBackupNum(int) ;
 
 private:
-	CSettings		*m_pSetting ;
+	Ui::OptionFileTab	*ui ;
+	CSettings			*m_pSetting ;
 };
 
 // アニメーションウィンドウ タブ

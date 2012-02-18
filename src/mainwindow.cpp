@@ -730,6 +730,8 @@ bool MainWindow::saveFile( QString fileName )
 {
 	qDebug() << "SaveFile:" << fileName ;
 
+	fileBackup(fileName) ;
+
 	m_EditData.sortFrameDatas() ;
 
 	// XML
@@ -923,4 +925,32 @@ void MainWindow::checkFileModified( void )
 		p->Image = image ;
 		emit sig_modifiedImageFile(i) ;
 	}
+}
+
+// バックアップファイル作成
+void MainWindow::fileBackup(QString fileName)
+{
+	if ( !setting.getBackup() ) { return ; }
+
+	QFile file(fileName) ;
+	if ( !file.exists() ) { return ; }
+
+	QFileInfo fileInfo(fileName) ;
+	qDebug() << "dir" << fileInfo.absoluteDir().absolutePath() ;
+	QDir dir(fileInfo.absoluteDir()) ;
+	dir.setFilter(QDir::Files) ;
+	dir.setSorting(QDir::Time | QDir::Reversed) ;
+	QStringList nameFilters ;
+	nameFilters << fileInfo.completeBaseName() + ".*.xml" ;
+	dir.setNameFilters(nameFilters);
+	QFileInfoList fileList = dir.entryInfoList() ;
+
+	if ( fileList.size() >= setting.getBackupNum() ) {
+		QFile::remove(fileList.at(0).absoluteFilePath()) ;
+	}
+
+	QString newFileName = dir.absolutePath() ;
+	newFileName += "/" + fileInfo.completeBaseName() + QDateTime::currentDateTime().toString(".yyyy-m-d_") + QTime::currentTime().toString("H-m-s") + ".xml" ;
+	qDebug() << "copy " << newFileName ;
+	file.copy(newFileName) ;
 }

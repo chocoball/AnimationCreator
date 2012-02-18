@@ -97,6 +97,8 @@ private:
 
 	void checkFileModified( void ) ;
 
+	void fileBackup(QString fileName) ;
+
 signals:
 	void sig_modifiedImageFile(int index) ;
 	void sig_endedOption( void ) ;
