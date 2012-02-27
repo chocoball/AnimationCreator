@@ -12,6 +12,7 @@
 #include "helpwindow.h"
 #include "exportpngform.h"
 #include "curveeditorform.h"
+#include "objectscaleform.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -69,6 +70,9 @@ public slots:
 	void slot_exportASM();
 	void slot_changeSelectLayer(QModelIndex) ;
 
+	void slot_objScale() ;
+	void slot_closeObjScaleForm() ;
+
 #ifndef QT_NO_DEBUG
 	void slot_dbgObjectDump( void ) ;
 	void slot_dbgObjectFlat( void ) ;
@@ -114,12 +118,14 @@ private:
 	AnimationForm		*m_pAnimationForm ;		// アニメーションフォーム
 	ExportPNGForm		*m_pExportPNGForm ;		// PNG吐き出しフォーム
 	CurveEditorForm		*m_pCurveEditorForm ;	// カーブエディタフォーム
+	ObjectScaleForm		*m_pObjScaleForm ;		// オブジェクトスケールフォーム
 
 	QMdiSubWindow		*m_pSubWindow_Anm ;
 	QMdiSubWindow		*m_pSubWindow_Img ;
 	QMdiSubWindow		*m_pSubWindow_Loupe ;
 	QMdiSubWindow		*m_pSubWindow_Expng ;
 	QMdiSubWindow		*m_pSubWindow_Curve ;
+	QMdiSubWindow		*m_pSubWindow_ObjScale ;
 
 	// 編集データ ----
 	QString				m_StrSaveFileName ;		// 保存ファイル名
@@ -147,6 +153,7 @@ private:
 	QAction				*m_pActAboutQt ;		// Qtについて
 	QAction				*m_pActExportJson ;		// JSON吐き出し
 	QAction				*m_pActExportAsm;		// asm吐き出し
+	QAction				*m_pActObjectScale ;	// オブジェクトスケール変更
 	// ---- アクション
 
 	QStringList			m_DragFileList ;

@@ -32,6 +32,7 @@ ImageWindow::ImageWindow(CSettings *p, CEditData *pEditImage, AnimationForm *pAn
 	connect(ui->doubleSpinBox_uv_top,	SIGNAL(valueChanged(double)), this, SLOT(slot_changeUVTop(double))) ;
 	connect(ui->doubleSpinBox_uv_left,	SIGNAL(valueChanged(double)), this, SLOT(slot_changeUVLeft(double))) ;
 	connect(ui->doubleSpinBox_uv_right,	SIGNAL(valueChanged(double)), this, SLOT(slot_changeUVRight(double))) ;
+//	connect(ui->pushButton_scale, SIGNAL(clicked()), this, SLOT(slot_clickedScaleButton())) ;
 
 	ui->tabWidget->clear();
 	for ( int i = 0 ; i < m_pEditData->getImageDataListSize() ; i ++ ) {
@@ -160,43 +161,14 @@ void ImageWindow::resizeEvent(QResizeEvent *event)
 	m_oldWinSize = event->size() ;
 
 	ui->tabWidget->resize(ui->tabWidget->size()+add);
-#if 1
+
 	QWidget *pTmp[] = {
-		ui->label_uv,
-		ui->label_uv_bottom,
-		ui->label_uv_left,
-		ui->label_uv_right,
-		ui->label_uv_top,
-		ui->doubleSpinBox_uv_bottom,
-		ui->doubleSpinBox_uv_left,
-		ui->doubleSpinBox_uv_right,
-		ui->doubleSpinBox_uv_top,
+//		ui->groupBox_scale,
+		ui->groupBox_uv
 	} ;
 	for ( int i = 0 ; i < ARRAY_NUM(pTmp) ; i ++ ) {
 		pTmp[i]->move(pTmp[i]->pos() + QPoint(add.width(), 0));
 	}
-#else
-	QLabel *pTmpLabel[] = {
-		ui->label_uv,
-		ui->label_uv_bottom,
-		ui->label_uv_left,
-		ui->label_uv_right,
-		ui->label_uv_top,
-	} ;
-	for ( int i = 0 ; i < ARRAY_NUM(pTmpLabel) ; i ++ ) {
-		pTmpLabel[i]->move(pTmpLabel[i]->pos() + QPoint(add.width(), 0));
-	}
-
-	QDoubleSpinBox *pTmpBox[] = {
-		ui->doubleSpinBox_uv_bottom,
-		ui->doubleSpinBox_uv_left,
-		ui->doubleSpinBox_uv_right,
-		ui->doubleSpinBox_uv_top,
-	} ;
-	for ( int i = 0 ; i < ARRAY_NUM(pTmpBox) ; i ++ ) {
-		pTmpBox[i]->move(pTmpBox[i]->pos() + QPoint(add.width(), 0));
-	}
-#endif
 }
 
 // 未使用タブ取得
@@ -350,3 +322,20 @@ void ImageWindow::slot_changeTab(int nImage)
 		}
 	}
 }
+
+// スケールボタン押した
+void ImageWindow::slot_clickedScaleButton()
+{
+#if 0
+	int no = ui->tabWidget->tabText(ui->tabWidget->currentIndex()).toInt() ;
+	double scale = ui->doubleSpinBox_scale->value() ;
+	int ret = QMessageBox::question(this, trUtf8("確認"), trUtf8("%1番画像を使用しているフレームデータのUVを%2倍しますか？").arg(no).arg(scale), QMessageBox::Ok, QMessageBox::Cancel) ;
+	if ( ret == QMessageBox::Ok ) {
+		m_pEditData->cmd_changeUvScale(no, scale) ;
+	}
+#endif
+}
+
+
+
+

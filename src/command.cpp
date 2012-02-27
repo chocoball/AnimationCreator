@@ -551,4 +551,75 @@ void Command_MoveItemDown::undo()
 }
 
 
+/**
+  UVスケール変更
+  */
+Command_ScaleUv::Command_ScaleUv(CEditData *pEditData, double scale) :
+	QUndoCommand(QObject::trUtf8("UVスケール変更"))
+{
+	m_pEditData = pEditData ;
+	m_scale = scale ;
+}
+
+void Command_ScaleUv::redo()
+{
+	m_changeFrameDatas.clear();
+
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	for ( int i = 0 ; i < pModel->rowCount(QModelIndex()) ; i ++ ) {
+		QModelIndex index = pModel->index(i) ;
+		ObjectItem *pObj = pModel->getObject(index) ;
+		if ( !pObj ) { continue ; }
+		save_framedata(pObj) ;
+	}
+}
+
+void Command_ScaleUv::undo()
+{
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	for ( int i = 0 ; i < m_changeFrameDatas.size() ; i ++ ) {
+		const QPair<int, FrameData> d = m_changeFrameDatas.at(i) ;
+		QModelIndex index = pModel->getIndex(d.first) ;
+		ObjectItem *pItem = pModel->getItemFromIndex(index) ;
+		if ( !pItem ) { continue ; }
+		FrameData *pFrameData = pItem->getFrameDataPtr(d.second.frame) ;
+		if ( !pFrameData ) {
+			qDebug() << "Command_ScaleUv pFrameData==NULLpo" ;
+			continue ;
+		}
+		*pFrameData = d.second ;
+	}
+}
+
+void Command_ScaleUv::save_framedata(ObjectItem *pItem)
+{
+	int i ;
+	int row = m_pEditData->getObjectModel()->getRow(pItem->getIndex()) ;
+
+	int frameNum = pItem->getMaxFrameNum(false) ;
+	for ( i = 0 ; i <= frameNum ; i ++ ) {
+		FrameData *p = pItem->getFrameDataPtr(i) ;
+		if ( !p ) { continue ; }
+//		if ( p->nImage != m_imageNo ) { continue ; }
+
+		QPair<int, FrameData> d = qMakePair(row, *p) ;
+		m_changeFrameDatas.append(d) ;
+
+		p->left *= m_scale ;
+		p->right *= m_scale ;
+		p->top *= m_scale ;
+		p->bottom *= m_scale ;
+		p->pos_x *= m_scale ;
+		p->pos_y *= m_scale ;
+		p->center_x *= m_scale ;
+		p->center_y *= m_scale ;
+//		p->fScaleX *= m_scale ;
+//		p->fScaleY *= m_scale ;
+	}
+
+	for ( i = 0 ; i < pItem->childCount() ; i ++ ) {
+		save_framedata(pItem->child(i)) ;
+	}
+}
+
 

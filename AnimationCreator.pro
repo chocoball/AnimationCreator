@@ -37,7 +37,8 @@ SOURCES		+=	src/animationform.cpp			\
 				src/keyboardmodel.cpp			\
 				src/curveeditorform.cpp			\
 				src/curvegraphlabel.cpp			\
-				src/capplication.cpp
+				src/capplication.cpp			\
+				src/objectscaleform.cpp
 
 HEADERS		+=	src/Anm2dTypes.h				\
 				src/animationform.h				\
@@ -70,7 +71,8 @@ HEADERS		+=	src/Anm2dTypes.h				\
 				src/curveeditorform.h			\
 				src/curvegraphlabel.h			\
 				src/capplication.h				\
-				src/CRect.h
+				src/CRect.h						\
+				src/objectscaleform.h
 
 RESOURCES	+=	Resource.qrc
 
@@ -81,10 +83,14 @@ FORMS		+= 	ui/animationform.ui				\
 				ui/colorpickerform.ui			\
 				ui/KeyboardTab.ui				\
 				ui/curveeditorform.ui			\
-				ui/OptionFileTab.ui
+				ui/OptionFileTab.ui				\
+				ui/objectscaleform.ui
 
 
 CONFIG		+=	help console
+
+
+
 
 
 

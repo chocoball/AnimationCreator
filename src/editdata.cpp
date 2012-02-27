@@ -138,6 +138,12 @@ void CEditData::cmd_moveItemDown(const QModelIndex &index)
 	m_pUndoStack->push(new Command_MoveItemDown(this, index)) ;
 }
 
+// UVスケール
+void CEditData::cmd_changeUvScale(double scale)
+{
+	m_pUndoStack->push(new Command_ScaleUv(this, scale)) ;
+}
+
 // 選択しているフレームデータ取得
 bool CEditData::getNowSelectFrameData(FrameData &ret)
 {

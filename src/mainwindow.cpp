@@ -20,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
 	m_pSubWindow_Img = NULL ;
 	m_pSubWindow_Loupe = NULL ;
 	m_pSubWindow_Curve = NULL ;
+	m_pSubWindow_ObjScale = NULL ;
 
 	m_pMdiArea = new CDropableMdiArea ;
 	m_pMdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -46,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent)
 	m_pAnimationForm = NULL ;
 	m_pExportPNGForm = NULL ;
 	m_pCurveEditorForm = NULL ;
+	m_pObjScaleForm = NULL ;
 
 	setObjectName("AnimationCreator MainWindow");
 /*
@@ -420,6 +422,29 @@ void MainWindow::slot_changeSelectLayer(QModelIndex index)
 	emit sig_changeSelectLayer(index) ;
 }
 
+void MainWindow::slot_objScale()
+{
+	if ( !m_pMdiArea->findChild<ObjectScaleForm *>(trUtf8("ObjectScaleForm")) ) {
+		if ( !m_pMdiArea->findChild<AnimationForm *>(trUtf8("AnimationForm")) ) {
+			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("アニメーションウィンドウがありません")) ;
+			return ;
+		}
+		m_pObjScaleForm = new ObjectScaleForm(&m_EditData, this) ;
+		m_pSubWindow_ObjScale = m_pMdiArea->addSubWindow(m_pObjScaleForm) ;
+		m_pObjScaleForm->show() ;
+
+		connect(m_pObjScaleForm, SIGNAL(destroyed()), this, SLOT(slot_closeObjScaleForm)) ;
+	}
+}
+
+void MainWindow::slot_closeObjScaleForm()
+{
+	m_pMdiArea->removeSubWindow(m_pSubWindow_ObjScale);
+	delete m_pObjScaleForm ;
+	m_pObjScaleForm = NULL ;
+	m_pSubWindow_ObjScale = NULL ;
+}
+
 #ifndef QT_NO_DEBUG
 void MainWindow::slot_dbgObjectDump( void )
 {
@@ -518,6 +543,9 @@ void MainWindow::createActions( void )
 	m_pActRedo = pStack->createRedoAction(this, trUtf8("&Redo")) ;
 	m_pActRedo->setShortcuts(QKeySequence::Redo);
 
+	m_pActObjectScale = new QAction(trUtf8("スケール"), this) ;
+	connect(m_pActObjectScale, SIGNAL(triggered()), this, SLOT(slot_objScale())) ;
+
 	// イメージウィンドウon/off
 	m_pActImageWindow = new QAction(trUtf8("Image Window"), this) ;
 	m_pActImageWindow->setEnabled(false);
@@ -580,6 +608,7 @@ void MainWindow::createMenus( void )
 	pMenu = menuBar()->addMenu(trUtf8("&Edit")) ;
 	pMenu->addAction(m_pActUndo) ;
 	pMenu->addAction(m_pActRedo) ;
+	pMenu->addAction(m_pActObjectScale) ;
 #if 0
 	pMenu = menuBar()->addMenu(trUtf8("&Window")) ;
 	pMenu->addAction(m_pActImageWindow) ;

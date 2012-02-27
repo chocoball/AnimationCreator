@@ -62,6 +62,7 @@ public slots:
 
 	void slot_changeTab(int nImage) ;
 
+	void slot_clickedScaleButton() ;
 private:
 	Ui::ImageWindow	*ui ;
 

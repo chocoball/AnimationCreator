@@ -103,6 +103,7 @@ public:
 	void cmd_moveFrameData(QModelIndex &index, int prevFrame, int nextFrame, QList<QWidget *> &updateWidget) ;
 	void cmd_moveItemUp(const QModelIndex &index) ;
 	void cmd_moveItemDown(const QModelIndex &index) ;
+	void cmd_changeUvScale(double scale) ;
 
 	void setCurrLoopNum( int num )
 	{

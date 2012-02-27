@@ -192,4 +192,21 @@ private:
 	ObjectItem		*m_pItem ;
 };
 
+// UVスケール
+class Command_ScaleUv : public QUndoCommand
+{
+public:
+	Command_ScaleUv(CEditData *pEditData, double scale) ;
+
+	void redo() ;
+	void undo() ;
+
+	void save_framedata(ObjectItem *pItem) ;
+
+private:
+	CEditData						*m_pEditData ;
+	QList<QPair<int, FrameData> >	m_changeFrameDatas ;
+	double							m_scale ;
+};
+
 #endif // COMMAND_H
