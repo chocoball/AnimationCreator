@@ -13,6 +13,7 @@
 #include "exportpngform.h"
 #include "curveeditorform.h"
 #include "objectscaleform.h"
+#include "framedatascaleform.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -73,6 +74,9 @@ public slots:
 	void slot_objScale() ;
 	void slot_closeObjScaleForm() ;
 
+	void slot_frameScale() ;
+	void slot_closeFrameDataScaleForm() ;
+
 #ifndef QT_NO_DEBUG
 	void slot_dbgObjectDump( void ) ;
 	void slot_dbgObjectFlat( void ) ;
@@ -113,12 +117,13 @@ signals:
 private:
 	CDropableMdiArea	*m_pMdiArea ;
 
-	ImageWindow			*m_pImageWindow ;		// イメージウィンドウ
-	CLoupeWindow		*m_pLoupeWindow ;		// ルーペウィンドウ
-	AnimationForm		*m_pAnimationForm ;		// アニメーションフォーム
-	ExportPNGForm		*m_pExportPNGForm ;		// PNG吐き出しフォーム
-	CurveEditorForm		*m_pCurveEditorForm ;	// カーブエディタフォーム
-	ObjectScaleForm		*m_pObjScaleForm ;		// オブジェクトスケールフォーム
+	ImageWindow			*m_pImageWindow ;			// イメージウィンドウ
+	CLoupeWindow		*m_pLoupeWindow ;			// ルーペウィンドウ
+	AnimationForm		*m_pAnimationForm ;			// アニメーションフォーム
+	ExportPNGForm		*m_pExportPNGForm ;			// PNG吐き出しフォーム
+	CurveEditorForm		*m_pCurveEditorForm ;		// カーブエディタフォーム
+	ObjectScaleForm		*m_pObjScaleForm ;			// オブジェクトスケールフォーム
+	FrameDataScaleForm	*m_pFrameDataScaleForm ;	// フレームデータスケールフォーム
 
 	QMdiSubWindow		*m_pSubWindow_Anm ;
 	QMdiSubWindow		*m_pSubWindow_Img ;
@@ -126,6 +131,7 @@ private:
 	QMdiSubWindow		*m_pSubWindow_Expng ;
 	QMdiSubWindow		*m_pSubWindow_Curve ;
 	QMdiSubWindow		*m_pSubWindow_ObjScale ;
+	QMdiSubWindow		*m_pSubWindow_FrameDataScale ;
 
 	// 編集データ ----
 	QString				m_StrSaveFileName ;		// 保存ファイル名
@@ -154,6 +160,7 @@ private:
 	QAction				*m_pActExportJson ;		// JSON吐き出し
 	QAction				*m_pActExportAsm;		// asm吐き出し
 	QAction				*m_pActObjectScale ;	// オブジェクトスケール変更
+	QAction				*m_pActFrameDataScale ;	// フレームスケール変更
 	// ---- アクション
 
 	QStringList			m_DragFileList ;

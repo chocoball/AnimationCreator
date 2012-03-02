@@ -9,6 +9,13 @@
 class CDataMarkerLabel : public QLabel
 {
     Q_OBJECT
+
+public:
+	enum {
+		kMoveMode_None = 0,
+		kMoveMode_Layer,
+		kMoveMode_Object
+	} ;
 public:
 	explicit CDataMarkerLabel(QWidget *parent = 0);
 
@@ -21,6 +28,7 @@ public:
 signals:
 	void sig_changeValue(int val) ;
 	void sig_moveFrameData(int prevFrame, int nextFrame) ;
+	void sig_moveAllFrameData(int prevFrame, int nextFrame) ;
 
 public slots:
 	void slot_setFrameStart(int val) ;
@@ -53,6 +61,7 @@ private:
 	bool		m_bMouseMove ;
 
 	int			m_pressFrame, m_pressCurrentFrame ;
+	int			m_moveMode ;
 } ;
 
 #endif // CDATAMARKERLABEL_H

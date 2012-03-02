@@ -140,6 +140,7 @@ public slots:
 	void slot_copyIndex(int row, ObjectItem *pItem, QModelIndex index, Qt::DropAction action) ;
 
 	void slot_moveFrameData(int prevFrame, int nextFrame) ;
+	void slot_moveAllFrameData(int prevFrame, int nextFrame) ;
 	void slot_scrollWindow(QPoint move) ;
 
 	void slot_delPath() ;

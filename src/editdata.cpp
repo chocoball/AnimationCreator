@@ -126,6 +126,12 @@ void CEditData::cmd_moveFrameData(QModelIndex &index, int prevFrame, int nextFra
 	m_pUndoStack->push(new Command_MoveFrameData(this, index, prevFrame, nextFrame, updateWidget)) ;
 }
 
+// 全フレームデータ移動
+void CEditData::cmd_moveAllFrameData(QModelIndex &index, int prevFrame, int nextFrame, QList<QWidget *> &updateWidget)
+{
+	m_pUndoStack->push(new Command_MoveAllFrameData(this, index, prevFrame, nextFrame, updateWidget)) ;
+}
+
 // ツリーアイテム上に移動
 void CEditData::cmd_moveItemUp(const QModelIndex &index)
 {
@@ -143,6 +149,13 @@ void CEditData::cmd_changeUvScale(double scale)
 {
 	m_pUndoStack->push(new Command_ScaleUv(this, scale)) ;
 }
+
+// フレームスケール
+void CEditData::cmd_changeFrameDataScale(double scale)
+{
+	m_pUndoStack->push(new Command_ScaleFrame(this, scale)) ;
+}
+
 
 // 選択しているフレームデータ取得
 bool CEditData::getNowSelectFrameData(FrameData &ret)

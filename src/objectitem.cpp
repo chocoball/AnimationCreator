@@ -51,7 +51,7 @@ QList<ObjectItem *> ObjectItem::getLayers(ObjectItem *pObj)
 	return ret ;
 }
 
-void ObjectItem::addFrameData(FrameData &data)
+void ObjectItem::addFrameData(const FrameData &data)
 {
 	FrameData *p = getFrameDataPtr(data.frame) ;
 	if ( p ) {
@@ -79,10 +79,16 @@ int ObjectItem::getFrameDataIndex(int frame)
 	return -1 ;
 }
 
-FrameData *ObjectItem::getFrameDataPtr(int frame)
+FrameData *ObjectItem::getFrameDataPtr(int frame, bool bRecv)
 {
 	for ( int i = 0 ; i < m_frameDatas.size() ; i ++ ) {
 		if ( frame == m_frameDatas[i].frame ) { return &m_frameDatas[i] ; }
+	}
+	if ( bRecv ) {
+		for ( int i = 0 ; i < childCount() ; i ++ ) {
+			FrameData *p = child(i)->getFrameDataPtr(frame, bRecv) ;
+			if ( p ) { return p ; }
+		}
 	}
 	return NULL ;
 }
@@ -322,6 +328,25 @@ bool ObjectItem::isUseImageRecv(int imageNo)
 		if ( child(i)->isUseImageRecv(imageNo) ) { return true ; }
 	}
 	return false ;
+}
+
+bool ObjectItem::validate(bool bRecv)
+{
+	int i ;
+
+	QList<unsigned short> frames ;
+	for ( i = 0 ; i < m_frameDatas.size() ; i ++ ) {
+		const FrameData &d = m_frameDatas.at(i) ;
+		if ( frames.contains(d.frame) ) { return false ; }
+		frames.append(d.frame) ;
+	}
+
+	if ( bRecv ) {
+		for ( i = 0 ; i < childCount() ; i ++ ) {
+			if ( !child(i)->validate(bRecv) ) { return false ; }
+		}
+	}
+	return true ;
 }
 
 bool ObjectItem::isContain(FrameData &displayData, QPoint &pos, const QMatrix4x4 &matDisp)

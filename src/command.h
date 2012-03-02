@@ -162,6 +162,28 @@ private:
 	FrameData			m_srcData, m_dstData ;
 };
 
+// 全フレームデータ移動
+class Command_MoveAllFrameData : public QUndoCommand
+{
+public:
+	Command_MoveAllFrameData(CEditData *pEditData, QModelIndex &index, int prevFrame, int nextFrame, QList<QWidget *> &updateWidget) ;
+
+	void redo() ;
+	void undo() ;
+
+private:
+	void save_frameData(ObjectItem *pItem, int srcFrame, int dstFrame) ;
+	void restore_frameData(ObjectItem *pItem, int srcFrame, int dstFrame) ;
+
+private:
+	CEditData						*m_pEditData ;
+	int								m_row ;
+	QList<QWidget *>				m_UpdateWidgetList ;
+
+	int								m_srcFrame, m_dstFrame ;
+	QList<QPair<int, FrameData> >	m_dstDatas ;
+};
+
 // ツリーアイテム上に移動
 class Command_MoveItemUp : public QUndoCommand
 {
@@ -201,12 +223,32 @@ public:
 	void redo() ;
 	void undo() ;
 
+private:
 	void save_framedata(ObjectItem *pItem) ;
 
 private:
 	CEditData						*m_pEditData ;
 	QList<QPair<int, FrameData> >	m_changeFrameDatas ;
 	double							m_scale ;
+};
+
+// フレームスケール
+class Command_ScaleFrame : public QUndoCommand
+{
+public:
+	Command_ScaleFrame(CEditData *pEditData, double scale) ;
+
+	void redo() ;
+	void undo() ;
+
+private:
+	void save_framedata(ObjectItem *pItem) ;
+
+private:
+	CEditData								*m_pEditData ;
+	QList<QPair<int, QList<FrameData> > >	m_changeFrameDatas ;
+	double									m_scale ;
+	QList<QWidget *>	m_UpdateWidgetList ;
 };
 
 #endif // COMMAND_H

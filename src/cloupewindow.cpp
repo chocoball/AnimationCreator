@@ -31,7 +31,7 @@ CLoupeWindow::CLoupeWindow(CEditData *pEditData, CSettings *pSetting, QWidget *p
 
 	m_pCheckBox_Center = new QCheckBox(this) ;
 	m_pCheckBox_Center->setChecked(true);
-	m_pCheckBox_Center->setText(trUtf8("センター表示"));
+	m_pCheckBox_Center->setText(trUtf8("カーソル位置表示"));
 
 	QGridLayout *layout = new QGridLayout(this) ;
 	layout->addWidget(m_pCheckBox_Cursor, 0, 0);

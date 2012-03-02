@@ -160,6 +160,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(ui->spinBox_nowSequence, SIGNAL(valueChanged(int)), this, SLOT(slot_frameChanged(int))) ;
 	connect(ui->horizontalScrollBar_frame, SIGNAL(valueChanged(int)), ui->label_frame, SLOT(slot_moveScrollBar(int))) ;
 	connect(ui->label_frame, SIGNAL(sig_moveFrameData(int,int)), this, SLOT(slot_moveFrameData(int,int))) ;
+	connect(ui->label_frame, SIGNAL(sig_moveAllFrameData(int,int)), this, SLOT(slot_moveAllFrameData(int,int))) ;
 
 	connect(m_pGlWidget, SIGNAL(sig_scrollWindow(QPoint)), this, SLOT(slot_scrollWindow(QPoint))) ;
 
@@ -1360,6 +1361,23 @@ void AnimationForm::slot_moveFrameData(int prevFrame, int nextFrame)
 	QList<QWidget *> widgets ;
 	widgets << m_pDataMarker << m_pGlWidget ;
 	m_pEditData->cmd_moveFrameData(index, prevFrame, nextFrame, widgets) ;
+}
+
+// 全フレームデータ移動
+void AnimationForm::slot_moveAllFrameData(int prevFrame, int nextFrame)
+{
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	QModelIndex index = m_pEditData->getSelIndex() ;
+
+	if ( !pModel->isObject(index) ) { return ; }
+	if ( prevFrame < 0 || nextFrame < 0 ) { return ; }
+
+	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
+	if ( !pItem ) { return ; }
+
+	QList<QWidget *> widgets ;
+	widgets << m_pDataMarker << m_pGlWidget ;
+	m_pEditData->cmd_moveAllFrameData(index, prevFrame, nextFrame, widgets) ;
 }
 
 void AnimationForm::slot_scrollWindow(QPoint move)

@@ -47,11 +47,12 @@ public:
 	// FRAMEDATA
 	// -----------------------------------------------
 	const QList<FrameData> &getFrameData() { return m_frameDatas ; }
+	void setFrameDatas(const QList<FrameData> &data) { m_frameDatas = data ; }
 
-	void addFrameData(FrameData &data) ;
+	void addFrameData(const FrameData &data) ;
 	void removeFrameData(int frame) ;
 	int getFrameDataIndex(int frame) ;
-	FrameData *getFrameDataPtr(int frame) ;
+	FrameData *getFrameDataPtr(int frame, bool bRecv = false) ;
 	void sortFrameData() ;
 
 	void copy(ObjectItem *p) ;
@@ -69,6 +70,8 @@ public:
 
 	QPointF getBezierPos(int frame, bool *pValid) ;
 	bool isUseImageRecv(int imageNo) ;
+
+	bool validate(bool bRecv = true) ;
 
 	kAccessor(QString, m_name, Name)
 	kAccessor(int, m_nLoop, Loop)

@@ -9,7 +9,8 @@ CDataMarkerLabel::CDataMarkerLabel(QWidget *parent) :
 	m_frameEnd(0),
 	m_offset(0),
 	m_pressFrame(-1),
-	m_pressCurrentFrame(-1)
+	m_pressCurrentFrame(-1),
+	m_moveMode(kMoveMode_None)
 {
 }
 
@@ -81,7 +82,13 @@ void CDataMarkerLabel::paintEvent(QPaintEvent */*event*/)
 	if ( m_pressCurrentFrame >= 0 ) {
 		int x0 = getX(m_pressCurrentFrame) ;
 		int x1 = getX(m_pressCurrentFrame+1) ;
-		painter.fillRect(x0, 0, x1-x0, height()/3, QColor(255, 0, 0, 128)) ;
+		int y0 = 0 ;
+		QColor col = QColor(255, 0, 0, 128) ;
+		if ( pModel->isObject(index) ) {
+			y0 = height()/3 ;
+			col.setRed(255) ;
+		}
+		painter.fillRect(x0, y0, x1-x0, height()/3, col) ;
 	}
 }
 
@@ -138,7 +145,11 @@ void CDataMarkerLabel::drawLayer( const QModelIndex &index, QPainter &painter, c
 			if ( frames.indexOf(data.frame) >= 0 ) { continue ; }
 			frames.append(data.frame) ;
 
-			painter.fillRect(x0, height()/3, x1-x0, height()/3, QColor(0, 0, 255, 128)) ;
+			QColor col = QColor(0, 0, 255, 128) ;
+			if ( m_pEditData->getObjectModel()->isObject(m_pEditData->getSelIndex()) ) {
+				col.setRed(255) ;
+			}
+			painter.fillRect(x0, height()/3, x1-x0, height()/3, col) ;
 		}
 	}
 
@@ -164,6 +175,7 @@ void CDataMarkerLabel::mousePressEvent(QMouseEvent *ev)
 {
 	m_bMouseMove = false ;
 	m_bPressLeft = false ;
+	m_moveMode = kMoveMode_None ;
 	if ( ev->button() != Qt::LeftButton ) {
 		ev->ignore();
 		return ;
@@ -172,19 +184,32 @@ void CDataMarkerLabel::mousePressEvent(QMouseEvent *ev)
 	m_bPressLeft = true ;
 	m_pressFrame = m_pressCurrentFrame = -1 ;
 
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	QModelIndex index = m_pEditData->getSelIndex() ;
+	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
+
 	// 移動予定のフレームデータ取得
 	if ( ev->y() < height()/3 ) {
-		CObjectModel *pModel = m_pEditData->getObjectModel() ;
-		QModelIndex index = m_pEditData->getSelIndex() ;
 		if ( pModel->isLayer(index) ) {
-			ObjectItem *pItem = pModel->getItemFromIndex(index) ;
 			for ( int i = m_frameStart ; i <= m_frameEnd ; i ++ ) {
 				if ( ev->pos().x() >= getX(i) && ev->pos().x() < getX(i+1) ) {
 					if ( pItem->getFrameDataPtr(i) ) {
 						m_pressCurrentFrame = m_pressFrame = i ;
+						m_moveMode = kMoveMode_Layer ;
 					}
 					break ;
 				}
+			}
+		}
+	}
+	else if ( pModel->isObject(index) && ev->y() < height()*2/3 ) {
+		for ( int i = m_frameStart ; i <= m_frameEnd ; i ++ ) {
+			if ( ev->pos().x() >= getX(i) && ev->pos().x() < getX(i+1) ) {
+				if ( pItem->getFrameDataPtr(i, true) ) {
+					m_pressCurrentFrame = m_pressFrame = i ;
+					m_moveMode = kMoveMode_Object ;
+				}
+				break ;
 			}
 		}
 	}
@@ -221,7 +246,12 @@ void CDataMarkerLabel::mouseReleaseEvent(QMouseEvent *ev)
 				}
 				else if ( m_pressFrame >= 0 ){
 					if ( m_pressFrame != i ) {
-						emit sig_moveFrameData(m_pressFrame, i) ;	// フレームデータ移動
+						if ( m_moveMode == kMoveMode_Layer ) {
+							emit sig_moveFrameData(m_pressFrame, i) ;	// フレームデータ移動
+						}
+						else if ( m_moveMode == kMoveMode_Object ) {
+							emit sig_moveAllFrameData(m_pressFrame, i) ;
+						}
 					}
 				}
 				break ;
