@@ -88,6 +88,9 @@ void CSettings::read()
 	m_scLockItem		= QKeySequence(settings.value("lock_item", "").toString()) ;
 	m_scMoveAnimeWindow	= QKeySequence(settings.value("move_anm_win", "").toString()) ;
 	m_scLockLoupe		= QKeySequence(settings.value("lock_loupe", "").toString()) ;
+	m_scCopyAllFrame	= QKeySequence(settings.value("copy_allframe", "").toString()) ;
+	m_scPasteAllFrame	= QKeySequence(settings.value("paste_allframe", "").toString()) ;
+	m_scDeleteAllFrame	= QKeySequence(settings.value("delete_allframe", "").toString()) ;
 	settings.endGroup();
 }
 
@@ -151,23 +154,27 @@ void CSettings::write()
 	settings.endGroup() ;
 
 	settings.beginGroup("Shortcut");
-	settings.setValue("pos",			m_scPosSelect.toString()) ;
-	settings.setValue("rot",			m_scRotSelect.toString()) ;
-	settings.setValue("center",			m_scCenterSelect.toString()) ;
-	settings.setValue("scale",			m_scScaleSelect.toString()) ;
-	settings.setValue("path",			m_scPathSelect.toString()) ;
-	settings.setValue("copy_frame",		m_scCopyFrame.toString()) ;
-	settings.setValue("paste_frame",	m_scPasteFrame.toString()) ;
-	settings.setValue("play_anime",		m_scPlayAnime) ;
-	settings.setValue("stop_anime",		m_scStopAnime) ;
-	settings.setValue("jump_start",		m_scJumpStartFrame) ;
-	settings.setValue("jump_end",		m_scJumpEndFrame) ;
-	settings.setValue("add_frame",		m_scAddFrameData) ;
-	settings.setValue("del_frame",		m_scDelFrameData) ;
-	settings.setValue("del_item",		m_scDelItem) ;
-	settings.setValue("disp_item",		m_scDispItem) ;
-	settings.setValue("lock_item",		m_scLockItem) ;
-	settings.setValue("move_anm_win",	m_scMoveAnimeWindow) ;
-	settings.setValue("lock_loupe",		m_scLockLoupe) ;
+	settings.setValue("pos",				m_scPosSelect.toString()) ;
+	settings.setValue("rot",				m_scRotSelect.toString()) ;
+	settings.setValue("center",				m_scCenterSelect.toString()) ;
+	settings.setValue("scale",				m_scScaleSelect.toString()) ;
+	settings.setValue("path",				m_scPathSelect.toString()) ;
+	settings.setValue("copy_frame",			m_scCopyFrame.toString()) ;
+	settings.setValue("paste_frame",		m_scPasteFrame.toString()) ;
+	settings.setValue("play_anime",			m_scPlayAnime) ;
+	settings.setValue("stop_anime",			m_scStopAnime) ;
+	settings.setValue("jump_start",			m_scJumpStartFrame) ;
+	settings.setValue("jump_end",			m_scJumpEndFrame) ;
+	settings.setValue("add_frame",			m_scAddFrameData) ;
+	settings.setValue("del_frame",			m_scDelFrameData) ;
+	settings.setValue("del_item",			m_scDelItem) ;
+	settings.setValue("disp_item",			m_scDispItem) ;
+	settings.setValue("lock_item",			m_scLockItem) ;
+	settings.setValue("move_anm_win",		m_scMoveAnimeWindow) ;
+	settings.setValue("lock_loupe",			m_scLockLoupe) ;
+	settings.setValue("copy_allframe",		m_scCopyAllFrame) ;
+	settings.setValue("paste_allframe",		m_scPasteAllFrame) ;
+	settings.setValue("delete_allframe",	m_scDeleteAllFrame) ;
+
 	settings.endGroup();
 }

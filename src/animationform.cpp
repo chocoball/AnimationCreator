@@ -378,10 +378,7 @@ void AnimationForm::slot_deleteFrameData(void)
 	int frame = m_pEditData->getSelectFrame() ;
 	if ( !pItem->getFrameDataPtr(frame) ) { return ; }
 
-	QList<QWidget *> update ;
-	update << m_pDataMarker << m_pGlWidget ;
-
-	m_pEditData->cmd_delFrameData(index, frame, update) ;
+	m_pEditData->cmd_delFrameData(index, frame) ;
 }
 
 // ドロップ時のスロット
@@ -443,11 +440,7 @@ void AnimationForm::slot_dropedImage( CRectF rect, QPoint pos, int imageIndex )
 	frameData.rgba[2] =
 	frameData.rgba[3] = 255 ;
 
-	QList<QWidget *> updateWidget ;
-	updateWidget << m_pGlWidget ;
-	updateWidget << m_pDataMarker ;
-
-	m_pEditData->cmd_addFrameData(index, frameData, updateWidget) ;
+	m_pEditData->cmd_addFrameData(index, frameData) ;
 }
 
 // 現在フレーム変更
@@ -964,9 +957,7 @@ void AnimationForm::slot_addNewFrameData( QModelIndex indexLayer, int frame, Fra
 	qDebug() << "slot_addNewFrameData frame:" << frame ;
 	data.frame = frame ;
 	data.path[0] = data.path[1] = PathData() ;	// パス リセット
-	QList<QWidget *> update ;
-	update << m_pDataMarker << m_pGlWidget ;
-	m_pEditData->cmd_addFrameData(indexLayer, data, update) ;
+	m_pEditData->cmd_addFrameData(indexLayer, data) ;
 }
 
 // レイヤ表示ON/OFF
@@ -1255,9 +1246,7 @@ void AnimationForm::slot_copyObject( void )
 	QModelIndex index = m_pEditData->getSelIndex() ;
 	if ( !index.isValid() ) { return ; }
 
-	QList<QWidget *> updateWidget ;
-	updateWidget << m_pGlWidget << this ;
-	m_pEditData->cmd_copyObject(index, updateWidget) ;
+	m_pEditData->cmd_copyObject(index) ;
 }
 
 void AnimationForm::slot_changeDrawFrame(bool flag)
@@ -1340,9 +1329,7 @@ void AnimationForm::slot_splitterMoved(int pos, int index)
 
 void AnimationForm::slot_copyIndex(int row, ObjectItem *pItem, QModelIndex index, Qt::DropAction /*action*/)
 {
-	QList<QWidget *> widgets ;
-	widgets << m_pGlWidget ;
-	m_pEditData->cmd_copyIndex(row, pItem, index, widgets) ;
+	m_pEditData->cmd_copyIndex(row, pItem, index) ;
 }
 
 // フレームデータ 移動
@@ -1358,9 +1345,7 @@ void AnimationForm::slot_moveFrameData(int prevFrame, int nextFrame)
 	if ( !pItem ) { return ; }
 	if ( !pItem->getFrameDataPtr(prevFrame) ) { return ; }
 
-	QList<QWidget *> widgets ;
-	widgets << m_pDataMarker << m_pGlWidget ;
-	m_pEditData->cmd_moveFrameData(index, prevFrame, nextFrame, widgets) ;
+	m_pEditData->cmd_moveFrameData(index, prevFrame, nextFrame) ;
 }
 
 // 全フレームデータ移動
@@ -1375,9 +1360,7 @@ void AnimationForm::slot_moveAllFrameData(int prevFrame, int nextFrame)
 	ObjectItem *pItem = pModel->getItemFromIndex(index) ;
 	if ( !pItem ) { return ; }
 
-	QList<QWidget *> widgets ;
-	widgets << m_pDataMarker << m_pGlWidget ;
-	m_pEditData->cmd_moveAllFrameData(index, prevFrame, nextFrame, widgets) ;
+	m_pEditData->cmd_moveAllFrameData(index, prevFrame, nextFrame) ;
 }
 
 void AnimationForm::slot_scrollWindow(QPoint move)
@@ -1447,8 +1430,7 @@ void AnimationForm::addCommandEdit( FrameData data, FrameData *pOld )
 	int frame	= m_pEditData->getSelectFrame() ;
 	QList<QWidget *> update ;
 
-	update << m_pGlWidget << this ;
-	m_pEditData->cmd_editFrameData(m_pEditData->getSelIndex(), frame, data, pOld, update);
+	m_pEditData->cmd_editFrameData(m_pEditData->getSelIndex(), frame, data, pOld, this);
 	emit sig_changeSelectLayer(m_pEditData->getSelIndex()) ;
 }
 

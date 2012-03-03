@@ -87,15 +87,15 @@ void CEditData::cmd_delItem(QModelIndex &index)
 }
 
 // フレームデータ追加コマンド
-void CEditData::cmd_addFrameData( QModelIndex &index, FrameData &data, QList<QWidget *> &updateWidget )
+void CEditData::cmd_addFrameData( QModelIndex &index, FrameData &data )
 {
-	m_pUndoStack->push( new Command_AddFrameData(this, index, data, updateWidget));
+	m_pUndoStack->push( new Command_AddFrameData(this, index, data));
 }
 
 // フレームデータ削除コマンド
-void CEditData::cmd_delFrameData( QModelIndex &index, int frame, QList<QWidget *> &updateWidget )
+void CEditData::cmd_delFrameData( QModelIndex &index, int frame )
 {
-	m_pUndoStack->push( new Command_DelFrameData(this, index, frame, updateWidget));
+	m_pUndoStack->push( new Command_DelFrameData(this, index, frame));
 }
 
 // フレームデータ編集コマンド
@@ -103,33 +103,33 @@ void CEditData::cmd_editFrameData( QModelIndex		index,
 								 int				frame,
 								 FrameData		&data,
 								 FrameData		*pOld,
-								 QList<QWidget *>	&updateWidget )
+								 QWidget		*animeWidget )
 {
-	m_pUndoStack->push( new Command_EditFrameData(this, index, frame, data, pOld, updateWidget));
+	m_pUndoStack->push( new Command_EditFrameData(this, index, frame, data, pOld, animeWidget));
 }
 
 // オブジェクトコピー コマンド
-void CEditData::cmd_copyObject(QModelIndex &index, QList<QWidget *> &updateWidget)
+void CEditData::cmd_copyObject(QModelIndex &index)
 {
-	m_pUndoStack->push( new Command_CopyObject(this, index, updateWidget) );
+	m_pUndoStack->push( new Command_CopyObject(this, index) );
 }
 
 // レイヤ 親子移動
-void CEditData::cmd_copyIndex(int row, ObjectItem *pItem, QModelIndex parent, QList<QWidget *> &updateWidget)
+void CEditData::cmd_copyIndex(int row, ObjectItem *pItem, QModelIndex parent)
 {
-	m_pUndoStack->push(new Command_CopyIndex(this, row, pItem, parent, updateWidget)) ;
+	m_pUndoStack->push(new Command_CopyIndex(this, row, pItem, parent)) ;
 }
 
 // フレームデータ移動
-void CEditData::cmd_moveFrameData(QModelIndex &index, int prevFrame, int nextFrame, QList<QWidget *> &updateWidget)
+void CEditData::cmd_moveFrameData(QModelIndex &index, int prevFrame, int nextFrame)
 {
-	m_pUndoStack->push(new Command_MoveFrameData(this, index, prevFrame, nextFrame, updateWidget)) ;
+	m_pUndoStack->push(new Command_MoveFrameData(this, index, prevFrame, nextFrame)) ;
 }
 
 // 全フレームデータ移動
-void CEditData::cmd_moveAllFrameData(QModelIndex &index, int prevFrame, int nextFrame, QList<QWidget *> &updateWidget)
+void CEditData::cmd_moveAllFrameData(QModelIndex &index, int prevFrame, int nextFrame)
 {
-	m_pUndoStack->push(new Command_MoveAllFrameData(this, index, prevFrame, nextFrame, updateWidget)) ;
+	m_pUndoStack->push(new Command_MoveAllFrameData(this, index, prevFrame, nextFrame)) ;
 }
 
 // ツリーアイテム上に移動
@@ -155,6 +155,19 @@ void CEditData::cmd_changeFrameDataScale(double scale)
 {
 	m_pUndoStack->push(new Command_ScaleFrame(this, scale)) ;
 }
+
+// 現在フレームの全フレームデータペースト
+void CEditData::cmd_pasteAllFrame(QModelIndex index, int frame)
+{
+	m_pUndoStack->push(new Command_PasteAllFrame(this, index, frame)) ;
+}
+
+// 現在フレームの全フレームデータ削除
+void CEditData::cmd_deleteAllFrame(QModelIndex index, int frame)
+{
+	m_pUndoStack->push(new Command_DeleteAllFrame(this, index, frame)) ;
+}
+
 
 
 // 選択しているフレームデータ取得

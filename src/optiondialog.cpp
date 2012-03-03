@@ -361,6 +361,15 @@ QList<QStringList> KeyboardTab::getData()
 	list << trUtf8("ルーペウィンドウ ロック") << m_pSetting->getShortcutLockLoupe().toString() ;
 	datas << list ;
 	list.clear() ;
+	list << trUtf8("全レイヤのフレームデータ コピー") << m_pSetting->getShortcutCopyAllFrame().toString() ;
+	datas << list ;
+	list.clear() ;
+	list << trUtf8("全レイヤのフレームデータ ペースト") << m_pSetting->getShortcutPasteAllFrame().toString() ;
+	datas << list ;
+	list.clear() ;
+	list << trUtf8("全レイヤのフレームデータ 削除") << m_pSetting->getShortcutDeleteAllFrame().toString() ;
+	datas << list ;
+	list.clear() ;
 
 	return datas ;
 }
@@ -386,6 +395,9 @@ void KeyboardTab::setShortcut(int type, QKeySequence ks)
 		case 15:	m_pSetting->setShortcutLockItem(ks) ;		break ;	// lock item
 		case 16:	m_pSetting->setShortcutMoveAnimeWindow(ks) ;break ;	// move animation window
 		case 17:	m_pSetting->setShortcutLockLoupe(ks) ;		break ;	// lock loupe window
+		case 18:	m_pSetting->setShortcutCopyAllFrame(ks) ;	break ;
+		case 19:	m_pSetting->setShortcutPasteAllFrame(ks) ;	break ;
+		case 20:	m_pSetting->setShortcutDeleteAllFrame(ks) ;	break ;
 	}
 
 	ui->lineEdit->setText(ks.toString()) ;

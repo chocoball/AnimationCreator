@@ -12,6 +12,16 @@ CDataMarkerLabel::CDataMarkerLabel(QWidget *parent) :
 	m_pressCurrentFrame(-1),
 	m_moveMode(kMoveMode_None)
 {
+//	setContextMenuPolicy(Qt::CustomContextMenu) ;
+
+	m_pActCopyAllFrame = new QAction(QString("Copy All FrameData"), this) ;
+	m_pActPasteAllFrame = new QAction(QString("Paste All FrameData"), this) ;
+	m_pActDeleteAllFrame = new QAction(QString("Delete All FrameData"), this) ;
+
+	connect(m_pActCopyAllFrame, SIGNAL(triggered()), this, SLOT(slot_copyAllFrame())) ;
+	connect(m_pActPasteAllFrame, SIGNAL(triggered()), this, SLOT(slot_pasteAllFrame())) ;
+	connect(m_pActDeleteAllFrame, SIGNAL(triggered()), this, SLOT(slot_deleteAllFrame())) ;
+//	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slot_contextMenu(QPoint))) ;
 }
 
 void CDataMarkerLabel::setValue(int val)
@@ -61,6 +71,30 @@ void CDataMarkerLabel::slot_moveScrollBar(int val)
 	}
 	m_offset = -w * val / m_pHorizontalScrollBar->maximum() ;
 	repaint() ;
+}
+
+void CDataMarkerLabel::slot_copyAllFrame()
+{
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	ObjectItem *pItem = pModel->getItemFromIndex(m_pEditData->getSelIndex()) ;
+	if ( !pItem ) { return ; }
+	m_pEditData->cmd_copyAllFrame(m_pEditData->getSelIndex(), m_value) ;
+}
+
+void CDataMarkerLabel::slot_pasteAllFrame()
+{
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	ObjectItem *pItem = pModel->getItemFromIndex(m_pEditData->getSelIndex()) ;
+	if ( !pItem ) { return ; }
+	m_pEditData->cmd_pasteAllFrame(m_pEditData->getSelIndex(), m_value) ;
+}
+
+void CDataMarkerLabel::slot_deleteAllFrame()
+{
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	ObjectItem *pItem = pModel->getItemFromIndex(m_pEditData->getSelIndex()) ;
+	if ( !pItem ) { return ; }
+	m_pEditData->cmd_deleteAllFrame(m_pEditData->getSelIndex(), m_value) ;
 }
 
 void CDataMarkerLabel::paintEvent(QPaintEvent */*event*/)
@@ -176,10 +210,12 @@ void CDataMarkerLabel::mousePressEvent(QMouseEvent *ev)
 	m_bMouseMove = false ;
 	m_bPressLeft = false ;
 	m_moveMode = kMoveMode_None ;
+#if 0
 	if ( ev->button() != Qt::LeftButton ) {
 		ev->ignore();
 		return ;
 	}
+#endif
 	m_oldMousePos = ev->pos() ;
 	m_bPressLeft = true ;
 	m_pressFrame = m_pressCurrentFrame = -1 ;
@@ -276,4 +312,15 @@ void CDataMarkerLabel::fixOffset(void)
 	}
 	if ( m_offset > 0 ) { m_offset = 0 ; }
 }
+
+void CDataMarkerLabel::contextMenuEvent(QContextMenuEvent *ev)
+{
+	QMenu menu(this) ;
+	menu.addAction(m_pActCopyAllFrame) ;
+	menu.addAction(m_pActPasteAllFrame) ;
+	menu.addAction(m_pActDeleteAllFrame) ;
+
+	menu.exec(ev->globalPos()) ;
+}
+
 

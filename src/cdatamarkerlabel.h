@@ -16,6 +16,7 @@ public:
 		kMoveMode_Layer,
 		kMoveMode_Object
 	} ;
+
 public:
 	explicit CDataMarkerLabel(QWidget *parent = 0);
 
@@ -35,6 +36,10 @@ public slots:
 	void slot_setFrameEnd(int val) ;
 	void slot_moveScrollBar(int val) ;
 
+	void slot_copyAllFrame() ;
+	void slot_pasteAllFrame() ;
+	void slot_deleteAllFrame() ;
+
 protected:
 	void paintEvent(QPaintEvent *event);
 	void drawFrameBase(QPainter &painter) ;
@@ -48,6 +53,8 @@ protected:
 
 	void fixOffset(void) ;
 
+	void contextMenuEvent(QContextMenuEvent *ev) ;
+
 	kAccessor(CEditData*, m_pEditData, EditData)
 
 private:
@@ -56,6 +63,10 @@ private:
 	int			m_offset ;
 	QPoint		m_oldMousePos ;
 	QScrollBar	*m_pHorizontalScrollBar ;
+
+	QAction		*m_pActCopyAllFrame ;
+	QAction		*m_pActPasteAllFrame ;
+	QAction		*m_pActDeleteAllFrame ;
 
 	bool		m_bPressLeft ;
 	bool		m_bMouseMove ;

@@ -4,6 +4,7 @@
 #include <QImage>
 #include <QtOpenGL>
 #include <QUndoStack>
+#include <QList>
 #include "objectmodel.h"
 #include "CRect.h"
 
@@ -89,23 +90,24 @@ public:
 	QModelIndex cmd_addItem(QString str, QModelIndex parent = QModelIndex()) ;
 	void cmd_delItem(QModelIndex &index) ;
 
-	void cmd_addFrameData( QModelIndex &index, FrameData &data, QList<QWidget *> &updateWidget ) ;
+	void cmd_addFrameData( QModelIndex &index, FrameData &data ) ;
 	void cmd_delFrameData( QModelIndex			&index,
-						   int					frame,
-						   QList<QWidget *>		&updateWidget ) ;
+						   int					frame ) ;
 	void cmd_editFrameData( QModelIndex			index,
 							int					frame,
 							FrameData			&data,
 							FrameData			*pOld,
-							QList<QWidget *>	&updateWidget ) ;
-	void cmd_copyObject(QModelIndex &index, QList<QWidget *> &updateWidget) ;
-	void cmd_copyIndex(int row, ObjectItem *pItem, QModelIndex parent, QList<QWidget *> &updateWidget) ;
-	void cmd_moveFrameData(QModelIndex &index, int prevFrame, int nextFrame, QList<QWidget *> &updateWidget) ;
-	void cmd_moveAllFrameData(QModelIndex &index, int prevFrame, int nextFrame, QList<QWidget *> &updateWidget) ;
+							QWidget				*animeWidget ) ;
+	void cmd_copyObject(QModelIndex &index) ;
+	void cmd_copyIndex(int row, ObjectItem *pItem, QModelIndex parent) ;
+	void cmd_moveFrameData(QModelIndex &index, int prevFrame, int nextFrame) ;
+	void cmd_moveAllFrameData(QModelIndex &index, int prevFrame, int nextFrame) ;
 	void cmd_moveItemUp(const QModelIndex &index) ;
 	void cmd_moveItemDown(const QModelIndex &index) ;
 	void cmd_changeUvScale(double scale) ;
 	void cmd_changeFrameDataScale(double scale) ;
+	void cmd_pasteAllFrame(QModelIndex index, int frame) ;
+	void cmd_deleteAllFrame(QModelIndex index, int frame) ;
 
 	void setCurrLoopNum( int num )
 	{
@@ -208,6 +210,14 @@ public:
 	}
 	// --------------------------------------
 
+	// 全フレームデータコピー関連 -------------------
+	void setCopyAllFrameData(ObjectItem *p)
+	{
+
+	}
+
+	// --------------------------------------
+
 	bool getNowSelectFrameData(FrameData &ret) ;
 	QMatrix4x4 getNowSelectMatrix() ;
 
@@ -232,21 +242,25 @@ private:
 	kAccessor(int, m_selectFrame, SelectFrame)
 
 private:
-	QList<ImageData>				m_ImageDataList ;
+	QList<ImageData>						m_ImageDataList ;
 
-	CObjectModel					*m_pObjectModel ;
-	QUndoStack						*m_pUndoStack ;
+	CObjectModel							*m_pObjectModel ;
+	QUndoStack								*m_pUndoStack ;
 
-	bool							m_bExportPNG ;
-	QString							m_strExportPNGDir ;
-	int								m_exPngRect[4] ;	// [0]left, [1]top, [2]right, [3]bottom
-	int								m_nExportEndFrame ;	// 吐き出し終わったフレーム
+	bool									m_bExportPNG ;
+	QString									m_strExportPNGDir ;
+	int										m_exPngRect[4] ;	// [0]left, [1]top, [2]right, [3]bottom
+	int										m_nExportEndFrame ;	// 吐き出し終わったフレーム
 
-	bool							m_bCopyFrameData ;
-	FrameData						m_CopyFrameData ;
+	bool									m_bCopyFrameData ;
+	FrameData								m_CopyFrameData ;
 
-	bool							m_bCopyLayer ;
-	ObjectItem						*m_pCopyLayer ;
+	bool									m_bCopyLayer ;
+	ObjectItem								*m_pCopyLayer ;
+
+	bool									m_bCopyAllFrame ;
+	int										m_copyAllFrameObjRow ;
+	QList<QPair<QModelIndex, FrameData> >	m_copyAllFrames ;
 } ;
 
 #endif // EDITDATA_H

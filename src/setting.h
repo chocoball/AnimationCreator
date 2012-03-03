@@ -68,6 +68,9 @@ public:
 	kAccessor(QKeySequence,	m_scLockItem,				ShortcutLockItem)
 	kAccessor(QKeySequence,	m_scMoveAnimeWindow,		ShortcutMoveAnimeWindow)
 	kAccessor(QKeySequence,	m_scLockLoupe,				ShortcutLockLoupe)
+	kAccessor(QKeySequence,	m_scCopyAllFrame,			ShortcutCopyAllFrame)
+	kAccessor(QKeySequence,	m_scPasteAllFrame,			ShortcutPasteAllFrame)
+	kAccessor(QKeySequence,	m_scDeleteAllFrame,			ShortcutDeleteAllFrame)
 
 private:
 };
