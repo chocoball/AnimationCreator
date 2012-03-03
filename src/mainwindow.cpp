@@ -20,8 +20,6 @@ MainWindow::MainWindow(QWidget *parent)
 	m_pSubWindow_Img = NULL ;
 	m_pSubWindow_Loupe = NULL ;
 	m_pSubWindow_Curve = NULL ;
-	m_pSubWindow_ObjScale = NULL ;
-	m_pSubWindow_FrameDataScale = NULL ;
 
 	m_pMdiArea = new CDropableMdiArea ;
 	m_pMdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -432,26 +430,23 @@ void MainWindow::slot_objScale()
 			return ;
 		}
 		m_pObjScaleForm = new ObjectScaleForm(&m_EditData, this) ;
-		m_pSubWindow_ObjScale = m_pMdiArea->addSubWindow(m_pObjScaleForm) ;
+		m_pMdiArea->addSubWindow(m_pObjScaleForm) ;
 		m_pObjScaleForm->show() ;
 
-		connect(m_pObjScaleForm, SIGNAL(destroyed()), this, SLOT(slot_closeObjScaleForm)) ;
+		connect(m_pObjScaleForm, SIGNAL(destroyed()), this, SLOT(slot_closeObjScaleForm())) ;
 	}
 }
 
 void MainWindow::slot_closeObjScaleForm()
 {
-	m_pMdiArea->removeSubWindow(m_pSubWindow_ObjScale);
-	delete m_pObjScaleForm ;
 	m_pObjScaleForm = NULL ;
-	m_pSubWindow_ObjScale = NULL ;
 }
 
 void MainWindow::slot_frameScale()
 {
 	if ( !m_pMdiArea->findChild<FrameDataScaleForm *>(trUtf8("FrameDataScaleForm")) ) {
 		m_pFrameDataScaleForm = new FrameDataScaleForm(&m_EditData, this) ;
-		m_pSubWindow_FrameDataScale = m_pMdiArea->addSubWindow(m_pFrameDataScaleForm) ;
+		m_pMdiArea->addSubWindow(m_pFrameDataScaleForm) ;
 		m_pFrameDataScaleForm->show() ;
 
 		connect(m_pFrameDataScaleForm, SIGNAL(destroyed()), this, SLOT(slot_closeFrameDataScaleForm())) ;
@@ -460,10 +455,7 @@ void MainWindow::slot_frameScale()
 
 void MainWindow::slot_closeFrameDataScaleForm()
 {
-	m_pMdiArea->removeSubWindow(m_pSubWindow_FrameDataScale);
-	delete m_pObjScaleForm ;
 	m_pFrameDataScaleForm = NULL ;
-	m_pSubWindow_FrameDataScale = NULL ;
 }
 
 #ifndef QT_NO_DEBUG

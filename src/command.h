@@ -8,8 +8,18 @@
 
 class CEditData ;
 
+class CommandBase : public QUndoCommand
+{
+public:
+	CommandBase(const QString &text) : QUndoCommand(text) {}
+	virtual ~CommandBase() {}
+
+protected:
+	void updateAllWidget() ;
+};
+
 // アイテム追加 コマンド
-class Command_AddItem : public QUndoCommand
+class Command_AddItem : public CommandBase
 {
 public:
 	Command_AddItem(CEditData *pEditData, QString &str, QModelIndex &parent) ;
@@ -28,7 +38,7 @@ private:
 } ;
 
 // アイテム削除 コマンド
-class Command_DelItem : public QUndoCommand
+class Command_DelItem : public CommandBase
 {
 public:
 	Command_DelItem(CEditData *pEditData, QModelIndex &index) ;
@@ -46,7 +56,7 @@ private:
 
 
 // フレームデータ追加コマンド
-class Command_AddFrameData : public QUndoCommand
+class Command_AddFrameData : public CommandBase
 {
 public:
 	Command_AddFrameData(CEditData *pEditData,
@@ -68,7 +78,7 @@ private:
 };
 
 // フレームデータ削除コマンド
-class Command_DelFrameData : public QUndoCommand
+class Command_DelFrameData : public CommandBase
 {
 public:
 	Command_DelFrameData(CEditData *pEditData,
@@ -88,7 +98,7 @@ private:
 };
 
 // フレームデータ編集コマンド
-class Command_EditFrameData : public QUndoCommand
+class Command_EditFrameData : public CommandBase
 {
 public:
 	Command_EditFrameData(CEditData			*pEditData,
@@ -113,7 +123,7 @@ private:
 };
 
 // オブジェクトコピーコマンド
-class Command_CopyObject : public QUndoCommand
+class Command_CopyObject : public CommandBase
 {
 public:
 	Command_CopyObject( CEditData *pEditData, QModelIndex &index, QList<QWidget *> &updateWidget ) ;
@@ -129,7 +139,7 @@ private:
 } ;
 
 // レイヤコピー
-class Command_CopyIndex : public QUndoCommand
+class Command_CopyIndex : public CommandBase
 {
 public:
 	Command_CopyIndex( CEditData *pEditData, int row, ObjectItem *pLayer, QModelIndex parent, QList<QWidget *> &updateWidget ) ;
@@ -145,7 +155,7 @@ private:
 } ;
 
 // フレームデータ移動
-class Command_MoveFrameData : public QUndoCommand
+class Command_MoveFrameData : public CommandBase
 {
 public:
 	Command_MoveFrameData(CEditData *pEditData, QModelIndex &index, int prevFrame, int nextFrame, QList<QWidget *> &updateWidget) ;
@@ -163,7 +173,7 @@ private:
 };
 
 // 全フレームデータ移動
-class Command_MoveAllFrameData : public QUndoCommand
+class Command_MoveAllFrameData : public CommandBase
 {
 public:
 	Command_MoveAllFrameData(CEditData *pEditData, QModelIndex &index, int prevFrame, int nextFrame, QList<QWidget *> &updateWidget) ;
@@ -185,7 +195,7 @@ private:
 };
 
 // ツリーアイテム上に移動
-class Command_MoveItemUp : public QUndoCommand
+class Command_MoveItemUp : public CommandBase
 {
 public:
 	Command_MoveItemUp(CEditData *pEditData, const QModelIndex &index) ;
@@ -200,7 +210,7 @@ private:
 };
 
 // ツリーアイテム下に移動
-class Command_MoveItemDown : public QUndoCommand
+class Command_MoveItemDown : public CommandBase
 {
 public:
 	Command_MoveItemDown(CEditData *pEditData, const QModelIndex &index) ;
@@ -215,7 +225,7 @@ private:
 };
 
 // UVスケール
-class Command_ScaleUv : public QUndoCommand
+class Command_ScaleUv : public CommandBase
 {
 public:
 	Command_ScaleUv(CEditData *pEditData, double scale) ;
@@ -233,7 +243,7 @@ private:
 };
 
 // フレームスケール
-class Command_ScaleFrame : public QUndoCommand
+class Command_ScaleFrame : public CommandBase
 {
 public:
 	Command_ScaleFrame(CEditData *pEditData, double scale) ;

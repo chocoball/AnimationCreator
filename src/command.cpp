@@ -2,11 +2,18 @@
 #include "animationform.h"
 #include "debug.h"
 
+void CommandBase::updateAllWidget()
+{
+	foreach ( QWidget *widget, qApp->allWidgets() ) {
+		widget->update() ;
+	}
+}
+
 /**
   アイテム追加 コマンド
   */
 Command_AddItem::Command_AddItem(CEditData *pEditData, QString &str, QModelIndex &parent) :
-	QUndoCommand(QObject::trUtf8("オブジェクト追加"))
+	CommandBase(QObject::trUtf8("オブジェクト追加"))
 {
 	m_pEditData = pEditData ;
 	m_str = str ;
@@ -19,6 +26,8 @@ void Command_AddItem::redo()
 	QModelIndex index = m_pEditData->getObjectModel()->getIndex(m_parentRow) ;
 	m_index = m_pEditData->getObjectModel()->addItem(m_str, index) ;
 	m_row = m_pEditData->getObjectModel()->getRow(m_index) ;
+
+	updateAllWidget();
 }
 
 void Command_AddItem::undo()
@@ -33,13 +42,15 @@ void Command_AddItem::undo()
 		m_pEditData->getObjectModel()->removeItem(index) ;
 	}
 	m_row = -1 ;
+
+	updateAllWidget();
 }
 
 /**
   アイテム削除 コマンド
   */
 Command_DelItem::Command_DelItem(CEditData *pEditData, QModelIndex &index) :
-	QUndoCommand(QObject::trUtf8("オブジェクト削除"))
+	CommandBase(QObject::trUtf8("オブジェクト削除"))
 {
 	m_pEditData = pEditData ;
 	m_relRow = index.row() ;
@@ -64,6 +75,8 @@ void Command_DelItem::redo()
 			qDebug() << "Command_DelItem redo exec" ;
 		}
 	}
+
+	updateAllWidget();
 }
 
 void Command_DelItem::undo()
@@ -80,6 +93,8 @@ void Command_DelItem::undo()
 		m_pItem = NULL ;
 		qDebug() << "Command_DelItem undo exec" ;
 	}
+
+	updateAllWidget();
 }
 
 
@@ -90,7 +105,7 @@ Command_AddFrameData::Command_AddFrameData(CEditData		*pEditData,
 										   QModelIndex		&index,
 										   FrameData		&data,
 										   QList<QWidget *>	&updateWidget) :
-	QUndoCommand(QObject::trUtf8("オブジェクト追加"))
+	CommandBase(QObject::trUtf8("オブジェクト追加"))
 {
 	qDebug() << "Command_AddFrameData" ;
 
@@ -125,9 +140,7 @@ void Command_AddFrameData::redo()
 	pItem->addFrameData(m_frameData);
 	pItem->setData(m_flag, Qt::CheckStateRole);
 
-	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
-		m_UpdateWidgetList[i]->update();
-	}
+	updateAllWidget();
 }
 
 void Command_AddFrameData::undo()
@@ -141,9 +154,7 @@ void Command_AddFrameData::undo()
 	m_flag = pItem->data(Qt::CheckStateRole).toInt() ;
 	pItem->removeFrameData(m_frameData.frame) ;
 
-	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
-		m_UpdateWidgetList[i]->update();
-	}
+	updateAllWidget();
 }
 
 
@@ -155,7 +166,7 @@ Command_DelFrameData::Command_DelFrameData(CEditData			*pEditData,
 										   QModelIndex			&index,
 										   int					frame,
 										   QList<QWidget *>		&updateWidget) :
-	QUndoCommand(QObject::trUtf8("フレームデータ削除"))
+	CommandBase(QObject::trUtf8("フレームデータ削除"))
 {
 	qDebug() << "Command_DelFrameData" ;
 
@@ -178,9 +189,7 @@ void Command_DelFrameData::redo()
 	m_FrameData = *p ;
 	pItem->removeFrameData(m_FrameData.frame);
 
-	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
-		m_UpdateWidgetList[i]->update();
-	}
+	updateAllWidget();
 }
 
 void Command_DelFrameData::undo()
@@ -196,9 +205,7 @@ void Command_DelFrameData::undo()
 		pItem->addFrameData(m_FrameData) ;
 	}
 
-	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
-		m_UpdateWidgetList[i]->update();
-	}
+	updateAllWidget();
 }
 
 
@@ -212,7 +219,7 @@ Command_EditFrameData::Command_EditFrameData(CEditData			*pEditData,
 											 FrameData			&data,
 											 FrameData			*pOld,
 											 QList<QWidget *>	&updateWidget) :
-	QUndoCommand(QObject::trUtf8("フレームデータ編集"))
+	CommandBase(QObject::trUtf8("フレームデータ編集"))
 {
 	qDebug() << "Command_EditFrameData" ;
 
@@ -248,10 +255,9 @@ void Command_EditFrameData::redo()
 		if ( m_UpdateWidgetList[i]->objectName() == "AnimationForm" ) {
 			static_cast<AnimationForm *>(m_UpdateWidgetList[i])->slot_setUI(m_FrameData);
 		}
-		else {
-			m_UpdateWidgetList[i]->update();
-		}
 	}
+
+	updateAllWidget();
 }
 
 void Command_EditFrameData::undo()
@@ -270,10 +276,8 @@ void Command_EditFrameData::undo()
 		if ( m_UpdateWidgetList[i]->objectName() == "AnimationForm" ) {
 			static_cast<AnimationForm *>(m_UpdateWidgetList[i])->slot_setUI(m_OldFrameData);
 		}
-		else {
-			m_UpdateWidgetList[i]->update();
-		}
 	}
+	updateAllWidget();
 }
 
 
@@ -281,7 +285,7 @@ void Command_EditFrameData::undo()
   オブジェクトコピーコマンド
   */
 Command_CopyObject::Command_CopyObject( CEditData *pEditData, QModelIndex &index, QList<QWidget *> &updateWidget ) :
-	QUndoCommand(QObject::trUtf8("オブジェクトコピー"))
+	CommandBase(QObject::trUtf8("オブジェクトコピー"))
 {
 	m_pEditData			= pEditData ;
 	m_UpdateWidgetList	= updateWidget ;
@@ -306,9 +310,7 @@ void Command_CopyObject::redo()
 		m_row = pModel->getRow(index) ;
 	}
 
-	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
-		m_UpdateWidgetList[i]->update();
-	}
+	updateAllWidget();
 }
 
 void Command_CopyObject::undo()
@@ -319,16 +321,14 @@ void Command_CopyObject::undo()
 		pModel->removeItem(index) ;
 		m_row = -1 ;
 	}
-	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
-		m_UpdateWidgetList[i]->update();
-	}
+	updateAllWidget();
 }
 
 /**
   レイヤコピー
   */
 Command_CopyIndex::Command_CopyIndex( CEditData *pEditData, int row, ObjectItem *pLayer, QModelIndex parent, QList<QWidget *> &updateWidget ) :
-	QUndoCommand(QObject::trUtf8("レイヤコピー"))
+	CommandBase(QObject::trUtf8("レイヤコピー"))
 {
 	m_pEditData			= pEditData ;
 	m_relRow			= row ;
@@ -361,9 +361,7 @@ void Command_CopyIndex::redo()
 
 //		m_pEditData->setSelIndex(index) ;
 	}
-	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
-		m_UpdateWidgetList[i]->update();
-	}
+	updateAllWidget();
 }
 
 void Command_CopyIndex::undo()
@@ -382,9 +380,7 @@ void Command_CopyIndex::undo()
 		pModel->removeItem(index) ;
 	}
 
-	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
-		m_UpdateWidgetList[i]->update();
-	}
+	updateAllWidget();
 }
 
 
@@ -392,7 +388,7 @@ void Command_CopyIndex::undo()
   フレームデータ移動
   */
 Command_MoveFrameData::Command_MoveFrameData(CEditData *pEditData, QModelIndex &index, int prevFrame, int nextFrame, QList<QWidget *> &updateWidget) :
-	QUndoCommand(QObject::trUtf8("フレームデータ移動"))
+	CommandBase(QObject::trUtf8("フレームデータ移動"))
 {
 	m_pEditData			= pEditData ;
 	m_row				= m_pEditData->getObjectModel()->getRow(index) ;
@@ -432,9 +428,7 @@ void Command_MoveFrameData::redo()
 	// 移動元を消す
 	pItem->removeFrameData(m_srcFrame) ;
 
-	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
-		m_UpdateWidgetList[i]->update();
-	}
+	updateAllWidget();
 }
 
 void Command_MoveFrameData::undo()
@@ -465,9 +459,7 @@ void Command_MoveFrameData::undo()
 		pItem->removeFrameData(m_dstFrame) ;
 	}
 
-	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
-		m_UpdateWidgetList[i]->update();
-	}
+	updateAllWidget();
 }
 
 
@@ -475,7 +467,7 @@ void Command_MoveFrameData::undo()
   全フレームデータ移動
   */
 Command_MoveAllFrameData::Command_MoveAllFrameData(CEditData *pEditData, QModelIndex &index, int prevFrame, int nextFrame, QList<QWidget *> &updateWidget) :
-	QUndoCommand(QObject::trUtf8("全フレームデータ移動"))
+	CommandBase(QObject::trUtf8("全フレームデータ移動"))
 {
 	m_pEditData			= pEditData ;
 	m_row				= m_pEditData->getObjectModel()->getRow(index) ;
@@ -500,9 +492,7 @@ void Command_MoveAllFrameData::redo()
 		QMessageBox::warning(m_UpdateWidgetList[0], QObject::trUtf8("エラー 30"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
 	}
 
-	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
-		m_UpdateWidgetList[i]->update();
-	}
+	updateAllWidget();
 }
 
 void Command_MoveAllFrameData::undo()
@@ -518,9 +508,7 @@ void Command_MoveAllFrameData::undo()
 		QMessageBox::warning(m_UpdateWidgetList[0], QObject::trUtf8("エラー 31"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
 	}
 
-	for ( int i = 0 ; i < m_UpdateWidgetList.size() ; i ++ ) {
-		m_UpdateWidgetList[i]->update();
-	}
+	updateAllWidget();
 }
 
 void Command_MoveAllFrameData::save_frameData(ObjectItem *pItem, int srcFrame, int dstFrame)
@@ -573,7 +561,7 @@ void Command_MoveAllFrameData::restore_frameData(ObjectItem *pItem, int srcFrame
   ツリーアイテム上に移動
   */
 Command_MoveItemUp::Command_MoveItemUp(CEditData *pEditData, const QModelIndex &index) :
-	QUndoCommand(QObject::trUtf8("アイテム上移動"))
+	CommandBase(QObject::trUtf8("アイテム上移動"))
 {
 	m_pEditData	= pEditData ;
 	m_index		= index ;
@@ -594,6 +582,8 @@ void Command_MoveItemUp::redo()
 	pItem->copy(m_pItem) ;
 	pModel->updateIndex();
 	m_pEditData->getTreeView()->setCurrentIndex(m_index) ;
+
+	updateAllWidget();
 }
 
 void Command_MoveItemUp::undo()
@@ -606,6 +596,8 @@ void Command_MoveItemUp::undo()
 	pItem->copy(m_pItem) ;
 	pModel->updateIndex();
 	m_pEditData->getTreeView()->setCurrentIndex(m_index) ;
+
+	updateAllWidget();
 }
 
 
@@ -613,7 +605,7 @@ void Command_MoveItemUp::undo()
   ツリーアイテム下に移動
   */
 Command_MoveItemDown::Command_MoveItemDown(CEditData *pEditData, const QModelIndex &index) :
-	QUndoCommand(QObject::trUtf8("アイテム下移動"))
+	CommandBase(QObject::trUtf8("アイテム下移動"))
 {
 	m_pEditData	= pEditData ;
 	m_index		= index ;
@@ -634,6 +626,8 @@ void Command_MoveItemDown::redo()
 	pItem->copy(m_pItem) ;
 	pModel->updateIndex();
 	m_pEditData->getTreeView()->setCurrentIndex(m_index) ;
+
+	updateAllWidget();
 }
 
 void Command_MoveItemDown::undo()
@@ -646,6 +640,8 @@ void Command_MoveItemDown::undo()
 	pItem->copy(m_pItem) ;
 	pModel->updateIndex();
 	m_pEditData->getTreeView()->setCurrentIndex(m_index) ;
+
+	updateAllWidget();
 }
 
 
@@ -653,7 +649,7 @@ void Command_MoveItemDown::undo()
   UVスケール変更
   */
 Command_ScaleUv::Command_ScaleUv(CEditData *pEditData, double scale) :
-	QUndoCommand(QObject::trUtf8("UVスケール変更"))
+	CommandBase(QObject::trUtf8("UVスケール変更"))
 {
 	m_pEditData = pEditData ;
 	m_scale = scale ;
@@ -670,6 +666,8 @@ void Command_ScaleUv::redo()
 		if ( !pObj ) { continue ; }
 		save_framedata(pObj) ;
 	}
+
+	updateAllWidget();
 }
 
 void Command_ScaleUv::undo()
@@ -687,6 +685,8 @@ void Command_ScaleUv::undo()
 		}
 		*pFrameData = d.second ;
 	}
+
+	updateAllWidget();
 }
 
 void Command_ScaleUv::save_framedata(ObjectItem *pItem)
@@ -725,7 +725,7 @@ void Command_ScaleUv::save_framedata(ObjectItem *pItem)
   フレームスケール変更
   */
 Command_ScaleFrame::Command_ScaleFrame(CEditData *pEditData, double scale) :
-	QUndoCommand(QObject::trUtf8("フレームスケール変更"))
+	CommandBase(QObject::trUtf8("フレームスケール変更"))
 {
 	m_pEditData = pEditData ;
 	m_scale = scale ;
@@ -749,6 +749,8 @@ void Command_ScaleFrame::redo()
 			qDebug() << "エラー 23:不正なフレームデータが登録されました。直ちにプログラマに相談してください" ;
 		}
 	}
+
+	updateAllWidget();
 }
 
 void Command_ScaleFrame::undo()
@@ -761,6 +763,8 @@ void Command_ScaleFrame::undo()
 		if ( !pItem ) { continue ; }
 		pItem->setFrameDatas(d.second) ;
 	}
+
+	updateAllWidget();
 }
 
 void Command_ScaleFrame::save_framedata(ObjectItem *pItem)

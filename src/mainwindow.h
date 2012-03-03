@@ -130,8 +130,6 @@ private:
 	QMdiSubWindow		*m_pSubWindow_Loupe ;
 	QMdiSubWindow		*m_pSubWindow_Expng ;
 	QMdiSubWindow		*m_pSubWindow_Curve ;
-	QMdiSubWindow		*m_pSubWindow_ObjScale ;
-	QMdiSubWindow		*m_pSubWindow_FrameDataScale ;
 
 	// 編集データ ----
 	QString				m_StrSaveFileName ;		// 保存ファイル名

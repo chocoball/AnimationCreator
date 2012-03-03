@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Object Scale</string>
+   <string>Frame Scale</string>
   </property>
   <widget class="QPushButton" name="pushButton">
    <property name="geometry">
@@ -49,6 +49,9 @@
    </property>
    <property name="maximum">
     <double>10.000000000000000</double>
+   </property>
+   <property name="value">
+    <double>1.000000000000000</double>
    </property>
   </widget>
  </widget>
