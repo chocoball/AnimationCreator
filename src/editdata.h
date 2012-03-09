@@ -211,10 +211,30 @@ public:
 	// --------------------------------------
 
 	// 全フレームデータコピー関連 -------------------
-	void setCopyAllFrameData(ObjectItem *p)
+	void setCopyAllFrameData(ObjectItem *p, int frame)
 	{
+		p = m_pObjectModel->getObject(p->getIndex()) ;
+		if ( !p ) { return ; }
 
+		m_bCopyAllFrame = true ;
+		m_copyAllFrameObjRow = m_pObjectModel->getRow(p->getIndex()) ;
+		m_copyAllFrames.clear() ;
+		for ( int i = 0 ; i < p->childCount() ; i ++ ) {
+			setCopyAllFrameData_internal(p->child(i), frame) ;
+		}
 	}
+
+	bool isPastableAllFrameData(ObjectItem *p)
+	{
+		if ( !m_bCopyAllFrame ) { return false ; }
+		p = m_pObjectModel->getObject(p->getIndex()) ;
+		if ( !p ) { return false ; }
+		if ( m_copyAllFrameObjRow != m_pObjectModel->getRow(p->getIndex()) ) { return false ; }
+		return true ;
+	}
+
+	QList<QPair<int, FrameData> > &getAllFrameDatas() { return m_copyAllFrames ; }
+	int getAllFrameDataObjRow() { return m_copyAllFrameObjRow ; }
 
 	// --------------------------------------
 
@@ -230,6 +250,18 @@ public:
 	}
 
 private:
+	void setCopyAllFrameData_internal(ObjectItem *pLayer, int frame)
+	{
+		FrameData *pData = pLayer->getFrameDataPtr(frame) ;
+		if ( pData ) {
+			m_copyAllFrames.append(qMakePair(m_pObjectModel->getRow(pLayer->getIndex()), *pData)) ;
+		}
+
+		for ( int i = 0 ; i < pLayer->childCount() ; i ++ ) {
+			setCopyAllFrameData_internal(pLayer->child(i), frame) ;
+		}
+	}
+
 	void sortFrameDatas(ObjectItem *pItem) ;
 
 	kAccessor(int, m_editMode, EditMode)
@@ -242,25 +274,25 @@ private:
 	kAccessor(int, m_selectFrame, SelectFrame)
 
 private:
-	QList<ImageData>						m_ImageDataList ;
+	QList<ImageData>				m_ImageDataList ;
 
-	CObjectModel							*m_pObjectModel ;
-	QUndoStack								*m_pUndoStack ;
+	CObjectModel					*m_pObjectModel ;
+	QUndoStack						*m_pUndoStack ;
 
-	bool									m_bExportPNG ;
-	QString									m_strExportPNGDir ;
-	int										m_exPngRect[4] ;	// [0]left, [1]top, [2]right, [3]bottom
-	int										m_nExportEndFrame ;	// 吐き出し終わったフレーム
+	bool							m_bExportPNG ;
+	QString							m_strExportPNGDir ;
+	int								m_exPngRect[4] ;	// [0]left, [1]top, [2]right, [3]bottom
+	int								m_nExportEndFrame ;	// 吐き出し終わったフレーム
 
-	bool									m_bCopyFrameData ;
-	FrameData								m_CopyFrameData ;
+	bool							m_bCopyFrameData ;
+	FrameData						m_CopyFrameData ;
 
-	bool									m_bCopyLayer ;
-	ObjectItem								*m_pCopyLayer ;
+	bool							m_bCopyLayer ;
+	ObjectItem						*m_pCopyLayer ;
 
-	bool									m_bCopyAllFrame ;
-	int										m_copyAllFrameObjRow ;
-	QList<QPair<QModelIndex, FrameData> >	m_copyAllFrames ;
+	bool							m_bCopyAllFrame ;
+	int								m_copyAllFrameObjRow ;
+	QList<QPair<int, FrameData> >	m_copyAllFrames ;
 } ;
 
 #endif // EDITDATA_H

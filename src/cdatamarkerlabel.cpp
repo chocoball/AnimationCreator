@@ -78,7 +78,7 @@ void CDataMarkerLabel::slot_copyAllFrame()
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
 	ObjectItem *pItem = pModel->getItemFromIndex(m_pEditData->getSelIndex()) ;
 	if ( !pItem ) { return ; }
-	m_pEditData->cmd_copyAllFrame(m_pEditData->getSelIndex(), m_value) ;
+	m_pEditData->setCopyAllFrameData(pItem, m_value) ;
 }
 
 void CDataMarkerLabel::slot_pasteAllFrame()
@@ -86,6 +86,7 @@ void CDataMarkerLabel::slot_pasteAllFrame()
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
 	ObjectItem *pItem = pModel->getItemFromIndex(m_pEditData->getSelIndex()) ;
 	if ( !pItem ) { return ; }
+	if ( !m_pEditData->isPastableAllFrameData(pItem) ) { return ; }
 	m_pEditData->cmd_pasteAllFrame(m_pEditData->getSelIndex(), m_value) ;
 }
 

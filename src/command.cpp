@@ -825,3 +825,58 @@ void Command_ScaleFrame::save_framedata(ObjectItem *pItem)
 }
 
 
+/**
+  全フレームデータペースト
+  */
+Command_PasteAllFrame::Command_PasteAllFrame(CEditData *pEditData, QModelIndex index, int frame) :
+	CommandBase(QObject::trUtf8("全フレームデータペースト"))
+{
+	m_pEditData = pEditData ;
+	m_objRow = m_pEditData->getObjectModel()->getRow(index) ;
+	m_frame = frame ;
+
+	m_copyObjRow = m_pEditData->getAllFrameDataObjRow() ;
+	m_copyDatas = m_pEditData->getAllFrameDatas() ;
+}
+
+void Command_PasteAllFrame::redo()
+{
+	m_changeFrameDatas.clear() ;
+
+	if ( m_copyObjRow != m_objRow ) { return ; }
+
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+
+	for ( int i = 0 ; i < m_copyDatas.size() ; i ++ ) {
+		const QPair<int, FrameData> d = m_copyDatas.at(i) ;
+		ObjectItem *pItem = pModel->getItemFromIndex(pModel->getIndex(d.first)) ;
+		if ( !pItem ) { continue ; }
+		FrameData *pFrame = pItem->getFrameDataPtr(m_frame) ;
+		if ( pFrame ) {
+			m_changeFrameDatas.append(qMakePair(d.first, *pFrame)) ;
+			*pFrame = d.second ;
+			pFrame->frame = m_frame ;
+		}
+		else {
+			FrameData data = d.second ;
+			data.frame = m_frame ;
+			pItem->addFrameData(data) ;
+		}
+	}
+}
+
+void Command_PasteAllFrame::undo()
+{
+	if ( m_copyObjRow != m_objRow ) { return ; }
+
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+}
+
+
+
+
+
+
+
+
+

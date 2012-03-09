@@ -247,26 +247,27 @@ private:
 	CEditData								*m_pEditData ;
 	QList<QPair<int, QList<FrameData> > >	m_changeFrameDatas ;
 	double									m_scale ;
-	QList<QWidget *>	m_UpdateWidgetList ;
 };
 
-// 現在フレームの全レイヤのフレームデータ削除
-class Command_CopyAllFrame : public CommandBase
+// 現在フレームの全レイヤのフレームデータペースト
+class Command_PasteAllFrame : public CommandBase
 {
 public:
-	Command_CopyAllFrame(CEditData *pEditData, ObjectItem *pItem) ;
+	Command_PasteAllFrame(CEditData *pEditData, QModelIndex index, int frame) ;
 
 	void redo() ;
 	void undo() ;
 
 private:
-	void save_framedata(ObjectItem *pItem) ;
 
 private:
-	CEditData								*m_pEditData ;
-	QList<QPair<int, QList<FrameData> > >	m_changeFrameDatas ;
-	double									m_scale ;
-	QList<QWidget *>	m_UpdateWidgetList ;
+	CEditData						*m_pEditData ;
+	int								m_objRow ;
+	int								m_frame ;
+	int								m_copyObjRow ;
+
+	QList<QPair<int, FrameData> >	m_copyDatas ;
+	QList<QPair<int, FrameData> >	m_changeFrameDatas ;
 };
 
 #endif // COMMAND_H
