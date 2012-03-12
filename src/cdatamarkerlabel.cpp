@@ -76,7 +76,7 @@ void CDataMarkerLabel::slot_moveScrollBar(int val)
 void CDataMarkerLabel::slot_copyAllFrame()
 {
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	ObjectItem *pItem = pModel->getItemFromIndex(m_pEditData->getSelIndex()) ;
+	ObjectItem *pItem = pModel->getObject(m_pEditData->getSelIndex()) ;
 	if ( !pItem ) { return ; }
 	m_pEditData->setCopyAllFrameData(pItem, m_value) ;
 }
@@ -84,18 +84,18 @@ void CDataMarkerLabel::slot_copyAllFrame()
 void CDataMarkerLabel::slot_pasteAllFrame()
 {
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	ObjectItem *pItem = pModel->getItemFromIndex(m_pEditData->getSelIndex()) ;
+	ObjectItem *pItem = pModel->getObject(m_pEditData->getSelIndex()) ;
 	if ( !pItem ) { return ; }
 	if ( !m_pEditData->isPastableAllFrameData(pItem) ) { return ; }
-	m_pEditData->cmd_pasteAllFrame(m_pEditData->getSelIndex(), m_value) ;
+	m_pEditData->cmd_pasteAllFrame(pItem->getIndex(), m_value) ;
 }
 
 void CDataMarkerLabel::slot_deleteAllFrame()
 {
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
-	ObjectItem *pItem = pModel->getItemFromIndex(m_pEditData->getSelIndex()) ;
+	ObjectItem *pItem = pModel->getObject(m_pEditData->getSelIndex()) ;
 	if ( !pItem ) { return ; }
-	m_pEditData->cmd_deleteAllFrame(m_pEditData->getSelIndex(), m_value) ;
+	m_pEditData->cmd_deleteAllFrame(pItem->getIndex(), m_value) ;
 }
 
 void CDataMarkerLabel::paintEvent(QPaintEvent */*event*/)

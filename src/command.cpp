@@ -9,6 +9,17 @@ void CommandBase::updateAllWidget()
 	}
 }
 
+void CommandBase::error(QString title, QString text)
+{
+	if ( qApp->activeWindow() ) {
+		QMessageBox::warning(qApp->activeWindow(), title.toUtf8(), text.toUtf8()) ;
+	}
+	else {
+		QString t = title + ":" + text ;
+		qDebug() << t ;
+	}
+}
+
 /**
   アイテム追加 コマンド
   */
@@ -127,21 +138,11 @@ void Command_AddFrameData::redo()
 
 	FrameData *p = pItem->getFrameDataPtr(m_frameData.frame) ;
 	if ( p ) {
-		if ( qApp->activeWindow() ) {
-			QMessageBox::warning(qApp->activeWindow(), QObject::trUtf8("エラー 00"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
-		}
-		else {
-			qDebug() << "エラー 00:不正なフレームデータが登録されました。直ちにプログラマに相談してください" ;
-		}
+		error("エラー 00", "不正なフレームデータが登録されました。直ちにプログラマに相談してください") ;
 		return ;
 	}
 	if ( m_frameData.frame > 9999 ) {
-		if ( qApp->activeWindow() ) {
-			QMessageBox::warning(qApp->activeWindow(), QObject::trUtf8("エラー 01"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
-		}
-		else {
-			qDebug() << "エラー 01:不正なフレームデータが登録されました。直ちにプログラマに相談してください" ;
-		}
+		error("エラー 01", "不正なフレームデータが登録されました。直ちにプログラマに相談してください") ;
 		return ;
 	}
 
@@ -201,12 +202,7 @@ void Command_DelFrameData::redo()
 void Command_DelFrameData::undo()
 {
 	if ( m_FrameData.frame > 9999 ) {
-		if ( qApp->activeWindow() ) {
-			QMessageBox::warning(qApp->activeWindow(), QObject::trUtf8("エラー 10"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
-		}
-		else {
-			qDebug() << "エラー 10:不正なフレームデータが登録されました。直ちにプログラマに相談してください" ;
-		}
+		error("エラー 10", "不正なフレームデータが登録されました。直ちにプログラマに相談してください") ;
 		return ;
 	}
 
@@ -419,12 +415,7 @@ void Command_MoveFrameData::redo()
 	if ( pData ) { *pData = m_srcData ; }
 	else {
 		if ( m_srcData.frame > 9999 ) {
-			if ( qApp->activeWindow() ) {
-				QMessageBox::warning(qApp->activeWindow(), QObject::trUtf8("エラー 20"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
-			}
-			else {
-				qDebug() << "エラー 20:不正なフレームデータが登録されました。直ちにプログラマに相談してください" ;
-			}
+			error("エラー 20", "不正なフレームデータが登録されました。直ちにプログラマに相談してください") ;
 			return ;
 		}
 		pItem->addFrameData(m_srcData) ;
@@ -447,12 +438,7 @@ void Command_MoveFrameData::undo()
 	m_srcData.frame = m_srcFrame ;
 	FrameData *pData = pItem->getFrameDataPtr(m_srcFrame) ;
 	if ( pData ) {	// 移動元にデータがあるのはおかしい
-		if ( qApp->activeWindow() ) {
-			QMessageBox::warning(qApp->activeWindow(), QObject::trUtf8("エラー 21"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
-		}
-		else {
-			qDebug() << "エラー 21:不正なフレームデータが登録されました。直ちにプログラマに相談してください" ;
-		}
+		error("エラー 21", "不正なフレームデータが登録されました。直ちにプログラマに相談してください") ;
 		return ;
 	}
 	pItem->addFrameData(m_srcData) ;
@@ -460,12 +446,7 @@ void Command_MoveFrameData::undo()
 	if ( m_dstData.frame != 0xffff ) {	// 元から移動先のデータがあった場合は戻す
 		pData = pItem->getFrameDataPtr(m_dstFrame) ;
 		if ( !pData ) {	// 移動先にデータがないのはおかしい
-			if ( qApp->activeWindow() ) {
-				QMessageBox::warning(qApp->activeWindow(), QObject::trUtf8("エラー 22"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
-			}
-			else {
-				qDebug() << "エラー 22:不正なフレームデータが登録されました。直ちにプログラマに相談してください" ;
-			}
+			error("エラー 22", "不正なフレームデータが登録されました。直ちにプログラマに相談してください") ;
 			return ;
 		}
 		*pData = m_dstData ;
@@ -503,12 +484,7 @@ void Command_MoveAllFrameData::redo()
 	save_frameData(pItem, m_srcFrame, m_dstFrame) ;
 
 	if ( !pItem->validate() ) {
-		if ( qApp->activeWindow() ) {
-			QMessageBox::warning(qApp->activeWindow(), QObject::trUtf8("エラー 30"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
-		}
-		else {
-			qDebug() << "エラー 30:不正なフレームデータが登録されました。直ちにプログラマに相談してください" ;
-		}
+		error("エラー 30", "不正なフレームデータが登録されました。直ちにプログラマに相談してください") ;
 	}
 
 	updateAllWidget();
@@ -524,12 +500,7 @@ void Command_MoveAllFrameData::undo()
 	restore_frameData(pItem, m_srcFrame, m_dstFrame) ;
 
 	if ( !pItem->validate() ) {
-		if ( qApp->activeWindow() ) {
-			QMessageBox::warning(qApp->activeWindow(), QObject::trUtf8("エラー 31"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
-		}
-		else {
-			qDebug() << "エラー 31:不正なフレームデータが登録されました。直ちにプログラマに相談してください" ;
-		}
+		error("エラー 31", "不正なフレームデータが登録されました。直ちにプログラマに相談してください") ;
 	}
 
 	updateAllWidget();
@@ -563,12 +534,7 @@ void Command_MoveAllFrameData::restore_frameData(ObjectItem *pItem, int srcFrame
 	FrameData *pDst = pItem->getFrameDataPtr(dstFrame) ;
 	if ( pDst ) {
 		if ( pSrc ) {
-			if ( qApp->activeWindow() ) {
-				QMessageBox::warning(qApp->activeWindow(), QObject::trUtf8("エラー 32"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
-			}
-			else {
-				qDebug() << "エラー 32:不正なフレームデータが登録されました。直ちにプログラマに相談してください" ;
-			}
+			error("エラー 32", "不正なフレームデータが登録されました。直ちにプログラマに相談してください") ;
 			return ;
 		}
 		pDst->frame = srcFrame ;
@@ -771,12 +737,7 @@ void Command_ScaleFrame::redo()
 
 	save_framedata(pItem) ;
 	if ( !pItem->validate() ) {
-		if ( qApp->activeWindow() ) {
-			QMessageBox::warning(qApp->activeWindow(), QObject::trUtf8("エラー 40"), QObject::trUtf8("不正なフレームデータが登録されました。直ちにプログラマに相談してください")) ;
-		}
-		else {
-			qDebug() << "エラー 23:不正なフレームデータが登録されました。直ちにプログラマに相談してください" ;
-		}
+		error("エラー 40", "不正なフレームデータが登録されました。直ちにプログラマに相談してください") ;
 	}
 
 	updateAllWidget();
@@ -861,8 +822,10 @@ void Command_PasteAllFrame::redo()
 			FrameData data = d.second ;
 			data.frame = m_frame ;
 			pItem->addFrameData(data) ;
+			qDebug() << "Command_PasteAllFrame add frame:" << m_frame << " name:" << pItem->getName() ;
 		}
 	}
+	updateAllWidget();
 }
 
 void Command_PasteAllFrame::undo()
@@ -870,9 +833,85 @@ void Command_PasteAllFrame::undo()
 	if ( m_copyObjRow != m_objRow ) { return ; }
 
 	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	for ( int i = 0 ; i < m_copyDatas.size() ; i ++ ) {
+		const QPair<int, FrameData> d = m_copyDatas.at(i) ;
+		ObjectItem *pItem = pModel->getItemFromIndex(pModel->getIndex(d.first)) ;
+		if ( !pItem ) { continue ; }
+		pItem->removeFrameData(m_frame) ;
+	}
+
+	for ( int i = 0 ; i < m_changeFrameDatas.size() ; i ++ ) {
+		const QPair<int, FrameData> d = m_changeFrameDatas.at(i) ;
+		ObjectItem *pItem = pModel->getItemFromIndex(pModel->getIndex(d.first)) ;
+		if ( !pItem ) {
+			error("エラー 50", "不正なフレームデータが登録されました。直ちにプログラマに相談してください") ;
+			continue ;
+		}
+		if ( pItem->getFrameDataPtr(m_frame) ) {
+			error("エラー 51", "不正なフレームデータが登録されました。直ちにプログラマに相談してください") ;
+			pItem->removeFrameData(m_frame) ;
+		}
+		pItem->addFrameData(d.second) ;
+	}
+	updateAllWidget();
 }
 
 
+/**
+  全フレームデータ削除
+  */
+Command_DeleteAllFrame::Command_DeleteAllFrame(CEditData *pEditData, QModelIndex index, int frame) :
+	CommandBase(QObject::trUtf8("全フレームデータ削除"))
+{
+	m_pEditData = pEditData ;
+	m_objRow = m_pEditData->getObjectModel()->getRow(index) ;
+	m_frame = frame ;
+}
+
+void Command_DeleteAllFrame::redo()
+{
+	m_datas.clear() ;
+
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	QModelIndex index = pModel->getIndex(m_objRow) ;
+	ObjectItem *pObj = pModel->getObject(index) ;
+	if ( !pObj ) { return ; }
+
+	save_framedata(pObj) ;
+	updateAllWidget();
+}
+
+void Command_DeleteAllFrame::undo()
+{
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	for ( int i = 0 ; i < m_datas.size() ; i ++ ) {
+		const QPair<int, FrameData> d = m_datas.at(i) ;
+		ObjectItem *pItem = pModel->getItemFromIndex(pModel->getIndex(d.first)) ;
+		if ( !pItem ) { continue ; }
+
+		if ( pItem->getFrameDataPtr(m_frame) ) {
+			error("エラー 60", "不正なフレームデータが登録されました。直ちにプログラマに相談してください") ;
+			pItem->removeFrameData(m_frame) ;
+		}
+		pItem->addFrameData(d.second) ;
+	}
+	updateAllWidget();
+}
+
+void Command_DeleteAllFrame::save_framedata(ObjectItem *pItem)
+{
+	FrameData *p = pItem->getFrameDataPtr(m_frame) ;
+	if ( p ) {
+		int row = m_pEditData->getObjectModel()->getRow(pItem->getIndex()) ;
+		m_datas.append(qMakePair(row, *p)) ;
+
+		pItem->removeFrameData(m_frame) ;
+	}
+
+	for ( int i = 0 ; i < pItem->childCount() ; i ++ ) {
+		save_framedata(pItem->child(i)) ;
+	}
+}
 
 
 

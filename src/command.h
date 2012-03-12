@@ -16,6 +16,7 @@ public:
 
 protected:
 	void updateAllWidget() ;
+	void error(QString title, QString text) ;
 };
 
 // アイテム追加 コマンド
@@ -268,6 +269,26 @@ private:
 
 	QList<QPair<int, FrameData> >	m_copyDatas ;
 	QList<QPair<int, FrameData> >	m_changeFrameDatas ;
+};
+
+// 現在フレームの全レイヤのフレームデータ削除
+class Command_DeleteAllFrame : public CommandBase
+{
+public:
+	Command_DeleteAllFrame(CEditData *pEditData, QModelIndex index, int frame) ;
+
+	void redo() ;
+	void undo() ;
+
+private:
+	void save_framedata(ObjectItem *pItem) ;
+
+private:
+	CEditData						*m_pEditData ;
+	int								m_objRow ;
+	int								m_frame ;
+
+	QList<QPair<int, FrameData> >	m_datas ;
 };
 
 #endif // COMMAND_H
