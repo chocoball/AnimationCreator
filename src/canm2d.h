@@ -242,6 +242,7 @@ public:
 	~CAnm2DAsm();
 
 	bool makeFromEditDataTip(QString qsLabel, ObjectItem *pObj);
+	void subUnusedVramSkip(ObjectItem *pObj);
 	bool makeFromEditData(CEditData &rEditData);
 	void makeFromEditData2IncTip(QString qsLabel, ObjectItem *pObj);
 	bool makeFromEditData2Inc(CEditData &rEditData, QString qsFname);
@@ -256,6 +257,7 @@ private:
 	CObjectModel	*m_pModel;
 	QString			m_Data;
 	QString			m_aqsVramID[KM_VRAM_MAX];
+	bool			m_bUnused[KM_VRAM_MAX];
 	int				m_nCnt;
 };
 

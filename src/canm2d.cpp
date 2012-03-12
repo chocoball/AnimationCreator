@@ -1518,6 +1518,26 @@ bool CAnm2DAsm::makeFromEditDataTip(QString qsLabel, ObjectItem *pObj)
 	return true ;
 }
 
+void CAnm2DAsm::subUnusedVramSkip(ObjectItem *pObj)
+{
+	// キーフレーム
+	for(int i=0; i<=pObj->getMaxFrameNum(false); i++){
+		bool		valid;
+		FrameData	frameData = pObj->getDisplayFrameData(i, &valid);
+		if(valid == false) continue;
+		m_bUnused[frameData.nImage] = false;
+	}
+	
+	// 子供の処理
+	if(pObj->childCount()){
+		for(int i=0; i<pObj->childCount(); i++){
+			ObjectItem	*pChild = pObj->child(i);
+			subUnusedVramSkip(pChild);
+		}
+	}
+	return;
+}
+
 bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 {
 	m_pModel = rEditData.getObjectModel();
@@ -1529,7 +1549,35 @@ bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 	}
 	
 	ObjectItem	*pRoot = m_pModel->getItemFromIndex(QModelIndex()) ;
-//	ObjectItem	*pObj = pRoot->child(0);
+	
+	// 画像をラベル化
+	// 未使用画像をスキップするテーブル構築
+	int	nVram = 0;
+	{
+		for(int i=0; i<rEditData.getImageDataListSize(); i++){
+			if(i >= KM_VRAM_MAX){
+				return false;
+			}
+			CEditData::ImageData	*p = rEditData.getImageData(i);
+			if(!p) continue;
+			QFileInfo	fi(p->fileName);
+			QString		sImageLabel = fi.fileName();
+			sImageLabel = QString("ID_") + sImageLabel.replace(".", "_").toUpper();
+			sImageLabel = sImageLabel.toUtf8();
+			m_aqsVramID[i] = sImageLabel;
+			m_bUnused[i] = true;
+		}
+		for(int i=0; i<pRoot->childCount(); i++){
+			ObjectItem	*pObj = pRoot->child(i);
+			for(int j=0; j<pObj->childCount(); j++){
+				ObjectItem	*pChild = pObj->child(j);
+				subUnusedVramSkip(pChild);
+			}
+		}
+		for(int i=0; i<rEditData.getImageDataListSize(); i++){
+			if(m_bUnused[i] == false) nVram++;
+		}
+	}
 	
 	addString(";----------------------------------------------------------------\n");
 	addString("; @kamefile\t" + pRoot->getName().toUtf8() + "\n");
@@ -1543,7 +1591,7 @@ bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 	addString(";---------------------------------------------------------------- ANM_HEAD\n");
 	addString("\t\t\tdb\t\t'ANM0'\t\t; ANM0\n");
 	addString("\t\t\tdd\t\t00000003h\t\t; uVersion\n");
-	addString("\t\t\tdd\t\t" + QString("%1").arg(rEditData.getImageDataListSize()) + "\t\t; nVram\n");
+	addString("\t\t\tdd\t\t" + QString("%1").arg(/*rEditData.getImageDataListSize()*/nVram) + "\t\t; nVram\n");
 	addString("\t\t\tdd\t\t.vram\t\t; pauVram\n");
 	addString("\t\t\tdd\t\t" + QString("%1").arg(pRoot->childCount()) + "\t\t; nObject\n");
 	addString("\t\t\tdd\t\t.object\t\t; paObj\n");
@@ -1553,6 +1601,7 @@ bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 		if(i >= KM_VRAM_MAX){
 			return false;
 		}
+		if(m_bUnused[i]) continue;
 		CEditData::ImageData	*p = rEditData.getImageData(i);
 		if(!p) continue;
 		QFileInfo	fi(p->fileName);
