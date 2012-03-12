@@ -148,6 +148,9 @@ public slots:
 	void slot_itemMoveUp() ;
 	void slot_itemMoveDown() ;
 
+	void slot_copyLayer() ;
+	void slot_pasteLayer() ;
+
 protected:
 	FrameData *getNowSelectFrameData( void ) ;
 	void addNewObject( QString str ) ;
@@ -185,6 +188,8 @@ private:
 	QAction					*m_pActPlay ;
 	QAction					*m_pActStop ;
 	QAction					*m_pActTreeViewLayerLock ;
+	QAction					*m_pActTreeViewCopyLayer ;
+	QAction					*m_pActTreeViewPasteLayer ;
 
 	QTimer					*m_pTimer ;
 	int						m_nMaxFrameNum ;

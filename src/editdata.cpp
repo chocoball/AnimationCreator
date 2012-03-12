@@ -70,6 +70,7 @@ void CEditData::initData( void )
 
 	m_bCopyFrameData = false ;
 	m_bCopyLayer = false ;
+	m_bCopyAllFrame = false ;
 }
 
 // アイテム追加 コマンド
@@ -166,6 +167,12 @@ void CEditData::cmd_pasteAllFrame(QModelIndex index, int frame)
 void CEditData::cmd_deleteAllFrame(QModelIndex index, int frame)
 {
 	m_pUndoStack->push(new Command_DeleteAllFrame(this, index, frame)) ;
+}
+
+// レイヤペースト
+void CEditData::cmd_pasteLayer(QModelIndex index, ObjectItem *pLayer)
+{
+	m_pUndoStack->push(new Command_PasteLayer(this, index, pLayer)) ;
 }
 
 

@@ -336,6 +336,11 @@ Command_CopyIndex::Command_CopyIndex( CEditData *pEditData, int row, ObjectItem 
 	m_pLayer->copy(pLayer) ;
 }
 
+Command_CopyIndex::~Command_CopyIndex()
+{
+	delete m_pLayer ;
+}
+
 void Command_CopyIndex::redo()
 {
 	if ( m_pLayer ) {
@@ -912,6 +917,60 @@ void Command_DeleteAllFrame::save_framedata(ObjectItem *pItem)
 		save_framedata(pItem->child(i)) ;
 	}
 }
+
+
+Command_PasteLayer::Command_PasteLayer(CEditData *pEditData, QModelIndex parentIndex, ObjectItem *pItem) :
+	CommandBase(QObject::trUtf8("レイヤペースト"))
+{
+	m_pEditData = pEditData ;
+	m_parentRow = m_pEditData->getObjectModel()->getRow(parentIndex) ;
+	m_row = -1 ;
+
+	m_pItem = new ObjectItem(pItem->getName() + "_copy", NULL) ;
+	m_pItem->copy(pItem) ;
+}
+
+Command_PasteLayer::~Command_PasteLayer()
+{
+	delete m_pItem ;
+}
+
+void Command_PasteLayer::redo()
+{
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	QModelIndex parentIndex = pModel->getIndex(m_parentRow) ;
+	if ( !parentIndex.isValid() ) { return ; }
+
+	QModelIndex index = pModel->insertItem(0, m_pItem->getName(), parentIndex) ;
+	if ( !index.isValid() ) { return ; }
+
+	ObjectItem *p = pModel->getItemFromIndex(index) ;
+	p->copy(m_pItem) ;
+	pModel->updateIndex();
+	m_row = pModel->getRow(index) ;
+	updateAllWidget();
+
+}
+
+void Command_PasteLayer::undo()
+{
+	CObjectModel *pModel = m_pEditData->getObjectModel() ;
+	QModelIndex index = pModel->getIndex(m_row) ;
+	if ( !index.isValid() ) { return ; }
+
+	ObjectItem *pItem ;
+
+	delete m_pItem ;
+
+	pItem = pModel->getItemFromIndex(index) ;
+	m_pItem = new ObjectItem(pItem->getName(), NULL) ;
+	m_pItem->copy(pItem) ;
+	pModel->updateIndex() ;
+	pModel->removeItem(index) ;
+
+	updateAllWidget();
+}
+
 
 
 

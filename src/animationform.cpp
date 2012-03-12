@@ -86,6 +86,8 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	m_pActTreeViewDel		= new QAction(QString("Delete"), this);
 	m_pActTreeViewLayerDisp = new QAction(QString("Disp"), this) ;
 	m_pActTreeViewLayerLock = new QAction(QString("Lock"), this) ;
+	m_pActTreeViewCopyLayer = new QAction(QString("CopyLayer"), this) ;
+	m_pActTreeViewPasteLayer = new QAction(QString("PasteLayer"), this) ;
 
 	m_pTimer = new QTimer(this) ;
 	m_pTimer->setInterval((int)(100.0f/6.0f));
@@ -130,6 +132,8 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	connect(m_pActTreeViewDel,			SIGNAL(triggered()),			this, SLOT(slot_deleteObject())) ;
 	connect(m_pActTreeViewLayerDisp,	SIGNAL(triggered()),			this, SLOT(slot_changeLayerDisp())) ;
 	connect(m_pActTreeViewLayerLock,	SIGNAL(triggered()),			this, SLOT(slot_changeLayerLock())) ;
+	connect(m_pActTreeViewCopyLayer,	SIGNAL(triggered()),			this, SLOT(slot_copyLayer())) ;
+	connect(m_pActTreeViewPasteLayer,	SIGNAL(triggered()),			this, SLOT(slot_pasteLayer())) ;
 
 	connect(ui->pushButton_play,		SIGNAL(clicked()),				this, SLOT(slot_playAnimation())) ;
 	connect(ui->pushButton_stop,		SIGNAL(clicked()),				this, SLOT(slot_stopAnimation())) ;
@@ -776,6 +780,10 @@ void AnimationForm::slot_treeViewMenuReq(QPoint treeViewLocalPos)
 		// レイヤ選択中だったら
 		menu.addAction(m_pActTreeViewLayerDisp) ;
 		menu.addAction(m_pActTreeViewLayerLock) ;
+		menu.addAction(m_pActTreeViewCopyLayer) ;
+	}
+	if ( m_pEditData->isCopyLayer() ) {
+		menu.addAction(m_pActTreeViewPasteLayer) ;
 	}
 
 	menu.exec(ui->treeView->mapToGlobal(treeViewLocalPos) + QPoint(0, ui->treeView->header()->height())) ;
@@ -1412,6 +1420,28 @@ void AnimationForm::slot_itemMoveDown()
 	if ( index.row() == pItem->childCount()-1 ) { return ; }
 	m_pEditData->cmd_moveItemDown(index) ;
 }
+
+void AnimationForm::slot_copyLayer()
+{
+	QModelIndex index = m_pEditData->getSelIndex() ;
+	if ( !index.isValid() ) { return ; }
+	if ( !m_pEditData->getObjectModel()->isLayer(index) ) { return ; }
+	ObjectItem *pItem = m_pEditData->getObjectModel()->getItemFromIndex(index) ;
+	if ( !pItem ) { return ; }
+
+	m_pEditData->setCopyLayer(pItem) ;
+}
+
+void AnimationForm::slot_pasteLayer()
+{
+	if ( !m_pEditData->isCopyLayer() ) { return ; }
+
+	QModelIndex index = m_pEditData->getSelIndex() ;
+	if ( !index.isValid() ) { return ; }
+
+	m_pEditData->cmd_pasteLayer(index, m_pEditData->getCopyLayer()) ;
+}
+
 
 // オブジェクト追加
 void AnimationForm::addNewObject( QString str )

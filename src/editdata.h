@@ -108,6 +108,7 @@ public:
 	void cmd_changeFrameDataScale(double scale) ;
 	void cmd_pasteAllFrame(QModelIndex index, int frame) ;
 	void cmd_deleteAllFrame(QModelIndex index, int frame) ;
+	void cmd_pasteLayer(QModelIndex index, ObjectItem *pLayer) ;
 
 	void setCurrLoopNum( int num )
 	{
@@ -196,7 +197,7 @@ public:
 		if ( m_pCopyLayer ) {
 			delete m_pCopyLayer ;
 		}
-		m_pCopyLayer = new ObjectItem("copy", NULL) ;
+		m_pCopyLayer = new ObjectItem(p->getName(), NULL) ;
 		m_pCopyLayer->copy(p) ;
 		m_bCopyLayer = true ;
 	}

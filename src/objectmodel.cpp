@@ -121,10 +121,13 @@ QMimeData *CObjectModel::mimeData(const QModelIndexList &indexes) const
 	QMimeData *mimeData = new QMimeData() ;
 	QByteArray encodeData ;
 
+	qDebug() << "mimeData" ;
+
 	QDataStream stream(&encodeData, QIODevice::WriteOnly) ;
 	foreach ( const QModelIndex &index, indexes ) {
 		if ( index.isValid() ) {
 			stream << reinterpret_cast<quint64>(index.internalPointer()) ;
+			qDebug() << reinterpret_cast<quint64>(index.internalPointer()) ;
 		}
 	}
 	mimeData->setData("AnimationCreator/object.item.list", encodeData) ;

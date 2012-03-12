@@ -136,6 +136,7 @@ class Command_CopyIndex : public CommandBase
 {
 public:
 	Command_CopyIndex( CEditData *pEditData, int row, ObjectItem *pLayer, QModelIndex parent ) ;
+	~Command_CopyIndex() ;
 
 	void redo() ;
 	void undo() ;
@@ -290,5 +291,22 @@ private:
 
 	QList<QPair<int, FrameData> >	m_datas ;
 };
+
+// レイヤペースト
+class Command_PasteLayer : public CommandBase
+{
+public:
+	Command_PasteLayer(CEditData *pEditData, QModelIndex parentIndex, ObjectItem *pItem) ;
+	~Command_PasteLayer() ;
+
+	void redo() ;
+	void undo() ;
+
+private:
+	CEditData		*m_pEditData ;
+	int				m_parentRow, m_row ;
+	ObjectItem		*m_pItem ;
+};
+
 
 #endif // COMMAND_H
