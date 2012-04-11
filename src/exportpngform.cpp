@@ -56,7 +56,7 @@ void ExportPNGForm::slot_changeRect( void )
 void ExportPNGForm::slot_openSaveDir( void )
 {
 	QString dir = QFileDialog::getExistingDirectory(this, trUtf8("保存するディレクトリを選択"),
-													 m_pSetting->getSaveDir(),
+													 m_pSetting->getSavePngDir(),
 													 QFileDialog::ShowDirsOnly
 													 | QFileDialog::DontResolveSymlinks);
 	if ( dir.isEmpty() ) { return ; }
