@@ -34,7 +34,7 @@ public:
 public:
 	explicit AnimeGLWidget(CEditData *editData, CSettings *pSetting, QWidget *parent = 0);
 
-	GLuint bindTexture(QImage &image, QGLContext::BindOptions options = QGLContext::InvertedYBindOption) ;
+	GLuint bindTexture(QImage &image) ;
 
 	void setPressWindowMove(bool f) { m_bPressWindowMove = f ; }
 

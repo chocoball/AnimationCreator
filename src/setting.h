@@ -30,6 +30,8 @@ public:
 	kAccessor(bool,			m_bUseDepthTest,			UseDepthTest)
 	kAccessor(bool,			m_bUseZSort,				UseZSort)
 	kAccessor(bool,			m_bBackup,					Backup)
+	kAccessor(bool,			m_bCheckGrid,				CheckGrid)
+	kAccessor(bool,			m_bCheckLinearFilter,		CheckLinearFilter)
 
 	kAccessor(int,			m_anmWindowTreeWidth,		AnmWindowTreeWidth)
 	kAccessor(int,			m_anmWindowTreeWidthIndex,	AnmWindowTreeWidthIndex)

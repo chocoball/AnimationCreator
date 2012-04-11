@@ -53,6 +53,8 @@ void CSettings::read()
 	m_anmWindowH				= settings.value("win_h", 2048).toInt() ;
 	m_bUseDepthTest				= settings.value("use_depth_test", true).toBool() ;
 	m_bUseZSort					= settings.value("use_zsort", true).toBool() ;
+	m_bCheckGrid				= settings.value("check_grid", true).toBool() ;
+	m_bCheckLinearFilter		= settings.value("check_linear_filter", false).toBool() ;
 	settings.endGroup();
 
 	settings.beginGroup("ImageWindow");
@@ -124,19 +126,21 @@ void CSettings::write()
 	settings.endGroup();
 
 	settings.beginGroup("AnimationWindow");
-	settings.setValue("geometry",		m_anmWindowGeometry) ;
-	settings.setValue("use_back_image",	m_bUseBackImage);
-	settings.setValue("back_image",		m_backImagePath);
-	settings.setValue("disp_frame",		m_bDrawFrame);
-	settings.setValue("disp_center",	m_bDrawCenter) ;
-	settings.setValue("tree_width",		m_anmWindowTreeWidth);
-	settings.setValue("tree_width_idx",	m_anmWindowTreeWidthIndex);
-	settings.setValue("scr_w",			m_anmWindowScreenW) ;
-	settings.setValue("scr_h",			m_anmWindowScreenH) ;
-	settings.setValue("win_w",			m_anmWindowW) ;
-	settings.setValue("win_h",			m_anmWindowH) ;
-	settings.setValue("use_depth_test",	m_bUseDepthTest);
-	settings.setValue("use_zsort",		m_bUseZSort);
+	settings.setValue("geometry",				m_anmWindowGeometry) ;
+	settings.setValue("use_back_image",			m_bUseBackImage);
+	settings.setValue("back_image",				m_backImagePath);
+	settings.setValue("disp_frame",				m_bDrawFrame);
+	settings.setValue("disp_center",			m_bDrawCenter) ;
+	settings.setValue("tree_width",				m_anmWindowTreeWidth);
+	settings.setValue("tree_width_idx",			m_anmWindowTreeWidthIndex);
+	settings.setValue("scr_w",					m_anmWindowScreenW) ;
+	settings.setValue("scr_h",					m_anmWindowScreenH) ;
+	settings.setValue("win_w",					m_anmWindowW) ;
+	settings.setValue("win_h",					m_anmWindowH) ;
+	settings.setValue("use_depth_test",			m_bUseDepthTest);
+	settings.setValue("use_zsort",				m_bUseZSort);
+	settings.setValue("check_grid",				m_bCheckGrid) ;
+	settings.setValue("check_linear_filter",	m_bCheckLinearFilter) ;
 	settings.endGroup();
 
 	settings.beginGroup("ImageWindow");

@@ -11,7 +11,7 @@ AnimeGLWidget::AnimeGLWidget(CEditData *editData, CSettings *pSetting, QWidget *
 	m_pEditData = editData ;
 	m_pSetting = pSetting ;
 	m_DrawWidth = m_DrawHeight = 0 ;
-	m_bDrawGrid = true ;
+	m_bDrawGrid = pSetting->getCheckGrid() ;
 	m_bPressCtrl = false ;
 	setGridSpace( 16, 16 );
 
@@ -29,8 +29,12 @@ AnimeGLWidget::AnimeGLWidget(CEditData *editData, CSettings *pSetting, QWidget *
 	m_bPressWindowMove = false ;
 }
 
-GLuint AnimeGLWidget::bindTexture(QImage &image, QGLContext::BindOptions options)
+GLuint AnimeGLWidget::bindTexture(QImage &image)
 {
+	QGLContext::BindOptions options = QGLContext::InvertedYBindOption ;
+	if ( m_pSetting->getCheckLinearFilter() ) {
+		options |= QGLContext::LinearFilteringBindOption ;
+	}
 	return QGLWidget::bindTexture(image, GL_TEXTURE_2D, GL_RGBA, options) ;
 }
 
@@ -41,6 +45,7 @@ void AnimeGLWidget::slot_actDel( void )
 
 void AnimeGLWidget::slot_setDrawGrid(bool flag)
 {
+	m_pSetting->setCheckGrid(flag) ;
 	m_bDrawGrid = flag ;
 	update() ;
 }

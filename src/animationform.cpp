@@ -33,10 +33,11 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	m_pGlWidget->show();
 
 	ui->radioButton_pos->setChecked(true);
-	ui->checkBox_grid->setChecked(true);
+	ui->checkBox_grid->setChecked(m_pSetting->getCheckGrid());
 	ui->spinBox_fps->setValue(60) ;
 	ui->checkBox_frame->setChecked(pSetting->getDrawFrame());
 	ui->checkBox_center->setChecked(pSetting->getDrawCenter());
+	ui->checkBox_linear_filter->setChecked(pSetting->getCheckLinearFilter());
 	ui->spinBox_frame_start->setValue(m_frameStart) ;
 	ui->spinBox_frame_end->setValue(m_frameEnd) ;
 	ui->label_frame->slot_setFrameStart(m_frameStart) ;
@@ -1038,17 +1039,12 @@ void AnimationForm::slot_addImage( int imageNo )
 //	ui->comboBox_image_no->addItem(tr("%1").arg(imageNo));
 	ui->comboBox_image_no->insertItem(imageNo, tr("%1").arg(imageNo));
 
-	QGLContext::BindOptions options = QGLContext::InvertedYBindOption ;
-	if ( ui->checkBox_linear_filter->isChecked() ) {
-		options |= QGLContext::LinearFilteringBindOption ;
-	}
-
 	for ( int i = 0 ; i < m_pEditData->getImageDataListSize() ; i ++ ) {
 		CEditData::ImageData *p = m_pEditData->getImageData(i) ;
 		if ( !p ) { continue ; }
 		if ( p->nNo != imageNo ) { continue ; }
 		if ( p->nTexObj ) { continue ; }
-		p->nTexObj = m_pGlWidget->bindTexture(p->Image, options) ;
+		p->nTexObj = m_pGlWidget->bindTexture(p->Image) ;
 	}
 }
 
@@ -1086,17 +1082,12 @@ void AnimationForm::slot_changeUVAnime( bool flag )
 // イメージ更新
 void AnimationForm::slot_modifiedImage(int index)
 {
-	QGLContext::BindOptions options = QGLContext::InvertedYBindOption ;
-	if ( ui->checkBox_linear_filter->isChecked() ) {
-		options |= QGLContext::LinearFilteringBindOption ;
-	}
-
 	CEditData::ImageData *p = m_pEditData->getImageData(index) ;
 	if ( !p ) { return ; }
 	if ( p->nTexObj ) {
 		m_pGlWidget->deleteTexture(p->nTexObj);
 	}
-	p->nTexObj = m_pGlWidget->bindTexture(p->Image, options) ;
+	p->nTexObj = m_pGlWidget->bindTexture(p->Image) ;
 
 	m_pGlWidget->update();
 }
@@ -1273,10 +1264,7 @@ void AnimationForm::slot_changeDrawCenter(bool flag)
 
 void AnimationForm::slot_changeLinearFilter(bool flag)
 {
-	QGLContext::BindOptions options = QGLContext::InvertedYBindOption ;
-	if ( flag ) {
-		options |= QGLContext::LinearFilteringBindOption ;
-	}
+	m_pSetting->setCheckLinearFilter(flag) ;
 
 	for ( int i = 0 ; i < m_pEditData->getImageDataListSize() ; i ++ ) {
 		CEditData::ImageData *p = m_pEditData->getImageData(i) ;
@@ -1284,7 +1272,7 @@ void AnimationForm::slot_changeLinearFilter(bool flag)
 		if ( p->nTexObj ) {
 			m_pGlWidget->deleteTexture(p->nTexObj) ;
 		}
-		p->nTexObj = m_pGlWidget->bindTexture(p->Image, options) ;
+		p->nTexObj = m_pGlWidget->bindTexture(p->Image) ;
 	}
 
 	m_pGlWidget->update() ;
