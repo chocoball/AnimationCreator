@@ -296,6 +296,7 @@ void MainWindow::slot_destroyAnmWindow( void )
 		setting.setAnmWindowGeometry(m_pSubWindow_Anm->saveGeometry()) ;
 	}
 	m_pSubWindow_Anm = NULL ;
+	m_pAnimationForm = NULL ;
 }
 
 void MainWindow::slot_destroyImgWindow( void )
@@ -305,6 +306,7 @@ void MainWindow::slot_destroyImgWindow( void )
 		setting.setImgWindowGeometry(m_pSubWindow_Img->saveGeometry()) ;
 	}
 	m_pSubWindow_Img = NULL ;
+	m_pImageWindow = NULL ;
 }
 
 void MainWindow::slot_destroyLoupeWindow( void )
@@ -314,6 +316,7 @@ void MainWindow::slot_destroyLoupeWindow( void )
 		setting.setLoupeWindowGeometry(m_pSubWindow_Loupe->saveGeometry()) ;
 	}
 	m_pSubWindow_Loupe = NULL ;
+	m_pLoupeWindow = NULL ;
 }
 
 void MainWindow::slot_destroyCurveWindow(void)
@@ -323,6 +326,7 @@ void MainWindow::slot_destroyCurveWindow(void)
 		setting.setCurveWindowGeometry(m_pSubWindow_Curve->saveGeometry()) ;
 	}
 	m_pSubWindow_Curve = NULL ;
+	m_pCurveEditorForm = NULL ;
 }
 
 void MainWindow::slot_reqFinished(QNetworkReply *reply)
