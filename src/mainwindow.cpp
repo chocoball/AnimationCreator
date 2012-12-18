@@ -294,6 +294,7 @@ void MainWindow::slot_destroyAnmWindow( void )
 	if ( m_pSubWindow_Anm ) {
 		qDebug("destroyAnmWindow save setting");
 		setting.setAnmWindowGeometry(m_pSubWindow_Anm->saveGeometry()) ;
+		disconnect(m_pSubWindow_Anm, SIGNAL(destroyed()), this, SLOT(slot_destroyAnmWindow())) ;
 	}
 	m_pSubWindow_Anm = NULL ;
 	m_pAnimationForm = NULL ;
@@ -304,6 +305,7 @@ void MainWindow::slot_destroyImgWindow( void )
 	if ( m_pSubWindow_Img ) {
 		qDebug("destroyImgWindow save setting");
 		setting.setImgWindowGeometry(m_pSubWindow_Img->saveGeometry()) ;
+		disconnect(m_pSubWindow_Img, SIGNAL(destroyed()), this, SLOT(slot_destroyImgWindow())) ;
 	}
 	m_pSubWindow_Img = NULL ;
 	m_pImageWindow = NULL ;
@@ -314,6 +316,7 @@ void MainWindow::slot_destroyLoupeWindow( void )
 	if ( m_pSubWindow_Loupe ) {
 		qDebug("destroyLoupeWindow save setting");
 		setting.setLoupeWindowGeometry(m_pSubWindow_Loupe->saveGeometry()) ;
+		disconnect(m_pSubWindow_Loupe, SIGNAL(destroyed()), this, SLOT(slot_destroyLoupeWindow())) ;
 	}
 	m_pSubWindow_Loupe = NULL ;
 	m_pLoupeWindow = NULL ;
@@ -324,6 +327,7 @@ void MainWindow::slot_destroyCurveWindow(void)
 	if ( m_pSubWindow_Curve ) {
 		qDebug("destroyCurveWindow save setting");
 		setting.setCurveWindowGeometry(m_pSubWindow_Curve->saveGeometry()) ;
+		disconnect(m_pSubWindow_Curve, SIGNAL(destroyed()), this, SLOT(slot_destroyCurveWindow())) ;
 	}
 	m_pSubWindow_Curve = NULL ;
 	m_pCurveEditorForm = NULL ;
