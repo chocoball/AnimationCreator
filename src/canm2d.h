@@ -38,7 +38,7 @@
 #define kAnmXML_ID_FrameData	"FRAMEDATA"
 #define kAnmXML_ID_Image		"IMAGE"
 
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
 #include <stdint.h>
 #define LP_ADD(p, n) (uint64_t)((uint64_t)((uint64_t *)(p)) + (uint64_t)((uint64_t *)(n)))
 #else
