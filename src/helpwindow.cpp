@@ -1,4 +1,6 @@
 #include <QtHelp/QHelpContentWidget>
+#include <QMessageBox>
+#include <QGridLayout>
 #include "helpwindow.h"
 
 

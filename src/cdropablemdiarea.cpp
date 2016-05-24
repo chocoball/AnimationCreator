@@ -1,4 +1,5 @@
 #include <QDebug>
+#include <QMdiSubWindow>
 #include "cdropablemdiarea.h"
 
 CDropableMdiArea::CDropableMdiArea(QWidget *parent) :

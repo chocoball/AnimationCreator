@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT      	+= core gui opengl xml network
+QT      	+= core gui opengl xml network help
 
 TARGET		= AnimationCreator2
 TEMPLATE	= app
@@ -90,7 +90,7 @@ FORMS		+= 	ui/animationform.ui				\
 				ui/framedatascaleform.ui
 
 
-CONFIG		+=	help console
+CONFIG		+=	console
 
 
 

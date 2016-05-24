@@ -130,7 +130,7 @@ int CApplication::execute()
                         print_usage();
                         return 1 ;
                     }
-                    file.write(data.getData().toAscii()) ;
+                    file.write(data.getData().toLatin1()) ;
 
                     QString		incFileName = m_outputFile;
                     incFileName.replace(QString(".asm"), QString(".inc"));
@@ -147,7 +147,7 @@ int CApplication::execute()
                         qDebug() << trUtf8("ファイル書き込み失敗[") << incFileName << "]:" << data.getErrorString() ;
                         return 1 ;
                     }
-                    fileInc.write(dataInc.getData().toAscii());
+                    fileInc.write(dataInc.getData().toLatin1());
                 }
             }
             break ;

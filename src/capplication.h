@@ -1,7 +1,7 @@
 #ifndef CAPPLICATION_H
 #define CAPPLICATION_H
 
-#include <QtGui/QApplication>
+#include <QApplication>
 #include <QStringList>
 
 enum {

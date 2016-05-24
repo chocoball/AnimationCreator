@@ -3,6 +3,7 @@
 
 #include <QtGui>
 #include <QWidget>
+#include <QLabel>
 
 class CBrightLabel : public QLabel
 {

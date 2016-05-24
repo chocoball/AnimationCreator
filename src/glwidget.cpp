@@ -958,9 +958,9 @@ void AnimeGLWidget::multMatrix(const QMatrix4x4 &mat)
 
 void AnimeGLWidget::convMat(double *ret, const QMatrix4x4 &mat)
 {
-	const qreal *p = mat.data() ;
+    const float *p = mat.data() ;
 	for ( int i = 0 ; i < 16 ; i ++ ) {
-		ret[i] = p[i] ;
+        ret[i] = (double)p[i] ;
 	}
 }
 

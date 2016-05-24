@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QtGui>
+#include <QSplitter>
 #include "helpbrowser.h"
 
 class HelpWindow : public QWidget

@@ -372,7 +372,7 @@ void MainWindow::slot_exportJSON()
 		QMessageBox::warning(this, trUtf8("エラー"), trUtf8("保存失敗 %1:\n%2").arg(fileName).arg(file.errorString())) ;
 		return ;
 	}
-	file.write(data.getData().toAscii()) ;
+    file.write(data.getData().toLatin1()) ;
 
 	QMessageBox msgBox ;
 	msgBox.setText(trUtf8("JSON吐き出し終了:")+fileName) ;
@@ -401,7 +401,7 @@ void MainWindow::slot_exportASM()
 		QMessageBox::warning(this, trUtf8("エラー"), trUtf8("保存失敗 %1:\n%2").arg(fileName).arg(file.errorString())) ;
 		return ;
 	}
-	file.write(data.getData().toAscii()) ;
+    file.write(data.getData().toLatin1()) ;
 	
 	// inc出力
 	QString		incFileName = fileName;
@@ -418,7 +418,7 @@ void MainWindow::slot_exportASM()
 		QMessageBox::warning(this, trUtf8("エラー"), trUtf8("保存失敗 %1:\n%2").arg(incFileName).arg(fileInc.errorString()));
 		return;
 	}
-	fileInc.write(dataInc.getData().toAscii());
+    fileInc.write(dataInc.getData().toLatin1());
 	
 	QMessageBox msgBox ;
 	msgBox.setText(trUtf8("asm吐き出し終了:")+fileName) ;
@@ -815,7 +815,7 @@ bool MainWindow::saveFile( QString fileName )
 			QApplication::restoreOverrideCursor();
 			return false ;
 		}
-		file.write(data.getData().toString(4).toAscii()) ;
+        file.write(data.getData().toString(4).toLatin1()) ;
 		QApplication::restoreOverrideCursor();
 
 		m_UndoIndex = m_EditData.getUndoStack()->index() ;
