@@ -111,11 +111,12 @@ void CLoupeWindow::fixImage( QSize &size )
 	int height = imgHeight / m_Scale ;
 	int x = pos.x() - width/2 ;
 	int y = pos.y() - height/2 ;
-	QPixmap pix = QPixmap::grabWindow(QApplication::desktop()->winId(),
-									  x,
-									  y,
-									  width,
-									  height) ;
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QPixmap pix = screen->grabWindow(QApplication::desktop()->winId(),
+                                     x,
+                                     y,
+                                     width,
+                                     height) ;
 	QImage image = pix.toImage() ;
 	int i, j ;
 	QPoint cursorPos = QPoint(0, 0) ;
