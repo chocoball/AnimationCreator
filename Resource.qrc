@@ -11,5 +11,7 @@
         <file>Resources/lang/linguist_ja.ts</file>
         <file>Resources/shaders/texture_f.glsl</file>
         <file>Resources/shaders/texture_v.glsl</file>
+        <file>Resources/shaders/line_f.glsl</file>
+        <file>Resources/shaders/line_v.glsl</file>
     </qresource>
 </RCC>

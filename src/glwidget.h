@@ -96,9 +96,6 @@ protected:
 	void writePNGFromFrameBuffer( void ) ;
 	int getDigit(int num) ;
 
-//	void multMatrix(const QMatrix4x4 &mat) ;
-//	void convMat(double *ret, const QMatrix4x4 &mat) ;
-
 	void sortDrawList() ;
 	void drawList() ;
 
@@ -155,6 +152,7 @@ private:
 
 	FrameData			m_editFrameDataOld ;
     QOpenGLShaderProgram m_textureShaderProgram;
+    QOpenGLShaderProgram m_lineShaderProgram;
 
     QMatrix4x4          m_matProj;
 
