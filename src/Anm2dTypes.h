@@ -18,11 +18,16 @@
 //#define kANM2D_VERSION		0x00001000			///< バージョン 0x[00][000][000]
 #define kANM2D_VERSION		0x01000000			///< バージョン 0x[00][000][000]
 
-#define kANM2D_ID_HEADER	'ANM2'				///< ヘッダID
-#define kANM2D_ID_OBJECT	'OBJE'				///< オブジェクトID
-#define kANM2D_ID_LAYER		'LAYR'				///< レイヤID
-#define kANM2D_ID_FRAMEDATA	'FRAM'				///< フレームデータID
-#define kANM2D_ID_IMAGE		'IMAG'				///< イメージID
+//#define kANM2D_ID_HEADER	'ANM2'				///< ヘッダID
+//#define kANM2D_ID_OBJECT	'OBJE'				///< オブジェクトID
+//#define kANM2D_ID_LAYER		'LAYR'				///< レイヤID
+//#define kANM2D_ID_FRAMEDATA	'FRAM'				///< フレームデータID
+//#define kANM2D_ID_IMAGE		'IMAG'				///< イメージID
+#define kANM2D_ID_HEADER	('A' << 24 | 'N' << 16 | 'M' << 8 | '2')				///< ヘッダID
+#define kANM2D_ID_OBJECT	('O' << 24 | 'B' << 16 | 'J' << 8 | 'E')				///< オブジェクトID
+#define kANM2D_ID_LAYER		('L' << 24 | 'A' << 16 | 'Y' << 8 | 'R')				///< レイヤID
+#define kANM2D_ID_FRAMEDATA	('F' << 24 | 'R' << 16 | 'A' << 8 | 'M')				///< フレームデータID
+#define kANM2D_ID_IMAGE		('I' << 24 | 'M' << 16 | 'A' << 8 | 'G')				///< イメージID
 
 // @brief ブロック構造
 typedef struct {

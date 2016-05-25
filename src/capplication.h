@@ -20,7 +20,7 @@ public:
     void print_usage() ;
     int execute() ;
 
-    const int getExecType() { return m_execType ; }
+    int getExecType() { return m_execType ; }
     const QString &getInputFile() { return m_inputFile ; }
     const QString &getOutputFile() { return m_outputFile ; }
 

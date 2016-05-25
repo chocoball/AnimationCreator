@@ -63,7 +63,7 @@ void CurveGraphLabel::adjustSize()
 }
 
 // ペイントイベント
-void CurveGraphLabel::paintEvent(QPaintEvent *event)
+void CurveGraphLabel::paintEvent(QPaintEvent */*event*/)
 {
 	if ( m_currDispType == kDispType_None ) { return ; }
 

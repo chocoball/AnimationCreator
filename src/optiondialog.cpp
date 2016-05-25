@@ -279,7 +279,7 @@ void KeyboardTab::handleKeyEvent(QKeyEvent *event)
 	setShortcut(m_selIndex.row(), QKeySequence(key)) ;
 }
 
-bool KeyboardTab::eventFilter(QObject *o, QEvent *e)
+bool KeyboardTab::eventFilter(QObject */*o*/, QEvent *e)
 {
 	if ( e->type() == QEvent::KeyPress ) {
 		QKeyEvent *k = static_cast<QKeyEvent*>(e);

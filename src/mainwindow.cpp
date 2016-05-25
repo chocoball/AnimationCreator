@@ -50,12 +50,6 @@ MainWindow::MainWindow(QWidget *parent)
 	m_pFrameDataScaleForm = NULL ;
 
 	setObjectName("AnimationCreator MainWindow");
-/*
-	QNetworkAccessManager *pManager = new QNetworkAccessManager(this) ;
-	connect(pManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(slot_reqFinished(QNetworkReply *))) ;
-	pManager->get(QNetworkRequest(QUrl("http://chocobowl.biz:8800/AnimationCreator/version.txt"))) ;
-*/
-
 }
 
 MainWindow::~MainWindow()

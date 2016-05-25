@@ -761,7 +761,7 @@ bool CAnm2DXml::makeImage( QDomElement &element, QDomDocument &doc, CEditData &r
 }
 
 // プログレスバーの最大値セット
-void CAnm2DXml::setProgMaximum( QProgressDialog *pProg, CEditData &rEditData )
+void CAnm2DXml::setProgMaximum( QProgressDialog *pProg, CEditData &/*rEditData*/ )
 {
 	if ( !pProg ) { return ; }
 #if 0
@@ -803,7 +803,6 @@ bool CAnm2DXml::addElement_00001000( QDomNode &node, CEditData &rEditData )
 		if ( node.nodeName() == kAnmXML_ID_Object ) {	// オブジェクト
 			QString name ;
 			int layerNum = 0 ;
-			int no = 0 ;
 			QDomNamedNodeMap nodeMap = node.attributes() ;
 			if ( nodeMap.namedItem(kAnmXML_Attr_Name).isNull()
 			  || nodeMap.namedItem(kAnmXML_Attr_LayerNum).isNull()
@@ -814,7 +813,7 @@ bool CAnm2DXml::addElement_00001000( QDomNode &node, CEditData &rEditData )
 			}
 			name = nodeMap.namedItem(kAnmXML_Attr_Name).toAttr().value() ;
 			layerNum = nodeMap.namedItem(kAnmXML_Attr_LayerNum).toAttr().value().toInt() ;
-			no = nodeMap.namedItem(kAnmXML_Attr_No).toAttr().value().toInt() ;
+//            int no = nodeMap.namedItem(kAnmXML_Attr_No).toAttr().value().toInt() ;
 			int loopNum = nodeMap.namedItem(kAnmXML_Attr_LoopNum).toAttr().value().toInt() ;
 
 			QModelIndex index = pModel->addItem(name, QModelIndex()) ;
@@ -874,11 +873,10 @@ bool CAnm2DXml::addLayer_00001000( QDomNode &node, ObjectItem *pRoot, int maxLay
 			}
 			QString name ;
 			int frameDataNum = 0 ;
-			int no = 0 ;
 
 			name = nodeMap.namedItem(kAnmXML_Attr_Name).toAttr().value() ;
 			frameDataNum = nodeMap.namedItem(kAnmXML_Attr_FrameNum).toAttr().value().toInt() ;
-			no = nodeMap.namedItem(kAnmXML_Attr_No).toAttr().value().toInt() ;
+//            int no = nodeMap.namedItem(kAnmXML_Attr_No).toAttr().value().toInt() ;
 
 			QModelIndex index = pModel->addItem(name, pRoot->getIndex()) ;
 			ObjectItem *pItem = pModel->getItemFromIndex(index) ;
@@ -1069,7 +1067,6 @@ bool CAnm2DXml::addElement_01000000(QDomNode &node, CEditData &rEditData)
 		if ( node.nodeName() == kAnmXML_ID_Object ) {	// オブジェクト
 			QString name ;
 			int layerNum = 0 ;
-			int no = 0 ;
 			QDomNamedNodeMap nodeMap = node.attributes() ;
 			if ( nodeMap.namedItem(kAnmXML_Attr_Name).isNull()
 			  || nodeMap.namedItem(kAnmXML_Attr_LayerNum).isNull()
@@ -1080,7 +1077,7 @@ bool CAnm2DXml::addElement_01000000(QDomNode &node, CEditData &rEditData)
 			}
 			name = nodeMap.namedItem(kAnmXML_Attr_Name).toAttr().value() ;
 			layerNum = nodeMap.namedItem(kAnmXML_Attr_LayerNum).toAttr().value().toInt() ;
-			no = nodeMap.namedItem(kAnmXML_Attr_No).toAttr().value().toInt() ;
+//            int no = nodeMap.namedItem(kAnmXML_Attr_No).toAttr().value().toInt() ;
 			int loopNum = nodeMap.namedItem(kAnmXML_Attr_LoopNum).toAttr().value().toInt() ;
 			int fps = 60 ;
 			if ( !nodeMap.namedItem(kAnmXML_Attr_FpsNum).isNull() ) {
@@ -1177,7 +1174,7 @@ bool CAnm2DXml::addLayer_01000000( QDomNode &node, ObjectItem *pRoot, int maxLay
 	return true ;
 }
 
-bool CAnm2DXml::addFrameData_01000000( QDomNode &node, ObjectItem *pItem, int maxFrameDataNum )
+bool CAnm2DXml::addFrameData_01000000( QDomNode &/*node*/, ObjectItem */*pItem*/, int /*maxFrameDataNum*/ )
 {
 	return false ;
 }

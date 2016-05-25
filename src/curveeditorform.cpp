@@ -49,7 +49,7 @@ void CurveEditorForm::setSplitterPos()
 	m_pSplitter->MoveSplitter(m_pSetting->getCurveSplitterWidth(), m_pSetting->getCurveSplitterWidthIndex()) ;
 }
 
-void CurveEditorForm::resizeEvent(QResizeEvent *event)
+void CurveEditorForm::resizeEvent(QResizeEvent */*event*/)
 {
 	m_pGraphLabel->adjustSize() ;
 	m_pGraphLabel->repaint() ;
@@ -71,7 +71,7 @@ void CurveEditorForm::slot_changeSelLayer(QModelIndex index)
 	m_pGraphLabel->repaint() ;
 }
 
-void CurveEditorForm::slot_movedSlider(int val)
+void CurveEditorForm::slot_movedSlider(int /*val*/)
 {
 	m_pGraphLabel->repaint() ;
 }

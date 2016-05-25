@@ -74,12 +74,12 @@ void ColorPickerForm::mouseMoveEvent(QMouseEvent *event)
 	}
 }
 
-void ColorPickerForm::mouseReleaseEvent(QMouseEvent *event)
+void ColorPickerForm::mouseReleaseEvent(QMouseEvent */*event*/)
 {
 	m_editMode = 0 ;
 }
 
-void ColorPickerForm::paintEvent(QPaintEvent *event)
+void ColorPickerForm::paintEvent(QPaintEvent */*event*/)
 {
 }
 

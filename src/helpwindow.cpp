@@ -34,8 +34,8 @@ HelpWindow::HelpWindow(QWidget *parent)
 	show() ;
 }
 
-void HelpWindow::resizeEvent(QResizeEvent *event)
+void HelpWindow::resizeEvent(QResizeEvent */*event*/)
 {
-	QSize sub = event->size() - event->oldSize() ;
+//	QSize sub = event->size() - event->oldSize() ;
 
 }

@@ -25,7 +25,7 @@ bool KeyboardModel::setData(const QModelIndex &index, const QVariant &value, int
 	return true ;
 }
 
-Qt::ItemFlags KeyboardModel::flags(const QModelIndex &index) const
+Qt::ItemFlags KeyboardModel::flags(const QModelIndex &/*index*/) const
 {
 	return Qt::ItemIsEnabled | Qt::ItemIsSelectable ;
 }
@@ -54,7 +54,7 @@ QModelIndex KeyboardModel::index(int row, int column, const QModelIndex &parent)
 	return createIndex(row, column, (QString *)&m_items[row][column]);
 }
 
-QModelIndex KeyboardModel::parent(const QModelIndex &index) const
+QModelIndex KeyboardModel::parent(const QModelIndex &/*index*/) const
 {
 	return QModelIndex() ;
 }
