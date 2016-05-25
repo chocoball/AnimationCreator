@@ -29,7 +29,7 @@ GLuint TextureCacheManager::Add(QOpenGLTexture *pTex)
 
     m_currentId ++;
     m_caches.append(qMakePair(m_currentId, pTex));
-    return 0;
+    return m_currentId;
 }
 
 void TextureCacheManager::Remove(GLuint id)

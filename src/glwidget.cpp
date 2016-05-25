@@ -49,15 +49,13 @@ AnimeGLWidget::~AnimeGLWidget()
 
 GLuint AnimeGLWidget::bindTexture(QImage &image)
 {
-//	QGLContext::BindOptions options = QGLContext::InvertedYBindOption ;
-//	if ( m_pSetting->getCheckLinearFilter() ) {
-//		options |= QGLContext::LinearFilteringBindOption ;
-//	}
-//	return QGLWidget::bindTexture(image, GL_TEXTURE_2D, GL_RGBA, options) ;
     makeCurrent();
-    QOpenGLTexture *pTexture = new QOpenGLTexture(image);
-    pTexture->setMinificationFilter(QOpenGLTexture::Nearest);
-    pTexture->setMagnificationFilter(QOpenGLTexture::Linear);
+    QOpenGLTexture *pTexture = new QOpenGLTexture(image.mirrored(), QOpenGLTexture::DontGenerateMipMaps);
+    if ( m_pSetting->getCheckLinearFilter() )
+    {
+        pTexture->setMinificationFilter(QOpenGLTexture::Nearest);
+        pTexture->setMagnificationFilter(QOpenGLTexture::Linear);
+    }
     doneCurrent();
     return m_pTextureCacheManager->Add(pTexture);
 }
@@ -84,8 +82,8 @@ void AnimeGLWidget::initializeGL()
 {
     initializeOpenGLFunctions();
 
-//    glEnable(GL_BLEND) ;
-//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND) ;
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 //#ifdef kUseAlphaTest
 //	glEnable(GL_ALPHA_TEST);
 //	glAlphaFunc(GL_GREATER, 0);
@@ -97,7 +95,6 @@ void AnimeGLWidget::initializeGL()
         return;
     }
     m_textureShaderProgram.setUniformValue("texture", 0);
-
 
 	for ( int i = 0 ; i < m_pEditData->getImageDataListSize() ; i ++ ) {
 		CEditData::ImageData *p = m_pEditData->getImageData(i) ;
@@ -121,14 +118,8 @@ void AnimeGLWidget::paintGL()
 	glClearColor(col.redF(), col.greenF(), col.blueF(), col.alphaF()) ;
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT) ;
 
-//	glMatrixMode(GL_PROJECTION) ;
-//	glLoadIdentity() ;
-//	glOrtho(-m_DrawWidth/2, m_DrawWidth/2, m_DrawHeight/2, -m_DrawHeight/2, -10000, 10000);
     m_matProj.setToIdentity();
     m_matProj.ortho(-m_DrawWidth/2, m_DrawWidth/2, m_DrawHeight/2, -m_DrawHeight/2, -10000, 10000);
-
-//	glMatrixMode(GL_MODELVIEW) ;
-//	glLoadIdentity() ;
 
 	if ( m_pSetting->getUseDepthTest() ) { glEnable(GL_DEPTH_TEST) ; }
 	else { glDisable(GL_DEPTH_TEST) ; }
@@ -140,6 +131,7 @@ void AnimeGLWidget::paintGL()
 		QColor col = QColor(255, 255, 255, 255) ;
 
 //		glEnable(GL_TEXTURE_2D) ;
+        // TODO
 //		glBindTexture(GL_TEXTURE_2D, m_backImageTex) ;
 
 		rect.setRect(-m_backImageW/2, m_backImageH/2, m_backImageW, -m_backImageH);
