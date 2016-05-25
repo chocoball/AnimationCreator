@@ -39,7 +39,8 @@ SOURCES		+=	src/animationform.cpp			\
 				src/curvegraphlabel.cpp			\
 				src/capplication.cpp			\
 				src/objectscaleform.cpp			\
-				src/framedatascaleform.cpp
+                src/framedatascaleform.cpp      \
+                src/texturecachemanager.cpp
 
 HEADERS		+=	src/Anm2dTypes.h				\
 				src/animationform.h				\
@@ -74,7 +75,8 @@ HEADERS		+=	src/Anm2dTypes.h				\
 				src/capplication.h				\
 				src/CRect.h						\
 				src/objectscaleform.h			\
-				src/framedatascaleform.h
+                src/framedatascaleform.h        \
+                src/texturecachemanager.h
 
 RESOURCES	+=	Resource.qrc
 

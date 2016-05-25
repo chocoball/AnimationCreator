@@ -24,8 +24,8 @@ void CEditData::resetData( void )
 {
 	for ( int i = 0 ; i < m_ImageDataList.size() ; i ++ ) {
 		if ( !m_ImageDataList[i].nTexObj ) { continue ; }
-
-		glDeleteTextures(1, &m_ImageDataList[i].nTexObj) ;
+        // TODO:
+//		glDeleteTextures(1, &m_ImageDataList[i].nTexObj) ;
 		m_ImageDataList[i].nTexObj = 0 ;
 	}
 	if ( m_pObjectModel ) {

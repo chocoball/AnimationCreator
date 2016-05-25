@@ -116,7 +116,7 @@ void MainWindow::slot_open( void )
 											this,
 											tr("Open File"),
 											setting.getOpenDir(),
-											tr("All Files (*);;Image Files (*.png *.bmp *.jpg);;Text (*"FILE_EXT_ANM2D_XML");;Bin (*"FILE_EXT_ANM2D_BIN")")) ;
+                                            tr("All Files (*);;Image Files (*.png *.bmp *.jpg);;Text (*" FILE_EXT_ANM2D_XML ");;Bin (*" FILE_EXT_ANM2D_BIN ")")) ;
 	if ( fileName.isEmpty() ) {
 		return ;
 	}
@@ -131,7 +131,7 @@ void MainWindow::slot_addOpen(void)
 											this,
 											tr("Open File"),
 											setting.getOpenDir(),
-											tr("Text (*"FILE_EXT_ANM2D_XML")")) ;
+                                            tr("Text (*" FILE_EXT_ANM2D_XML ")")) ;
 	if ( fileName.isEmpty() ) {
 		return ;
 	}
@@ -141,7 +141,7 @@ void MainWindow::slot_addOpen(void)
 	if ( !fileOpen(fileName, true) ) { return ; }
 
 	m_StrSaveFileName = oldSaveFile ;
-	setWindowTitle(tr(kExecName"[%1]").arg(m_StrSaveFileName));
+    setWindowTitle(tr(kExecName "[%1]").arg(m_StrSaveFileName));
 }
 
 // 上書き保存
@@ -161,7 +161,7 @@ void MainWindow::slot_saveAs( void )
 	QString str = QFileDialog::getSaveFileName(this,
 											   trUtf8("名前を付けて保存"),
 											   setting.getSaveDir(),
-											   tr("Text (*"FILE_EXT_ANM2D_XML");;Bin (*"FILE_EXT_ANM2D_BIN")")) ;
+                                               tr("Text (*" FILE_EXT_ANM2D_XML ");;Bin (*" FILE_EXT_ANM2D_BIN ")")) ;
 	if ( str.isEmpty() ) { return ; }
 
 	if ( saveFile(str) ) {

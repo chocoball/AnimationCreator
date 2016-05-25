@@ -1,4 +1,5 @@
 #include "glwidget.h"
+#include <QOpenGLTexture>
 #include "util.h"
 
 #define kUseAlphaTest
@@ -6,7 +7,8 @@
 #define kPathSelectLen	5.0
 
 AnimeGLWidget::AnimeGLWidget(CEditData *editData, CSettings *pSetting, QWidget *parent) :
-	QGLWidget(QGLFormat(QGL::AlphaChannel), parent)
+    QOpenGLWidget(parent),
+    m_pTextureCacheManager(new TextureCacheManager())
 {
 	m_pEditData = editData ;
 	m_pSetting = pSetting ;
@@ -29,13 +31,41 @@ AnimeGLWidget::AnimeGLWidget(CEditData *editData, CSettings *pSetting, QWidget *
 	m_bPressWindowMove = false ;
 }
 
+AnimeGLWidget::~AnimeGLWidget()
+{
+    makeCurrent();
+    delete m_pTextureCacheManager;
+    doneCurrent();
+
+    if (m_pEditData)
+    {
+        for ( int i = 0 ; i < m_pEditData->getImageDataListSize() ; i ++ ) {
+            CEditData::ImageData *p = m_pEditData->getImageData(i) ;
+            if ( !p ) { continue ; }
+            p->nTexObj = 0;
+        }
+    }
+}
+
 GLuint AnimeGLWidget::bindTexture(QImage &image)
 {
-	QGLContext::BindOptions options = QGLContext::InvertedYBindOption ;
-	if ( m_pSetting->getCheckLinearFilter() ) {
-		options |= QGLContext::LinearFilteringBindOption ;
-	}
-	return QGLWidget::bindTexture(image, GL_TEXTURE_2D, GL_RGBA, options) ;
+//	QGLContext::BindOptions options = QGLContext::InvertedYBindOption ;
+//	if ( m_pSetting->getCheckLinearFilter() ) {
+//		options |= QGLContext::LinearFilteringBindOption ;
+//	}
+//	return QGLWidget::bindTexture(image, GL_TEXTURE_2D, GL_RGBA, options) ;
+    makeCurrent();
+    QOpenGLTexture *pTexture = new QOpenGLTexture(image);
+    pTexture->setMinificationFilter(QOpenGLTexture::Nearest);
+    pTexture->setMagnificationFilter(QOpenGLTexture::Linear);
+    doneCurrent();
+    return m_pTextureCacheManager->Add(pTexture);
+}
+void AnimeGLWidget::deleteTexture(GLuint texId)
+{
+    makeCurrent();
+    m_pTextureCacheManager->Remove(texId);
+    doneCurrent();
 }
 
 void AnimeGLWidget::slot_actDel( void )
@@ -52,12 +82,22 @@ void AnimeGLWidget::slot_setDrawGrid(bool flag)
 
 void AnimeGLWidget::initializeGL()
 {
-	glEnable(GL_BLEND) ;
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-#ifdef kUseAlphaTest
-	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER, 0);
-#endif
+    initializeOpenGLFunctions();
+
+//    glEnable(GL_BLEND) ;
+//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//#ifdef kUseAlphaTest
+//	glEnable(GL_ALPHA_TEST);
+//	glAlphaFunc(GL_GREATER, 0);
+//#endif
+
+    if (!initShaders(m_textureShaderProgram, "texture"))
+    {
+        close();
+        return;
+    }
+    m_textureShaderProgram.setUniformValue("texture", 0);
+
 
 	for ( int i = 0 ; i < m_pEditData->getImageDataListSize() ; i ++ ) {
 		CEditData::ImageData *p = m_pEditData->getImageData(i) ;
@@ -69,7 +109,7 @@ void AnimeGLWidget::initializeGL()
 
 void AnimeGLWidget::resizeGL(int w, int h)
 {
-	glViewport(0, 0, w, h) ;
+    glViewport(0, 0, w, h) ;
 }
 
 void AnimeGLWidget::paintGL()
@@ -81,12 +121,14 @@ void AnimeGLWidget::paintGL()
 	glClearColor(col.redF(), col.greenF(), col.blueF(), col.alphaF()) ;
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT) ;
 
-	glMatrixMode(GL_PROJECTION) ;
-	glLoadIdentity() ;
-	glOrtho(-m_DrawWidth/2, m_DrawWidth/2, m_DrawHeight/2, -m_DrawHeight/2, -10000, 10000);
+//	glMatrixMode(GL_PROJECTION) ;
+//	glLoadIdentity() ;
+//	glOrtho(-m_DrawWidth/2, m_DrawWidth/2, m_DrawHeight/2, -m_DrawHeight/2, -10000, 10000);
+    m_matProj.setToIdentity();
+    m_matProj.ortho(-m_DrawWidth/2, m_DrawWidth/2, m_DrawHeight/2, -m_DrawHeight/2, -10000, 10000);
 
-	glMatrixMode(GL_MODELVIEW) ;
-	glLoadIdentity() ;
+//	glMatrixMode(GL_MODELVIEW) ;
+//	glLoadIdentity() ;
 
 	if ( m_pSetting->getUseDepthTest() ) { glEnable(GL_DEPTH_TEST) ; }
 	else { glDisable(GL_DEPTH_TEST) ; }
@@ -97,15 +139,15 @@ void AnimeGLWidget::paintGL()
 		CRectF uvF ;
 		QColor col = QColor(255, 255, 255, 255) ;
 
-		glEnable(GL_TEXTURE_2D) ;
-		glBindTexture(GL_TEXTURE_2D, m_backImageTex) ;
+//		glEnable(GL_TEXTURE_2D) ;
+//		glBindTexture(GL_TEXTURE_2D, m_backImageTex) ;
 
 		rect.setRect(-m_backImageW/2, m_backImageH/2, m_backImageW, -m_backImageH);
 		uvF.setRect(0.0, (float)(m_BackImage.height()-m_backImageH)/m_BackImage.height(), (float)m_backImageW/m_BackImage.width(), (float)m_backImageH/m_BackImage.height());
 		drawRect(rect, uvF, -9999.9, col) ;
 
-		glBindTexture(GL_TEXTURE_2D, 0) ;
-		glDisable(GL_TEXTURE_2D) ;
+//		glBindTexture(GL_TEXTURE_2D, 0) ;
+//		glDisable(GL_TEXTURE_2D) ;
 	}
 
 	if ( m_pEditData ) {
@@ -143,6 +185,34 @@ void AnimeGLWidget::paintGL()
 	}
 }
 
+bool AnimeGLWidget::initShaders(QOpenGLShaderProgram &program, QString prefix)
+{
+    if (!program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/root/Resources/shaders/" + prefix + "_v.glsl"))
+    {
+        qDebug() << "failed add shader vertex";
+        return false;
+    }
+
+    if (!program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/root/Resources/shaders/" + prefix + "_f.glsl"))
+    {
+        qDebug() << "failed add shader fragment";
+        return false;
+    }
+
+    if (!program.link())
+    {
+        qDebug() << "failed link";
+        return false;
+    }
+
+    if (!program.bind())
+    {
+        qDebug() << "failed bind";
+        return false;
+    }
+    return true;
+}
+
 void AnimeGLWidget::drawLayers( void )
 {
 	if ( !m_pEditData->getObjectModel()->isObject(m_pEditData->getSelIndex())
@@ -151,7 +221,7 @@ void AnimeGLWidget::drawLayers( void )
 		return ;
 	}
 
-	glEnable(GL_TEXTURE_2D) ;
+//	glEnable(GL_TEXTURE_2D) ;
 
 	switch ( m_pEditData->getEditMode() ) {
 	case CEditData::kEditMode_Animation:
@@ -170,8 +240,8 @@ void AnimeGLWidget::drawLayers( void )
 
 	drawSelFrameInfo();
 
-	glDisable(GL_TEXTURE_2D) ;
-	glBindTexture(GL_TEXTURE_2D, 0) ;
+//	glDisable(GL_TEXTURE_2D) ;
+//	glBindTexture(GL_TEXTURE_2D, 0) ;
 }
 
 // アニメ再生中
@@ -333,7 +403,7 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 	QModelIndex index = m_pEditData->getSelIndex() ;
 	if ( !m_pEditData->getObjectModel()->isLayer(index) ) { return ; }
 
-	glDisable(GL_TEXTURE_2D) ;
+//	glDisable(GL_TEXTURE_2D) ;
 #ifdef kUseAlphaTest
 	glDisable(GL_ALPHA_TEST);
 #endif
@@ -356,7 +426,7 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 		switch ( m_editMode ) {
 			case kEditMode_Rot:
 				glEnable(GL_LINE_STIPPLE);
-				glLineStipple(2, 0x3333);
+//				glLineStipple(2, 0x3333);
 				{
 					QMatrix4x4 mat = pItem->getDisplayMatrix(selFrame) ;
 
@@ -380,7 +450,7 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 							PathData *pPath = &pFrame->path[i] ;
 							QPoint cen = pos + QPoint(pPath->v.x(), pPath->v.y()) ;
 							glEnable(GL_LINE_STIPPLE);
-							glLineStipple(2, 0x3333);
+//							glLineStipple(2, 0x3333);
 							drawLine(pos, cen, col, 0) ;
 							glDisable(GL_LINE_STIPPLE) ;
 							drawCircle(cen, kPathSelectLen, 16) ;
@@ -402,7 +472,7 @@ void AnimeGLWidget::drawSelFrameInfo( void )
 #ifdef kUseAlphaTest
 	glEnable(GL_ALPHA_TEST);
 #endif
-	glEnable(GL_TEXTURE_2D) ;
+//	glEnable(GL_TEXTURE_2D) ;
 	if ( bDepth ) {
 		glEnable(GL_DEPTH_TEST) ;
 	}
@@ -419,10 +489,11 @@ void AnimeGLWidget::drawFrameData( const FrameData &data, QMatrix4x4 mat, QColor
 	CRectF uv = data.getRect() ;
 	CRectF uvF ;
 
-	glPushMatrix() ;
+//	glPushMatrix() ;
 	{
 //		mat.data()[14] /= 4096.0 ;
-		multMatrix(mat) ;
+//		multMatrix(mat) ;
+        m_textureShaderProgram.setUniformValue("mvp_matrix", m_matProj * mat);
 
 		Vertex v = data.getVertex() ;
 		rect.setLeft(v.x0);
@@ -435,7 +506,12 @@ void AnimeGLWidget::drawFrameData( const FrameData &data, QMatrix4x4 mat, QColor
 		uvF.setTop((float)(Image.height()-uv.top())/Image.height());
 		uvF.setBottom((float)(Image.height()-uv.bottom())/Image.height());
 
-		glBindTexture(GL_TEXTURE_2D, p->nTexObj) ;
+//		glBindTexture(GL_TEXTURE_2D, p->nTexObj) ;
+        QOpenGLTexture *pTex = m_pTextureCacheManager->Get(p->nTexObj);
+        if (pTex)
+        {
+            pTex->bind();
+        }
 
 		col.setRed( col.red()		* data.rgba[0] / 255 );
 		col.setGreen( col.green()	* data.rgba[1] / 255 );
@@ -444,7 +520,7 @@ void AnimeGLWidget::drawFrameData( const FrameData &data, QMatrix4x4 mat, QColor
 
 		drawRect(rect, uvF, 0, col) ;
 	}
-	glPopMatrix() ;
+//	glPopMatrix() ;
 }
 
 // フレームデータの枠描画
@@ -452,29 +528,32 @@ void AnimeGLWidget::drawFrame(const FrameData &data, QMatrix4x4 mat, QColor col)
 {
 	const Vertex v = data.getVertex() ;
 
-	bool bTex = glIsEnabled(GL_TEXTURE_2D) ;
-	glDisable(GL_TEXTURE_2D) ;
+//	bool bTex = glIsEnabled(GL_TEXTURE_2D) ;
+//	glDisable(GL_TEXTURE_2D) ;
 
-	glPushMatrix();
+//	glPushMatrix();
 	{
 //		mat.data()[14] /= 4096.0 ;
-		multMatrix(mat) ;
+//		multMatrix(mat) ;
+        m_textureShaderProgram.setUniformValue("mvp_matrix", m_matProj * mat);
+
 
 		drawLine(QPoint(v.x0, v.y0), QPoint(v.x0, v.y1), col, 0);
 		drawLine(QPoint(v.x1, v.y0), QPoint(v.x1, v.y1), col, 0);
 		drawLine(QPoint(v.x0, v.y0), QPoint(v.x1, v.y0), col, 0);
 		drawLine(QPoint(v.x0, v.y1), QPoint(v.x1, v.y1), col, 0);
 	}
-	glPopMatrix();
+//	glPopMatrix();
 
-	if ( bTex ) { glEnable(GL_TEXTURE_2D) ; }
+//	if ( bTex ) { glEnable(GL_TEXTURE_2D) ; }
 }
 
 // グリッド描画
 void AnimeGLWidget::drawGrid( void )
 {
-	glPushMatrix();
-	glLoadIdentity();
+//	glPushMatrix();
+//	glLoadIdentity();
+    m_textureShaderProgram.setUniformValue("mvp_matrix", m_matProj);
 
 	QColor col = QColor(255, 255, 255, 128) ;
 	for ( int x = -m_DrawWidth/2 ; x < m_DrawWidth/2 ; x += m_GridWidth ) {
@@ -499,7 +578,7 @@ void AnimeGLWidget::drawGrid( void )
 		drawLine(QPoint(0, h), QPoint(0, 0), col) ;
 	}
 
-	glPopMatrix();
+//	glPopMatrix();
 }
 
 // 選択フレームデータのセンター表示
@@ -517,42 +596,68 @@ void AnimeGLWidget::drawCenter( void )
 // ライン描画
 void AnimeGLWidget::drawLine( QPoint pos0, QPoint pos1, QColor col, float z )
 {
-	glColor4ub(col.red(), col.green(), col.blue(), col.alpha());
+    // TODO
+//	glColor4ub(col.red(), col.green(), col.blue(), col.alpha());
 
-	glBegin(GL_LINES) ;
-	glVertex3f(pos0.x(), pos0.y(), z) ;
-	glVertex3f(pos1.x(), pos1.y(), z) ;
-	glEnd() ;
+//	glBegin(GL_LINES) ;
+//	glVertex3f(pos0.x(), pos0.y(), z) ;
+//	glVertex3f(pos1.x(), pos1.y(), z) ;
+//	glEnd() ;
 }
 
 // 矩形描画
 void AnimeGLWidget::drawRect(CRectF rc, CRectF uv, float z, QColor col)
 {
-	glColor4ub(col.red(), col.green(), col.blue(), col.alpha());
+//	glColor4ub(col.red(), col.green(), col.blue(), col.alpha());
 
-	glBegin(GL_TRIANGLE_STRIP) ;
-		glTexCoord2f(uv.left(), uv.bottom());
-		glVertex3f(rc.left(), rc.bottom(), z) ;
-		glTexCoord2f(uv.right(), uv.bottom());
-		glVertex3f(rc.right(), rc.bottom(), z) ;
-		glTexCoord2f(uv.left(), uv.top());
-		glVertex3f(rc.left(), rc.top(), z) ;
-		glTexCoord2f(uv.right(), uv.top());
-		glVertex3f(rc.right(), rc.top(), z) ;
-	glEnd() ;
+//	glBegin(GL_TRIANGLE_STRIP) ;
+//		glTexCoord2f(uv.left(), uv.bottom());
+//		glVertex3f(rc.left(), rc.bottom(), z) ;
+//		glTexCoord2f(uv.right(), uv.bottom());
+//		glVertex3f(rc.right(), rc.bottom(), z) ;
+//		glTexCoord2f(uv.left(), uv.top());
+//		glVertex3f(rc.left(), rc.top(), z) ;
+//		glTexCoord2f(uv.right(), uv.top());
+//		glVertex3f(rc.right(), rc.top(), z) ;
+//	glEnd() ;
+
+    m_textureShaderProgram.bind();
+
+    QVector3D verts[] = {
+        QVector3D(rc.left(), rc.bottom(), z),
+        QVector3D(rc.right(), rc.bottom(), z),
+        QVector3D(rc.left(), rc.top(), z),
+        QVector3D(rc.right(), rc.top(), z),
+    };
+    int vertexLocation = m_textureShaderProgram.attributeLocation("a_position");
+    m_textureShaderProgram.enableAttributeArray(vertexLocation);
+    m_textureShaderProgram.setAttributeArray(vertexLocation, verts);
+
+    QVector2D coords[] = {
+        QVector2D(uv.left(), uv.bottom()),
+        QVector2D(uv.right(), uv.bottom()),
+        QVector2D(uv.left(), uv.top()),
+        QVector2D(uv.right(), uv.top()),
+    };
+    int texcoordLocation = m_textureShaderProgram.attributeLocation("a_texcoord");
+    m_textureShaderProgram.enableAttributeArray(texcoordLocation);
+    m_textureShaderProgram.setAttributeArray(texcoordLocation, coords);
+
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
 // 円描画
 void AnimeGLWidget::drawCircle(QPoint p, float length, int div)
 {
-	glBegin(GL_LINE_STRIP) ;
-	for ( int i = 0 ; i < div ; i ++ ) {
-		float rad = i * M_PI*2.0f / (float)div ;
-		float x = cosf(rad) * length ;
-		float y = sinf(rad) * length ;
-		glVertex2f(x+p.x(), y+p.y()) ;
-	}
-	glEnd() ;
+    // TODO
+//	glBegin(GL_LINE_STRIP) ;
+//	for ( int i = 0 ; i < div ; i ++ ) {
+//		float rad = i * M_PI*2.0f / (float)div ;
+//		float x = cosf(rad) * length ;
+//		float y = sinf(rad) * length ;
+//		glVertex2f(x+p.x(), y+p.y()) ;
+//	}
+//	glEnd() ;
 }
 
 // ベジエ曲線描画
@@ -568,11 +673,12 @@ void AnimeGLWidget::drawBezierLine(ObjectItem *pLayerItem, int prevFrame, int ne
 		lines << QPointF(m.column(3).x(), m.column(3).y()) ;
 	}
 
-	glBegin(GL_LINE_STRIP) ;
-	for ( int i = 0 ; i < lines.size() ; i ++ ) {
-		glVertex2f(lines.at(i).x(), lines.at(i).y()) ;
-	}
-	glEnd() ;
+    // TODO
+//	glBegin(GL_LINE_STRIP) ;
+//	for ( int i = 0 ; i < lines.size() ; i ++ ) {
+//		glVertex2f(lines.at(i).x(), lines.at(i).y()) ;
+//	}
+//	glEnd() ;
 }
 
 // ドラッグ進入イベント
@@ -932,7 +1038,7 @@ void AnimeGLWidget::writePNGFromFrameBuffer( void )
 	int w = rect[2]-x ;
 	int h = rect[3]-y ;
 
-	QImage img = grabFrameBuffer(true).copy(x, y, w, h) ;
+    QImage img = grabFramebuffer().copy(x, y, w, h) ;
 	img.save(name) ;
 	m_pEditData->setExportEndFrame(frame) ;
 }
@@ -949,20 +1055,20 @@ int AnimeGLWidget::getDigit(int num)
 	return ret ;
 }
 
-void AnimeGLWidget::multMatrix(const QMatrix4x4 &mat)
-{
-	double m[16] ;
-	convMat(m, mat) ;
-	glMultMatrixd(m) ;
-}
+//void AnimeGLWidget::multMatrix(const QMatrix4x4 &mat)
+//{
+//	double m[16] ;
+//	convMat(m, mat) ;
+//	glMultMatrixd(m) ;
+//}
 
-void AnimeGLWidget::convMat(double *ret, const QMatrix4x4 &mat)
-{
-    const float *p = mat.data() ;
-	for ( int i = 0 ; i < 16 ; i ++ ) {
-        ret[i] = (double)p[i] ;
-	}
-}
+//void AnimeGLWidget::convMat(double *ret, const QMatrix4x4 &mat)
+//{
+//    const float *p = mat.data() ;
+//	for ( int i = 0 ; i < 16 ; i ++ ) {
+//        ret[i] = (double)p[i] ;
+//	}
+//}
 
 void AnimeGLWidget::sortDrawList()
 {

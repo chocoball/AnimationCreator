@@ -63,7 +63,8 @@ public:
 			if ( m_ImageDataList[i].nNo != no ) { continue ; }
 
 			if ( m_ImageDataList[i].nTexObj ) {
-				glDeleteTextures(1, &m_ImageDataList[i].nTexObj) ;
+                // TODO:
+//				glDeleteTextures(1, &m_ImageDataList[i].nTexObj) ;
 			}
 			m_ImageDataList.removeAt(i) ;
 			return ;

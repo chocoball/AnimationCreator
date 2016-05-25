@@ -1,12 +1,15 @@
 #ifndef GLWIDGET_H
 #define GLWIDGET_H
 
-#include <QGLWidget>
+#include <QOpenGLWidget>
+#include <QOpenGLFunctions>
+#include <QOpenGLShaderProgram>
 #include "editdata.h"
 #include "setting.h"
+#include "texturecachemanager.h"
 
 
-class AnimeGLWidget : public QGLWidget
+class AnimeGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
 public:
@@ -33,8 +36,10 @@ public:
 
 public:
 	explicit AnimeGLWidget(CEditData *editData, CSettings *pSetting, QWidget *parent = 0);
+    virtual ~AnimeGLWidget();
 
 	GLuint bindTexture(QImage &image) ;
+    void deleteTexture(GLuint texId);
 
 	void setPressWindowMove(bool f) { m_bPressWindowMove = f ; }
 
@@ -53,9 +58,11 @@ public slots:
 	void slot_setDrawGrid(bool flag) ;
 
 protected:
-	void initializeGL() ;
-	void resizeGL(int w, int h) ;
-	void paintGL() ;
+    void initializeGL() Q_DECL_OVERRIDE ;
+    void resizeGL(int w, int h) Q_DECL_OVERRIDE ;
+    void paintGL() Q_DECL_OVERRIDE ;
+
+    bool initShaders(QOpenGLShaderProgram &program, QString prefix);
 
 	void drawLayers( void ) ;
 	void drawLayers_Anime( void ) ;
@@ -89,8 +96,8 @@ protected:
 	void writePNGFromFrameBuffer( void ) ;
 	int getDigit(int num) ;
 
-	void multMatrix(const QMatrix4x4 &mat) ;
-	void convMat(double *ret, const QMatrix4x4 &mat) ;
+//	void multMatrix(const QMatrix4x4 &mat) ;
+//	void convMat(double *ret, const QMatrix4x4 &mat) ;
 
 	void sortDrawList() ;
 	void drawList() ;
@@ -122,6 +129,7 @@ public:
 private:
 	CEditData			*m_pEditData ;
 	CSettings			*m_pSetting ;
+    TextureCacheManager *m_pTextureCacheManager;
 	GLint				m_DrawWidth, m_DrawHeight ;
 	GLint				m_GridWidth, m_GridHeight ;
 
@@ -146,6 +154,9 @@ private:
 	int					m_backImageW, m_backImageH ;
 
 	FrameData			m_editFrameDataOld ;
+    QOpenGLShaderProgram m_textureShaderProgram;
+
+    QMatrix4x4          m_matProj;
 
 	QList<DRAW_FRAMEDATA>	m_drawList ;
 };
