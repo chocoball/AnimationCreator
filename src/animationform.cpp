@@ -93,7 +93,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 	m_pTimer = new QTimer(this) ;
 	m_pTimer->setInterval((int)(100.0f/6.0f));
 
-	connect(ui->label_frame, SIGNAL(sig_changeValue(int)), this, SLOT(slot_frameChanged(int))) ;
+    connect(ui->label_frame, SIGNAL(sig_changeValue(int)), this, SLOT(slot_frameChanged(int))) ;
 	connect(ui->radioButton_pos, SIGNAL(clicked(bool)), this, SLOT(slot_clickedRadioPos(bool))) ;
 	connect(ui->radioButton_rot, SIGNAL(clicked(bool)), this, SLOT(slot_clickedRadioRot(bool))) ;
 	connect(ui->radioButton_center, SIGNAL(clicked(bool)), this, SLOT(slot_clickedRadioCenter(bool))) ;
@@ -885,20 +885,8 @@ void AnimationForm::slot_pauseAnimation( void )
 // アニメ停止
 void AnimationForm::slot_stopAnimation( void )
 {
-	disconnect(ui->pushButton_play, SIGNAL(clicked()), this, SLOT(slot_playAnimation())) ;
-	disconnect(ui->pushButton_play, SIGNAL(clicked()), this, SLOT(slot_pauseAnimation())) ;
-	connect(ui->pushButton_play, SIGNAL(clicked()), this, SLOT(slot_playAnimation())) ;
-
-	m_pEditData->setPlayAnime(false) ;
-	m_pEditData->setPauseAnime(false);
-	ui->label_frame->setValue(0);
-
-	QIcon icon;
-	icon.addFile(QString::fromUtf8(":/root/Resources/images/Button Play_32.png"), QSize(), QIcon::Normal, QIcon::Off);
-	ui->pushButton_play->setIcon(icon);
-
-	m_pTimer->stop();			// タイマー停止
-	m_pGlWidget->update();
+    ui->label_frame->setValue(0);
+    stopAnimation();
 }
 
 // 前フレームのフレームデータに変更
@@ -947,7 +935,7 @@ void AnimationForm::slot_timerEvent( void )
 		if ( m_pEditData->isExportPNG() || m_pEditData->addCurrLoopNum(1) ) {
 			// ループ終了
 			m_pEditData->endExportPNG() ;
-			slot_stopAnimation() ;
+            stopAnimation() ;
 			ui->label_frame->setValue(frame-1);
 			return ;
 		}
@@ -1547,7 +1535,7 @@ bool AnimationForm::keyPress(QKeyEvent *event)
 		return true ;
 	}
 	else if ( ks == m_pSetting->getShortcutStopAnime() ) {
-		slot_stopAnimation() ;
+        slot_stopAnimation() ;
 		return true ;
 	}
 	else if ( ks == m_pSetting->getShortcutJumpStartFrame() ) {
@@ -1698,4 +1686,21 @@ void AnimationForm::jumpEndFrame()
 	if ( !pItem->getFrameDataPtr(maxFrame) ) { return ; }
 
 	slot_frameChanged(maxFrame) ;
+}
+
+void AnimationForm::stopAnimation()
+{
+    disconnect(ui->pushButton_play, SIGNAL(clicked()), this, SLOT(slot_playAnimation())) ;
+    disconnect(ui->pushButton_play, SIGNAL(clicked()), this, SLOT(slot_pauseAnimation())) ;
+    connect(ui->pushButton_play, SIGNAL(clicked()), this, SLOT(slot_playAnimation())) ;
+
+    m_pEditData->setPlayAnime(false) ;
+    m_pEditData->setPauseAnime(false);
+
+    QIcon icon;
+    icon.addFile(QString::fromUtf8(":/root/Resources/images/Button Play_32.png"), QSize(), QIcon::Normal, QIcon::Off);
+    ui->pushButton_play->setIcon(icon);
+
+    m_pTimer->stop();			// タイマー停止
+    m_pGlWidget->update();
 }

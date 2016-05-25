@@ -171,6 +171,8 @@ protected:
 	void jumpStartFrame() ;
 	void jumpEndFrame() ;
 
+    void stopAnimation();
+
 	void dumpObjects(ObjectItem *p, int tab) ;
 
 private:
