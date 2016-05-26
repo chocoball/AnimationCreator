@@ -1,7 +1,7 @@
 #ifndef FRAMEDATA_H
 #define FRAMEDATA_H
 
-#include "Rect.h"
+#include "rect.h"
 #include "util.h"
 #include <QMatrix4x4>
 #include <QVector2D>

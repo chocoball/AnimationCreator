@@ -1,7 +1,7 @@
 #ifndef ANIMATIONFORM_H
 #define ANIMATIONFORM_H
 
-#include "Rect.h"
+#include "rect.h"
 #include "animationwindowsplitter.h"
 #include "datamarkerlabel.h"
 #include "editdata.h"

@@ -1,7 +1,7 @@
 #ifndef ANM2D_H
 #define ANM2D_H
 
-#include "Anm2dTypes.h"
+#include "anm2dtypes.h"
 #include "editdata.h"
 
 #include <QDomDocument>

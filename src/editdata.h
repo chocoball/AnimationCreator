@@ -1,7 +1,7 @@
 #ifndef EDITDATA_H
 #define EDITDATA_H
 
-#include "Rect.h"
+#include "rect.h"
 #include "objectmodel.h"
 #include <QImage>
 #include <QList>
