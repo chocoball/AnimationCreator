@@ -200,7 +200,7 @@ void ImageWindow::slot_delImage(void)
     int index = ui->tabWidget->currentIndex();
     int no = ui->tabWidget->tabText(index).toInt();
 
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     if (pModel->isUseImage(no))
     {
         int ret = QMessageBox::question(this, trUtf8("警告"), trUtf8("この画像は使用されています。削除しますか？"), trUtf8("削除"), trUtf8("キャンセル"));

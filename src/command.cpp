@@ -337,7 +337,7 @@ Command_CopyObject::Command_CopyObject(EditData *pEditData, QModelIndex &index)
 
 void Command_CopyObject::redo()
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     if (m_pObject)
     {
         QModelIndex index = pModel->addItem(m_pObject->getName(), QModelIndex());
@@ -352,7 +352,7 @@ void Command_CopyObject::redo()
 
 void Command_CopyObject::undo()
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     if (m_row >= 0)
     {
         QModelIndex index = pModel->getIndex(m_row);
@@ -385,7 +385,7 @@ void Command_CopyIndex::redo()
 {
     if (m_pLayer)
     {
-        CObjectModel *pModel = m_pEditData->getObjectModel();
+        ObjectModel *pModel = m_pEditData->getObjectModel();
         QModelIndex index;
 
         index = pModel->getIndex(m_parentRow);
@@ -412,7 +412,7 @@ void Command_CopyIndex::redo()
 
 void Command_CopyIndex::undo()
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = pModel->getIndex(m_row);
     if (index.isValid())
     {
@@ -441,7 +441,7 @@ Command_MoveFrameData::Command_MoveFrameData(EditData *pEditData, QModelIndex &i
     m_srcFrame = prevFrame;
     m_dstFrame = nextFrame;
 
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex i = pModel->getIndex(m_row);
     ObjectItem *pItem = pModel->getItemFromIndex(i);
     FrameData *pData;
@@ -459,7 +459,7 @@ Command_MoveFrameData::Command_MoveFrameData(EditData *pEditData, QModelIndex &i
 
 void Command_MoveFrameData::redo()
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = pModel->getIndex(m_row);
     ObjectItem *pItem = pModel->getItemFromIndex(index);
     if (!pItem)
@@ -492,7 +492,7 @@ void Command_MoveFrameData::redo()
 
 void Command_MoveFrameData::undo()
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = pModel->getIndex(m_row);
     ObjectItem *pItem = pModel->getItemFromIndex(index);
     if (!pItem)
@@ -545,7 +545,7 @@ Command_MoveAllFrameData::Command_MoveAllFrameData(EditData *pEditData, QModelIn
 
 void Command_MoveAllFrameData::redo()
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = pModel->getIndex(m_row);
     ObjectItem *pItem = pModel->getObject(index);
     if (!pItem)
@@ -566,7 +566,7 @@ void Command_MoveAllFrameData::redo()
 
 void Command_MoveAllFrameData::undo()
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = pModel->getIndex(m_row);
     ObjectItem *pItem = pModel->getObject(index);
     if (!pItem)
@@ -648,7 +648,7 @@ Command_MoveItemUp::Command_MoveItemUp(EditData *pEditData, const QModelIndex &i
     m_pEditData = pEditData;
     m_index = index;
 
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     ObjectItem *pItem = pModel->getItemFromIndex(index);
     m_pItem = new ObjectItem(pItem->getName(), NULL);
     m_pItem->copy(pItem);
@@ -657,7 +657,7 @@ Command_MoveItemUp::Command_MoveItemUp(EditData *pEditData, const QModelIndex &i
 void Command_MoveItemUp::redo()
 {
     QModelIndex oldIndex = m_index;
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     pModel->removeItem(oldIndex);
     m_index = pModel->insertItem(oldIndex.row() - 1, m_pItem->getName(), oldIndex.parent());
     ObjectItem *pItem = pModel->getItemFromIndex(m_index);
@@ -671,7 +671,7 @@ void Command_MoveItemUp::redo()
 void Command_MoveItemUp::undo()
 {
     QModelIndex oldIndex = m_index;
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     pModel->removeItem(oldIndex);
     m_index = pModel->insertItem(oldIndex.row() + 1, m_pItem->getName(), oldIndex.parent());
     ObjectItem *pItem = pModel->getItemFromIndex(m_index);
@@ -691,7 +691,7 @@ Command_MoveItemDown::Command_MoveItemDown(EditData *pEditData, const QModelInde
     m_pEditData = pEditData;
     m_index = index;
 
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     ObjectItem *pItem = pModel->getItemFromIndex(index);
     m_pItem = new ObjectItem(pItem->getName(), NULL);
     m_pItem->copy(pItem);
@@ -700,7 +700,7 @@ Command_MoveItemDown::Command_MoveItemDown(EditData *pEditData, const QModelInde
 void Command_MoveItemDown::redo()
 {
     QModelIndex oldIndex = m_index;
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     pModel->removeItem(oldIndex);
     m_index = pModel->insertItem(oldIndex.row() + 1, m_pItem->getName(), oldIndex.parent());
     ObjectItem *pItem = pModel->getItemFromIndex(m_index);
@@ -714,7 +714,7 @@ void Command_MoveItemDown::redo()
 void Command_MoveItemDown::undo()
 {
     QModelIndex oldIndex = m_index;
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     pModel->removeItem(oldIndex);
     m_index = pModel->insertItem(oldIndex.row() - 1, m_pItem->getName(), oldIndex.parent());
     ObjectItem *pItem = pModel->getItemFromIndex(m_index);
@@ -739,7 +739,7 @@ void Command_ScaleUv::redo()
 {
     m_changeFrameDatas.clear();
 
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     for (int i = 0; i < pModel->rowCount(QModelIndex()); i++)
     {
         QModelIndex index = pModel->index(i);
@@ -756,7 +756,7 @@ void Command_ScaleUv::redo()
 
 void Command_ScaleUv::undo()
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     for (int i = 0; i < m_changeFrameDatas.size(); i++)
     {
         const QPair<int, FrameData> d = m_changeFrameDatas.at(i);
@@ -828,7 +828,7 @@ void Command_ScaleFrame::redo()
 {
     m_changeFrameDatas.clear();
 
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = m_pEditData->getSelIndex();
     ObjectItem *pItem = pModel->getObject(index);
     if (!pItem)
@@ -847,7 +847,7 @@ void Command_ScaleFrame::redo()
 
 void Command_ScaleFrame::undo()
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     for (int i = 0; i < m_changeFrameDatas.size(); i++)
     {
         const QPair<int, QList<FrameData> > d = m_changeFrameDatas.at(i);
@@ -918,7 +918,7 @@ void Command_PasteAllFrame::redo()
         return;
     }
 
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
 
     for (int i = 0; i < m_copyDatas.size(); i++)
     {
@@ -953,7 +953,7 @@ void Command_PasteAllFrame::undo()
         return;
     }
 
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     for (int i = 0; i < m_copyDatas.size(); i++)
     {
         const QPair<int, FrameData> d = m_copyDatas.at(i);
@@ -999,7 +999,7 @@ void Command_DeleteAllFrame::redo()
 {
     m_datas.clear();
 
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = pModel->getIndex(m_objRow);
     ObjectItem *pObj = pModel->getObject(index);
     if (!pObj)
@@ -1013,7 +1013,7 @@ void Command_DeleteAllFrame::redo()
 
 void Command_DeleteAllFrame::undo()
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     for (int i = 0; i < m_datas.size(); i++)
     {
         const QPair<int, FrameData> d = m_datas.at(i);
@@ -1068,7 +1068,7 @@ Command_PasteLayer::~Command_PasteLayer()
 
 void Command_PasteLayer::redo()
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex parentIndex = pModel->getIndex(m_parentRow);
     if (!parentIndex.isValid())
     {
@@ -1090,7 +1090,7 @@ void Command_PasteLayer::redo()
 
 void Command_PasteLayer::undo()
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = pModel->getIndex(m_row);
     if (!index.isValid())
     {

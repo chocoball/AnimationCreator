@@ -317,7 +317,7 @@ bool Anm2DBin::addList(Anm2DHeader *pHeader)
 
 bool Anm2DBin::addModel(EditData &rEditData)
 {
-    CObjectModel *pModel = rEditData.getObjectModel();
+    ObjectModel *pModel = rEditData.getObjectModel();
 
     for (int i = 0; i < m_ObjPtrList.size(); i++)
     {
@@ -337,7 +337,7 @@ bool Anm2DBin::addModel(EditData &rEditData)
     return true;
 }
 
-bool Anm2DBin::addModel_Layer(QModelIndex &parent, int layerNo, CObjectModel *pModel)
+bool Anm2DBin::addModel_Layer(QModelIndex &parent, int layerNo, ObjectModel *pModel)
 {
     if (layerNo < 0 || layerNo >= m_LayerPtrList.size())
     {
@@ -644,7 +644,7 @@ bool Anm2DXml::makeHeader(QDomElement &element, QDomDocument &doc, EditData &rEd
 {
     Q_UNUSED(doc);
 
-    CObjectModel *pModel = rEditData.getObjectModel();
+    ObjectModel *pModel = rEditData.getObjectModel();
     ObjectItem *pRoot = pModel->getItemFromIndex(QModelIndex());
 
     element.setAttribute(kAnmXML_Attr_Version, kAnmXML_Version);
@@ -657,7 +657,7 @@ bool Anm2DXml::makeHeader(QDomElement &element, QDomDocument &doc, EditData &rEd
 // オブジェクトエレメント作成
 bool Anm2DXml::makeObject(QDomElement &element, QDomDocument &doc, EditData &rEditData)
 {
-    CObjectModel *pModel = rEditData.getObjectModel();
+    ObjectModel *pModel = rEditData.getObjectModel();
     ObjectItem *pRoot = pModel->getItemFromIndex(QModelIndex());
     for (int i = 0; i < pRoot->childCount(); i++)
     {
@@ -906,7 +906,7 @@ void Anm2DXml::setProgMaximum(QProgressDialog *pProg, EditData & /*rEditData*/)
 // エレメント追加
 bool Anm2DXml::addElement_00001000(QDomNode &node, EditData &rEditData)
 {
-    CObjectModel *pModel = rEditData.getObjectModel();
+    ObjectModel *pModel = rEditData.getObjectModel();
 
     QList<EditData::ImageData> ImageData;
 
@@ -975,7 +975,7 @@ bool Anm2DXml::addElement_00001000(QDomNode &node, EditData &rEditData)
 // レイヤデータを追加
 bool Anm2DXml::addLayer_00001000(QDomNode &node, ObjectItem *pRoot, int maxLayerNum, EditData &rEditData)
 {
-    CObjectModel *pModel = rEditData.getObjectModel();
+    ObjectModel *pModel = rEditData.getObjectModel();
 
     while (!node.isNull())
     {
@@ -1208,7 +1208,7 @@ bool Anm2DXml::addFrameData_00001000(QDomNode &node, ObjectItem *pItem, int maxF
 
 bool Anm2DXml::addElement_01000000(QDomNode &node, EditData &rEditData)
 {
-    CObjectModel *pModel = rEditData.getObjectModel();
+    ObjectModel *pModel = rEditData.getObjectModel();
 
     QList<EditData::ImageData> ImageData;
     int objNum = 0;
@@ -1282,7 +1282,7 @@ bool Anm2DXml::addElement_01000000(QDomNode &node, EditData &rEditData)
 
 bool Anm2DXml::addLayer_01000000(QDomNode &node, ObjectItem *pRoot, int maxLayerNum, EditData &rEditData)
 {
-    CObjectModel *pModel = rEditData.getObjectModel();
+    ObjectModel *pModel = rEditData.getObjectModel();
 
     while (!node.isNull())
     {
@@ -1469,7 +1469,7 @@ bool Anm2DJson::makeFromEditData(EditData &rEditData)
     m_pModel = rEditData.getObjectModel();
     if (m_bFlat)
     {
-        CObjectModel *p = new CObjectModel();
+        ObjectModel *p = new ObjectModel();
         p->copy(m_pModel);
         p->flat();
         m_pModel = p;
@@ -1768,7 +1768,7 @@ bool Anm2DAsm::makeFromEditData(EditData &rEditData)
     m_pModel = rEditData.getObjectModel();
     if (m_bFlat)
     {
-        CObjectModel *p = new CObjectModel();
+        ObjectModel *p = new ObjectModel();
         p->copy(m_pModel);
         p->flat();
         m_pModel = p;
@@ -1951,7 +1951,7 @@ bool Anm2DAsm::makeFromEditData2Inc(EditData &rEditData, QString qsFname)
     m_pModel = rEditData.getObjectModel();
     if (m_bFlat)
     {
-        CObjectModel *p = new CObjectModel();
+        ObjectModel *p = new ObjectModel();
         p->copy(m_pModel);
         p->flat();
         m_pModel = p;

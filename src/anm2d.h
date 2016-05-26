@@ -157,7 +157,7 @@ private:
 
     bool addList(Anm2DHeader *pHeader);
     bool addModel(EditData &rEditData);
-    bool addModel_Layer(QModelIndex &parent, int layerNo, CObjectModel *pModel);
+    bool addModel_Layer(QModelIndex &parent, int layerNo, ObjectModel *pModel);
     bool addImageData(Anm2DHeader *pHeader, EditData &rEditData);
 
     Anm2DObject *search2DObjectFromName(Anm2DHeader *pHeader, QString name);
@@ -231,7 +231,7 @@ private:
 
 private:
     bool m_bFlat;
-    CObjectModel *m_pModel;
+    ObjectModel *m_pModel;
     QString m_Data;
     int m_ObjNum, m_ImageNum;
 };
@@ -257,7 +257,7 @@ private:
 
 private:
     bool m_bFlat;
-    CObjectModel *m_pModel;
+    ObjectModel *m_pModel;
     QString m_Data;
     QString m_aqsVramID[KM_VRAM_MAX];
     bool m_bUnused[KM_VRAM_MAX];

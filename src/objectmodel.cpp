@@ -6,35 +6,35 @@
 // CObjectModel
 //
 // ---------------------------------------------------------------------------------
-CObjectModel::CObjectModel(QObject *parent)
+ObjectModel::ObjectModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
     m_pRoot = new ObjectItem("Root", NULL);
 }
 
-CObjectModel::~CObjectModel()
+ObjectModel::~ObjectModel()
 {
     delete m_pRoot;
 }
 
-QVariant CObjectModel::data(const QModelIndex &index, int role) const
+QVariant ObjectModel::data(const QModelIndex &index, int role) const
 {
     ObjectItem *p = getItemFromIndex(index);
     return p->data(role);
 }
 
-int CObjectModel::rowCount(const QModelIndex &parent) const
+int ObjectModel::rowCount(const QModelIndex &parent) const
 {
     ObjectItem *p = getItemFromIndex(parent);
     return p->childCount();
 }
 
-int CObjectModel::columnCount(const QModelIndex & /*parent*/) const
+int ObjectModel::columnCount(const QModelIndex & /*parent*/) const
 {
     return 1;
 }
 
-Qt::ItemFlags CObjectModel::flags(const QModelIndex &index) const
+Qt::ItemFlags ObjectModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
     {
@@ -44,7 +44,7 @@ Qt::ItemFlags CObjectModel::flags(const QModelIndex &index) const
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 }
 
-bool CObjectModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool ObjectModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (role != Qt::DisplayRole && role != Qt::EditRole)
     {
@@ -57,7 +57,7 @@ bool CObjectModel::setData(const QModelIndex &index, const QVariant &value, int 
     return true;
 }
 
-bool CObjectModel::insertRows(int row, int count, const QModelIndex &parent)
+bool ObjectModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     //	qDebug() << "insertRows " << row << count << parent ;
     beginInsertRows(parent, row, row + count - 1);
@@ -69,7 +69,7 @@ bool CObjectModel::insertRows(int row, int count, const QModelIndex &parent)
     return true;
 }
 
-bool CObjectModel::removeRows(int row, int count, const QModelIndex &parent)
+bool ObjectModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     beginRemoveRows(parent, row, row + count - 1);
 
@@ -80,7 +80,7 @@ bool CObjectModel::removeRows(int row, int count, const QModelIndex &parent)
     return true;
 }
 
-QModelIndex CObjectModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex ObjectModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!hasIndex(row, column, parent))
     {
@@ -97,7 +97,7 @@ QModelIndex CObjectModel::index(int row, int column, const QModelIndex &parent) 
     return QModelIndex();
 }
 
-QModelIndex CObjectModel::parent(const QModelIndex &child) const
+QModelIndex ObjectModel::parent(const QModelIndex &child) const
 {
     if (!child.isValid())
     {
@@ -112,19 +112,19 @@ QModelIndex CObjectModel::parent(const QModelIndex &child) const
     return createIndex(p->row(), 0, p);
 }
 
-Qt::DropActions CObjectModel::supportedDropActions() const
+Qt::DropActions ObjectModel::supportedDropActions() const
 {
     return Qt::CopyAction; //| Qt::MoveAction ;
 }
 
-QStringList CObjectModel::mimeTypes() const
+QStringList ObjectModel::mimeTypes() const
 {
     QStringList types;
     types << "AnimationCreator/object.item.list";
     return types;
 }
 
-QMimeData *CObjectModel::mimeData(const QModelIndexList &indexes) const
+QMimeData *ObjectModel::mimeData(const QModelIndexList &indexes) const
 {
     QMimeData *mimeData = new QMimeData();
     QByteArray encodeData;
@@ -144,7 +144,7 @@ QMimeData *CObjectModel::mimeData(const QModelIndexList &indexes) const
     return mimeData;
 }
 
-bool CObjectModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+bool ObjectModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
     if (action == Qt::IgnoreAction)
     {
@@ -191,7 +191,7 @@ bool CObjectModel::dropMimeData(const QMimeData *data, Qt::DropAction action, in
     return true;
 }
 
-QModelIndex CObjectModel::addItem(QString name, const QModelIndex &parent)
+QModelIndex ObjectModel::addItem(QString name, const QModelIndex &parent)
 {
     ObjectItem *p = getItemFromIndex(parent);
     int row = p->childCount();
@@ -199,7 +199,7 @@ QModelIndex CObjectModel::addItem(QString name, const QModelIndex &parent)
     return insertItem(row, name, parent);
 }
 
-QModelIndex CObjectModel::insertItem(int row, QString name, const QModelIndex &parent)
+QModelIndex ObjectModel::insertItem(int row, QString name, const QModelIndex &parent)
 {
     insertRows(row, 1, parent);
 
@@ -211,7 +211,7 @@ QModelIndex CObjectModel::insertItem(int row, QString name, const QModelIndex &p
     return index;
 }
 
-void CObjectModel::removeItem(QModelIndex &index)
+void ObjectModel::removeItem(QModelIndex &index)
 {
     if (!index.isValid())
     {
@@ -223,7 +223,7 @@ void CObjectModel::removeItem(QModelIndex &index)
 }
 
 // QModelIndex から ObjectItem 取得
-ObjectItem *CObjectModel::getItemFromIndex(const QModelIndex &index) const
+ObjectItem *ObjectModel::getItemFromIndex(const QModelIndex &index) const
 {
     ObjectItem *p = m_pRoot;
     if (index.isValid())
@@ -233,7 +233,7 @@ ObjectItem *CObjectModel::getItemFromIndex(const QModelIndex &index) const
     return p;
 }
 
-ObjectItem *CObjectModel::getObject(const QModelIndex &index)
+ObjectItem *ObjectModel::getObject(const QModelIndex &index)
 {
     if (!index.isValid())
     {
@@ -247,7 +247,7 @@ ObjectItem *CObjectModel::getObject(const QModelIndex &index)
     return p;
 }
 
-bool CObjectModel::isObject(const QModelIndex &index) const
+bool ObjectModel::isObject(const QModelIndex &index) const
 {
     if (!index.isValid())
     {
@@ -258,7 +258,7 @@ bool CObjectModel::isObject(const QModelIndex &index) const
     //	return index.parent().internalPointer() == m_pRoot ? true : false ;
 }
 
-bool CObjectModel::isLayer(const QModelIndex &index) const
+bool ObjectModel::isLayer(const QModelIndex &index) const
 {
     if (!index.isValid())
     {
@@ -269,7 +269,7 @@ bool CObjectModel::isLayer(const QModelIndex &index) const
     //	return index.parent().internalPointer() != m_pRoot ? true : false ;
 }
 
-FrameData *CObjectModel::getFrameDataFromPrevFrame(QModelIndex index, int frame, bool bRepeat)
+FrameData *ObjectModel::getFrameDataFromPrevFrame(QModelIndex index, int frame, bool bRepeat)
 {
     if (!isLayer(index))
     {
@@ -280,7 +280,7 @@ FrameData *CObjectModel::getFrameDataFromPrevFrame(QModelIndex index, int frame,
     return getFrameDataFromPrevFrame(p, frame, bRepeat);
 }
 
-FrameData *CObjectModel::getFrameDataFromPrevFrame(ObjectItem *p, int frame, bool bRepeat)
+FrameData *ObjectModel::getFrameDataFromPrevFrame(ObjectItem *p, int frame, bool bRepeat)
 {
     if (!p)
     {
@@ -289,7 +289,7 @@ FrameData *CObjectModel::getFrameDataFromPrevFrame(ObjectItem *p, int frame, boo
     return p->getFrameDataFromPrevFrame(frame, bRepeat);
 }
 
-FrameData *CObjectModel::getFrameDataFromNextFrame(QModelIndex index, int frame)
+FrameData *ObjectModel::getFrameDataFromNextFrame(QModelIndex index, int frame)
 {
     if (!isLayer(index))
     {
@@ -299,7 +299,7 @@ FrameData *CObjectModel::getFrameDataFromNextFrame(QModelIndex index, int frame)
     return getFrameDataFromNextFrame(p, frame);
 }
 
-FrameData *CObjectModel::getFrameDataFromNextFrame(ObjectItem *p, int frame)
+FrameData *ObjectModel::getFrameDataFromNextFrame(ObjectItem *p, int frame)
 {
     if (!p)
     {
@@ -308,14 +308,14 @@ FrameData *CObjectModel::getFrameDataFromNextFrame(ObjectItem *p, int frame)
     return p->getFrameDataFromNextFrame(frame);
 }
 
-int CObjectModel::getRow(QModelIndex index)
+int ObjectModel::getRow(QModelIndex index)
 {
     ObjectItem *p = getItemFromIndex(index);
     int row = 0;
     return getRow(m_pRoot, p, &row);
 }
 
-int CObjectModel::getRow(ObjectItem *root, ObjectItem *p, int *row)
+int ObjectModel::getRow(ObjectItem *root, ObjectItem *p, int *row)
 {
     if (root == p)
     {
@@ -333,13 +333,13 @@ int CObjectModel::getRow(ObjectItem *root, ObjectItem *p, int *row)
     return -1;
 }
 
-QModelIndex CObjectModel::getIndex(int row)
+QModelIndex ObjectModel::getIndex(int row)
 {
     int curr = 0;
     return getIndex(m_pRoot, row, &curr);
 }
 
-QModelIndex CObjectModel::getIndex(ObjectItem *root, int row, int *currRow)
+QModelIndex ObjectModel::getIndex(ObjectItem *root, int row, int *currRow)
 {
     if (row == *currRow)
     {
@@ -358,7 +358,7 @@ QModelIndex CObjectModel::getIndex(ObjectItem *root, int row, int *currRow)
     return QModelIndex();
 }
 
-void CObjectModel::updateIndex()
+void ObjectModel::updateIndex()
 {
     for (int i = 0; i < m_pRoot->childCount(); i++)
     {
@@ -366,7 +366,7 @@ void CObjectModel::updateIndex()
     }
 }
 
-void CObjectModel::updateIndex(ObjectItem *pItem, const QModelIndex &parent, int row)
+void ObjectModel::updateIndex(ObjectItem *pItem, const QModelIndex &parent, int row)
 {
     pItem->setIndex(this->index(row, 0, parent));
     pItem->setParent(this->getItemFromIndex(parent));
@@ -377,7 +377,7 @@ void CObjectModel::updateIndex(ObjectItem *pItem, const QModelIndex &parent, int
     }
 }
 
-void CObjectModel::flat()
+void ObjectModel::flat()
 {
     for (int i = 0; i < m_pRoot->childCount(); i++)
     {
@@ -387,7 +387,7 @@ void CObjectModel::flat()
     updateIndex();
 }
 
-bool CObjectModel::isUseImage(int imageNo)
+bool ObjectModel::isUseImage(int imageNo)
 {
     return m_pRoot->isUseImageRecv(imageNo);
 }

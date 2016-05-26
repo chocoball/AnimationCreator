@@ -91,7 +91,7 @@ public:
         }
     }
 
-    CObjectModel *getObjectModel(void) { return m_pObjectModel; }
+    ObjectModel *getObjectModel(void) { return m_pObjectModel; }
     QUndoStack *getUndoStack(void) { return m_pUndoStack; }
 
     void resetData(void);
@@ -315,7 +315,7 @@ private:
 private:
     QList<ImageData> m_ImageDataList;
 
-    CObjectModel *m_pObjectModel;
+    ObjectModel *m_pObjectModel;
     QUndoStack *m_pUndoStack;
 
     bool m_bExportPNG;

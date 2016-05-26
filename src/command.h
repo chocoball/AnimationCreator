@@ -71,7 +71,7 @@ public:
 
 private:
     EditData *m_pEditData;
-    CObjectModel *m_pObjModel;
+    ObjectModel *m_pObjModel;
     FrameData m_frameData;
     int m_row;
     int m_flag;
@@ -89,7 +89,7 @@ public:
 
 private:
     EditData *m_pEditData;
-    CObjectModel *m_pObjModel;
+    ObjectModel *m_pObjModel;
     FrameData m_FrameData;
     int m_row;
 };
@@ -109,7 +109,7 @@ public:
 
 private:
     EditData *m_pEditData;
-    CObjectModel *m_pObjModel;
+    ObjectModel *m_pObjModel;
     FrameData m_FrameData, m_OldFrameData;
     QWidget *m_pAnimeWidget;
     int m_row;

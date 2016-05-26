@@ -87,7 +87,7 @@ void DataMarkerLabel::slot_moveScrollBar(int val)
 
 void DataMarkerLabel::slot_copyAllFrame()
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     ObjectItem *pItem = pModel->getObject(m_pEditData->getSelIndex());
     if (!pItem)
     {
@@ -98,7 +98,7 @@ void DataMarkerLabel::slot_copyAllFrame()
 
 void DataMarkerLabel::slot_pasteAllFrame()
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     ObjectItem *pItem = pModel->getObject(m_pEditData->getSelIndex());
     if (!pItem)
     {
@@ -113,7 +113,7 @@ void DataMarkerLabel::slot_pasteAllFrame()
 
 void DataMarkerLabel::slot_deleteAllFrame()
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     ObjectItem *pItem = pModel->getObject(m_pEditData->getSelIndex());
     if (!pItem)
     {
@@ -134,7 +134,7 @@ void DataMarkerLabel::paintEvent(QPaintEvent * /*event*/)
 
     drawFrameBase(painter);
 
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = m_pEditData->getSelIndex();
     ObjectItem *obj = pModel->getObject(index);
     if (!obj)
@@ -291,7 +291,7 @@ void DataMarkerLabel::mousePressEvent(QMouseEvent *ev)
     m_bPressLeft = true;
     m_pressFrame = m_pressCurrentFrame = -1;
 
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = m_pEditData->getSelIndex();
     ObjectItem *pItem = pModel->getItemFromIndex(index);
 

@@ -18,7 +18,7 @@ FrameDataScaleForm::~FrameDataScaleForm()
 
 void FrameDataScaleForm::slot_clickedExec()
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = m_pEditData->getSelIndex();
     ObjectItem *pItem = pModel->getObject(index);
     if (!pItem)

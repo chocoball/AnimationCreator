@@ -62,7 +62,7 @@ AnimationForm::AnimationForm(EditData *pImageData, CSettings *pSetting, QWidget 
                              ui->treeView->height());
 
     {
-        CObjectModel *pModel = m_pEditData->getObjectModel();
+        ObjectModel *pModel = m_pEditData->getObjectModel();
 
         ui->treeView->setModel(pModel);
         ui->treeView->header()->setHidden(true);
@@ -401,7 +401,7 @@ void AnimationForm::slot_deleteObject(void)
 // フレームデータ削除
 void AnimationForm::slot_deleteFrameData(void)
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = m_pEditData->getSelIndex();
     if (!index.isValid())
     {
@@ -430,7 +430,7 @@ void AnimationForm::slot_deleteFrameData(void)
 // レイヤ追加
 void AnimationForm::slot_dropedImage(RectF rect, QPoint pos, int imageIndex)
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     int frameNum = ui->label_frame->value();
     QModelIndex index = ui->treeView->currentIndex();
 
@@ -1006,7 +1006,7 @@ void AnimationForm::slot_treeViewMenuReq(QPoint treeViewLocalPos)
     menu.addAction(m_pActTreeViewAdd);
     menu.addAction(m_pActTreeViewDel);
 
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
 
     qDebug() << "isObject:" << pModel->isObject(m_pEditData->getSelIndex());
     qDebug() << "isLayer:" << pModel->isLayer(m_pEditData->getSelIndex());
@@ -1034,7 +1034,7 @@ void AnimationForm::slot_treeViewMenuReq(QPoint treeViewLocalPos)
 // ツリービュー ダブルクリック
 void AnimationForm::slot_treeViewDoubleClicked(QModelIndex index)
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     if (!pModel->isLayer(index))
     {
         return;
@@ -1071,7 +1071,7 @@ void AnimationForm::slot_changeSelectObject(QModelIndex index)
         return;
     }
 
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
 
     if (pModel->isLayer(index))
     {
@@ -1152,7 +1152,7 @@ void AnimationForm::slot_stopAnimation(void)
 // 前フレームのフレームデータに変更
 void AnimationForm::slot_backwardFrameData(void)
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     if (!pModel->isLayer(m_pEditData->getSelIndex()))
     {
         return;
@@ -1169,7 +1169,7 @@ void AnimationForm::slot_backwardFrameData(void)
 // 次フレームのフレームデータに変更
 void AnimationForm::slot_forwardFrameData(void)
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     if (!pModel->isLayer(m_pEditData->getSelIndex()))
     {
         return;
@@ -1218,7 +1218,7 @@ void AnimationForm::slot_timerEvent(void)
 // フレームデータ追加
 void AnimationForm::slot_addNewFrameData(QModelIndex indexLayer, int frame, FrameData data)
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     if (!pModel->isLayer(indexLayer))
     {
         return;
@@ -1239,7 +1239,7 @@ void AnimationForm::slot_changeLayerDisp(void)
 // レイヤロック ON/OFF
 void AnimationForm::slot_changeLayerLock(void)
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = m_pEditData->getSelIndex();
 
     if (!pModel->isLayer(index))
@@ -1298,7 +1298,7 @@ void AnimationForm::slot_changeAnimeSpeed(int val)
         m_pTimer->start();
     }
 
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = m_pEditData->getSelIndex();
     ObjectItem *pItem = pModel->getObject(index);
     if (!pItem)
@@ -1412,7 +1412,7 @@ void AnimationForm::slot_endedOption(void)
 // マウスでのデータ編集終了時
 void AnimationForm::slot_frameDataMoveEnd(FrameData dataOld)
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = m_pEditData->getSelIndex();
     if (!pModel->isLayer(index))
     {
@@ -1489,7 +1489,7 @@ void AnimationForm::slot_clickedRadioPath(bool flag)
 // ループ回数変更
 void AnimationForm::slot_changeLoop(int val)
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = m_pEditData->getSelIndex();
     ObjectItem *pItem = pModel->getObject(index);
     if (!pItem)
@@ -1578,7 +1578,7 @@ void AnimationForm::slot_changeColorA(int val)
 // 現在選択しているフレームデータ取得
 FrameData *AnimationForm::getNowSelectFrameData(void)
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     if (!pModel->isLayer(m_pEditData->getSelIndex()))
     {
         return NULL;
@@ -1646,7 +1646,7 @@ void AnimationForm::slot_clickPicker(void)
 
 void AnimationForm::slot_setColorFromPicker(QRgb rgba)
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = m_pEditData->getSelIndex();
     if (!pModel->isLayer(index))
     {
@@ -1695,7 +1695,7 @@ void AnimationForm::slot_copyIndex(int row, ObjectItem *pItem, QModelIndex index
 // フレームデータ 移動
 void AnimationForm::slot_moveFrameData(int prevFrame, int nextFrame)
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = m_pEditData->getSelIndex();
 
     if (!pModel->isLayer(index))
@@ -1723,7 +1723,7 @@ void AnimationForm::slot_moveFrameData(int prevFrame, int nextFrame)
 // 全フレームデータ移動
 void AnimationForm::slot_moveAllFrameData(int prevFrame, int nextFrame)
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = m_pEditData->getSelIndex();
 
     if (!pModel->isObject(index))
@@ -1858,7 +1858,7 @@ void AnimationForm::addNewObject(QString str)
         return;
     }
 
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = pModel->addItem(str, QModelIndex());
     ui->treeView->setCurrentIndex(index);
     //	m_pEditData->setSelIndex(index) ;
@@ -1877,7 +1877,7 @@ void AnimationForm::addCommandEdit(FrameData data, FrameData *pOld)
 // 指定フレームのフレームデータを選択する
 bool AnimationForm::setSelectFrameDataFromFrame(int frame, QModelIndex indexLayer)
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     if (!pModel->isLayer(indexLayer))
     {
         return false;
@@ -1898,7 +1898,7 @@ bool AnimationForm::setSelectFrameDataFromFrame(int frame, QModelIndex indexLaye
 // 選択レイヤの選択フレームにフレームデータを追加
 void AnimationForm::addNowSelectLayerAndFrame(void)
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = m_pEditData->getSelIndex();
 
     if (!pModel->isLayer(index))
@@ -2026,7 +2026,7 @@ bool AnimationForm::keyPress(QKeyEvent *event)
     }
     else if (ks == m_pSetting->getShortcutAddFrameData())
     {
-        CObjectModel *pModel = m_pEditData->getObjectModel();
+        ObjectModel *pModel = m_pEditData->getObjectModel();
         QModelIndex index = m_pEditData->getSelIndex();
         int frame = m_pEditData->getSelectFrame();
         if (!pModel->isLayer(index))
@@ -2095,7 +2095,7 @@ void AnimationForm::keyRelease(QKeyEvent *event)
 // フレームデータ コピー
 void AnimationForm::copyFrameData(void)
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = m_pEditData->getSelIndex();
     if (!pModel->isLayer(index))
     {
@@ -2131,7 +2131,7 @@ void AnimationForm::pasteFrameData(void)
         return;
     }
 
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = m_pEditData->getSelIndex();
     if (!pModel->isLayer(index))
     {
@@ -2155,7 +2155,7 @@ void AnimationForm::pasteFrameData(void)
 
 void AnimationForm::jumpStartFrame()
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = m_pEditData->getSelIndex();
     if (!pModel->isLayer(index))
     {
@@ -2186,7 +2186,7 @@ void AnimationForm::jumpStartFrame()
 
 void AnimationForm::jumpEndFrame()
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     QModelIndex index = m_pEditData->getSelIndex();
     if (!pModel->isLayer(index))
     {

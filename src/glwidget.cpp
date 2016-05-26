@@ -269,7 +269,7 @@ void AnimeGLWidget::drawLayers(void)
 // アニメ再生中
 void AnimeGLWidget::drawLayers_Anime()
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
 
     ObjectItem *pItem = pModel->getObject(m_pEditData->getSelIndex());
     if (!pItem)
@@ -404,7 +404,7 @@ void AnimeGLWidget::drawLayers(ObjectItem *pLayerItem)
 // 全フレーム描画
 void AnimeGLWidget::drawLayers_All(void)
 {
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
 
     ObjectItem *pItem = pModel->getObject(m_pEditData->getSelIndex());
     if (!pItem)
@@ -827,7 +827,7 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
         QPoint localPos = event->pos() - QPoint((m_pSetting->getAnmWindowW() / 2), (m_pSetting->getAnmWindowH() / 2));
         m_DragOffset = event->pos();
 
-        CObjectModel *pModel = m_pEditData->getObjectModel();
+        ObjectModel *pModel = m_pEditData->getObjectModel();
         int frame = m_pEditData->getSelectFrame();
 
         QModelIndex index = m_pEditData->getSelIndex();
@@ -843,7 +843,7 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
         m_dragPathIndex = -1;
         if (m_editMode == kEditMode_Path && pModel->isLayer(index))
         {
-            CObjectModel *pModel = m_pEditData->getObjectModel();
+            ObjectModel *pModel = m_pEditData->getObjectModel();
             ObjectItem *p = pModel->getItemFromIndex(index);
             if (p)
             {
@@ -946,7 +946,7 @@ void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
     {
         case kDragMode_Edit:
         {
-            CObjectModel *pModel = m_pEditData->getObjectModel();
+            ObjectModel *pModel = m_pEditData->getObjectModel();
             ObjectItem *pItem = pModel->getItemFromIndex(m_pEditData->getSelIndex());
             if (!pItem)
             {

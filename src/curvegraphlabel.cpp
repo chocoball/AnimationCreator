@@ -18,7 +18,7 @@ void CurveGraphLabel::adjustSize()
         return;
     }
 
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     if (!pModel->isLayer(m_currIndex))
     {
         return;
@@ -88,7 +88,7 @@ void CurveGraphLabel::paintEvent(QPaintEvent * /*event*/)
         return;
     }
 
-    CObjectModel *pModel = m_pEditData->getObjectModel();
+    ObjectModel *pModel = m_pEditData->getObjectModel();
     if (!pModel->isLayer(m_currIndex))
     {
         return;

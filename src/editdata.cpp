@@ -56,7 +56,7 @@ void EditData::initData(void)
     m_catchRect = RectF(0, 0, 0, 0);
     m_center = QPoint(0, 0);
 
-    m_pObjectModel = new CObjectModel();
+    m_pObjectModel = new ObjectModel();
     if (!m_pUndoStack)
     {
         m_pUndoStack = new QUndoStack;

@@ -7,12 +7,12 @@
 #include <QPair>
 #include <QtGui>
 
-class CObjectModel : public QAbstractItemModel
+class ObjectModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    explicit CObjectModel(QObject *parent = 0);
-    virtual ~CObjectModel();
+    explicit ObjectModel(QObject *parent = 0);
+    virtual ~ObjectModel();
 
     QVariant data(const QModelIndex &index, int role) const;
     int rowCount(const QModelIndex &parent) const;
@@ -56,7 +56,7 @@ public:
 
     bool isUseImage(int imageNo);
 
-    void copy(CObjectModel *p)
+    void copy(ObjectModel *p)
     {
         this->m_pRoot->copy(p->m_pRoot);
         updateIndex();
