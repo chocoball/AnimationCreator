@@ -15,7 +15,7 @@ SOURCES += \
     src/animationwindowsplitter.cpp \
     src/anm2d.cpp \
     src/application.cpp \
-    src/cbrightlabel.cpp \
+    src/brightlabel.cpp \
     src/cdatamarkerlabel.cpp \
     src/cdropablemdiarea.cpp \
     src/cloupewindow.cpp \
@@ -49,7 +49,7 @@ HEADERS += \
     src/anm2dtypes.h \
     src/anm2d.h \
     src/application.h \
-    src/cbrightlabel.h \
+    src/brightlabel.h \
     src/cdatamarkerlabel.h \
     src/cdropablemdiarea.h \
     src/cloupewindow.h \

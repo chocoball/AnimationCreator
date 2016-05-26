@@ -1,15 +1,15 @@
-#ifndef CBRIGHTLABEL_H
-#define CBRIGHTLABEL_H
+#ifndef BRIGHTLABEL_H
+#define BRIGHTLABEL_H
 
 #include <QtGui>
 #include <QWidget>
 #include <QLabel>
 
-class CBrightLabel : public QLabel
+class BrightLabel : public QLabel
 {
 public:
-	explicit CBrightLabel(QWidget *parent = 0) ;
-	virtual ~CBrightLabel() ;
+    explicit BrightLabel(QWidget *parent = 0) ;
+    virtual ~BrightLabel() ;
 
 	void setSelectPos(QPoint p)
 	{
@@ -23,4 +23,4 @@ private:
 	QPoint		m_SelectPos ;
 } ;
 
-#endif // CBRIGHTLABEL_H
+#endif // BRIGHTLABEL_H

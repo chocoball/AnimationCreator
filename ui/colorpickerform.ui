@@ -19,7 +19,7 @@
   <property name="windowTitle">
    <string>ColorPicker</string>
   </property>
-  <widget class="CBrightLabel" name="label_bright">
+  <widget class="BrightLabel" name="label_bright">
    <property name="geometry">
     <rect>
      <x>8</x>
@@ -63,7 +63,7 @@
   <customwidget>
    <class>CBrightLabel</class>
    <extends>QLabel</extends>
-   <header location="global">src/CBrightLabel.h</header>
+   <header location="global">src/brightlabel.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -1,17 +1,17 @@
-#include "CBrightLabel.h"
+#include "brightlabel.h"
 
 
-CBrightLabel::CBrightLabel(QWidget *parent)
+BrightLabel::BrightLabel(QWidget *parent)
 	: QLabel(parent)
 {
 
 }
 
-CBrightLabel::~CBrightLabel()
+BrightLabel::~BrightLabel()
 {
 }
 
-void CBrightLabel::paintEvent(QPaintEvent *)
+void BrightLabel::paintEvent(QPaintEvent *)
 {
 	QPainter painter(this) ;
 	if ( this->pixmap() ) {
