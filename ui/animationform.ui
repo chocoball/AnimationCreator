@@ -803,7 +803,7 @@
     <number>9999</number>
    </property>
   </widget>
-  <widget class="CDataMarkerLabel" name="label_frame">
+  <widget class="DataMarkerLabel" name="label_frame">
    <property name="geometry">
     <rect>
      <x>150</x>
@@ -1140,9 +1140,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CDataMarkerLabel</class>
+   <class>DataMarkerLabel</class>
    <extends>QLabel</extends>
-   <header>src/cdatamarkerlabel.h</header>
+   <header>src/datamarkerlabel.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

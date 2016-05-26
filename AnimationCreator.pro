@@ -16,7 +16,7 @@ SOURCES += \
     src/anm2d.cpp \
     src/application.cpp \
     src/brightlabel.cpp \
-    src/cdatamarkerlabel.cpp \
+    src/datamarkerlabel.cpp \
     src/cdropablemdiarea.cpp \
     src/cloupewindow.cpp \
     src/colorpickerform.cpp \
@@ -50,7 +50,7 @@ HEADERS += \
     src/anm2d.h \
     src/application.h \
     src/brightlabel.h \
-    src/cdatamarkerlabel.h \
+    src/datamarkerlabel.h \
     src/cdropablemdiarea.h \
     src/cloupewindow.h \
     src/colorpickerform.h \

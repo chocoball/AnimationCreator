@@ -1,12 +1,12 @@
-#ifndef CDATAMARKERLABEL_H
-#define CDATAMARKERLABEL_H
+#ifndef DATAMARKERLABEL_H
+#define DATAMARKERLABEL_H
 
 #include "editdata.h"
 #include "include.h"
 #include <QLabel>
 #include <QScrollBar>
 
-class CDataMarkerLabel : public QLabel
+class DataMarkerLabel : public QLabel
 {
     Q_OBJECT
 
@@ -19,7 +19,7 @@ public:
     };
 
 public:
-    explicit CDataMarkerLabel(QWidget *parent = 0);
+    explicit DataMarkerLabel(QWidget *parent = 0);
 
     void setValue(int val);
     void setScrollBarSize();
@@ -58,7 +58,8 @@ protected:
 
     kAccessor(CEditData *, m_pEditData, EditData);
 
-        private : int m_value;
+private:
+    int m_value;
     int m_frameStart, m_frameEnd;
     int m_offset;
     QPoint m_oldMousePos;
@@ -75,4 +76,4 @@ protected:
     int m_moveMode;
 };
 
-#endif // CDATAMARKERLABEL_H
+#endif // DATAMARKERLABEL_H

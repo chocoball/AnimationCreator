@@ -3,7 +3,7 @@
 
 #include "CRect.h"
 #include "animationwindowsplitter.h"
-#include "cdatamarkerlabel.h"
+#include "datamarkerlabel.h"
 #include "editdata.h"
 #include "glwidget.h"
 #include <QWidget>
@@ -198,7 +198,7 @@ private:
     QTimer *m_pTimer;
     int m_nMaxFrameNum;
 
-    CDataMarkerLabel *m_pDataMarker;
+    DataMarkerLabel *m_pDataMarker;
 
     AnimationWindowSplitter *m_pSplitter;
     bool m_bDontSetData;

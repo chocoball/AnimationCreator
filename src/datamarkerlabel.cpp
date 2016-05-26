@@ -1,8 +1,8 @@
-#include "cdatamarkerlabel.h"
+#include "datamarkerlabel.h"
 #include <QDebug>
 #include <QtGui>
 
-CDataMarkerLabel::CDataMarkerLabel(QWidget *parent)
+DataMarkerLabel::DataMarkerLabel(QWidget *parent)
     : QLabel(parent)
     , m_value(0)
     , m_frameStart(0)
@@ -24,7 +24,7 @@ CDataMarkerLabel::CDataMarkerLabel(QWidget *parent)
     //	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slot_contextMenu(QPoint))) ;
 }
 
-void CDataMarkerLabel::setValue(int val)
+void DataMarkerLabel::setValue(int val)
 {
     if (val == m_value)
     {
@@ -36,7 +36,7 @@ void CDataMarkerLabel::setValue(int val)
     repaint();
 }
 
-void CDataMarkerLabel::setScrollBarSize()
+void DataMarkerLabel::setScrollBarSize()
 {
     int w = getX(m_frameEnd, false) + 20 - width();
     if (w > 0)
@@ -50,7 +50,7 @@ void CDataMarkerLabel::setScrollBarSize()
     }
 }
 
-void CDataMarkerLabel::slot_setFrameStart(int val)
+void DataMarkerLabel::slot_setFrameStart(int val)
 {
     if (val == m_frameStart)
     {
@@ -61,7 +61,7 @@ void CDataMarkerLabel::slot_setFrameStart(int val)
     slot_moveScrollBar(m_pHorizontalScrollBar->value());
 }
 
-void CDataMarkerLabel::slot_setFrameEnd(int val)
+void DataMarkerLabel::slot_setFrameEnd(int val)
 {
     if (val == m_frameEnd)
     {
@@ -72,7 +72,7 @@ void CDataMarkerLabel::slot_setFrameEnd(int val)
     slot_moveScrollBar(m_pHorizontalScrollBar->value());
 }
 
-void CDataMarkerLabel::slot_moveScrollBar(int val)
+void DataMarkerLabel::slot_moveScrollBar(int val)
 {
     int w = getX(m_frameEnd, false) + 20 - width();
     if (w <= 0)
@@ -85,7 +85,7 @@ void CDataMarkerLabel::slot_moveScrollBar(int val)
     repaint();
 }
 
-void CDataMarkerLabel::slot_copyAllFrame()
+void DataMarkerLabel::slot_copyAllFrame()
 {
     CObjectModel *pModel = m_pEditData->getObjectModel();
     ObjectItem *pItem = pModel->getObject(m_pEditData->getSelIndex());
@@ -96,7 +96,7 @@ void CDataMarkerLabel::slot_copyAllFrame()
     m_pEditData->setCopyAllFrameData(pItem, m_value);
 }
 
-void CDataMarkerLabel::slot_pasteAllFrame()
+void DataMarkerLabel::slot_pasteAllFrame()
 {
     CObjectModel *pModel = m_pEditData->getObjectModel();
     ObjectItem *pItem = pModel->getObject(m_pEditData->getSelIndex());
@@ -111,7 +111,7 @@ void CDataMarkerLabel::slot_pasteAllFrame()
     m_pEditData->cmd_pasteAllFrame(pItem->getIndex(), m_value);
 }
 
-void CDataMarkerLabel::slot_deleteAllFrame()
+void DataMarkerLabel::slot_deleteAllFrame()
 {
     CObjectModel *pModel = m_pEditData->getObjectModel();
     ObjectItem *pItem = pModel->getObject(m_pEditData->getSelIndex());
@@ -122,7 +122,7 @@ void CDataMarkerLabel::slot_deleteAllFrame()
     m_pEditData->cmd_deleteAllFrame(pItem->getIndex(), m_value);
 }
 
-void CDataMarkerLabel::paintEvent(QPaintEvent * /*event*/)
+void DataMarkerLabel::paintEvent(QPaintEvent * /*event*/)
 {
     QPainter painter(this);
     painter.drawRect(0, 0, width() - 1, height() - 1);
@@ -159,7 +159,7 @@ void CDataMarkerLabel::paintEvent(QPaintEvent * /*event*/)
     }
 }
 
-void CDataMarkerLabel::drawFrameBase(QPainter &painter)
+void DataMarkerLabel::drawFrameBase(QPainter &painter)
 {
     painter.setPen(QColor(0, 0, 0));
     for (int i = m_frameStart; i <= m_frameEnd; i++)
@@ -193,7 +193,7 @@ void CDataMarkerLabel::drawFrameBase(QPainter &painter)
     }
 }
 
-void CDataMarkerLabel::drawLayer(const QModelIndex &index, QPainter &painter, const QModelIndex selIndex, QList<int> &frames)
+void DataMarkerLabel::drawLayer(const QModelIndex &index, QPainter &painter, const QModelIndex selIndex, QList<int> &frames)
 {
     if (!index.isValid())
     {
@@ -260,7 +260,7 @@ void CDataMarkerLabel::drawLayer(const QModelIndex &index, QPainter &painter, co
     }
 }
 
-int CDataMarkerLabel::getX(int frame, bool bAddOffset)
+int DataMarkerLabel::getX(int frame, bool bAddOffset)
 {
     if (m_frameEnd - m_frameStart < 1)
     {
@@ -276,7 +276,7 @@ int CDataMarkerLabel::getX(int frame, bool bAddOffset)
     return 5 + w1 * (frame - m_frameStart) + (bAddOffset ? m_offset : 0);
 }
 
-void CDataMarkerLabel::mousePressEvent(QMouseEvent *ev)
+void DataMarkerLabel::mousePressEvent(QMouseEvent *ev)
 {
     m_bMouseMove = false;
     m_bPressLeft = false;
@@ -331,7 +331,7 @@ void CDataMarkerLabel::mousePressEvent(QMouseEvent *ev)
     }
 }
 
-void CDataMarkerLabel::mouseMoveEvent(QMouseEvent *ev)
+void DataMarkerLabel::mouseMoveEvent(QMouseEvent *ev)
 {
     if (m_bPressLeft)
     {
@@ -356,7 +356,7 @@ void CDataMarkerLabel::mouseMoveEvent(QMouseEvent *ev)
     }
 }
 
-void CDataMarkerLabel::mouseReleaseEvent(QMouseEvent *ev)
+void DataMarkerLabel::mouseReleaseEvent(QMouseEvent *ev)
 {
     if (m_bPressLeft)
     {
@@ -391,7 +391,7 @@ void CDataMarkerLabel::mouseReleaseEvent(QMouseEvent *ev)
     m_pressFrame = m_pressCurrentFrame = -1;
 }
 
-void CDataMarkerLabel::fixOffset(void)
+void DataMarkerLabel::fixOffset(void)
 {
     int endPos = 25 + (m_frameEnd - m_frameStart) * 20;
     if (endPos > width())
@@ -412,7 +412,7 @@ void CDataMarkerLabel::fixOffset(void)
     }
 }
 
-void CDataMarkerLabel::contextMenuEvent(QContextMenuEvent *ev)
+void DataMarkerLabel::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu(this);
     menu.addAction(m_pActCopyAllFrame);
