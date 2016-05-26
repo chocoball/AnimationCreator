@@ -1,12 +1,12 @@
 #include <QStringList>
 #include <stdio.h>
 #include <QDebug>
-#include "capplication.h"
+#include "application.h"
 #include "mainwindow.h"
 #include "editdata.h"
 #include "anm2d.h"
 
-CApplication::CApplication(int argc, char **argv) :
+Application::Application(int argc, char **argv) :
     QApplication(argc, argv),
     m_execType(kExecType_Normal)
 {
@@ -20,7 +20,7 @@ CApplication::CApplication(int argc, char **argv) :
 #endif
 }
 
-bool CApplication::checkOpt()
+bool Application::checkOpt()
 {
     bool bNextInput = false ;
     bool bNextOutput = false ;
@@ -68,13 +68,13 @@ bool CApplication::checkOpt()
     return true ;
 }
 
-void CApplication::print_usage()
+void Application::print_usage()
 {
     qDebug() << trUtf8("usage : asm吐き出し") ;
     qDebug() << trUtf8("        %1 -asm -i input_file -o output_file").arg(this->applicationName()) ;
 }
 
-int CApplication::execute()
+int Application::execute()
 {
     switch ( m_execType ) {
         case kExecType_Normal:

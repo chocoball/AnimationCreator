@@ -1,9 +1,9 @@
-#include "capplication.h"
+#include "application.h"
 #include "include.h"
 
 int main(int argc, char *argv[])
 {
-	CApplication a(argc, argv);
+    Application a(argc, argv);
 	a.setApplicationName(kExecName) ;
 	a.setApplicationVersion(kVersion) ;
 

@@ -10,11 +10,11 @@ enum {
     kExecType_OutputAsm		// 指定ファイルをasm形式に吐き出して終了
 } ;
 
-class CApplication : public QApplication
+class Application : public QApplication
 {
     Q_OBJECT
 public:
-    explicit CApplication(int argc, char **argv);
+    explicit Application(int argc, char **argv);
 
     bool checkOpt() ;
     void print_usage() ;

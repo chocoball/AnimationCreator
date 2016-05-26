@@ -14,7 +14,7 @@ SOURCES += \
     src/animationform.cpp \
     src/animationwindowsplitter.cpp \
     src/anm2d.cpp \
-    src/capplication.cpp \
+    src/application.cpp \
     src/cbrightlabel.cpp \
     src/cdatamarkerlabel.cpp \
     src/cdropablemdiarea.cpp \
@@ -48,7 +48,7 @@ HEADERS += \
     src/animationwindowsplitter.h \
     src/anm2dtypes.h \
     src/anm2d.h \
-    src/capplication.h \
+    src/application.h \
     src/cbrightlabel.h \
     src/cdatamarkerlabel.h \
     src/cdropablemdiarea.h \
