@@ -18,7 +18,7 @@ SOURCES += \
     src/brightlabel.cpp \
     src/datamarkerlabel.cpp \
     src/dropablemdiarea.cpp \
-    src/cloupewindow.cpp \
+    src/loupewindow.cpp \
     src/colorpickerform.cpp \
     src/command.cpp \
     src/curveeditorform.cpp \
@@ -52,7 +52,7 @@ HEADERS += \
     src/brightlabel.h \
     src/datamarkerlabel.h \
     src/dropablemdiarea.h \
-    src/cloupewindow.h \
+    src/loupewindow.h \
     src/colorpickerform.h \
     src/command.h \
     src/crect.h \

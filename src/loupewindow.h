@@ -1,5 +1,5 @@
-#ifndef CLOUPEWINDOW_H
-#define CLOUPEWINDOW_H
+#ifndef LOUPEWINDOW_H
+#define LOUPEWINDOW_H
 
 #include "editdata.h"
 #include "setting.h"
@@ -8,11 +8,11 @@
 
 class MainWindow;
 
-class CLoupeWindow : public QWidget
+class LoupeWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit CLoupeWindow(CEditData *pEditData, CSettings *pSetting, QWidget *parent = 0);
+    explicit LoupeWindow(CEditData *pEditData, CSettings *pSetting, QWidget *parent = 0);
 
     bool keyPress(QKeyEvent *event);
 
@@ -41,4 +41,4 @@ private:
     QPoint m_CenterPos;
 };
 
-#endif // CLOUPEWINDOW_H
+#endif // LOUPEWINDOW_H

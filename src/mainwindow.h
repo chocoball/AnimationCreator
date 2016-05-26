@@ -3,7 +3,7 @@
 
 #include "animationform.h"
 #include "dropablemdiarea.h"
-#include "cloupewindow.h"
+#include "loupewindow.h"
 #include "curveeditorform.h"
 #include "editdata.h"
 #include "exportpngform.h"
@@ -117,7 +117,7 @@ private:
     DropableMdiArea *m_pMdiArea;
 
     ImageWindow *m_pImageWindow;               // イメージウィンドウ
-    CLoupeWindow *m_pLoupeWindow;              // ルーペウィンドウ
+    LoupeWindow *m_pLoupeWindow;              // ルーペウィンドウ
     AnimationForm *m_pAnimationForm;           // アニメーションフォーム
     ExportPNGForm *m_pExportPNGForm;           // PNG吐き出しフォーム
     CurveEditorForm *m_pCurveEditorForm;       // カーブエディタフォーム

@@ -978,7 +978,7 @@ void MainWindow::makeImageWindow(void)
 // ルーペウィンドウ作成
 void MainWindow::makeLoupeWindow(void)
 {
-    m_pLoupeWindow = new CLoupeWindow(&m_EditData, &setting, m_pMdiArea);
+    m_pLoupeWindow = new LoupeWindow(&m_EditData, &setting, m_pMdiArea);
     m_pSubWindow_Loupe = m_pMdiArea->addSubWindow(m_pLoupeWindow);
     m_pLoupeWindow->show();
 

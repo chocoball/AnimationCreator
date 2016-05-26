@@ -1,9 +1,9 @@
-#include "cloupewindow.h"
+#include "loupewindow.h"
 #include "mainwindow.h"
 #include <QComboBox>
 #include <QGridLayout>
 
-CLoupeWindow::CLoupeWindow(CEditData *pEditData, CSettings *pSetting, QWidget *parent)
+LoupeWindow::LoupeWindow(CEditData *pEditData, CSettings *pSetting, QWidget *parent)
     : QWidget(parent)
 {
     m_pEditData = pEditData;
@@ -55,7 +55,7 @@ CLoupeWindow::CLoupeWindow(CEditData *pEditData, CSettings *pSetting, QWidget *p
     m_CenterPos = QApplication::desktop()->cursor().pos();
 }
 
-bool CLoupeWindow::keyPress(QKeyEvent *event)
+bool LoupeWindow::keyPress(QKeyEvent *event)
 {
     int key = event->key();
     if (event->modifiers() & Qt::ShiftModifier)
@@ -84,7 +84,7 @@ bool CLoupeWindow::keyPress(QKeyEvent *event)
     return false;
 }
 
-void CLoupeWindow::slot_cursorScreenShort()
+void LoupeWindow::slot_cursorScreenShort()
 {
     if (m_pEditData->getDraggingImage())
     {
@@ -100,7 +100,7 @@ void CLoupeWindow::slot_cursorScreenShort()
     fixImage(size);
 }
 
-void CLoupeWindow::slot_changeScale(QString str)
+void LoupeWindow::slot_changeScale(QString str)
 {
     bool bOk;
     int val = str.toInt(&bOk);
@@ -112,13 +112,13 @@ void CLoupeWindow::slot_changeScale(QString str)
     m_Scale = val;
 }
 
-void CLoupeWindow::resizeEvent(QResizeEvent * /*event*/)
+void LoupeWindow::resizeEvent(QResizeEvent * /*event*/)
 {
     QSize size = m_pLabel->size();
     fixImage(size);
 }
 
-void CLoupeWindow::fixImage(QSize &size)
+void LoupeWindow::fixImage(QSize &size)
 {
     int imgWidth = size.width();
     int imgHeight = size.height();
@@ -224,7 +224,7 @@ void CLoupeWindow::fixImage(QSize &size)
     m_pLabel->setPixmap(pix);
 }
 
-void CLoupeWindow::toggleLock(void)
+void LoupeWindow::toggleLock(void)
 {
     m_pCheckBox_Cursor->setChecked(!m_pCheckBox_Cursor->isChecked());
 }
