@@ -2,9 +2,9 @@
 #define TEXTURECACHEMANAGER_H
 
 #include <QList>
-#include <QPair>
-#include <QOpenGLTexture>
 #include <QOpenGLFunctions>
+#include <QOpenGLTexture>
+#include <QPair>
 
 class TextureCacheManager : protected QOpenGLFunctions
 {

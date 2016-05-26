@@ -1,8 +1,8 @@
 #ifndef ANM2D_H
 #define ANM2D_H
 
-#include "editdata.h"
 #include "Anm2dTypes.h"
+#include "editdata.h"
 
 #include <QDomDocument>
 
@@ -17,26 +17,26 @@
  2012/01/06 ver 1.0.4	フレームデータの色以外をfloatにした
  */
 
-#define kAnmXML_Version			0x01000004		///< バージョン 0x[00][000][000]
+#define kAnmXML_Version 0x01000004 ///< バージョン 0x[00][000][000]
 
-#define kAnmXML_Attr_Version	"Version"
-#define kAnmXML_Attr_ObjNum		"ObjNum"
-#define kAnmXML_Attr_LoopNum	"LoopNum"
-#define kAnmXML_Attr_LayerNum	"LayerNum"
-#define kAnmXML_Attr_FrameNum	"FrameDataNum"
-#define kAnmXML_Attr_ImageNum	"ImageNum"
-#define kAnmXML_Attr_No			"No"
-#define kAnmXML_Attr_Name		"Name"
-#define kAnmXML_Attr_ChildNum	"ChildNum"
-#define kAnmXML_Attr_FpsNum		"Fps"
-#define kAnmXML_Attr_State		"State"
+#define kAnmXML_Attr_Version "Version"
+#define kAnmXML_Attr_ObjNum "ObjNum"
+#define kAnmXML_Attr_LoopNum "LoopNum"
+#define kAnmXML_Attr_LayerNum "LayerNum"
+#define kAnmXML_Attr_FrameNum "FrameDataNum"
+#define kAnmXML_Attr_ImageNum "ImageNum"
+#define kAnmXML_Attr_No "No"
+#define kAnmXML_Attr_Name "Name"
+#define kAnmXML_Attr_ChildNum "ChildNum"
+#define kAnmXML_Attr_FpsNum "Fps"
+#define kAnmXML_Attr_State "State"
 
-#define kAnmXML_ID_Anm2D		"ANM2D"
-#define kAnmXML_ID_Root			"ROOT"
-#define kAnmXML_ID_Object		"OBJECT"
-#define kAnmXML_ID_Layer		"LAYER"
-#define kAnmXML_ID_FrameData	"FRAMEDATA"
-#define kAnmXML_ID_Image		"IMAGE"
+#define kAnmXML_ID_Anm2D "ANM2D"
+#define kAnmXML_ID_Root "ROOT"
+#define kAnmXML_ID_Object "OBJECT"
+#define kAnmXML_ID_Layer "LAYER"
+#define kAnmXML_ID_FrameData "FRAMEDATA"
+#define kAnmXML_ID_Image "IMAGE"
 
 #if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
 #include <stdint.h>
@@ -48,91 +48,94 @@
 class Anm2DBase
 {
 public:
-	enum {
-		kErrorNo_NoError = 0,			///< [ 0]エラーなし
-		kErrorNo_BlockNumNotSame,		///< [ 1]ブロック数が違う
-		kErrorNo_InvalidFileSize,		///< [ 2]ファイルサイズが違う
-		kErrorNo_InvalidVersion,		///< [ 3]バージョンが違う
-		kErrorNo_InvalidID,				///< [ 4]不正なID
-		kErrorNo_Cancel,				///< [ 5]キャンセルされた
-		kErrorNo_InvalidNode,			///< [ 6]ノードが不正
-		kErrorNo_InvalidObjNum,			///< [ 7]オブジェ数が不正
-		kErrorNo_InvalidImageNum,		///< [ 8]イメージ数が不正
-		kErrorNo_InvalidLayerNum,		///< [ 9]レイヤ数が不正
-		kErrorNo_InvalidFrameDataNum,	///< [10]フレームデータ数が不正
-		kErrorNo_InvalidImageData,		///< [11]イメージデータが不正
-		kErrorNo_InvalidFilePath,		///< [12]イメージのファイルパスが不正
-		kErrorNo_InvalidObjectName,		///< [13]オブジェクト名が不正
-		kErrorNo_InvalidLayerName,		///< [14]レイヤ名が不正
-		kErrorNo_InvalidImageNo,		///< [15]画像番号が不正
+    enum
+    {
+        kErrorNo_NoError = 0,         ///< [ 0]エラーなし
+        kErrorNo_BlockNumNotSame,     ///< [ 1]ブロック数が違う
+        kErrorNo_InvalidFileSize,     ///< [ 2]ファイルサイズが違う
+        kErrorNo_InvalidVersion,      ///< [ 3]バージョンが違う
+        kErrorNo_InvalidID,           ///< [ 4]不正なID
+        kErrorNo_Cancel,              ///< [ 5]キャンセルされた
+        kErrorNo_InvalidNode,         ///< [ 6]ノードが不正
+        kErrorNo_InvalidObjNum,       ///< [ 7]オブジェ数が不正
+        kErrorNo_InvalidImageNum,     ///< [ 8]イメージ数が不正
+        kErrorNo_InvalidLayerNum,     ///< [ 9]レイヤ数が不正
+        kErrorNo_InvalidFrameDataNum, ///< [10]フレームデータ数が不正
+        kErrorNo_InvalidImageData,    ///< [11]イメージデータが不正
+        kErrorNo_InvalidFilePath,     ///< [12]イメージのファイルパスが不正
+        kErrorNo_InvalidObjectName,   ///< [13]オブジェクト名が不正
+        kErrorNo_InvalidLayerName,    ///< [14]レイヤ名が不正
+        kErrorNo_InvalidImageNo,      ///< [15]画像番号が不正
 
-		kErrorNo_Max
-	} ;
+        kErrorNo_Max
+    };
 
-	int getErrorNo() { return m_nError ; }
+    int getErrorNo() { return m_nError; }
 
-	QString getErrorString()
-	{
-		const char *str[] = {
-			"エラーはありません",
-			"ブロック数が違います",
-			"ファイルサイズが違います",
-			"バージョンが違います",
-			"不正なIDです",
-			"キャンセルされました",
-			"ノードが不正です",
-			"オブジェクト数が不正です",
-			"イメージ数が不正です",
-			"レイヤ数が不正です",
-			"フレームデータ数が不正です",
-			"イメージデータが不正です",
-			"イメージのファイルパスが不正です",
-			"オブジェクト名が不正です",
-			"レイヤ名が不正です",
-			"登録されていない画像が使用されています"
-		} ;
-		if ( m_nError >= 0 && m_nError < kErrorNo_Max ) {
-			return QObject::trUtf8(str[m_nError]) ;
-		}
-		return QObject::trUtf8("エラー番号が不正です:%1").arg(m_nError) ;
-	}
+    QString getErrorString()
+    {
+        const char *str[] = {
+            "エラーはありません",
+            "ブロック数が違います",
+            "ファイルサイズが違います",
+            "バージョンが違います",
+            "不正なIDです",
+            "キャンセルされました",
+            "ノードが不正です",
+            "オブジェクト数が不正です",
+            "イメージ数が不正です",
+            "レイヤ数が不正です",
+            "フレームデータ数が不正です",
+            "イメージデータが不正です",
+            "イメージのファイルパスが不正です",
+            "オブジェクト名が不正です",
+            "レイヤ名が不正です",
+            "登録されていない画像が使用されています"};
+        if (m_nError >= 0 && m_nError < kErrorNo_Max)
+        {
+            return QObject::trUtf8(str[m_nError]);
+        }
+        return QObject::trUtf8("エラー番号が不正です:%1").arg(m_nError);
+    }
 
     Anm2DBase()
-	{
-		m_nError = kErrorNo_NoError ;
-	}
+    {
+        m_nError = kErrorNo_NoError;
+    }
     virtual ~Anm2DBase() {}
 
-	void setFilePath( QString &str )
-	{
-		m_filePath = str ;
-	}
+    void setFilePath(QString &str)
+    {
+        m_filePath = str;
+    }
 
-	// srcからdestへの相対パスを取得
-	QString getRelativePath(QString &src, QString &dest)
-	{
-		QString path = src ;
-		if ( path.at(path.count()-1) != '/' ) {
-			path.chop(path.count()-path.lastIndexOf("/")-1) ;
-		}
-		QDir dir(path) ;
-		return dir.relativeFilePath(dest) ;
-	}
+    // srcからdestへの相対パスを取得
+    QString getRelativePath(QString &src, QString &dest)
+    {
+        QString path = src;
+        if (path.at(path.count() - 1) != '/')
+        {
+            path.chop(path.count() - path.lastIndexOf("/") - 1);
+        }
+        QDir dir(path);
+        return dir.relativeFilePath(dest);
+    }
 
-	// srcからdestへの相対パスを絶対パスに変換
-	QString getAbsolutePath(QString &src, QString &dest)
-	{
-		QString path = src ;
-		if ( path.at(path.count()-1) != '/' ) {
-			path.chop(path.count()-path.lastIndexOf("/")-1) ;
-		}
-		QDir dir(path) ;
-		return dir.absoluteFilePath(dest) ;
-	}
+    // srcからdestへの相対パスを絶対パスに変換
+    QString getAbsolutePath(QString &src, QString &dest)
+    {
+        QString path = src;
+        if (path.at(path.count() - 1) != '/')
+        {
+            path.chop(path.count() - path.lastIndexOf("/") - 1);
+        }
+        QDir dir(path);
+        return dir.absoluteFilePath(dest);
+    }
 
 protected:
-	int				m_nError ;
-	QString			m_filePath ;
+    int m_nError;
+    QString m_filePath;
 };
 
 // binary
@@ -141,124 +144,124 @@ class Anm2DBin : public Anm2DBase
 public:
     Anm2DBin();
 
-	bool makeFromEditData( CEditData &rEditData ) ;
-	bool makeFromFile(QByteArray &data, CEditData &rEditData) ;
+    bool makeFromEditData(CEditData &rEditData);
+    bool makeFromFile(QByteArray &data, CEditData &rEditData);
 
-	QByteArray &getData() { return m_Data ; }
-
-private:
-	bool makeHeader( QByteArray &rData, CEditData &rEditData, QList<QByteArray> &objectList, QList<QByteArray> &layerList, QList<QByteArray> &frameList ) ;
-	bool makeObject(ObjectItem *pObj, QList<QByteArray> &objList, QList<QByteArray> &layerList, QList<QByteArray> &frameList) ;
-	bool makeLayer(ObjectItem *pLayer, int *pLayerNo, Anm2DObject *pObjData, QList<QByteArray> &layerList, QList<QByteArray> &frameList, int parentNo) ;
-	bool makeImageList( QList<QByteArray> &rData, CEditData &rEditData ) ;
-
-	bool addList(Anm2DHeader *pHeader) ;
-	bool addModel(CEditData &rEditData) ;
-	bool addModel_Layer(QModelIndex &parent, int layerNo, CObjectModel *pModel) ;
-	bool addImageData(Anm2DHeader *pHeader, CEditData &rEditData) ;
-
-	Anm2DObject	*search2DObjectFromName(Anm2DHeader *pHeader, QString name) ;
-	Anm2DLayer	*search2DLayerFromName(Anm2DHeader *pHeader, QString name) ;
+    QByteArray &getData() { return m_Data; }
 
 private:
-	QByteArray				m_Data ;
-	QList<Anm2DObject *>	m_ObjPtrList ;
-	QList<Anm2DLayer *>		m_LayerPtrList ;
-	QList<Anm2DFrameData *>	m_FrameDataPtrList ;
+    bool makeHeader(QByteArray &rData, CEditData &rEditData, QList<QByteArray> &objectList, QList<QByteArray> &layerList, QList<QByteArray> &frameList);
+    bool makeObject(ObjectItem *pObj, QList<QByteArray> &objList, QList<QByteArray> &layerList, QList<QByteArray> &frameList);
+    bool makeLayer(ObjectItem *pLayer, int *pLayerNo, Anm2DObject *pObjData, QList<QByteArray> &layerList, QList<QByteArray> &frameList, int parentNo);
+    bool makeImageList(QList<QByteArray> &rData, CEditData &rEditData);
+
+    bool addList(Anm2DHeader *pHeader);
+    bool addModel(CEditData &rEditData);
+    bool addModel_Layer(QModelIndex &parent, int layerNo, CObjectModel *pModel);
+    bool addImageData(Anm2DHeader *pHeader, CEditData &rEditData);
+
+    Anm2DObject *search2DObjectFromName(Anm2DHeader *pHeader, QString name);
+    Anm2DLayer *search2DLayerFromName(Anm2DHeader *pHeader, QString name);
+
+private:
+    QByteArray m_Data;
+    QList<Anm2DObject *> m_ObjPtrList;
+    QList<Anm2DLayer *> m_LayerPtrList;
+    QList<Anm2DFrameData *> m_FrameDataPtrList;
 };
 
 // XML形式
 class Anm2DXml : public Anm2DBase
 {
 public:
-    Anm2DXml(bool bSaveImage) ;
+    Anm2DXml(bool bSaveImage);
 
-	bool makeFromEditData( CEditData &rEditData ) ;
-	bool makeFromFile(QDomDocument &xml, CEditData &rEditData, bool bAdd = false) ;
+    bool makeFromEditData(CEditData &rEditData);
+    bool makeFromFile(QDomDocument &xml, CEditData &rEditData, bool bAdd = false);
 
-	QDomDocument &getData()					{ return m_Data ; }
-	void setProgress( QProgressDialog *p )	{ m_pProgress = p ; }
-
-private:
-	bool makeHeader( QDomElement &element, QDomDocument &doc, CEditData &rEditData ) ;
-	bool makeObject(QDomElement &element, QDomDocument &doc, CEditData &rEditData) ;
-	bool makeLayer(ObjectItem *root, QDomElement &element, QDomDocument &doc, CEditData &rEditData) ;
-	bool makeImage( QDomElement &element, QDomDocument &doc, CEditData &rEditData ) ;
-
-	void setProgMaximum( QProgressDialog *pProg, CEditData &rEditData ) ;
-
-	bool addElement_00001000(QDomNode &node, CEditData &rEditData) ;
-	bool addLayer_00001000( QDomNode &node, ObjectItem *pRoot, int maxLayerNum, CEditData &rEditData ) ;
-	bool addFrameData_00001000( QDomNode &node, ObjectItem *pItem, int maxFrameDataNum ) ;
-
-	bool addElement_01000000(QDomNode &node, CEditData &rEditData) ;
-	bool addLayer_01000000( QDomNode &node, ObjectItem *pRoot, int maxLayerNum, CEditData &rEditData ) ;
-	bool addFrameData_01000000( QDomNode &node, ObjectItem *pItem, int maxFrameDataNum ) ;
-
-	bool addImage( QDomNode &node, CEditData::ImageData &data ) ;
-
-	int getNewImageStartNo() ;
+    QDomDocument &getData() { return m_Data; }
+    void setProgress(QProgressDialog *p) { m_pProgress = p; }
 
 private:
-	QDomDocument				m_Data ;
-	QProgressDialog				*m_pProgress ;
+    bool makeHeader(QDomElement &element, QDomDocument &doc, CEditData &rEditData);
+    bool makeObject(QDomElement &element, QDomDocument &doc, CEditData &rEditData);
+    bool makeLayer(ObjectItem *root, QDomElement &element, QDomDocument &doc, CEditData &rEditData);
+    bool makeImage(QDomElement &element, QDomDocument &doc, CEditData &rEditData);
 
-	int							m_ObjNum, m_ImageNum ;
-	bool						m_bSaveImage ;
-	bool						m_bAdd ;
-	QList<CEditData::ImageData>	m_oldImageDatas ;		// add 用
+    void setProgMaximum(QProgressDialog *pProg, CEditData &rEditData);
+
+    bool addElement_00001000(QDomNode &node, CEditData &rEditData);
+    bool addLayer_00001000(QDomNode &node, ObjectItem *pRoot, int maxLayerNum, CEditData &rEditData);
+    bool addFrameData_00001000(QDomNode &node, ObjectItem *pItem, int maxFrameDataNum);
+
+    bool addElement_01000000(QDomNode &node, CEditData &rEditData);
+    bool addLayer_01000000(QDomNode &node, ObjectItem *pRoot, int maxLayerNum, CEditData &rEditData);
+    bool addFrameData_01000000(QDomNode &node, ObjectItem *pItem, int maxFrameDataNum);
+
+    bool addImage(QDomNode &node, CEditData::ImageData &data);
+
+    int getNewImageStartNo();
+
+private:
+    QDomDocument m_Data;
+    QProgressDialog *m_pProgress;
+
+    int m_ObjNum, m_ImageNum;
+    bool m_bSaveImage;
+    bool m_bAdd;
+    QList<CEditData::ImageData> m_oldImageDatas; // add 用
 };
 
 // JSON形式
 class Anm2DJson : public Anm2DBase
 {
 public:
-    Anm2DJson(bool bFlat) ;
-    ~Anm2DJson() ;
+    Anm2DJson(bool bFlat);
+    ~Anm2DJson();
 
-	bool makeFromEditData( CEditData &rEditData ) ;
-	bool makeFromFile(QString &, CEditData &) { return false ; }
+    bool makeFromEditData(CEditData &rEditData);
+    bool makeFromFile(QString &, CEditData &) { return false; }
 
-	QString getData() { return m_Data ; }
-
-private:
-	void addString(QString str, int tab = 0) ;
-	bool makeObject( CEditData &rEditData ) ;
-	bool makeLayer(ObjectItem *pItem, CEditData &rEditData, int tab) ;
+    QString getData() { return m_Data; }
 
 private:
-	bool			m_bFlat ;
-	CObjectModel	*m_pModel ;
-	QString			m_Data ;
-	int				m_ObjNum, m_ImageNum ;
+    void addString(QString str, int tab = 0);
+    bool makeObject(CEditData &rEditData);
+    bool makeLayer(ObjectItem *pItem, CEditData &rEditData, int tab);
+
+private:
+    bool m_bFlat;
+    CObjectModel *m_pModel;
+    QString m_Data;
+    int m_ObjNum, m_ImageNum;
 };
 
 // asm形式
-#define		KM_VRAM_MAX		32
+#define KM_VRAM_MAX 32
 class Anm2DAsm : public Anm2DBase
 {
 public:
     Anm2DAsm(bool bFlat);
     ~Anm2DAsm();
 
-	bool makeFromEditDataTip(QString qsLabel, ObjectItem *pObj);
-	void subUnusedVramSkip(ObjectItem *pObj);
-	bool makeFromEditData(CEditData &rEditData);
-	void makeFromEditData2IncTip(QString qsLabel, ObjectItem *pObj);
-	bool makeFromEditData2Inc(CEditData &rEditData, QString qsFname);
+    bool makeFromEditDataTip(QString qsLabel, ObjectItem *pObj);
+    void subUnusedVramSkip(ObjectItem *pObj);
+    bool makeFromEditData(CEditData &rEditData);
+    void makeFromEditData2IncTip(QString qsLabel, ObjectItem *pObj);
+    bool makeFromEditData2Inc(CEditData &rEditData, QString qsFname);
 
-	QString getData() { return m_Data; }
-
-private:
-	void addString(QString str, int tab=0);
+    QString getData() { return m_Data; }
 
 private:
-	bool			m_bFlat;
-	CObjectModel	*m_pModel;
-	QString			m_Data;
-	QString			m_aqsVramID[KM_VRAM_MAX];
-	bool			m_bUnused[KM_VRAM_MAX];
-	int				m_nCnt;
+    void addString(QString str, int tab = 0);
+
+private:
+    bool m_bFlat;
+    CObjectModel *m_pModel;
+    QString m_Data;
+    QString m_aqsVramID[KM_VRAM_MAX];
+    bool m_bUnused[KM_VRAM_MAX];
+    int m_nCnt;
 };
 
 #endif // ANM2D_H

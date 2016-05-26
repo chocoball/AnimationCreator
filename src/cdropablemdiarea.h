@@ -1,8 +1,8 @@
 #ifndef CDROPABLEMDIAREA_H
 #define CDROPABLEMDIAREA_H
 
-#include <QtGui>
 #include <QMdiArea>
+#include <QtGui>
 
 class CDropableMdiArea : public QMdiArea
 {
@@ -11,15 +11,14 @@ public:
     explicit CDropableMdiArea(QWidget *parent = 0);
 
 signals:
-	void dropFiles(QString fileName) ;
+    void dropFiles(QString fileName);
 
 public slots:
 
 protected:
-	void dragEnterEvent(QDragEnterEvent *event);
-	void dragMoveEvent(QDragMoveEvent *event) ;
-	void dropEvent(QDropEvent *event) ;
-
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dragMoveEvent(QDragMoveEvent *event);
+    void dropEvent(QDropEvent *event);
 };
 
 #endif // CDROPABLEMDIAREA_H

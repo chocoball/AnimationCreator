@@ -1,312 +1,312 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
-#include <QtGui>
-#include <QUndoCommand>
-#include <QStandardItemModel>
 #include "editdata.h"
+#include <QStandardItemModel>
+#include <QUndoCommand>
+#include <QtGui>
 
-class CEditData ;
+class CEditData;
 
 class CommandBase : public QUndoCommand
 {
 public:
-	CommandBase(const QString &text) : QUndoCommand(text) {}
-	virtual ~CommandBase() {}
+    CommandBase(const QString &text)
+        : QUndoCommand(text)
+    {
+    }
+    virtual ~CommandBase() {}
 
 protected:
-	void updateAllWidget() ;
-	void error(QString title, QString text) ;
+    void updateAllWidget();
+    void error(QString title, QString text);
 };
 
 // アイテム追加 コマンド
 class Command_AddItem : public CommandBase
 {
 public:
-	Command_AddItem(CEditData *pEditData, QString &str, QModelIndex &parent) ;
+    Command_AddItem(CEditData *pEditData, QString &str, QModelIndex &parent);
 
-	void redo();
-	void undo();
+    void redo();
+    void undo();
 
-	QModelIndex getIndex() { return m_index ; }
+    QModelIndex getIndex() { return m_index; }
 
 private:
-	CEditData		*m_pEditData ;
-	QString			m_str ;
-	QModelIndex		m_index ;
-	int				m_parentRow ;
-	int				m_row ;
-} ;
+    CEditData *m_pEditData;
+    QString m_str;
+    QModelIndex m_index;
+    int m_parentRow;
+    int m_row;
+};
 
 // アイテム削除 コマンド
 class Command_DelItem : public CommandBase
 {
 public:
-	Command_DelItem(CEditData *pEditData, QModelIndex &index) ;
+    Command_DelItem(CEditData *pEditData, QModelIndex &index);
 
-	void redo();
-	void undo();
+    void redo();
+    void undo();
 
 private:
-	CEditData		*m_pEditData ;
-	int				m_row ;
-	int				m_parentRow ;
-	int				m_relRow ;
-	ObjectItem		*m_pItem ;
-} ;
-
+    CEditData *m_pEditData;
+    int m_row;
+    int m_parentRow;
+    int m_relRow;
+    ObjectItem *m_pItem;
+};
 
 // フレームデータ追加コマンド
 class Command_AddFrameData : public CommandBase
 {
 public:
-	Command_AddFrameData(CEditData *pEditData,
-						 QModelIndex &index,
-						 FrameData &data) ;
+    Command_AddFrameData(CEditData *pEditData,
+                         QModelIndex &index,
+                         FrameData &data);
 
-	void redo() ;
-	void undo() ;
+    void redo();
+    void undo();
 
 private:
-	CEditData			*m_pEditData ;
-	CObjectModel		*m_pObjModel ;
-	FrameData			m_frameData ;
-	int					m_row ;
-	int					m_flag ;
+    CEditData *m_pEditData;
+    CObjectModel *m_pObjModel;
+    FrameData m_frameData;
+    int m_row;
+    int m_flag;
 };
 
 // フレームデータ削除コマンド
 class Command_DelFrameData : public CommandBase
 {
 public:
-	Command_DelFrameData(CEditData *pEditData,
-						 QModelIndex &index,
-						 int frame) ;
-	void redo() ;
-	void undo() ;
+    Command_DelFrameData(CEditData *pEditData,
+                         QModelIndex &index,
+                         int frame);
+    void redo();
+    void undo();
 
 private:
-	CEditData			*m_pEditData ;
-	CObjectModel		*m_pObjModel ;
-	FrameData			m_FrameData ;
-	int					m_row ;
+    CEditData *m_pEditData;
+    CObjectModel *m_pObjModel;
+    FrameData m_FrameData;
+    int m_row;
 };
 
 // フレームデータ編集コマンド
 class Command_EditFrameData : public CommandBase
 {
 public:
-	Command_EditFrameData(CEditData			*pEditData,
-						  QModelIndex		&index,
-						  int				frame,
-						  FrameData			&data,
-						  FrameData			*pOld,
-						  QWidget			*pAnimeWidget) ;
-	void redo() ;
-	void undo() ;
+    Command_EditFrameData(CEditData *pEditData,
+                          QModelIndex &index,
+                          int frame,
+                          FrameData &data,
+                          FrameData *pOld,
+                          QWidget *pAnimeWidget);
+    void redo();
+    void undo();
 
 private:
-	CEditData			*m_pEditData ;
-	CObjectModel		*m_pObjModel ;
-	FrameData			m_FrameData, m_OldFrameData ;
-	QWidget				*m_pAnimeWidget ;
-	int					m_row ;
-	int					m_frame ;
+    CEditData *m_pEditData;
+    CObjectModel *m_pObjModel;
+    FrameData m_FrameData, m_OldFrameData;
+    QWidget *m_pAnimeWidget;
+    int m_row;
+    int m_frame;
 
-	bool				m_bSetOld ;
+    bool m_bSetOld;
 };
 
 // オブジェクトコピーコマンド
 class Command_CopyObject : public CommandBase
 {
 public:
-	Command_CopyObject( CEditData *pEditData, QModelIndex &index ) ;
+    Command_CopyObject(CEditData *pEditData, QModelIndex &index);
 
-	void redo() ;
-	void undo() ;
+    void redo();
+    void undo();
 
 private:
-	CEditData			*m_pEditData ;
-	ObjectItem			*m_pObject ;
-	int					m_row ;
-} ;
+    CEditData *m_pEditData;
+    ObjectItem *m_pObject;
+    int m_row;
+};
 
 // レイヤコピー
 class Command_CopyIndex : public CommandBase
 {
 public:
-	Command_CopyIndex( CEditData *pEditData, int row, ObjectItem *pLayer, QModelIndex parent ) ;
-	~Command_CopyIndex() ;
+    Command_CopyIndex(CEditData *pEditData, int row, ObjectItem *pLayer, QModelIndex parent);
+    ~Command_CopyIndex();
 
-	void redo() ;
-	void undo() ;
+    void redo();
+    void undo();
 
 private:
-	CEditData			*m_pEditData ;
-	int					m_row, m_relRow, m_parentRow ;
-	ObjectItem			*m_pLayer ;
-} ;
+    CEditData *m_pEditData;
+    int m_row, m_relRow, m_parentRow;
+    ObjectItem *m_pLayer;
+};
 
 // フレームデータ移動
 class Command_MoveFrameData : public CommandBase
 {
 public:
-	Command_MoveFrameData(CEditData *pEditData, QModelIndex &index, int prevFrame, int nextFrame) ;
+    Command_MoveFrameData(CEditData *pEditData, QModelIndex &index, int prevFrame, int nextFrame);
 
-	void redo() ;
-	void undo() ;
+    void redo();
+    void undo();
 
 private:
-	CEditData			*m_pEditData ;
-	int					m_row ;
+    CEditData *m_pEditData;
+    int m_row;
 
-	int					m_srcFrame, m_dstFrame ;
-	FrameData			m_srcData, m_dstData ;
+    int m_srcFrame, m_dstFrame;
+    FrameData m_srcData, m_dstData;
 };
 
 // 全フレームデータ移動
 class Command_MoveAllFrameData : public CommandBase
 {
 public:
-	Command_MoveAllFrameData(CEditData *pEditData, QModelIndex &index, int prevFrame, int nextFrame) ;
+    Command_MoveAllFrameData(CEditData *pEditData, QModelIndex &index, int prevFrame, int nextFrame);
 
-	void redo() ;
-	void undo() ;
-
-private:
-	void save_frameData(ObjectItem *pItem, int srcFrame, int dstFrame) ;
-	void restore_frameData(ObjectItem *pItem, int srcFrame, int dstFrame) ;
+    void redo();
+    void undo();
 
 private:
-	CEditData						*m_pEditData ;
-	int								m_row ;
+    void save_frameData(ObjectItem *pItem, int srcFrame, int dstFrame);
+    void restore_frameData(ObjectItem *pItem, int srcFrame, int dstFrame);
 
-	int								m_srcFrame, m_dstFrame ;
-	QList<QPair<int, FrameData> >	m_dstDatas ;
+private:
+    CEditData *m_pEditData;
+    int m_row;
+
+    int m_srcFrame, m_dstFrame;
+    QList<QPair<int, FrameData> > m_dstDatas;
 };
 
 // ツリーアイテム上に移動
 class Command_MoveItemUp : public CommandBase
 {
 public:
-	Command_MoveItemUp(CEditData *pEditData, const QModelIndex &index) ;
+    Command_MoveItemUp(CEditData *pEditData, const QModelIndex &index);
 
-	void redo() ;
-	void undo() ;
+    void redo();
+    void undo();
 
 private:
-	CEditData		*m_pEditData ;
-	QModelIndex		m_index ;
-	ObjectItem		*m_pItem ;
+    CEditData *m_pEditData;
+    QModelIndex m_index;
+    ObjectItem *m_pItem;
 };
 
 // ツリーアイテム下に移動
 class Command_MoveItemDown : public CommandBase
 {
 public:
-	Command_MoveItemDown(CEditData *pEditData, const QModelIndex &index) ;
+    Command_MoveItemDown(CEditData *pEditData, const QModelIndex &index);
 
-	void redo() ;
-	void undo() ;
+    void redo();
+    void undo();
 
 private:
-	CEditData		*m_pEditData ;
-	QModelIndex		m_index ;
-	ObjectItem		*m_pItem ;
+    CEditData *m_pEditData;
+    QModelIndex m_index;
+    ObjectItem *m_pItem;
 };
 
 // UVスケール
 class Command_ScaleUv : public CommandBase
 {
 public:
-	Command_ScaleUv(CEditData *pEditData, double scale) ;
+    Command_ScaleUv(CEditData *pEditData, double scale);
 
-	void redo() ;
-	void undo() ;
-
-private:
-	void save_framedata(ObjectItem *pItem) ;
+    void redo();
+    void undo();
 
 private:
-	CEditData						*m_pEditData ;
-	QList<QPair<int, FrameData> >	m_changeFrameDatas ;
-	double							m_scale ;
+    void save_framedata(ObjectItem *pItem);
+
+private:
+    CEditData *m_pEditData;
+    QList<QPair<int, FrameData> > m_changeFrameDatas;
+    double m_scale;
 };
 
 // フレームスケール
 class Command_ScaleFrame : public CommandBase
 {
 public:
-	Command_ScaleFrame(CEditData *pEditData, double scale) ;
+    Command_ScaleFrame(CEditData *pEditData, double scale);
 
-	void redo() ;
-	void undo() ;
-
-private:
-	void save_framedata(ObjectItem *pItem) ;
+    void redo();
+    void undo();
 
 private:
-	CEditData								*m_pEditData ;
-	QList<QPair<int, QList<FrameData> > >	m_changeFrameDatas ;
-	double									m_scale ;
+    void save_framedata(ObjectItem *pItem);
+
+private:
+    CEditData *m_pEditData;
+    QList<QPair<int, QList<FrameData> > > m_changeFrameDatas;
+    double m_scale;
 };
 
 // 現在フレームの全レイヤのフレームデータペースト
 class Command_PasteAllFrame : public CommandBase
 {
 public:
-	Command_PasteAllFrame(CEditData *pEditData, QModelIndex index, int frame) ;
+    Command_PasteAllFrame(CEditData *pEditData, QModelIndex index, int frame);
 
-	void redo() ;
-	void undo() ;
-
-private:
+    void redo();
+    void undo();
 
 private:
-	CEditData						*m_pEditData ;
-	int								m_objRow ;
-	int								m_frame ;
-	int								m_copyObjRow ;
+private:
+    CEditData *m_pEditData;
+    int m_objRow;
+    int m_frame;
+    int m_copyObjRow;
 
-	QList<QPair<int, FrameData> >	m_copyDatas ;
-	QList<QPair<int, FrameData> >	m_changeFrameDatas ;
+    QList<QPair<int, FrameData> > m_copyDatas;
+    QList<QPair<int, FrameData> > m_changeFrameDatas;
 };
 
 // 現在フレームの全レイヤのフレームデータ削除
 class Command_DeleteAllFrame : public CommandBase
 {
 public:
-	Command_DeleteAllFrame(CEditData *pEditData, QModelIndex index, int frame) ;
+    Command_DeleteAllFrame(CEditData *pEditData, QModelIndex index, int frame);
 
-	void redo() ;
-	void undo() ;
-
-private:
-	void save_framedata(ObjectItem *pItem) ;
+    void redo();
+    void undo();
 
 private:
-	CEditData						*m_pEditData ;
-	int								m_objRow ;
-	int								m_frame ;
+    void save_framedata(ObjectItem *pItem);
 
-	QList<QPair<int, FrameData> >	m_datas ;
+private:
+    CEditData *m_pEditData;
+    int m_objRow;
+    int m_frame;
+
+    QList<QPair<int, FrameData> > m_datas;
 };
 
 // レイヤペースト
 class Command_PasteLayer : public CommandBase
 {
 public:
-	Command_PasteLayer(CEditData *pEditData, QModelIndex parentIndex, ObjectItem *pItem) ;
-	~Command_PasteLayer() ;
+    Command_PasteLayer(CEditData *pEditData, QModelIndex parentIndex, ObjectItem *pItem);
+    ~Command_PasteLayer();
 
-	void redo() ;
-	void undo() ;
+    void redo();
+    void undo();
 
 private:
-	CEditData		*m_pEditData ;
-	int				m_parentRow, m_row ;
-	ObjectItem		*m_pItem ;
+    CEditData *m_pEditData;
+    int m_parentRow, m_row;
+    ObjectItem *m_pItem;
 };
-
 
 #endif // COMMAND_H

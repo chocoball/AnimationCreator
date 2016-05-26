@@ -6,10 +6,10 @@
 class AnimationWindowSplitter : public QSplitter
 {
 public:
-	AnimationWindowSplitter(QWidget *parent = 0) ;
-	~AnimationWindowSplitter() ;
+    AnimationWindowSplitter(QWidget *parent = 0);
+    ~AnimationWindowSplitter();
 
-	void MoveSplitter(int pos, int index) ;
-} ;
+    void MoveSplitter(int pos, int index);
+};
 
 #endif // ANIMATIONWINDOWSPLITTER_H

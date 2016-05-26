@@ -1,13 +1,14 @@
 #include "texturecachemanager.h"
 
-TextureCacheManager::TextureCacheManager() : m_currentId(0)
+TextureCacheManager::TextureCacheManager()
+    : m_currentId(0)
 {
     m_caches.clear();
 }
 
 TextureCacheManager::~TextureCacheManager()
 {
-    for (int i = 0; i < m_caches.size(); i ++)
+    for (int i = 0; i < m_caches.size(); i++)
     {
         if (m_caches[i].second != NULL)
         {
@@ -19,7 +20,7 @@ TextureCacheManager::~TextureCacheManager()
 
 GLuint TextureCacheManager::Add(QOpenGLTexture *pTex)
 {
-    for (int i = 0; i < m_caches.size(); i ++)
+    for (int i = 0; i < m_caches.size(); i++)
     {
         if (m_caches[i].second == pTex)
         {
@@ -27,7 +28,7 @@ GLuint TextureCacheManager::Add(QOpenGLTexture *pTex)
         }
     }
 
-    m_currentId ++;
+    m_currentId++;
     m_caches.append(qMakePair(m_currentId, pTex));
     return m_currentId;
 }
@@ -35,7 +36,7 @@ GLuint TextureCacheManager::Add(QOpenGLTexture *pTex)
 void TextureCacheManager::Remove(GLuint id)
 {
     int removeIndex = -1;
-    for (int i = 0; i < m_caches.size(); i ++)
+    for (int i = 0; i < m_caches.size(); i++)
     {
         if (m_caches[i].first == id)
         {
@@ -53,7 +54,7 @@ void TextureCacheManager::Remove(GLuint id)
 
 QOpenGLTexture *TextureCacheManager::Get(GLuint id)
 {
-    for (int i = 0; i < m_caches.size(); i ++)
+    for (int i = 0; i < m_caches.size(); i++)
     {
         if (m_caches[i].first == id)
         {

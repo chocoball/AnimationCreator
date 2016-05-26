@@ -1,81 +1,83 @@
 #ifndef IMAGEWINDOW_H
 #define IMAGEWINDOW_H
 
-#include <QtGui>
-#include <QScrollArea>
-#include "setting.h"
 #include "editdata.h"
+#include "setting.h"
 #include "ui_imagewindow.h"
+#include <QScrollArea>
+#include <QtGui>
 
-class CGridLabel ;
-class AnimationForm ;
-class MainWindow ;
+class CGridLabel;
+class AnimationForm;
+class MainWindow;
 
-namespace Ui {
-	class ImageWindow ;
+namespace Ui
+{
+class ImageWindow;
 }
 
 class ImageWindow : public QWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	explicit ImageWindow(CSettings *p, CEditData *pEditImage, AnimationForm *pAnimForm, MainWindow *pMainWindow, QWidget *parent = 0);
-	~ImageWindow() ;
+    explicit ImageWindow(CSettings *p, CEditData *pEditImage, AnimationForm *pAnimForm, MainWindow *pMainWindow, QWidget *parent = 0);
+    ~ImageWindow();
 
-	void setAnimationForm( AnimationForm *p )
-	{
-		m_pAnimationForm = p ;
-	}
+    void setAnimationForm(AnimationForm *p)
+    {
+        m_pAnimationForm = p;
+    }
 
 protected:
-	void dragEnterEvent(QDragEnterEvent *event) ;
-	void dropEvent(QDropEvent *event);
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dropEvent(QDropEvent *event);
 
-	void addTab(int imageIndex) ;
+    void addTab(int imageIndex);
 
-	void contextMenuEvent(QContextMenuEvent *event) ;
+    void contextMenuEvent(QContextMenuEvent *event);
 
-	void updateGridLabel( void ) ;
+    void updateGridLabel(void);
 
-	void resizeEvent(QResizeEvent *event) ;
+    void resizeEvent(QResizeEvent *event);
 
-	int getFreeTabIndex( void ) ;
+    int getFreeTabIndex(void);
 
 signals:
-	void sig_addImage(int imageNo) ;
-	void sig_delImage(int imageNo) ;
+    void sig_addImage(int imageNo);
+    void sig_delImage(int imageNo);
 
 public slots:
-	void slot_delImage( void ) ;
-	void slot_modifiedImage( int index ) ;
+    void slot_delImage(void);
+    void slot_modifiedImage(int index);
 
-	void slot_changeUVBottom( double val ) ;
-	void slot_changeUVTop( double val ) ;
-	void slot_changeUVLeft( double val ) ;
-	void slot_changeUVRight( double val ) ;
-	void slot_setUI( CRectF rect ) ;
+    void slot_changeUVBottom(double val);
+    void slot_changeUVTop(double val);
+    void slot_changeUVLeft(double val);
+    void slot_changeUVRight(double val);
+    void slot_setUI(CRectF rect);
 
-	void slot_endedOption( void ) ;
-	void slot_changeDrawCenter( bool flag ) ;
-	void slot_dragedImage(FrameData data) ;
+    void slot_endedOption(void);
+    void slot_changeDrawCenter(bool flag);
+    void slot_dragedImage(FrameData data);
 
-	void slot_changeTab(int nImage) ;
+    void slot_changeTab(int nImage);
 
-	void slot_clickedScaleButton() ;
+    void slot_clickedScaleButton();
+
 private:
-	Ui::ImageWindow	*ui ;
+    Ui::ImageWindow *ui;
 
-	CSettings		*m_pSetting ;
-	CEditData		*m_pEditData ;
+    CSettings *m_pSetting;
+    CEditData *m_pEditData;
 
-	AnimationForm	*m_pAnimationForm ;
+    AnimationForm *m_pAnimationForm;
 
-	QAction			*m_pActDelImage ;
+    QAction *m_pActDelImage;
 
-	MainWindow		*m_pMainWindow ;
+    MainWindow *m_pMainWindow;
 
-	QSize			m_oldWinSize ;
+    QSize m_oldWinSize;
 };
 
 #endif // IMAGEWINDOW_H

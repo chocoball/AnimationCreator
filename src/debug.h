@@ -3,6 +3,6 @@
 
 #include <QtGui>
 
-void WriteLogFile(QString str) ;
+void WriteLogFile(QString str);
 
 #endif // DEBUG_H

@@ -4,13 +4,14 @@
 int main(int argc, char *argv[])
 {
     Application a(argc, argv);
-	a.setApplicationName(kExecName) ;
-	a.setApplicationVersion(kVersion) ;
+    a.setApplicationName(kExecName);
+    a.setApplicationVersion(kVersion);
 
-	if ( !a.checkOpt() ) {
-		a.print_usage();
-		return 1 ;
-	}
+    if (!a.checkOpt())
+    {
+        a.print_usage();
+        return 1;
+    }
 
-	return a.execute() ;
+    return a.execute();
 }
