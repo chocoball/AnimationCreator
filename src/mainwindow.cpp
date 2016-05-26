@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_pSubWindow_Loupe = NULL;
     m_pSubWindow_Curve = NULL;
 
-    m_pMdiArea = new CDropableMdiArea;
+    m_pMdiArea = new DropableMdiArea;
     m_pMdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_pMdiArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setCentralWidget(m_pMdiArea);

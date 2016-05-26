@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include "animationform.h"
-#include "cdropablemdiarea.h"
+#include "dropablemdiarea.h"
 #include "cloupewindow.h"
 #include "curveeditorform.h"
 #include "editdata.h"
@@ -114,7 +114,7 @@ signals:
     void sig_changeSelectLayer(QModelIndex);
 
 private:
-    CDropableMdiArea *m_pMdiArea;
+    DropableMdiArea *m_pMdiArea;
 
     ImageWindow *m_pImageWindow;               // イメージウィンドウ
     CLoupeWindow *m_pLoupeWindow;              // ルーペウィンドウ

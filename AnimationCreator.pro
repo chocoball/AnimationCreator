@@ -17,7 +17,7 @@ SOURCES += \
     src/application.cpp \
     src/brightlabel.cpp \
     src/datamarkerlabel.cpp \
-    src/cdropablemdiarea.cpp \
+    src/dropablemdiarea.cpp \
     src/cloupewindow.cpp \
     src/colorpickerform.cpp \
     src/command.cpp \
@@ -51,7 +51,7 @@ HEADERS += \
     src/application.h \
     src/brightlabel.h \
     src/datamarkerlabel.h \
-    src/cdropablemdiarea.h \
+    src/dropablemdiarea.h \
     src/cloupewindow.h \
     src/colorpickerform.h \
     src/command.h \

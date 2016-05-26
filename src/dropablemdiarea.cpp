@@ -1,14 +1,14 @@
-#include "cdropablemdiarea.h"
+#include "dropablemdiarea.h"
 #include <QDebug>
 #include <QMdiSubWindow>
 
-CDropableMdiArea::CDropableMdiArea(QWidget *parent)
+DropableMdiArea::DropableMdiArea(QWidget *parent)
     : QMdiArea(parent)
 {
     setAcceptDrops(true);
 }
 
-void CDropableMdiArea::dragEnterEvent(QDragEnterEvent *event)
+void DropableMdiArea::dragEnterEvent(QDragEnterEvent *event)
 {
     QList<QMdiSubWindow *> list = subWindowList();
     for (int i = 0; i < list.size(); i++)
@@ -24,7 +24,7 @@ void CDropableMdiArea::dragEnterEvent(QDragEnterEvent *event)
     event->accept();
 }
 
-void CDropableMdiArea::dragMoveEvent(QDragMoveEvent *event)
+void DropableMdiArea::dragMoveEvent(QDragMoveEvent *event)
 {
     QList<QMdiSubWindow *> list = subWindowList();
     for (int i = 0; i < list.size(); i++)
@@ -40,7 +40,7 @@ void CDropableMdiArea::dragMoveEvent(QDragMoveEvent *event)
     event->accept();
 }
 
-void CDropableMdiArea::dropEvent(QDropEvent *event)
+void DropableMdiArea::dropEvent(QDropEvent *event)
 {
     qDebug() << "dropEvent" << event->mimeData()->urls();
     QString file;
