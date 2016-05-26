@@ -1,4 +1,4 @@
-#include "AnimationWindowSplitter.h"
+#include "animationwindowsplitter.h"
 
 AnimationWindowSplitter::AnimationWindowSplitter(QWidget *parent) :
 	QSplitter(parent)

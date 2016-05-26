@@ -4,7 +4,7 @@
 #include "capplication.h"
 #include "mainwindow.h"
 #include "editdata.h"
-#include "canm2d.h"
+#include "anm2d.h"
 
 CApplication::CApplication(int argc, char **argv) :
     QApplication(argc, argv),
@@ -98,7 +98,7 @@ int CApplication::execute()
             {
                 CEditData editData ;
                 {	// 入力ファイル読み込み
-                    CAnm2DXml data(false) ;
+                    Anm2DXml data(false) ;
                     QFile file(m_inputFile) ;
                     if ( !file.open(QFile::ReadOnly) ) {
                         qDebug() << trUtf8("ファイルオープン失敗[") << m_inputFile << "]" ;
@@ -115,9 +115,9 @@ int CApplication::execute()
                     }
                 }
                 {	// 出力ファイル書き込み
-                    CAnm2DAsm	data(false) ;
+                    Anm2DAsm	data(false) ;
                     if ( !data.makeFromEditData(editData) ) {
-                        if ( data.getErrorNo() != CAnm2DBase::kErrorNo_Cancel ) {
+                        if ( data.getErrorNo() != Anm2DBase::kErrorNo_Cancel ) {
                             qDebug() << trUtf8("コンバート失敗[") << m_outputFile << "]:" << data.getErrorString() ;
                             print_usage();
                         }
@@ -134,9 +134,9 @@ int CApplication::execute()
 
                     QString		incFileName = m_outputFile;
                     incFileName.replace(QString(".asm"), QString(".inc"));
-                    CAnm2DAsm	dataInc(false);
+                    Anm2DAsm	dataInc(false);
                     if(!dataInc.makeFromEditData2Inc(editData, incFileName)){
-                        if(dataInc.getErrorNo() != CAnm2DBase::kErrorNo_Cancel){
+                        if(dataInc.getErrorNo() != Anm2DBase::kErrorNo_Cancel){
                             qDebug() << trUtf8("コンバート失敗[") << incFileName << "]:" << data.getErrorString() ;
                             print_usage();
                         }

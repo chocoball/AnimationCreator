@@ -3,7 +3,7 @@
 //#include <QtNetwork/QNetworkAccessManager>
 #include "mainwindow.h"
 #include "imagewindow.h"
-#include "canm2d.h"
+#include "anm2d.h"
 #include "optiondialog.h"
 #include "util.h"
 #include "colorpickerform.h"
@@ -353,9 +353,9 @@ void MainWindow::slot_exportJSON()
 
 	setting.setSaveJsonDir(fileName) ;
 
-	CAnm2DJson data(setting.getFlat()) ;
+    Anm2DJson data(setting.getFlat()) ;
 	if ( !data.makeFromEditData(m_EditData) ) {
-		if ( data.getErrorNo() != CAnm2DBase::kErrorNo_Cancel ) {
+        if ( data.getErrorNo() != Anm2DBase::kErrorNo_Cancel ) {
 			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("コンバート失敗 %1:\n%2").arg(fileName).arg(data.getErrorNo())) ;
 		}
 		return ;
@@ -382,9 +382,9 @@ void MainWindow::slot_exportASM()
 	
 	setting.setSaveAsmDir(fileName) ;
 	
-	CAnm2DAsm	data(setting.getFlat());
+    Anm2DAsm	data(setting.getFlat());
 	if ( !data.makeFromEditData(m_EditData) ) {
-		if ( data.getErrorNo() != CAnm2DBase::kErrorNo_Cancel ) {
+        if ( data.getErrorNo() != Anm2DBase::kErrorNo_Cancel ) {
 			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("コンバート失敗 %1:\n%2").arg(fileName).arg(data.getErrorString())) ;
 		}
 		return ;
@@ -400,9 +400,9 @@ void MainWindow::slot_exportASM()
 	// inc出力
 	QString		incFileName = fileName;
 	incFileName.replace(QString(".asm"), QString(".inc"));
-	CAnm2DAsm	dataInc(setting.getFlat());
+    Anm2DAsm	dataInc(setting.getFlat());
 	if(!dataInc.makeFromEditData2Inc(m_EditData, incFileName)){
-		if(dataInc.getErrorNo() != CAnm2DBase::kErrorNo_Cancel){
+        if(dataInc.getErrorNo() != Anm2DBase::kErrorNo_Cancel){
 			QMessageBox::warning(this, trUtf8("エラー"), trUtf8("コンバート失敗 %1:\n%2").arg(incFileName).arg(dataInc.getErrorNo()));
 		}
 		return;
@@ -704,7 +704,7 @@ bool MainWindow::fileOpen( QString fileName, bool bAdd )
 
 	// XML アニメファイル
 	if ( fileName.indexOf(FILE_EXT_ANM2D_XML) > 0 ) {
-		CAnm2DXml data(setting.getSaveImage()) ;
+        Anm2DXml data(setting.getSaveImage()) ;
 
 		QFile file(fileName) ;
 		if ( !file.open(QFile::ReadOnly) ) {
@@ -722,7 +722,7 @@ bool MainWindow::fileOpen( QString fileName, bool bAdd )
 	}
 	// バイナリ アニメファイル
 	else if ( fileName.indexOf(FILE_EXT_ANM2D_BIN) > 0 ) {
-		CAnm2DBin data ;
+        Anm2DBin data ;
 		QByteArray dataArray ;
 
 		QFile file(fileName) ;
@@ -786,7 +786,7 @@ bool MainWindow::saveFile( QString fileName )
 
 	// XML
 	if ( fileName.indexOf(FILE_EXT_ANM2D_XML) > 0 ) {
-		CAnm2DXml data(setting.getSaveImage()) ;
+        Anm2DXml data(setting.getSaveImage()) ;
 		QProgressDialog prog(trUtf8("保存しています"), trUtf8("&Cancel"), 0, 100, this) ;
 		prog.setWindowModality(Qt::WindowModal);
 		prog.setAutoClose(true);
@@ -795,7 +795,7 @@ bool MainWindow::saveFile( QString fileName )
 
 		QApplication::setOverrideCursor(Qt::WaitCursor);
 		if ( !data.makeFromEditData(m_EditData) ) {
-			if ( data.getErrorNo() != CAnm2DBase::kErrorNo_Cancel ) {
+            if ( data.getErrorNo() != Anm2DBase::kErrorNo_Cancel ) {
 				QMessageBox::warning(this, trUtf8("エラー"), trUtf8("コンバート失敗 %1:\n%2").arg(fileName).arg(data.getErrorNo())) ;
 			}
 			QApplication::restoreOverrideCursor();
@@ -820,11 +820,11 @@ bool MainWindow::saveFile( QString fileName )
 	else if ( fileName.indexOf(FILE_EXT_ANM2D_BIN) > 0 ) {
 		qDebug() << "save binary" ;
 
-		CAnm2DBin data ;
+        Anm2DBin data ;
 		data.setFilePath(fileName);
 		QApplication::setOverrideCursor(Qt::WaitCursor) ;
 		if ( !data.makeFromEditData(m_EditData) ) {
-			if ( data.getErrorNo() != CAnm2DBase::kErrorNo_Cancel ) {
+            if ( data.getErrorNo() != Anm2DBase::kErrorNo_Cancel ) {
 				QMessageBox::warning(this, trUtf8("エラー"),
 									 trUtf8("コンバート失敗 %1:\n%2").arg(fileName).arg(data.getErrorNo())) ;
 			}

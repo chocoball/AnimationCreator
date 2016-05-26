@@ -1,19 +1,19 @@
-#include "canm2d.h"
+#include "anm2d.h"
 #include <float.h>
 
 
 /************************************************************
 *
-* CAnm2DBin
+* Anm2DBin
 *
 ************************************************************/
-CAnm2DBin::CAnm2DBin()
-	: CAnm2DBase()
+Anm2DBin::Anm2DBin()
+    : Anm2DBase()
 {
 }
 
 // 作成中のデータをアニメデータに変換
-bool CAnm2DBin::makeFromEditData( CEditData &rEditData )
+bool Anm2DBin::makeFromEditData( CEditData &rEditData )
 {
 	QByteArray header ;
 	QList<QByteArray> objectList ;
@@ -82,7 +82,7 @@ bool CAnm2DBin::makeFromEditData( CEditData &rEditData )
 }
 
 // アニメファイルから作成中データへ変換
-bool CAnm2DBin::makeFromFile(QByteArray &data, CEditData &rEditData)
+bool Anm2DBin::makeFromFile(QByteArray &data, CEditData &rEditData)
 {
 	m_Data = data ;
 
@@ -108,7 +108,7 @@ bool CAnm2DBin::makeFromFile(QByteArray &data, CEditData &rEditData)
 
 
 // ヘッダ作成
-bool CAnm2DBin::makeHeader( QByteArray &rData, CEditData &rEditData, QList<QByteArray> &objectList, QList<QByteArray> &layerList, QList<QByteArray> &frameList )
+bool Anm2DBin::makeHeader( QByteArray &rData, CEditData &rEditData, QList<QByteArray> &objectList, QList<QByteArray> &layerList, QList<QByteArray> &frameList )
 {
 	int blockNum = 0 ;
 	blockNum += objectList.size() ;
@@ -127,7 +127,7 @@ bool CAnm2DBin::makeHeader( QByteArray &rData, CEditData &rEditData, QList<QByte
 	return true ;
 }
 
-bool CAnm2DBin::makeObject(ObjectItem *pObj, QList<QByteArray> &objList, QList<QByteArray> &layerList, QList<QByteArray> &frameList)
+bool Anm2DBin::makeObject(ObjectItem *pObj, QList<QByteArray> &objList, QList<QByteArray> &layerList, QList<QByteArray> &frameList)
 {
 	int layerNum = pObj->childCount() ;
 
@@ -152,7 +152,7 @@ bool CAnm2DBin::makeObject(ObjectItem *pObj, QList<QByteArray> &objList, QList<Q
 	return true ;
 }
 
-bool CAnm2DBin::makeLayer(ObjectItem		*pLayer,
+bool Anm2DBin::makeLayer(ObjectItem		*pLayer,
 						  int				*pLayerNo,
 						  Anm2DObject		*pObjData,
 						  QList<QByteArray>	&layerList,
@@ -225,7 +225,7 @@ bool CAnm2DBin::makeLayer(ObjectItem		*pLayer,
 }
 
 // イメージデータ作成
-bool CAnm2DBin::makeImageList( QList<QByteArray> &rData, CEditData &rEditData )
+bool Anm2DBin::makeImageList( QList<QByteArray> &rData, CEditData &rEditData )
 {
 	int imageNum = rEditData.getImageDataListSize() ;
 
@@ -255,7 +255,7 @@ bool CAnm2DBin::makeImageList( QList<QByteArray> &rData, CEditData &rEditData )
 	return true ;
 }
 
-bool CAnm2DBin::addList(Anm2DHeader *pHeader)
+bool Anm2DBin::addList(Anm2DHeader *pHeader)
 {
 	for ( int i = 0 ; i < pHeader->nBlockNum ; i ++ ) {
 		Anm2DBlockHeader *p = (Anm2DBlockHeader *)LP_ADD(pHeader, pHeader->nBlockOffset[i]) ;
@@ -280,7 +280,7 @@ bool CAnm2DBin::addList(Anm2DHeader *pHeader)
 	return true ;
 }
 
-bool CAnm2DBin::addModel(CEditData &rEditData)
+bool Anm2DBin::addModel(CEditData &rEditData)
 {
 	CObjectModel *pModel = rEditData.getObjectModel() ;
 
@@ -297,7 +297,7 @@ bool CAnm2DBin::addModel(CEditData &rEditData)
 	return true ;
 }
 
-bool CAnm2DBin::addModel_Layer(QModelIndex &parent, int layerNo, CObjectModel *pModel)
+bool Anm2DBin::addModel_Layer(QModelIndex &parent, int layerNo, CObjectModel *pModel)
 {
 	if ( layerNo < 0 || layerNo >= m_LayerPtrList.size() ) {
 		m_nError = kErrorNo_InvalidLayerNum ;
@@ -350,7 +350,7 @@ bool CAnm2DBin::addModel_Layer(QModelIndex &parent, int layerNo, CObjectModel *p
 }
 
 // 編集データにイメージを追加
-bool CAnm2DBin::addImageData(Anm2DHeader *pHeader, CEditData &rEditData)
+bool Anm2DBin::addImageData(Anm2DHeader *pHeader, CEditData &rEditData)
 {
 	QList<CEditData::ImageData> data ;
 	for ( int i = 0 ; i < pHeader->nBlockNum ; i ++ ) {
@@ -401,7 +401,7 @@ bool CAnm2DBin::addImageData(Anm2DHeader *pHeader, CEditData &rEditData)
 }
 
 // 名前からオブジェクトを探す
-Anm2DObject *CAnm2DBin::search2DObjectFromName(Anm2DHeader *pHeader, QString name)
+Anm2DObject *Anm2DBin::search2DObjectFromName(Anm2DHeader *pHeader, QString name)
 {
 	for ( int i = 0 ; i < pHeader->nBlockNum ; i ++ ) {
 		Anm2DObject *p = (Anm2DObject *)LP_ADD(pHeader, pHeader->nBlockOffset[i]) ;
@@ -414,7 +414,7 @@ Anm2DObject *CAnm2DBin::search2DObjectFromName(Anm2DHeader *pHeader, QString nam
 }
 
 // 名前からレイヤを探す
-Anm2DLayer *CAnm2DBin::search2DLayerFromName(Anm2DHeader *pHeader, QString name)
+Anm2DLayer *Anm2DBin::search2DLayerFromName(Anm2DHeader *pHeader, QString name)
 {
 	for ( int i = 0 ; i < pHeader->nBlockNum ; i ++ ) {
 		Anm2DLayer *p = (Anm2DLayer *)LP_ADD(pHeader, pHeader->nBlockOffset[i]) ;
@@ -429,11 +429,11 @@ Anm2DLayer *CAnm2DBin::search2DLayerFromName(Anm2DHeader *pHeader, QString name)
 
 /************************************************************
 *
-* CAnm2DXml
+* Anm2DXml
 *
 ************************************************************/
-CAnm2DXml::CAnm2DXml(bool bSaveImage)
-	: CAnm2DBase()
+Anm2DXml::Anm2DXml(bool bSaveImage)
+    : Anm2DBase()
 {
 	m_pProgress = NULL ;
 	m_bSaveImage = bSaveImage ;
@@ -441,7 +441,7 @@ CAnm2DXml::CAnm2DXml(bool bSaveImage)
 }
 
 // 作成中のデータをアニメデータに変換
-bool CAnm2DXml::makeFromEditData( CEditData &rEditData )
+bool Anm2DXml::makeFromEditData( CEditData &rEditData )
 {
 	QDomDocument doc(kAnmXML_ID_Anm2D) ;
 	QDomElement root = doc.createElement(kAnmXML_ID_Root) ;
@@ -465,7 +465,7 @@ bool CAnm2DXml::makeFromEditData( CEditData &rEditData )
 }
 
 // アニメファイルから作成中データへ変換
-bool CAnm2DXml::makeFromFile(QDomDocument &xml, CEditData &rEditData, bool bAdd)
+bool Anm2DXml::makeFromFile(QDomDocument &xml, CEditData &rEditData, bool bAdd)
 {
 	m_bAdd = bAdd ;
 	m_Data = xml ;
@@ -553,7 +553,7 @@ bool CAnm2DXml::makeFromFile(QDomDocument &xml, CEditData &rEditData, bool bAdd)
 }
 
 // ヘッダエレメント作成
-bool CAnm2DXml::makeHeader(QDomElement &element, QDomDocument &doc, CEditData &rEditData)
+bool Anm2DXml::makeHeader(QDomElement &element, QDomDocument &doc, CEditData &rEditData)
 {
 Q_UNUSED(doc) ;
 
@@ -568,7 +568,7 @@ Q_UNUSED(doc) ;
 }
 
 // オブジェクトエレメント作成
-bool CAnm2DXml::makeObject(QDomElement &element, QDomDocument &doc, CEditData &rEditData)
+bool Anm2DXml::makeObject(QDomElement &element, QDomDocument &doc, CEditData &rEditData)
 {
 	CObjectModel *pModel = rEditData.getObjectModel() ;
 	ObjectItem *pRoot = pModel->getItemFromIndex(QModelIndex()) ;
@@ -592,7 +592,7 @@ bool CAnm2DXml::makeObject(QDomElement &element, QDomDocument &doc, CEditData &r
 	return true ;
 }
 
-bool CAnm2DXml::makeLayer(ObjectItem *root, QDomElement &element, QDomDocument &doc, CEditData &rEditData)
+bool Anm2DXml::makeLayer(ObjectItem *root, QDomElement &element, QDomDocument &doc, CEditData &rEditData)
 {
 	QDomElement elmLayer = doc.createElement(kAnmXML_ID_Layer) ;
 	elmLayer.setAttribute(kAnmXML_Attr_Name, QString(root->getName().toUtf8()));
@@ -684,7 +684,7 @@ bool CAnm2DXml::makeLayer(ObjectItem *root, QDomElement &element, QDomDocument &
 }
 
 // イメージエレメント作成
-bool CAnm2DXml::makeImage( QDomElement &element, QDomDocument &doc, CEditData &rEditData )
+bool Anm2DXml::makeImage( QDomElement &element, QDomDocument &doc, CEditData &rEditData )
 {
 	for ( int i = 0 ; i < rEditData.getImageDataListSize() ; i ++ ) {
 #if 1
@@ -761,7 +761,7 @@ bool CAnm2DXml::makeImage( QDomElement &element, QDomDocument &doc, CEditData &r
 }
 
 // プログレスバーの最大値セット
-void CAnm2DXml::setProgMaximum( QProgressDialog *pProg, CEditData &/*rEditData*/ )
+void Anm2DXml::setProgMaximum( QProgressDialog *pProg, CEditData &/*rEditData*/ )
 {
 	if ( !pProg ) { return ; }
 #if 0
@@ -793,7 +793,7 @@ void CAnm2DXml::setProgMaximum( QProgressDialog *pProg, CEditData &/*rEditData*/
 }
 
 // エレメント追加
-bool CAnm2DXml::addElement_00001000( QDomNode &node, CEditData &rEditData )
+bool Anm2DXml::addElement_00001000( QDomNode &node, CEditData &rEditData )
 {
 	CObjectModel *pModel = rEditData.getObjectModel() ;
 
@@ -858,7 +858,7 @@ bool CAnm2DXml::addElement_00001000( QDomNode &node, CEditData &rEditData )
 }
 
 // レイヤデータを追加
-bool CAnm2DXml::addLayer_00001000( QDomNode &node, ObjectItem *pRoot, int maxLayerNum, CEditData &rEditData )
+bool Anm2DXml::addLayer_00001000( QDomNode &node, ObjectItem *pRoot, int maxLayerNum, CEditData &rEditData )
 {
 	CObjectModel *pModel = rEditData.getObjectModel() ;
 
@@ -898,7 +898,7 @@ bool CAnm2DXml::addLayer_00001000( QDomNode &node, ObjectItem *pRoot, int maxLay
 }
 
 // フレームデータを追加
-bool CAnm2DXml::addFrameData_00001000( QDomNode &node, ObjectItem *pItem, int maxFrameDataNum )
+bool Anm2DXml::addFrameData_00001000( QDomNode &node, ObjectItem *pItem, int maxFrameDataNum )
 {
 	while ( !node.isNull() ) {
 		if ( node.nodeName() == kAnmXML_ID_FrameData ) {
@@ -1056,7 +1056,7 @@ bool CAnm2DXml::addFrameData_00001000( QDomNode &node, ObjectItem *pItem, int ma
 	return true ;
 }
 
-bool CAnm2DXml::addElement_01000000(QDomNode &node, CEditData &rEditData)
+bool Anm2DXml::addElement_01000000(QDomNode &node, CEditData &rEditData)
 {
 	CObjectModel *pModel = rEditData.getObjectModel() ;
 
@@ -1126,7 +1126,7 @@ bool CAnm2DXml::addElement_01000000(QDomNode &node, CEditData &rEditData)
 	return true ;
 }
 
-bool CAnm2DXml::addLayer_01000000( QDomNode &node, ObjectItem *pRoot, int maxLayerNum, CEditData &rEditData )
+bool Anm2DXml::addLayer_01000000( QDomNode &node, ObjectItem *pRoot, int maxLayerNum, CEditData &rEditData )
 {
 	CObjectModel *pModel = rEditData.getObjectModel() ;
 
@@ -1174,13 +1174,13 @@ bool CAnm2DXml::addLayer_01000000( QDomNode &node, ObjectItem *pRoot, int maxLay
 	return true ;
 }
 
-bool CAnm2DXml::addFrameData_01000000( QDomNode &/*node*/, ObjectItem */*pItem*/, int /*maxFrameDataNum*/ )
+bool Anm2DXml::addFrameData_01000000( QDomNode &/*node*/, ObjectItem */*pItem*/, int /*maxFrameDataNum*/ )
 {
 	return false ;
 }
 
 // イメージ追加
-bool CAnm2DXml::addImage( QDomNode &node, CEditData::ImageData &data )
+bool Anm2DXml::addImage( QDomNode &node, CEditData::ImageData &data )
 {
 	bool bFindData = false ;
 
@@ -1250,7 +1250,7 @@ bool CAnm2DXml::addImage( QDomNode &node, CEditData::ImageData &data )
 	return true ;
 }
 
-int CAnm2DXml::getNewImageStartNo()
+int Anm2DXml::getNewImageStartNo()
 {
 	if ( !m_bAdd ) { return 0 ; }
 
@@ -1266,17 +1266,17 @@ int CAnm2DXml::getNewImageStartNo()
 
 /************************************************************
 *
-* CAnm2DJson
+* Anm2DJson
 *
 ************************************************************/
-CAnm2DJson::CAnm2DJson(bool bFlat)
-	: CAnm2DBase()
+Anm2DJson::Anm2DJson(bool bFlat)
+    : Anm2DBase()
 {
 	m_bFlat		= bFlat ;
 	m_pModel	= NULL ;
 }
 
-CAnm2DJson::~CAnm2DJson()
+Anm2DJson::~Anm2DJson()
 {
 	if ( m_bFlat && m_pModel ) {
 		delete m_pModel ;
@@ -1284,7 +1284,7 @@ CAnm2DJson::~CAnm2DJson()
 	}
 }
 
-bool CAnm2DJson::makeFromEditData( CEditData &rEditData )
+bool Anm2DJson::makeFromEditData( CEditData &rEditData )
 {
 	m_pModel = rEditData.getObjectModel() ;
 	if ( m_bFlat ) {
@@ -1302,7 +1302,7 @@ bool CAnm2DJson::makeFromEditData( CEditData &rEditData )
 	return true ;
 }
 
-void CAnm2DJson::addString(QString str, int tab)
+void Anm2DJson::addString(QString str, int tab)
 {
 	QString t ;
 	for ( int i = 0 ; i < tab ; i ++ ) {
@@ -1311,7 +1311,7 @@ void CAnm2DJson::addString(QString str, int tab)
 	m_Data += t + str ;
 }
 
-bool CAnm2DJson::makeObject( CEditData &rEditData )
+bool Anm2DJson::makeObject( CEditData &rEditData )
 {
 	ObjectItem *pRoot = m_pModel->getItemFromIndex(QModelIndex()) ;
 	int tab = 1 ;
@@ -1341,7 +1341,7 @@ bool CAnm2DJson::makeObject( CEditData &rEditData )
 	return true ;
 }
 
-bool CAnm2DJson::makeLayer(ObjectItem *pItem, CEditData &rEditData, int tab)
+bool Anm2DJson::makeLayer(ObjectItem *pItem, CEditData &rEditData, int tab)
 {
 	const QList<FrameData> &datas = pItem->getFrameData() ;
 
@@ -1411,20 +1411,19 @@ bool CAnm2DJson::makeLayer(ObjectItem *pItem, CEditData &rEditData, int tab)
 	return true ;
 }
 
-
 /*-----------------------------------------------------------*//**
   @brief	.asm インターフェース
   @author	Kenji Nishida
   @date		2011/11/24
 *//*------------------------------------------------------------*/
-CAnm2DAsm::CAnm2DAsm(bool bFlat)
-	: CAnm2DBase()
+Anm2DAsm::Anm2DAsm(bool bFlat)
+    : Anm2DBase()
 {
 	m_bFlat		= bFlat;
 	m_pModel	= NULL;
 }
 
-CAnm2DAsm::~CAnm2DAsm()
+Anm2DAsm::~Anm2DAsm()
 {
 	if(m_bFlat && m_pModel){
 		delete m_pModel;
@@ -1457,7 +1456,7 @@ void makeFromEditDataArea(ObjectItem *pObj, QVector4D *pqv4AreaMin, QVector4D *p
 	}
 }
 
-bool CAnm2DAsm::makeFromEditDataTip(QString qsLabel, ObjectItem *pObj)
+bool Anm2DAsm::makeFromEditDataTip(QString qsLabel, ObjectItem *pObj)
 {
 	addString(";---------------------------------------------------------------- ANM_TIP\n");
 	addString(qsLabel + ":\n");
@@ -1515,7 +1514,7 @@ bool CAnm2DAsm::makeFromEditDataTip(QString qsLabel, ObjectItem *pObj)
 	return true ;
 }
 
-void CAnm2DAsm::subUnusedVramSkip(ObjectItem *pObj)
+void Anm2DAsm::subUnusedVramSkip(ObjectItem *pObj)
 {
 	// キーフレーム
 	for(int i=0; i<=pObj->getMaxFrameNum(false); i++){
@@ -1535,7 +1534,7 @@ void CAnm2DAsm::subUnusedVramSkip(ObjectItem *pObj)
 	return;
 }
 
-bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
+bool Anm2DAsm::makeFromEditData(CEditData &rEditData)
 {
 	m_pModel = rEditData.getObjectModel();
 	if(m_bFlat){
@@ -1658,7 +1657,7 @@ bool CAnm2DAsm::makeFromEditData(CEditData &rEditData)
 	return true;
 }
 
-void CAnm2DAsm::makeFromEditData2IncTip(QString qsLabel, ObjectItem *pObj)
+void Anm2DAsm::makeFromEditData2IncTip(QString qsLabel, ObjectItem *pObj)
 {
 	QString	qsTmp = qsLabel + pObj->getName().replace(" ", "_").toUpper().toUtf8();
 	bool	isAscii = true;
@@ -1689,7 +1688,7 @@ void CAnm2DAsm::makeFromEditData2IncTip(QString qsLabel, ObjectItem *pObj)
 	}
 }
 
-bool CAnm2DAsm::makeFromEditData2Inc(CEditData &rEditData, QString qsFname)
+bool Anm2DAsm::makeFromEditData2Inc(CEditData &rEditData, QString qsFname)
 {
 	qsFname = QFileInfo(qsFname).baseName().toUpper();
 	m_pModel = rEditData.getObjectModel();
@@ -1732,7 +1731,7 @@ bool CAnm2DAsm::makeFromEditData2Inc(CEditData &rEditData, QString qsFname)
 	return true;
 }
 
-void CAnm2DAsm::addString(QString str, int tab)
+void Anm2DAsm::addString(QString str, int tab)
 {
 	QString	t;
 	for(int i=0; i<tab; i++){

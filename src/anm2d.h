@@ -1,5 +1,5 @@
-#ifndef CANM2D_H
-#define CANM2D_H
+#ifndef ANM2D_H
+#define ANM2D_H
 
 #include "editdata.h"
 #include "Anm2dTypes.h"
@@ -45,7 +45,7 @@
 #define LP_ADD(p, n) (unsigned int)((unsigned int)(p) + (unsigned int)(n))
 #endif
 
-class CAnm2DBase
+class Anm2DBase
 {
 public:
 	enum {
@@ -97,11 +97,11 @@ public:
 		return QObject::trUtf8("エラー番号が不正です:%1").arg(m_nError) ;
 	}
 
-	CAnm2DBase()
+    Anm2DBase()
 	{
 		m_nError = kErrorNo_NoError ;
 	}
-	virtual ~CAnm2DBase() {}
+    virtual ~Anm2DBase() {}
 
 	void setFilePath( QString &str )
 	{
@@ -136,10 +136,10 @@ protected:
 };
 
 // binary
-class CAnm2DBin : public CAnm2DBase
+class Anm2DBin : public Anm2DBase
 {
 public:
-	CAnm2DBin();
+    Anm2DBin();
 
 	bool makeFromEditData( CEditData &rEditData ) ;
 	bool makeFromFile(QByteArray &data, CEditData &rEditData) ;
@@ -168,10 +168,10 @@ private:
 };
 
 // XML形式
-class CAnm2DXml : public CAnm2DBase
+class Anm2DXml : public Anm2DBase
 {
 public:
-	CAnm2DXml(bool bSaveImage) ;
+    Anm2DXml(bool bSaveImage) ;
 
 	bool makeFromEditData( CEditData &rEditData ) ;
 	bool makeFromFile(QDomDocument &xml, CEditData &rEditData, bool bAdd = false) ;
@@ -210,11 +210,11 @@ private:
 };
 
 // JSON形式
-class CAnm2DJson : public CAnm2DBase
+class Anm2DJson : public Anm2DBase
 {
 public:
-	CAnm2DJson(bool bFlat) ;
-	~CAnm2DJson() ;
+    Anm2DJson(bool bFlat) ;
+    ~Anm2DJson() ;
 
 	bool makeFromEditData( CEditData &rEditData ) ;
 	bool makeFromFile(QString &, CEditData &) { return false ; }
@@ -235,11 +235,11 @@ private:
 
 // asm形式
 #define		KM_VRAM_MAX		32
-class CAnm2DAsm : public CAnm2DBase
+class Anm2DAsm : public Anm2DBase
 {
 public:
-	CAnm2DAsm(bool bFlat);
-	~CAnm2DAsm();
+    Anm2DAsm(bool bFlat);
+    ~Anm2DAsm();
 
 	bool makeFromEditDataTip(QString qsLabel, ObjectItem *pObj);
 	void subUnusedVramSkip(ObjectItem *pObj);
@@ -261,4 +261,4 @@ private:
 	int				m_nCnt;
 };
 
-#endif // CANM2D_H
+#endif // ANM2D_H

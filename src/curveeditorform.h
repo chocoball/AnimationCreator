@@ -6,7 +6,7 @@
 #include "editdata.h"
 #include "setting.h"
 #include "curvegraphlabel.h"
-#include "AnimationWindowSplitter.h"
+#include "animationwindowsplitter.h"
 
 namespace Ui {
     class CurveEditorForm;

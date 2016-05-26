@@ -6,7 +6,7 @@
 #include "editdata.h"
 #include "glwidget.h"
 #include "cdatamarkerlabel.h"
-#include "AnimationWindowSplitter.h"
+#include "animationwindowsplitter.h"
 #include "CRect.h"
 
 
