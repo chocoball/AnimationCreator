@@ -1,7 +1,7 @@
 #include "gridlabel.h"
 #include <QtGui>
 
-CGridLabel::CGridLabel(EditData *pEditData, int nTabIndex, QWidget *parent)
+GridLabel::GridLabel(EditData *pEditData, int nTabIndex, QWidget *parent)
     : QLabel(parent)
 {
     m_pEditData = pEditData;
@@ -21,20 +21,20 @@ CGridLabel::CGridLabel(EditData *pEditData, int nTabIndex, QWidget *parent)
     //	setFocusPolicy(Qt::StrongFocus);
 }
 
-void CGridLabel::setDrawCenter(bool flag)
+void GridLabel::setDrawCenter(bool flag)
 {
     m_bDrawCenter = flag;
     update();
 }
 
-void CGridLabel::slot_gridOnOff(bool flag)
+void GridLabel::slot_gridOnOff(bool flag)
 {
     m_bDrawGrid = flag;
     repaint();
 }
 
 // 描画イベント
-void CGridLabel::paintEvent(QPaintEvent *event)
+void GridLabel::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     QPen pen, penCenter;
@@ -131,7 +131,7 @@ void CGridLabel::paintEvent(QPaintEvent *event)
 }
 
 // 範囲選択開始
-void CGridLabel::mousePressEvent(QMouseEvent *ev)
+void GridLabel::mousePressEvent(QMouseEvent *ev)
 {
     if (!m_pEditData || !m_bCatchable)
     {
@@ -172,7 +172,7 @@ void CGridLabel::mousePressEvent(QMouseEvent *ev)
 }
 
 // 範囲選択中
-void CGridLabel::mouseMoveEvent(QMouseEvent *ev)
+void GridLabel::mouseMoveEvent(QMouseEvent *ev)
 {
     if (!m_pEditData || !m_bCatchable)
     {
@@ -269,7 +269,7 @@ void CGridLabel::mouseMoveEvent(QMouseEvent *ev)
 }
 
 // 範囲選択終了
-void CGridLabel::mouseReleaseEvent(QMouseEvent *ev)
+void GridLabel::mouseReleaseEvent(QMouseEvent *ev)
 {
     if (!m_pEditData || !m_bCatchable)
     {
@@ -342,7 +342,7 @@ void CGridLabel::mouseReleaseEvent(QMouseEvent *ev)
     repaint();
 }
 
-void CGridLabel::keyPressEvent(QKeyEvent *ev)
+void GridLabel::keyPressEvent(QKeyEvent *ev)
 {
     if (ev->key() == Qt::Key_Control)
     {
@@ -363,7 +363,7 @@ void CGridLabel::keyPressEvent(QKeyEvent *ev)
     }
 }
 
-void CGridLabel::keyReleaseEvent(QKeyEvent *ev)
+void GridLabel::keyReleaseEvent(QKeyEvent *ev)
 {
     if (ev->key() == Qt::Key_Control)
     {
@@ -373,7 +373,7 @@ void CGridLabel::keyReleaseEvent(QKeyEvent *ev)
 }
 
 // ドラッグアンドドロップ開始
-void CGridLabel::startDragAndDrop(QMouseEvent *ev)
+void GridLabel::startDragAndDrop(QMouseEvent *ev)
 {
     Q_UNUSED(ev);
 
@@ -412,7 +412,7 @@ void CGridLabel::startDragAndDrop(QMouseEvent *ev)
     m_pEditData->setDraggingImage(false);
 }
 
-void CGridLabel::selectAll(void)
+void GridLabel::selectAll(void)
 {
     RectF r;
     EditData::ImageData *p = m_pEditData->getImageDataFromNo(m_Index);
@@ -432,7 +432,7 @@ void CGridLabel::selectAll(void)
     update();
 }
 
-void CGridLabel::deselect(void)
+void GridLabel::deselect(void)
 {
     RectF r;
     r.setLeft(-2);

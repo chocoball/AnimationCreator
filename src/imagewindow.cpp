@@ -115,7 +115,7 @@ void ImageWindow::addTab(int imageIndex)
     palette.setColor(QPalette::Background, m_pSetting->getImageBGColor());
     pLabel->setPalette(palette);
 
-    CGridLabel *pGridLabel = new CGridLabel(m_pEditData, imageIndex, pLabel);
+    GridLabel *pGridLabel = new GridLabel(m_pEditData, imageIndex, pLabel);
     pGridLabel->setObjectName("CGridLabel");
     pGridLabel->show();
     pGridLabel->setDrawCenter(m_pSetting->getDrawCenter());
@@ -318,7 +318,7 @@ void ImageWindow::slot_changeDrawCenter(bool flag)
     {
         QScrollArea *pScrollArea = (QScrollArea *)ui->tabWidget->widget(i);
 
-        CGridLabel *pGrid = pScrollArea->findChild<CGridLabel *>("CGridLabel");
+        GridLabel *pGrid = pScrollArea->findChild<GridLabel *>("CGridLabel");
         if (!pGrid)
         {
             qDebug() << "pGrid not found";
@@ -336,7 +336,7 @@ void ImageWindow::slot_dragedImage(FrameData /*data*/)
     {
         QScrollArea *pScrollArea = (QScrollArea *)ui->tabWidget->widget(i);
 
-        CGridLabel *pGrid = pScrollArea->findChild<CGridLabel *>("CGridLabel");
+        GridLabel *pGrid = pScrollArea->findChild<GridLabel *>("CGridLabel");
         if (!pGrid)
         {
             qDebug() << "pGrid not found";

@@ -6,12 +6,12 @@
 #include <QPaintEvent>
 #include <QPainter>
 
-class CGridLabel : public QLabel
+class GridLabel : public QLabel
 {
     Q_OBJECT
 
 public:
-    explicit CGridLabel(EditData *pEditData, int nTabIndex, QWidget *parent = 0);
+    explicit GridLabel(EditData *pEditData, int nTabIndex, QWidget *parent = 0);
 
     void setScale(int scale)
     {

@@ -7,7 +7,7 @@
 #include <QScrollArea>
 #include <QtGui>
 
-class CGridLabel;
+class GridLabel;
 class AnimationForm;
 class MainWindow;
 
