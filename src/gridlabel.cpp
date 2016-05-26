@@ -98,7 +98,7 @@ void CGridLabel::paintEvent(QPaintEvent *event)
         }
         painter.setPen(pen);
 
-        CRectF rect = m_pEditData->getCatchRect();
+        RectF rect = m_pEditData->getCatchRect();
         QRect r = QRect(rect.left(), rect.top(), rect.right() - rect.left(), rect.bottom() - rect.top());
         painter.drawRect(r);
     }
@@ -163,7 +163,7 @@ void CGridLabel::mousePressEvent(QMouseEvent *ev)
     {
         int x = ev->pos().x() / mScale;
         int y = ev->pos().y() / mScale;
-        CRectF r = CRectF(x, y, x + 1, y + 1);
+        RectF r = RectF(x, y, x + 1, y + 1);
         m_pEditData->setCatchRect(r);
         repaint();
 
@@ -183,7 +183,7 @@ void CGridLabel::mouseMoveEvent(QMouseEvent *ev)
         return;
     }
 
-    CRectF r = m_pEditData->getCatchRect();
+    RectF r = m_pEditData->getCatchRect();
     CEditData::ImageData *p = m_pEditData->getImageDataFromNo(m_Index);
     if (!p)
     {
@@ -297,7 +297,7 @@ void CGridLabel::mouseReleaseEvent(QMouseEvent *ev)
     int img_w = p->Image.width();
     int img_h = p->Image.height();
 
-    CRectF r = m_pEditData->getCatchRect();
+    RectF r = m_pEditData->getCatchRect();
 
     float x = ev->pos().x() / mScale;
     float y = ev->pos().y() / mScale;
@@ -388,7 +388,7 @@ void CGridLabel::startDragAndDrop(QMouseEvent *ev)
 
     QByteArray itemData;
     QDataStream stream(&itemData, QIODevice::WriteOnly);
-    CRectF rect = m_pEditData->getCatchRect();
+    RectF rect = m_pEditData->getCatchRect();
     //	stream << rect << mScale << m_Index ;
     stream << rect.left() << rect.top() << rect.right() << rect.bottom() << mScale << m_Index;
 
@@ -414,7 +414,7 @@ void CGridLabel::startDragAndDrop(QMouseEvent *ev)
 
 void CGridLabel::selectAll(void)
 {
-    CRectF r;
+    RectF r;
     CEditData::ImageData *p = m_pEditData->getImageDataFromNo(m_Index);
     if (!p)
     {
@@ -434,7 +434,7 @@ void CGridLabel::selectAll(void)
 
 void CGridLabel::deselect(void)
 {
-    CRectF r;
+    RectF r;
     r.setLeft(-2);
     r.setRight(-2);
     r.setTop(-1);

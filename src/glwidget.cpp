@@ -148,8 +148,8 @@ void AnimeGLWidget::paintGL()
     // 背景画像描画
     if (m_backImageTex)
     {
-        CRectF rect;
-        CRectF uvF;
+        RectF rect;
+        RectF uvF;
         QColor col = QColor(255, 255, 255, 255);
 
         m_textureShaderProgram.bind();
@@ -546,9 +546,9 @@ void AnimeGLWidget::drawFrameData(const FrameData &data, QMatrix4x4 mat, QColor 
     }
 
     QImage &Image = p->Image;
-    CRectF rect;
-    CRectF uv = data.getRect();
-    CRectF uvF;
+    RectF rect;
+    RectF uv = data.getRect();
+    RectF uvF;
 
     m_textureShaderProgram.bind();
     m_textureShaderProgram.setUniformValue("mvp_matrix", m_matProj * mat);
@@ -659,7 +659,7 @@ void AnimeGLWidget::drawLine(QPoint pos0, QPoint pos1, QColor col, float z)
 }
 
 // 矩形描画
-void AnimeGLWidget::drawRect(CRectF rc, CRectF uv, float z, QColor col)
+void AnimeGLWidget::drawRect(RectF rc, RectF uv, float z, QColor col)
 {
     m_textureShaderProgram.bind();
 
@@ -769,7 +769,7 @@ void AnimeGLWidget::dropEvent(QDropEvent *event)
 {
     if (event->mimeData()->hasFormat("editor/selected-image"))
     {
-        CRectF rect;
+        RectF rect;
         int scale;
         QPoint pos;
         int index;
@@ -779,7 +779,7 @@ void AnimeGLWidget::dropEvent(QDropEvent *event)
         //		stream >> rect >> scale >> index ;
         float l, t, r, b;
         stream >> l >> t >> r >> b >> scale >> index;
-        rect = CRectF(l, t, r, b);
+        rect = RectF(l, t, r, b);
 
         pos = event->pos();
 

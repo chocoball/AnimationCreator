@@ -1,18 +1,18 @@
-#ifndef CRECT_H
-#define CRECT_H
+#ifndef RECT_H
+#define RECT_H
 
 #include <QDataStream>
 #include <QPoint>
 #include <QRect>
 
-class CRectF
+class RectF
 {
 public:
-    CRectF()
+    RectF()
     {
         m_left = m_right = m_top = m_bottom = 0;
     }
-    CRectF(float left, float top, float right, float bottom)
+    RectF(float left, float top, float right, float bottom)
     {
         m_left = left;
         m_top = top;
@@ -39,7 +39,7 @@ public:
         m_bottom = y + h;
     }
 
-    bool operator==(const CRectF &r) const
+    bool operator==(const RectF &r) const
     {
         if (m_left == r.m_left && m_right == r.m_right && m_top == r.m_top && m_bottom == r.m_bottom)
         {
@@ -47,7 +47,7 @@ public:
         }
         return false;
     }
-    bool operator!=(const CRectF &r) const
+    bool operator!=(const RectF &r) const
     {
         if (*this == r)
         {
@@ -94,4 +94,4 @@ private:
     float m_left, m_right, m_top, m_bottom;
 };
 
-#endif // CRECT_H
+#endif // RECT_H

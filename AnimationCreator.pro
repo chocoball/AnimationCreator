@@ -55,7 +55,7 @@ HEADERS += \
     src/loupewindow.h \
     src/colorpickerform.h \
     src/command.h \
-    src/crect.h \
+    src/rect.h \
     src/curveeditorform.h \
     src/curvegraphlabel.h \
     src/debug.h \

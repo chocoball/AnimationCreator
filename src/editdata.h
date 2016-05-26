@@ -1,7 +1,7 @@
 #ifndef EDITDATA_H
 #define EDITDATA_H
 
-#include "CRect.h"
+#include "Rect.h"
 #include "objectmodel.h"
 #include <QImage>
 #include <QList>
@@ -309,7 +309,7 @@ private:
     void sortFrameDatas(ObjectItem *pItem);
 
     kAccessor(int, m_editMode, EditMode);
-    kAccessor(CRectF, m_catchRect, CatchRect);
+    kAccessor(RectF, m_catchRect, CatchRect);
     kAccessor(QPoint, m_center, Center);
     kAccessor(QTreeView *, m_pTreeViewRef, TreeView);
     kAccessor(bool, m_bPlayAnime, PlayAnime);

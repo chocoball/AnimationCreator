@@ -1,7 +1,7 @@
 #ifndef ANIMATIONFORM_H
 #define ANIMATIONFORM_H
 
-#include "CRect.h"
+#include "Rect.h"
 #include "animationwindowsplitter.h"
 #include "datamarkerlabel.h"
 #include "editdata.h"
@@ -43,7 +43,7 @@ public:
 signals:
     void sig_imageChangeTab(int nImage);
     void sig_imageRepaint(void);
-    void sig_imageChangeRect(CRectF rect);
+    void sig_imageChangeRect(RectF rect);
     void sig_portCheckDrawCenter(bool);
     void sig_portDragedImage(FrameData);
     void sig_pushColorToolButton(void);
@@ -56,7 +56,7 @@ public slots:
     void slot_deleteObject(void);
     void slot_deleteFrameData(void);
 
-    void slot_dropedImage(CRectF rect, QPoint pos, int imageIndex);
+    void slot_dropedImage(RectF rect, QPoint pos, int imageIndex);
 
     void slot_frameChanged(int frame);
     void slot_selectLayerChanged(QModelIndex indexLayer);
@@ -96,7 +96,7 @@ public slots:
     void slot_changeLayerDisp(void);
     void slot_changeLayerLock(void);
 
-    void slot_changeSelectLayerUV(CRectF rect);
+    void slot_changeSelectLayerUV(RectF rect);
     void slot_changeAnimeSpeed(int index);
 
     void slot_addImage(int imageNo);

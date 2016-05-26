@@ -1,7 +1,7 @@
 #ifndef FRAMEDATA_H
 #define FRAMEDATA_H
 
-#include "CRect.h"
+#include "Rect.h"
 #include "util.h"
 #include <QMatrix4x4>
 #include <QVector2D>
@@ -169,16 +169,16 @@ typedef struct _tagFrameData
         return (*this == r ? false : true);
     }
 
-    void setRect(CRectF &rect)
+    void setRect(RectF &rect)
     {
         left = rect.left();
         right = rect.right();
         top = rect.top();
         bottom = rect.bottom();
     }
-    CRectF getRect() const
+    RectF getRect() const
     {
-        return CRectF(left, top, right, bottom);
+        return RectF(left, top, right, bottom);
     }
     float width() const { return right - left; }
     float height() const { return bottom - top; }

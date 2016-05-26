@@ -55,7 +55,7 @@ void CEditData::initData(void)
     m_editMode = kEditMode_Animation;
     m_ImageDataList.clear();
 
-    m_catchRect = CRectF(0, 0, 0, 0);
+    m_catchRect = RectF(0, 0, 0, 0);
     m_center = QPoint(0, 0);
 
     m_pObjectModel = new CObjectModel();
