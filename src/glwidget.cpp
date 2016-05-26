@@ -694,18 +694,18 @@ void AnimeGLWidget::drawCircle(QPoint p, float length, int div)
 {
     m_lineShaderProgram.bind();
 
-    QVector3D verts[div];
+    QVector<QVector3D> verts;
     for (int i = 0; i < div; i++)
     {
         float rad = i * M_PI * 2.0f / (float)div;
         float x = cosf(rad) * length;
         float y = sinf(rad) * length;
-        verts[i] = QVector3D(x + p.x(), y + p.y(), 0);
+        verts << QVector3D(x + p.x(), y + p.y(), 0);
     }
 
     int vertexLocation = m_textureShaderProgram.attributeLocation("a_position");
     m_textureShaderProgram.enableAttributeArray(vertexLocation);
-    m_textureShaderProgram.setAttributeArray(vertexLocation, verts);
+    m_textureShaderProgram.setAttributeArray(vertexLocation, verts.data());
 
     glDrawArrays(GL_LINE_STRIP, 0, div);
 }
@@ -732,15 +732,15 @@ void AnimeGLWidget::drawBezierLine(ObjectItem *pLayerItem, int prevFrame, int ne
 
     m_lineShaderProgram.bind();
 
-    QVector3D verts[lines.size()];
+    QVector<QVector3D> verts;
     for (int i = 0; i < lines.size(); i++)
     {
-        verts[i] = QVector3D(lines.at(i).x(), lines.at(i).y(), 0);
+        verts << QVector3D(lines.at(i).x(), lines.at(i).y(), 0);
     }
 
     int vertexLocation = m_textureShaderProgram.attributeLocation("a_position");
     m_textureShaderProgram.enableAttributeArray(vertexLocation);
-    m_textureShaderProgram.setAttributeArray(vertexLocation, verts);
+    m_textureShaderProgram.setAttributeArray(vertexLocation, verts.data());
 
     glDrawArrays(GL_LINE_STRIP, 0, lines.size());
 }

@@ -6,6 +6,9 @@
 
 QT += core gui opengl xml network help
 
+CONFIG += console
+QMAKE_CXXFLAGS += -std=c++11
+
 TARGET = AnimationCreator2
 TEMPLATE = app
 
@@ -93,12 +96,6 @@ FORMS += \
     ui/objectscaleform.ui \
     ui/optionanimationtab.ui \
     ui/optionfiletab.ui
-
-
-CONFIG += console
-
-
-
 
 
 
