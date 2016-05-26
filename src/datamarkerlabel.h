@@ -56,7 +56,7 @@ protected:
 
     void contextMenuEvent(QContextMenuEvent *ev);
 
-    kAccessor(CEditData *, m_pEditData, EditData);
+    kAccessor(EditData *, m_pEditData, EditData);
 
 private:
     int m_value;

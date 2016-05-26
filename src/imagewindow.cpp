@@ -7,7 +7,7 @@
 #include <QGraphicsView>
 #include <QPixmap>
 
-ImageWindow::ImageWindow(CSettings *p, CEditData *pEditImage, AnimationForm *pAnimForm, MainWindow *pMainWindow, QWidget *parent)
+ImageWindow::ImageWindow(CSettings *p, EditData *pEditImage, AnimationForm *pAnimForm, MainWindow *pMainWindow, QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::ImageWindow)
 {
@@ -37,7 +37,7 @@ ImageWindow::ImageWindow(CSettings *p, CEditData *pEditImage, AnimationForm *pAn
     ui->tabWidget->clear();
     for (int i = 0; i < m_pEditData->getImageDataListSize(); i++)
     {
-        CEditData::ImageData *p = m_pEditData->getImageData(i);
+        EditData::ImageData *p = m_pEditData->getImageData(i);
         if (!p)
         {
             continue;
@@ -71,7 +71,7 @@ void ImageWindow::dropEvent(QDropEvent *event)
 
         index = getFreeTabIndex();
 
-        CEditData::ImageData data;
+        EditData::ImageData data;
         QImage image;
         if (!image.load(fileName))
         {
@@ -99,7 +99,7 @@ void ImageWindow::dropEvent(QDropEvent *event)
 // タブ追加
 void ImageWindow::addTab(int imageIndex)
 {
-    CEditData::ImageData *p = m_pEditData->getImageDataFromNo(imageIndex);
+    EditData::ImageData *p = m_pEditData->getImageDataFromNo(imageIndex);
     if (!p)
     {
         qDebug("not found ImageData[%d]", imageIndex);
@@ -227,7 +227,7 @@ void ImageWindow::slot_modifiedImage(int index)
         qDebug() << "ERROR:ImageLabel not found!!!!!";
         return;
     }
-    CEditData::ImageData *p = m_pEditData->getImageData(index);
+    EditData::ImageData *p = m_pEditData->getImageData(index);
     if (!p)
     {
         qDebug() << "ERROR:ImageData not found!!!!!";

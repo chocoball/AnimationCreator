@@ -4,7 +4,7 @@
 
 #define kPathSelectLen 5.0
 
-AnimeGLWidget::AnimeGLWidget(CEditData *editData, CSettings *pSetting, QWidget *parent)
+AnimeGLWidget::AnimeGLWidget(EditData *editData, CSettings *pSetting, QWidget *parent)
     : QOpenGLWidget(parent)
     , m_pTextureCacheManager(new TextureCacheManager())
 {
@@ -39,7 +39,7 @@ AnimeGLWidget::~AnimeGLWidget()
     {
         for (int i = 0; i < m_pEditData->getImageDataListSize(); i++)
         {
-            CEditData::ImageData *p = m_pEditData->getImageData(i);
+            EditData::ImageData *p = m_pEditData->getImageData(i);
             if (!p)
             {
                 continue;
@@ -102,7 +102,7 @@ void AnimeGLWidget::initializeGL()
 
     for (int i = 0; i < m_pEditData->getImageDataListSize(); i++)
     {
-        CEditData::ImageData *p = m_pEditData->getImageData(i);
+        EditData::ImageData *p = m_pEditData->getImageData(i);
         if (!p)
         {
             continue;
@@ -193,7 +193,7 @@ void AnimeGLWidget::paintGL()
     }
 
     // PNG吐き出しモード
-    if (m_pEditData->getEditMode() == CEditData::kEditMode_ExportPNG && !m_pEditData->isExportPNG())
+    if (m_pEditData->getEditMode() == EditData::kEditMode_ExportPNG && !m_pEditData->isExportPNG())
     {
         int rect[4];
         QColor col = QColor(255, 0, 0, 255);
@@ -247,10 +247,10 @@ void AnimeGLWidget::drawLayers(void)
 
     switch (m_pEditData->getEditMode())
     {
-        case CEditData::kEditMode_Animation:
+        case EditData::kEditMode_Animation:
             drawLayers_Anime();
             break;
-        case CEditData::kEditMode_ExportPNG:
+        case EditData::kEditMode_ExportPNG:
             if (m_pEditData->isExportPNG())
             {
                 drawLayers_Anime();
@@ -539,7 +539,7 @@ void AnimeGLWidget::drawSelFrameInfo(void)
 // フレームデータ描画
 void AnimeGLWidget::drawFrameData(const FrameData &data, QMatrix4x4 mat, QColor col)
 {
-    CEditData::ImageData *p = m_pEditData->getImageDataFromNo(data.nImage);
+    EditData::ImageData *p = m_pEditData->getImageDataFromNo(data.nImage);
     if (!p)
     {
         return;
@@ -813,7 +813,7 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton)
     { // 左ボタン
         // 連番PNG吐き出し時
-        if (m_pEditData->getEditMode() == CEditData::kEditMode_ExportPNG)
+        if (m_pEditData->getEditMode() == EditData::kEditMode_ExportPNG)
         {
             int rect[4] = {0, 0, 0, 0};
             rect[0] = rect[2] = event->pos().x() - (m_pSetting->getAnmWindowW() / 2);
@@ -921,7 +921,7 @@ void AnimeGLWidget::mousePressEvent(QMouseEvent *event)
 void AnimeGLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     // 連番PNG吐き出し時
-    if (m_pEditData->getEditMode() == CEditData::kEditMode_ExportPNG)
+    if (m_pEditData->getEditMode() == EditData::kEditMode_ExportPNG)
     {
         int rect[4] = {0, 0, 0, 0};
         m_pEditData->getExportPNGRect(rect);
@@ -1010,7 +1010,7 @@ QPoint AnimeGLWidget::editData(FrameData *pData, QPoint nowPos, QPoint oldPos, Q
         return QPoint(0, 0);
     }
 
-    CEditData::ImageData *p = m_pEditData->getImageDataFromNo(pData->nImage);
+    EditData::ImageData *p = m_pEditData->getImageDataFromNo(pData->nImage);
     if (!p)
     {
         return QPoint(0, 0);

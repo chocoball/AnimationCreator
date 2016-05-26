@@ -10,7 +10,7 @@ class CurveGraphLabel : public QLabel
 {
     Q_OBJECT
 public:
-    explicit CurveGraphLabel(CEditData *pEditData, QWidget *parent = 0);
+    explicit CurveGraphLabel(EditData *pEditData, QWidget *parent = 0);
 
     enum
     {
@@ -56,7 +56,7 @@ private:
     void drawDatas(QPainter &painter);
 
 private:
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
 
     QList<QPair<int, float> > m_currDispDatas;
     float m_dispStepH;

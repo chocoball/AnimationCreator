@@ -810,7 +810,7 @@ bool MainWindow::fileOpen(QString fileName, bool bAdd)
     // 画像ファイル
     else
     {
-        CEditData::ImageData data;
+        EditData::ImageData data;
         QImage imageData;
         if (!imageData.load(fileName))
         {
@@ -830,7 +830,7 @@ bool MainWindow::fileOpen(QString fileName, bool bAdd)
 
     for (int i = 0; i < m_EditData.getImageDataListSize(); i++)
     {
-        CEditData::ImageData *p = m_EditData.getImageData(i);
+        EditData::ImageData *p = m_EditData.getImageData(i);
         if (!p)
         {
             continue;
@@ -1030,7 +1030,7 @@ void MainWindow::checkFileModified(void)
 {
     for (int i = 0; i < m_EditData.getImageDataListSize(); i++)
     {
-        CEditData::ImageData *p = m_EditData.getImageData(i);
+        EditData::ImageData *p = m_EditData.getImageData(i);
 
         QString fullPath = p->fileName;
         QFileInfo info(fullPath);

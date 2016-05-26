@@ -1,7 +1,7 @@
 #include "colorpickerform.h"
 #include "ui_colorpickerform.h"
 
-ColorPickerForm::ColorPickerForm(CEditData *pEditData, QWidget *parent)
+ColorPickerForm::ColorPickerForm(EditData *pEditData, QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::ColorPickerForm)
 {

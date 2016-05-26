@@ -132,7 +132,7 @@ private:
 
     // 編集データ ----
     QString m_StrSaveFileName; // 保存ファイル名
-    CEditData m_EditData;
+    EditData m_EditData;
     // ---- 編集データ
 
     // 設定 ----

@@ -37,7 +37,7 @@ public:
     } DRAW_FRAMEDATA;
 
 public:
-    explicit AnimeGLWidget(CEditData *editData, CSettings *pSetting, QWidget *parent = 0);
+    explicit AnimeGLWidget(EditData *editData, CSettings *pSetting, QWidget *parent = 0);
     virtual ~AnimeGLWidget();
 
     GLuint bindTexture(QImage &image);
@@ -126,7 +126,7 @@ public:
     void setBackImage(QString path);
 
 private:
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
     CSettings *m_pSetting;
     TextureCacheManager *m_pTextureCacheManager;
     GLint m_DrawWidth, m_DrawHeight;

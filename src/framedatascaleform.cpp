@@ -1,7 +1,7 @@
 #include "framedatascaleform.h"
 #include "ui_framedatascaleform.h"
 
-FrameDataScaleForm::FrameDataScaleForm(CEditData *pEditData, QWidget *parent)
+FrameDataScaleForm::FrameDataScaleForm(EditData *pEditData, QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::FrameDataScaleForm)
 {

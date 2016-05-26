@@ -1,7 +1,7 @@
 #include "gridlabel.h"
 #include <QtGui>
 
-CGridLabel::CGridLabel(CEditData *pEditData, int nTabIndex, QWidget *parent)
+CGridLabel::CGridLabel(EditData *pEditData, int nTabIndex, QWidget *parent)
     : QLabel(parent)
 {
     m_pEditData = pEditData;
@@ -43,7 +43,7 @@ void CGridLabel::paintEvent(QPaintEvent *event)
     penCenter.setColor(QColor(255, 255, 0, 255));
     penCenter.setWidth(mScale);
 
-    CEditData::ImageData *p = m_pEditData->getImageDataFromNo(m_Index);
+    EditData::ImageData *p = m_pEditData->getImageDataFromNo(m_Index);
     if (!p)
     {
         return;
@@ -184,7 +184,7 @@ void CGridLabel::mouseMoveEvent(QMouseEvent *ev)
     }
 
     RectF r = m_pEditData->getCatchRect();
-    CEditData::ImageData *p = m_pEditData->getImageDataFromNo(m_Index);
+    EditData::ImageData *p = m_pEditData->getImageDataFromNo(m_Index);
     if (!p)
     {
         return;
@@ -288,7 +288,7 @@ void CGridLabel::mouseReleaseEvent(QMouseEvent *ev)
     }
     m_bRectMove = false;
 
-    CEditData::ImageData *p = m_pEditData->getImageDataFromNo(m_Index);
+    EditData::ImageData *p = m_pEditData->getImageDataFromNo(m_Index);
     if (!p)
     {
         return;
@@ -377,7 +377,7 @@ void CGridLabel::startDragAndDrop(QMouseEvent *ev)
 {
     Q_UNUSED(ev);
 
-    CEditData::ImageData *p = m_pEditData->getImageDataFromNo(m_Index);
+    EditData::ImageData *p = m_pEditData->getImageDataFromNo(m_Index);
     if (!p)
     {
         return;
@@ -415,7 +415,7 @@ void CGridLabel::startDragAndDrop(QMouseEvent *ev)
 void CGridLabel::selectAll(void)
 {
     RectF r;
-    CEditData::ImageData *p = m_pEditData->getImageDataFromNo(m_Index);
+    EditData::ImageData *p = m_pEditData->getImageDataFromNo(m_Index);
     if (!p)
     {
         return;

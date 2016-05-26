@@ -1,7 +1,7 @@
 #include "objectscaleform.h"
 #include "ui_objectscaleform.h"
 
-ObjectScaleForm::ObjectScaleForm(CEditData *pEditData, QWidget *parent)
+ObjectScaleForm::ObjectScaleForm(EditData *pEditData, QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::ObjectScaleForm)
 {

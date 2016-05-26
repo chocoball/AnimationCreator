@@ -144,21 +144,21 @@ class Anm2DBin : public Anm2DBase
 public:
     Anm2DBin();
 
-    bool makeFromEditData(CEditData &rEditData);
-    bool makeFromFile(QByteArray &data, CEditData &rEditData);
+    bool makeFromEditData(EditData &rEditData);
+    bool makeFromFile(QByteArray &data, EditData &rEditData);
 
     QByteArray &getData() { return m_Data; }
 
 private:
-    bool makeHeader(QByteArray &rData, CEditData &rEditData, QList<QByteArray> &objectList, QList<QByteArray> &layerList, QList<QByteArray> &frameList);
+    bool makeHeader(QByteArray &rData, EditData &rEditData, QList<QByteArray> &objectList, QList<QByteArray> &layerList, QList<QByteArray> &frameList);
     bool makeObject(ObjectItem *pObj, QList<QByteArray> &objList, QList<QByteArray> &layerList, QList<QByteArray> &frameList);
     bool makeLayer(ObjectItem *pLayer, int *pLayerNo, Anm2DObject *pObjData, QList<QByteArray> &layerList, QList<QByteArray> &frameList, int parentNo);
-    bool makeImageList(QList<QByteArray> &rData, CEditData &rEditData);
+    bool makeImageList(QList<QByteArray> &rData, EditData &rEditData);
 
     bool addList(Anm2DHeader *pHeader);
-    bool addModel(CEditData &rEditData);
+    bool addModel(EditData &rEditData);
     bool addModel_Layer(QModelIndex &parent, int layerNo, CObjectModel *pModel);
-    bool addImageData(Anm2DHeader *pHeader, CEditData &rEditData);
+    bool addImageData(Anm2DHeader *pHeader, EditData &rEditData);
 
     Anm2DObject *search2DObjectFromName(Anm2DHeader *pHeader, QString name);
     Anm2DLayer *search2DLayerFromName(Anm2DHeader *pHeader, QString name);
@@ -176,29 +176,29 @@ class Anm2DXml : public Anm2DBase
 public:
     Anm2DXml(bool bSaveImage);
 
-    bool makeFromEditData(CEditData &rEditData);
-    bool makeFromFile(QDomDocument &xml, CEditData &rEditData, bool bAdd = false);
+    bool makeFromEditData(EditData &rEditData);
+    bool makeFromFile(QDomDocument &xml, EditData &rEditData, bool bAdd = false);
 
     QDomDocument &getData() { return m_Data; }
     void setProgress(QProgressDialog *p) { m_pProgress = p; }
 
 private:
-    bool makeHeader(QDomElement &element, QDomDocument &doc, CEditData &rEditData);
-    bool makeObject(QDomElement &element, QDomDocument &doc, CEditData &rEditData);
-    bool makeLayer(ObjectItem *root, QDomElement &element, QDomDocument &doc, CEditData &rEditData);
-    bool makeImage(QDomElement &element, QDomDocument &doc, CEditData &rEditData);
+    bool makeHeader(QDomElement &element, QDomDocument &doc, EditData &rEditData);
+    bool makeObject(QDomElement &element, QDomDocument &doc, EditData &rEditData);
+    bool makeLayer(ObjectItem *root, QDomElement &element, QDomDocument &doc, EditData &rEditData);
+    bool makeImage(QDomElement &element, QDomDocument &doc, EditData &rEditData);
 
-    void setProgMaximum(QProgressDialog *pProg, CEditData &rEditData);
+    void setProgMaximum(QProgressDialog *pProg, EditData &rEditData);
 
-    bool addElement_00001000(QDomNode &node, CEditData &rEditData);
-    bool addLayer_00001000(QDomNode &node, ObjectItem *pRoot, int maxLayerNum, CEditData &rEditData);
+    bool addElement_00001000(QDomNode &node, EditData &rEditData);
+    bool addLayer_00001000(QDomNode &node, ObjectItem *pRoot, int maxLayerNum, EditData &rEditData);
     bool addFrameData_00001000(QDomNode &node, ObjectItem *pItem, int maxFrameDataNum);
 
-    bool addElement_01000000(QDomNode &node, CEditData &rEditData);
-    bool addLayer_01000000(QDomNode &node, ObjectItem *pRoot, int maxLayerNum, CEditData &rEditData);
+    bool addElement_01000000(QDomNode &node, EditData &rEditData);
+    bool addLayer_01000000(QDomNode &node, ObjectItem *pRoot, int maxLayerNum, EditData &rEditData);
     bool addFrameData_01000000(QDomNode &node, ObjectItem *pItem, int maxFrameDataNum);
 
-    bool addImage(QDomNode &node, CEditData::ImageData &data);
+    bool addImage(QDomNode &node, EditData::ImageData &data);
 
     int getNewImageStartNo();
 
@@ -209,7 +209,7 @@ private:
     int m_ObjNum, m_ImageNum;
     bool m_bSaveImage;
     bool m_bAdd;
-    QList<CEditData::ImageData> m_oldImageDatas; // add 用
+    QList<EditData::ImageData> m_oldImageDatas; // add 用
 };
 
 // JSON形式
@@ -219,15 +219,15 @@ public:
     Anm2DJson(bool bFlat);
     ~Anm2DJson();
 
-    bool makeFromEditData(CEditData &rEditData);
-    bool makeFromFile(QString &, CEditData &) { return false; }
+    bool makeFromEditData(EditData &rEditData);
+    bool makeFromFile(QString &, EditData &) { return false; }
 
     QString getData() { return m_Data; }
 
 private:
     void addString(QString str, int tab = 0);
-    bool makeObject(CEditData &rEditData);
-    bool makeLayer(ObjectItem *pItem, CEditData &rEditData, int tab);
+    bool makeObject(EditData &rEditData);
+    bool makeLayer(ObjectItem *pItem, EditData &rEditData, int tab);
 
 private:
     bool m_bFlat;
@@ -246,9 +246,9 @@ public:
 
     bool makeFromEditDataTip(QString qsLabel, ObjectItem *pObj);
     void subUnusedVramSkip(ObjectItem *pObj);
-    bool makeFromEditData(CEditData &rEditData);
+    bool makeFromEditData(EditData &rEditData);
     void makeFromEditData2IncTip(QString qsLabel, ObjectItem *pObj);
-    bool makeFromEditData2Inc(CEditData &rEditData, QString qsFname);
+    bool makeFromEditData2Inc(EditData &rEditData, QString qsFname);
 
     QString getData() { return m_Data; }
 

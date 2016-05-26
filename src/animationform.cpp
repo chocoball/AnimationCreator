@@ -4,7 +4,7 @@
 #include "ui_animationform.h"
 #include <QStandardItemModel>
 
-AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget *parent)
+AnimationForm::AnimationForm(EditData *pImageData, CSettings *pSetting, QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::AnimationForm)
 {
@@ -45,7 +45,7 @@ AnimationForm::AnimationForm(CEditData *pImageData, CSettings *pSetting, QWidget
 
     for (int i = 0; i < m_pEditData->getImageDataListSize(); i++)
     {
-        CEditData::ImageData *p = m_pEditData->getImageData(i);
+        EditData::ImageData *p = m_pEditData->getImageData(i);
         if (!p)
         {
             continue;
@@ -289,7 +289,7 @@ void AnimationForm::closeEvent(QCloseEvent * /*event*/)
 
     for (int i = 0; i < m_pEditData->getImageDataListSize(); i++)
     {
-        CEditData::ImageData *p = m_pEditData->getImageData(i);
+        EditData::ImageData *p = m_pEditData->getImageData(i);
         if (p->nTexObj)
         {
             m_pGlWidget->deleteTexture(p->nTexObj);
@@ -1174,7 +1174,7 @@ void AnimationForm::slot_forwardFrameData(void)
     {
         return;
     }
-    for (int i = m_pEditData->getSelectFrame() + 1; i <= CEditData::kMaxFrame; i++)
+    for (int i = m_pEditData->getSelectFrame() + 1; i <= EditData::kMaxFrame; i++)
     {
         if (setSelectFrameDataFromFrame(i, m_pEditData->getSelIndex()))
         {
@@ -1318,7 +1318,7 @@ void AnimationForm::slot_addImage(int imageNo)
 
     for (int i = 0; i < m_pEditData->getImageDataListSize(); i++)
     {
-        CEditData::ImageData *p = m_pEditData->getImageData(i);
+        EditData::ImageData *p = m_pEditData->getImageData(i);
         if (!p)
         {
             continue;
@@ -1339,6 +1339,12 @@ void AnimationForm::slot_addImage(int imageNo)
 void AnimationForm::slot_delImage(int imageNo)
 {
     ui->comboBox_image_no->removeItem(imageNo);
+
+    EditData::ImageData *p = m_pEditData->getImageDataFromNo(imageNo);
+    if (p)
+    {
+        m_pGlWidget->deleteTexture(p->nTexObj);
+    }
     m_pEditData->removeImageDataByNo(imageNo);
     m_pGlWidget->update();
 }
@@ -1375,7 +1381,7 @@ void AnimationForm::slot_changeUVAnime(bool flag)
 // イメージ更新
 void AnimationForm::slot_modifiedImage(int index)
 {
-    CEditData::ImageData *p = m_pEditData->getImageData(index);
+    EditData::ImageData *p = m_pEditData->getImageData(index);
     if (!p)
     {
         return;
@@ -1613,7 +1619,7 @@ void AnimationForm::slot_changeLinearFilter(bool flag)
 
     for (int i = 0; i < m_pEditData->getImageDataListSize(); i++)
     {
-        CEditData::ImageData *p = m_pEditData->getImageData(i);
+        EditData::ImageData *p = m_pEditData->getImageData(i);
         if (!p)
         {
             continue;

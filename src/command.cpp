@@ -26,7 +26,7 @@ void CommandBase::error(QString title, QString text)
 /**
   アイテム追加 コマンド
   */
-Command_AddItem::Command_AddItem(CEditData *pEditData, QString &str, QModelIndex &parent)
+Command_AddItem::Command_AddItem(EditData *pEditData, QString &str, QModelIndex &parent)
     : CommandBase(QObject::trUtf8("オブジェクト追加"))
 {
     m_pEditData = pEditData;
@@ -67,7 +67,7 @@ void Command_AddItem::undo()
 /**
   アイテム削除 コマンド
   */
-Command_DelItem::Command_DelItem(CEditData *pEditData, QModelIndex &index)
+Command_DelItem::Command_DelItem(EditData *pEditData, QModelIndex &index)
     : CommandBase(QObject::trUtf8("オブジェクト削除"))
 {
     m_pEditData = pEditData;
@@ -124,7 +124,7 @@ void Command_DelItem::undo()
 /**
   フレームデータ追加コマンド
   */
-Command_AddFrameData::Command_AddFrameData(CEditData *pEditData,
+Command_AddFrameData::Command_AddFrameData(EditData *pEditData,
                                            QModelIndex &index,
                                            FrameData &data)
     : CommandBase(QObject::trUtf8("オブジェクト追加"))
@@ -189,7 +189,7 @@ void Command_AddFrameData::undo()
 /**
   フレームデータ削除コマンド
   */
-Command_DelFrameData::Command_DelFrameData(CEditData *pEditData,
+Command_DelFrameData::Command_DelFrameData(EditData *pEditData,
                                            QModelIndex &index,
                                            int frame)
     : CommandBase(QObject::trUtf8("フレームデータ削除"))
@@ -244,7 +244,7 @@ void Command_DelFrameData::undo()
 /**
   フレームデータ編集コマンド
   */
-Command_EditFrameData::Command_EditFrameData(CEditData *pEditData,
+Command_EditFrameData::Command_EditFrameData(EditData *pEditData,
                                              QModelIndex &index,
                                              int frame,
                                              FrameData &data,
@@ -320,7 +320,7 @@ void Command_EditFrameData::undo()
 /**
   オブジェクトコピーコマンド
   */
-Command_CopyObject::Command_CopyObject(CEditData *pEditData, QModelIndex &index)
+Command_CopyObject::Command_CopyObject(EditData *pEditData, QModelIndex &index)
     : CommandBase(QObject::trUtf8("オブジェクトコピー"))
 {
     m_pEditData = pEditData;
@@ -365,7 +365,7 @@ void Command_CopyObject::undo()
 /**
   レイヤコピー
   */
-Command_CopyIndex::Command_CopyIndex(CEditData *pEditData, int row, ObjectItem *pLayer, QModelIndex parent)
+Command_CopyIndex::Command_CopyIndex(EditData *pEditData, int row, ObjectItem *pLayer, QModelIndex parent)
     : CommandBase(QObject::trUtf8("レイヤコピー"))
 {
     m_pEditData = pEditData;
@@ -433,7 +433,7 @@ void Command_CopyIndex::undo()
 /**
   フレームデータ移動
   */
-Command_MoveFrameData::Command_MoveFrameData(CEditData *pEditData, QModelIndex &index, int prevFrame, int nextFrame)
+Command_MoveFrameData::Command_MoveFrameData(EditData *pEditData, QModelIndex &index, int prevFrame, int nextFrame)
     : CommandBase(QObject::trUtf8("フレームデータ移動"))
 {
     m_pEditData = pEditData;
@@ -531,7 +531,7 @@ void Command_MoveFrameData::undo()
 /**
   全フレームデータ移動
   */
-Command_MoveAllFrameData::Command_MoveAllFrameData(CEditData *pEditData, QModelIndex &index, int prevFrame, int nextFrame)
+Command_MoveAllFrameData::Command_MoveAllFrameData(EditData *pEditData, QModelIndex &index, int prevFrame, int nextFrame)
     : CommandBase(QObject::trUtf8("全フレームデータ移動"))
 {
     m_pEditData = pEditData;
@@ -642,7 +642,7 @@ void Command_MoveAllFrameData::restore_frameData(ObjectItem *pItem, int srcFrame
 /**
   ツリーアイテム上に移動
   */
-Command_MoveItemUp::Command_MoveItemUp(CEditData *pEditData, const QModelIndex &index)
+Command_MoveItemUp::Command_MoveItemUp(EditData *pEditData, const QModelIndex &index)
     : CommandBase(QObject::trUtf8("アイテム上移動"))
 {
     m_pEditData = pEditData;
@@ -685,7 +685,7 @@ void Command_MoveItemUp::undo()
 /**
   ツリーアイテム下に移動
   */
-Command_MoveItemDown::Command_MoveItemDown(CEditData *pEditData, const QModelIndex &index)
+Command_MoveItemDown::Command_MoveItemDown(EditData *pEditData, const QModelIndex &index)
     : CommandBase(QObject::trUtf8("アイテム下移動"))
 {
     m_pEditData = pEditData;
@@ -728,7 +728,7 @@ void Command_MoveItemDown::undo()
 /**
   UVスケール変更
   */
-Command_ScaleUv::Command_ScaleUv(CEditData *pEditData, double scale)
+Command_ScaleUv::Command_ScaleUv(EditData *pEditData, double scale)
     : CommandBase(QObject::trUtf8("UVスケール変更"))
 {
     m_pEditData = pEditData;
@@ -817,7 +817,7 @@ void Command_ScaleUv::save_framedata(ObjectItem *pItem)
 /**
   フレームスケール変更
   */
-Command_ScaleFrame::Command_ScaleFrame(CEditData *pEditData, double scale)
+Command_ScaleFrame::Command_ScaleFrame(EditData *pEditData, double scale)
     : CommandBase(QObject::trUtf8("フレームスケール変更"))
 {
     m_pEditData = pEditData;
@@ -898,7 +898,7 @@ void Command_ScaleFrame::save_framedata(ObjectItem *pItem)
 /**
   全フレームデータペースト
   */
-Command_PasteAllFrame::Command_PasteAllFrame(CEditData *pEditData, QModelIndex index, int frame)
+Command_PasteAllFrame::Command_PasteAllFrame(EditData *pEditData, QModelIndex index, int frame)
     : CommandBase(QObject::trUtf8("全フレームデータペースト"))
 {
     m_pEditData = pEditData;
@@ -987,7 +987,7 @@ void Command_PasteAllFrame::undo()
 /**
   全フレームデータ削除
   */
-Command_DeleteAllFrame::Command_DeleteAllFrame(CEditData *pEditData, QModelIndex index, int frame)
+Command_DeleteAllFrame::Command_DeleteAllFrame(EditData *pEditData, QModelIndex index, int frame)
     : CommandBase(QObject::trUtf8("全フレームデータ削除"))
 {
     m_pEditData = pEditData;
@@ -1050,7 +1050,7 @@ void Command_DeleteAllFrame::save_framedata(ObjectItem *pItem)
     }
 }
 
-Command_PasteLayer::Command_PasteLayer(CEditData *pEditData, QModelIndex parentIndex, ObjectItem *pItem)
+Command_PasteLayer::Command_PasteLayer(EditData *pEditData, QModelIndex parentIndex, ObjectItem *pItem)
     : CommandBase(QObject::trUtf8("レイヤペースト"))
 {
     m_pEditData = pEditData;

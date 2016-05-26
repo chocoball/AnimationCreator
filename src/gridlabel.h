@@ -11,7 +11,7 @@ class CGridLabel : public QLabel
     Q_OBJECT
 
 public:
-    explicit CGridLabel(CEditData *pEditData, int nTabIndex, QWidget *parent = 0);
+    explicit CGridLabel(EditData *pEditData, int nTabIndex, QWidget *parent = 0);
 
     void setScale(int scale)
     {
@@ -60,7 +60,7 @@ private:
     bool bCatching;         // 範囲選択中ならtrue
     bool m_bRectMove;       // 範囲移動してるならtrue
     QPoint m_MovePos;       // 範囲移動中の座標
-    CEditData *m_pEditData; // 編集データ
+    EditData *m_pEditData; // 編集データ
 
     QPoint m_GridSize; // グリッドのサイズ
     bool m_bCatchable; // 範囲選択できるならtrue

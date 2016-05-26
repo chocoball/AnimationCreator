@@ -3,7 +3,7 @@
 #define kFrameNumWidth 20
 #define kDataSubNumWidth 20
 
-CurveGraphLabel::CurveGraphLabel(CEditData *pEditData, QWidget *parent)
+CurveGraphLabel::CurveGraphLabel(EditData *pEditData, QWidget *parent)
     : QLabel(parent)
 {
     m_pEditData = pEditData;

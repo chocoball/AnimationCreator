@@ -4,7 +4,7 @@
 #include <QSplitter>
 #include <QStringListModel>
 
-CurveEditorForm::CurveEditorForm(CEditData *pEditData, CSettings *pSetting, QWidget *parent)
+CurveEditorForm::CurveEditorForm(EditData *pEditData, CSettings *pSetting, QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::CurveEditorForm)
 {

@@ -12,7 +12,7 @@ Anm2DBin::Anm2DBin()
 }
 
 // 作成中のデータをアニメデータに変換
-bool Anm2DBin::makeFromEditData(CEditData &rEditData)
+bool Anm2DBin::makeFromEditData(EditData &rEditData)
 {
     QByteArray header;
     QList<QByteArray> objectList;
@@ -94,7 +94,7 @@ bool Anm2DBin::makeFromEditData(CEditData &rEditData)
 }
 
 // アニメファイルから作成中データへ変換
-bool Anm2DBin::makeFromFile(QByteArray &data, CEditData &rEditData)
+bool Anm2DBin::makeFromFile(QByteArray &data, EditData &rEditData)
 {
     m_Data = data;
 
@@ -131,7 +131,7 @@ bool Anm2DBin::makeFromFile(QByteArray &data, CEditData &rEditData)
 }
 
 // ヘッダ作成
-bool Anm2DBin::makeHeader(QByteArray &rData, CEditData &rEditData, QList<QByteArray> &objectList, QList<QByteArray> &layerList, QList<QByteArray> &frameList)
+bool Anm2DBin::makeHeader(QByteArray &rData, EditData &rEditData, QList<QByteArray> &objectList, QList<QByteArray> &layerList, QList<QByteArray> &frameList)
 {
     int blockNum = 0;
     blockNum += objectList.size();
@@ -254,13 +254,13 @@ bool Anm2DBin::makeLayer(ObjectItem *pLayer,
 }
 
 // イメージデータ作成
-bool Anm2DBin::makeImageList(QList<QByteArray> &rData, CEditData &rEditData)
+bool Anm2DBin::makeImageList(QList<QByteArray> &rData, EditData &rEditData)
 {
     int imageNum = rEditData.getImageDataListSize();
 
     for (int i = 0; i < imageNum; i++)
     {
-        CEditData::ImageData *p = rEditData.getImageData(i);
+        EditData::ImageData *p = rEditData.getImageData(i);
         if (!p)
         {
             continue;
@@ -315,7 +315,7 @@ bool Anm2DBin::addList(Anm2DHeader *pHeader)
     return true;
 }
 
-bool Anm2DBin::addModel(CEditData &rEditData)
+bool Anm2DBin::addModel(EditData &rEditData)
 {
     CObjectModel *pModel = rEditData.getObjectModel();
 
@@ -398,9 +398,9 @@ bool Anm2DBin::addModel_Layer(QModelIndex &parent, int layerNo, CObjectModel *pM
 }
 
 // 編集データにイメージを追加
-bool Anm2DBin::addImageData(Anm2DHeader *pHeader, CEditData &rEditData)
+bool Anm2DBin::addImageData(Anm2DHeader *pHeader, EditData &rEditData)
 {
-    QList<CEditData::ImageData> data;
+    QList<EditData::ImageData> data;
     for (int i = 0; i < pHeader->nBlockNum; i++)
     {
         Anm2DBlockHeader *p = (Anm2DBlockHeader *)LP_ADD(pHeader, pHeader->nBlockOffset[i]);
@@ -430,7 +430,7 @@ bool Anm2DBin::addImageData(Anm2DHeader *pHeader, CEditData &rEditData)
 
                 qDebug("w:%d h:%d, %d %d", image.width(), image.height(), pImage->nWidth, pImage->nHeight);
 
-                CEditData::ImageData ImageData;
+                EditData::ImageData ImageData;
                 ImageData.Image = image;
                 ImageData.nTexObj = 0;
                 ImageData.fileName = path;
@@ -507,7 +507,7 @@ Anm2DXml::Anm2DXml(bool bSaveImage)
 }
 
 // 作成中のデータをアニメデータに変換
-bool Anm2DXml::makeFromEditData(CEditData &rEditData)
+bool Anm2DXml::makeFromEditData(EditData &rEditData)
 {
     QDomDocument doc(kAnmXML_ID_Anm2D);
     QDomElement root = doc.createElement(kAnmXML_ID_Root);
@@ -534,7 +534,7 @@ bool Anm2DXml::makeFromEditData(CEditData &rEditData)
 }
 
 // アニメファイルから作成中データへ変換
-bool Anm2DXml::makeFromFile(QDomDocument &xml, CEditData &rEditData, bool bAdd)
+bool Anm2DXml::makeFromFile(QDomDocument &xml, EditData &rEditData, bool bAdd)
 {
     m_bAdd = bAdd;
     m_Data = xml;
@@ -640,7 +640,7 @@ bool Anm2DXml::makeFromFile(QDomDocument &xml, CEditData &rEditData, bool bAdd)
 }
 
 // ヘッダエレメント作成
-bool Anm2DXml::makeHeader(QDomElement &element, QDomDocument &doc, CEditData &rEditData)
+bool Anm2DXml::makeHeader(QDomElement &element, QDomDocument &doc, EditData &rEditData)
 {
     Q_UNUSED(doc);
 
@@ -655,7 +655,7 @@ bool Anm2DXml::makeHeader(QDomElement &element, QDomDocument &doc, CEditData &rE
 }
 
 // オブジェクトエレメント作成
-bool Anm2DXml::makeObject(QDomElement &element, QDomDocument &doc, CEditData &rEditData)
+bool Anm2DXml::makeObject(QDomElement &element, QDomDocument &doc, EditData &rEditData)
 {
     CObjectModel *pModel = rEditData.getObjectModel();
     ObjectItem *pRoot = pModel->getItemFromIndex(QModelIndex());
@@ -682,7 +682,7 @@ bool Anm2DXml::makeObject(QDomElement &element, QDomDocument &doc, CEditData &rE
     return true;
 }
 
-bool Anm2DXml::makeLayer(ObjectItem *root, QDomElement &element, QDomDocument &doc, CEditData &rEditData)
+bool Anm2DXml::makeLayer(ObjectItem *root, QDomElement &element, QDomDocument &doc, EditData &rEditData)
 {
     QDomElement elmLayer = doc.createElement(kAnmXML_ID_Layer);
     elmLayer.setAttribute(kAnmXML_Attr_Name, QString(root->getName().toUtf8()));
@@ -780,12 +780,12 @@ bool Anm2DXml::makeLayer(ObjectItem *root, QDomElement &element, QDomDocument &d
 }
 
 // イメージエレメント作成
-bool Anm2DXml::makeImage(QDomElement &element, QDomDocument &doc, CEditData &rEditData)
+bool Anm2DXml::makeImage(QDomElement &element, QDomDocument &doc, EditData &rEditData)
 {
     for (int i = 0; i < rEditData.getImageDataListSize(); i++)
     {
 #if 1
-        CEditData::ImageData *p = rEditData.getImageData(i);
+        EditData::ImageData *p = rEditData.getImageData(i);
         if (!p)
         {
             continue;
@@ -869,7 +869,7 @@ bool Anm2DXml::makeImage(QDomElement &element, QDomDocument &doc, CEditData &rEd
 }
 
 // プログレスバーの最大値セット
-void Anm2DXml::setProgMaximum(QProgressDialog *pProg, CEditData & /*rEditData*/)
+void Anm2DXml::setProgMaximum(QProgressDialog *pProg, EditData & /*rEditData*/)
 {
     if (!pProg)
     {
@@ -904,11 +904,11 @@ void Anm2DXml::setProgMaximum(QProgressDialog *pProg, CEditData & /*rEditData*/)
 }
 
 // エレメント追加
-bool Anm2DXml::addElement_00001000(QDomNode &node, CEditData &rEditData)
+bool Anm2DXml::addElement_00001000(QDomNode &node, EditData &rEditData)
 {
     CObjectModel *pModel = rEditData.getObjectModel();
 
-    QList<CEditData::ImageData> ImageData;
+    QList<EditData::ImageData> ImageData;
 
     while (!node.isNull())
     {
@@ -948,7 +948,7 @@ bool Anm2DXml::addElement_00001000(QDomNode &node, CEditData &rEditData)
             }
             int no = nodeMap.namedItem(kAnmXML_Attr_No).toAttr().value().toInt();
 
-            CEditData::ImageData data;
+            EditData::ImageData data;
             QDomNode child = node.firstChild();
             if (!addImage(child, data))
             {
@@ -973,7 +973,7 @@ bool Anm2DXml::addElement_00001000(QDomNode &node, CEditData &rEditData)
 }
 
 // レイヤデータを追加
-bool Anm2DXml::addLayer_00001000(QDomNode &node, ObjectItem *pRoot, int maxLayerNum, CEditData &rEditData)
+bool Anm2DXml::addLayer_00001000(QDomNode &node, ObjectItem *pRoot, int maxLayerNum, EditData &rEditData)
 {
     CObjectModel *pModel = rEditData.getObjectModel();
 
@@ -1206,11 +1206,11 @@ bool Anm2DXml::addFrameData_00001000(QDomNode &node, ObjectItem *pItem, int maxF
     return true;
 }
 
-bool Anm2DXml::addElement_01000000(QDomNode &node, CEditData &rEditData)
+bool Anm2DXml::addElement_01000000(QDomNode &node, EditData &rEditData)
 {
     CObjectModel *pModel = rEditData.getObjectModel();
 
-    QList<CEditData::ImageData> ImageData;
+    QList<EditData::ImageData> ImageData;
     int objNum = 0;
 
     while (!node.isNull())
@@ -1256,7 +1256,7 @@ bool Anm2DXml::addElement_01000000(QDomNode &node, CEditData &rEditData)
             }
             int no = nodeMap.namedItem(kAnmXML_Attr_No).toAttr().value().toInt();
 
-            CEditData::ImageData data;
+            EditData::ImageData data;
             QDomNode child = node.firstChild();
             if (!addImage(child, data))
             {
@@ -1280,7 +1280,7 @@ bool Anm2DXml::addElement_01000000(QDomNode &node, CEditData &rEditData)
     return true;
 }
 
-bool Anm2DXml::addLayer_01000000(QDomNode &node, ObjectItem *pRoot, int maxLayerNum, CEditData &rEditData)
+bool Anm2DXml::addLayer_01000000(QDomNode &node, ObjectItem *pRoot, int maxLayerNum, EditData &rEditData)
 {
     CObjectModel *pModel = rEditData.getObjectModel();
 
@@ -1339,7 +1339,7 @@ bool Anm2DXml::addFrameData_01000000(QDomNode & /*node*/, ObjectItem * /*pItem*/
 }
 
 // イメージ追加
-bool Anm2DXml::addImage(QDomNode &node, CEditData::ImageData &data)
+bool Anm2DXml::addImage(QDomNode &node, EditData::ImageData &data)
 {
     bool bFindData = false;
 
@@ -1464,7 +1464,7 @@ Anm2DJson::~Anm2DJson()
     }
 }
 
-bool Anm2DJson::makeFromEditData(CEditData &rEditData)
+bool Anm2DJson::makeFromEditData(EditData &rEditData)
 {
     m_pModel = rEditData.getObjectModel();
     if (m_bFlat)
@@ -1496,7 +1496,7 @@ void Anm2DJson::addString(QString str, int tab)
     m_Data += t + str;
 }
 
-bool Anm2DJson::makeObject(CEditData &rEditData)
+bool Anm2DJson::makeObject(EditData &rEditData)
 {
     ObjectItem *pRoot = m_pModel->getItemFromIndex(QModelIndex());
     int tab = 1;
@@ -1532,7 +1532,7 @@ bool Anm2DJson::makeObject(CEditData &rEditData)
     return true;
 }
 
-bool Anm2DJson::makeLayer(ObjectItem *pItem, CEditData &rEditData, int tab)
+bool Anm2DJson::makeLayer(ObjectItem *pItem, EditData &rEditData, int tab)
 {
     const QList<FrameData> &datas = pItem->getFrameData();
 
@@ -1545,7 +1545,7 @@ bool Anm2DJson::makeLayer(ObjectItem *pItem, CEditData &rEditData, int tab)
     {
         const FrameData &data = datas.at(i);
 
-        CEditData::ImageData *pImageData = rEditData.getImageDataFromNo(data.nImage);
+        EditData::ImageData *pImageData = rEditData.getImageDataFromNo(data.nImage);
         if (!pImageData)
         {
             continue;
@@ -1763,7 +1763,7 @@ void Anm2DAsm::subUnusedVramSkip(ObjectItem *pObj)
     return;
 }
 
-bool Anm2DAsm::makeFromEditData(CEditData &rEditData)
+bool Anm2DAsm::makeFromEditData(EditData &rEditData)
 {
     m_pModel = rEditData.getObjectModel();
     if (m_bFlat)
@@ -1786,7 +1786,7 @@ bool Anm2DAsm::makeFromEditData(CEditData &rEditData)
             {
                 return false;
             }
-            CEditData::ImageData *p = rEditData.getImageData(i);
+            EditData::ImageData *p = rEditData.getImageData(i);
             if (!p)
                 continue;
             QFileInfo fi(p->fileName);
@@ -1838,7 +1838,7 @@ bool Anm2DAsm::makeFromEditData(CEditData &rEditData)
         }
         if (m_bUnused[i])
             continue;
-        CEditData::ImageData *p = rEditData.getImageData(i);
+        EditData::ImageData *p = rEditData.getImageData(i);
         if (!p)
             continue;
         QFileInfo fi(p->fileName);
@@ -1945,7 +1945,7 @@ void Anm2DAsm::makeFromEditData2IncTip(QString qsLabel, ObjectItem *pObj)
     }
 }
 
-bool Anm2DAsm::makeFromEditData2Inc(CEditData &rEditData, QString qsFname)
+bool Anm2DAsm::makeFromEditData2Inc(EditData &rEditData, QString qsFname)
 {
     qsFname = QFileInfo(qsFname).baseName().toUpper();
     m_pModel = rEditData.getObjectModel();

@@ -112,7 +112,7 @@ int Application::execute()
         }
         case kExecType_OutputAsm:
         {
-            CEditData editData;
+            EditData editData;
             { // 入力ファイル読み込み
                 Anm2DXml data(false);
                 QFile file(m_inputFile);

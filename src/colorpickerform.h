@@ -15,7 +15,7 @@ class ColorPickerForm : public QWidget
     Q_OBJECT
 
 public:
-    explicit ColorPickerForm(CEditData *pEditData, QWidget *parent = 0);
+    explicit ColorPickerForm(EditData *pEditData, QWidget *parent = 0);
     ~ColorPickerForm();
 
 signals:
@@ -35,7 +35,7 @@ private:
 
 private:
     Ui::ColorPickerForm *ui;
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
 
     int m_selectColor;
     QPoint m_selectBright;

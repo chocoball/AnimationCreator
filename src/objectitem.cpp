@@ -155,7 +155,7 @@ int ObjectItem::getMaxFrameNum(bool bRecv)
 
     for (int i = 0; i < m_frameDatas.size(); i++)
     {
-        if (m_frameDatas.at(i).frame > CEditData::kMaxFrame)
+        if (m_frameDatas.at(i).frame > EditData::kMaxFrame)
         {
             continue;
         }
@@ -297,7 +297,7 @@ FrameData *ObjectItem::getFrameDataFromPrevFrame(int frame, bool bRepeat)
                 return NULL;
             }
 
-            frame += CEditData::kMaxFrame;
+            frame += EditData::kMaxFrame;
         }
         FrameData *pData = getFrameDataPtr(frame);
         if (pData)

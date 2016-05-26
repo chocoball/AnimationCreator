@@ -3,7 +3,7 @@
 #include <QComboBox>
 #include <QGridLayout>
 
-LoupeWindow::LoupeWindow(CEditData *pEditData, CSettings *pSetting, QWidget *parent)
+LoupeWindow::LoupeWindow(EditData *pEditData, CSettings *pSetting, QWidget *parent)
     : QWidget(parent)
 {
     m_pEditData = pEditData;

@@ -15,7 +15,7 @@ class ObjectScaleForm : public QWidget
     Q_OBJECT
 
 public:
-    explicit ObjectScaleForm(CEditData *pEditData, QWidget *parent = 0);
+    explicit ObjectScaleForm(EditData *pEditData, QWidget *parent = 0);
     ~ObjectScaleForm();
 
 public slots:
@@ -23,7 +23,7 @@ public slots:
 
 private:
     Ui::ObjectScaleForm *ui;
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
 };
 
 #endif // OBJECTSCALEFORM_H

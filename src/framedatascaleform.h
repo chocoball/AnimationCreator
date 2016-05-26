@@ -15,7 +15,7 @@ class FrameDataScaleForm : public QWidget
     Q_OBJECT
 
 public:
-    explicit FrameDataScaleForm(CEditData *pEditData, QWidget *parent = 0);
+    explicit FrameDataScaleForm(EditData *pEditData, QWidget *parent = 0);
     ~FrameDataScaleForm();
 
 public slots:
@@ -23,7 +23,7 @@ public slots:
 
 private:
     Ui::FrameDataScaleForm *ui;
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
 };
 
 #endif // FRAMEDATASCALEFORM_H

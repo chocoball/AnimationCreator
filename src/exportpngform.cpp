@@ -1,14 +1,14 @@
 #include "exportpngform.h"
 #include "ui_exportpngform.h"
 
-ExportPNGForm::ExportPNGForm(CEditData *pEditData, CSettings *pSetting, QWidget *parent)
+ExportPNGForm::ExportPNGForm(EditData *pEditData, CSettings *pSetting, QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::ExportPNGForm)
 {
     m_pEditData = pEditData;
     m_pSetting = pSetting;
 
-    m_pEditData->setEditMode(CEditData::kEditMode_ExportPNG);
+    m_pEditData->setEditMode(EditData::kEditMode_ExportPNG);
     ui->setupUi(this);
 
     setWindowTitle(trUtf8("連番PNG 保存"));
@@ -28,7 +28,7 @@ ExportPNGForm::ExportPNGForm(CEditData *pEditData, CSettings *pSetting, QWidget 
 
 ExportPNGForm::~ExportPNGForm()
 {
-    m_pEditData->setEditMode(CEditData::kEditMode_Animation);
+    m_pEditData->setEditMode(EditData::kEditMode_Animation);
     delete ui;
 }
 

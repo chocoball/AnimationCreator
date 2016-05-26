@@ -21,7 +21,7 @@ class AnimationForm : public QWidget
     Q_OBJECT
 
 public:
-    explicit AnimationForm(CEditData *pImageData,
+    explicit AnimationForm(EditData *pImageData,
                            CSettings *pSetting,
                            QWidget *parent = 0);
     ~AnimationForm();
@@ -181,7 +181,7 @@ private:
     Ui::AnimationForm *ui;
 
     AnimeGLWidget *m_pGlWidget;
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
     CSettings *m_pSetting;
     int m_ObjIndex;
 

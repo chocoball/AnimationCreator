@@ -6,7 +6,7 @@
 #include <QUndoCommand>
 #include <QtGui>
 
-class CEditData;
+class EditData;
 
 class CommandBase : public QUndoCommand
 {
@@ -26,7 +26,7 @@ protected:
 class Command_AddItem : public CommandBase
 {
 public:
-    Command_AddItem(CEditData *pEditData, QString &str, QModelIndex &parent);
+    Command_AddItem(EditData *pEditData, QString &str, QModelIndex &parent);
 
     void redo();
     void undo();
@@ -34,7 +34,7 @@ public:
     QModelIndex getIndex() { return m_index; }
 
 private:
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
     QString m_str;
     QModelIndex m_index;
     int m_parentRow;
@@ -45,13 +45,13 @@ private:
 class Command_DelItem : public CommandBase
 {
 public:
-    Command_DelItem(CEditData *pEditData, QModelIndex &index);
+    Command_DelItem(EditData *pEditData, QModelIndex &index);
 
     void redo();
     void undo();
 
 private:
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
     int m_row;
     int m_parentRow;
     int m_relRow;
@@ -62,7 +62,7 @@ private:
 class Command_AddFrameData : public CommandBase
 {
 public:
-    Command_AddFrameData(CEditData *pEditData,
+    Command_AddFrameData(EditData *pEditData,
                          QModelIndex &index,
                          FrameData &data);
 
@@ -70,7 +70,7 @@ public:
     void undo();
 
 private:
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
     CObjectModel *m_pObjModel;
     FrameData m_frameData;
     int m_row;
@@ -81,14 +81,14 @@ private:
 class Command_DelFrameData : public CommandBase
 {
 public:
-    Command_DelFrameData(CEditData *pEditData,
+    Command_DelFrameData(EditData *pEditData,
                          QModelIndex &index,
                          int frame);
     void redo();
     void undo();
 
 private:
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
     CObjectModel *m_pObjModel;
     FrameData m_FrameData;
     int m_row;
@@ -98,7 +98,7 @@ private:
 class Command_EditFrameData : public CommandBase
 {
 public:
-    Command_EditFrameData(CEditData *pEditData,
+    Command_EditFrameData(EditData *pEditData,
                           QModelIndex &index,
                           int frame,
                           FrameData &data,
@@ -108,7 +108,7 @@ public:
     void undo();
 
 private:
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
     CObjectModel *m_pObjModel;
     FrameData m_FrameData, m_OldFrameData;
     QWidget *m_pAnimeWidget;
@@ -122,13 +122,13 @@ private:
 class Command_CopyObject : public CommandBase
 {
 public:
-    Command_CopyObject(CEditData *pEditData, QModelIndex &index);
+    Command_CopyObject(EditData *pEditData, QModelIndex &index);
 
     void redo();
     void undo();
 
 private:
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
     ObjectItem *m_pObject;
     int m_row;
 };
@@ -137,14 +137,14 @@ private:
 class Command_CopyIndex : public CommandBase
 {
 public:
-    Command_CopyIndex(CEditData *pEditData, int row, ObjectItem *pLayer, QModelIndex parent);
+    Command_CopyIndex(EditData *pEditData, int row, ObjectItem *pLayer, QModelIndex parent);
     ~Command_CopyIndex();
 
     void redo();
     void undo();
 
 private:
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
     int m_row, m_relRow, m_parentRow;
     ObjectItem *m_pLayer;
 };
@@ -153,13 +153,13 @@ private:
 class Command_MoveFrameData : public CommandBase
 {
 public:
-    Command_MoveFrameData(CEditData *pEditData, QModelIndex &index, int prevFrame, int nextFrame);
+    Command_MoveFrameData(EditData *pEditData, QModelIndex &index, int prevFrame, int nextFrame);
 
     void redo();
     void undo();
 
 private:
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
     int m_row;
 
     int m_srcFrame, m_dstFrame;
@@ -170,7 +170,7 @@ private:
 class Command_MoveAllFrameData : public CommandBase
 {
 public:
-    Command_MoveAllFrameData(CEditData *pEditData, QModelIndex &index, int prevFrame, int nextFrame);
+    Command_MoveAllFrameData(EditData *pEditData, QModelIndex &index, int prevFrame, int nextFrame);
 
     void redo();
     void undo();
@@ -180,7 +180,7 @@ private:
     void restore_frameData(ObjectItem *pItem, int srcFrame, int dstFrame);
 
 private:
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
     int m_row;
 
     int m_srcFrame, m_dstFrame;
@@ -191,13 +191,13 @@ private:
 class Command_MoveItemUp : public CommandBase
 {
 public:
-    Command_MoveItemUp(CEditData *pEditData, const QModelIndex &index);
+    Command_MoveItemUp(EditData *pEditData, const QModelIndex &index);
 
     void redo();
     void undo();
 
 private:
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
     QModelIndex m_index;
     ObjectItem *m_pItem;
 };
@@ -206,13 +206,13 @@ private:
 class Command_MoveItemDown : public CommandBase
 {
 public:
-    Command_MoveItemDown(CEditData *pEditData, const QModelIndex &index);
+    Command_MoveItemDown(EditData *pEditData, const QModelIndex &index);
 
     void redo();
     void undo();
 
 private:
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
     QModelIndex m_index;
     ObjectItem *m_pItem;
 };
@@ -221,7 +221,7 @@ private:
 class Command_ScaleUv : public CommandBase
 {
 public:
-    Command_ScaleUv(CEditData *pEditData, double scale);
+    Command_ScaleUv(EditData *pEditData, double scale);
 
     void redo();
     void undo();
@@ -230,7 +230,7 @@ private:
     void save_framedata(ObjectItem *pItem);
 
 private:
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
     QList<QPair<int, FrameData> > m_changeFrameDatas;
     double m_scale;
 };
@@ -239,7 +239,7 @@ private:
 class Command_ScaleFrame : public CommandBase
 {
 public:
-    Command_ScaleFrame(CEditData *pEditData, double scale);
+    Command_ScaleFrame(EditData *pEditData, double scale);
 
     void redo();
     void undo();
@@ -248,7 +248,7 @@ private:
     void save_framedata(ObjectItem *pItem);
 
 private:
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
     QList<QPair<int, QList<FrameData> > > m_changeFrameDatas;
     double m_scale;
 };
@@ -257,14 +257,14 @@ private:
 class Command_PasteAllFrame : public CommandBase
 {
 public:
-    Command_PasteAllFrame(CEditData *pEditData, QModelIndex index, int frame);
+    Command_PasteAllFrame(EditData *pEditData, QModelIndex index, int frame);
 
     void redo();
     void undo();
 
 private:
 private:
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
     int m_objRow;
     int m_frame;
     int m_copyObjRow;
@@ -277,7 +277,7 @@ private:
 class Command_DeleteAllFrame : public CommandBase
 {
 public:
-    Command_DeleteAllFrame(CEditData *pEditData, QModelIndex index, int frame);
+    Command_DeleteAllFrame(EditData *pEditData, QModelIndex index, int frame);
 
     void redo();
     void undo();
@@ -286,7 +286,7 @@ private:
     void save_framedata(ObjectItem *pItem);
 
 private:
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
     int m_objRow;
     int m_frame;
 
@@ -297,14 +297,14 @@ private:
 class Command_PasteLayer : public CommandBase
 {
 public:
-    Command_PasteLayer(CEditData *pEditData, QModelIndex parentIndex, ObjectItem *pItem);
+    Command_PasteLayer(EditData *pEditData, QModelIndex parentIndex, ObjectItem *pItem);
     ~Command_PasteLayer();
 
     void redo();
     void undo();
 
 private:
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
     int m_parentRow, m_row;
     ObjectItem *m_pItem;
 };

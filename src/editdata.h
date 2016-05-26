@@ -8,7 +8,7 @@
 #include <QUndoStack>
 #include <QtOpenGL>
 
-class CEditData
+class EditData
 {
 public:
     typedef struct
@@ -36,8 +36,8 @@ public:
     };
 
 public:
-    CEditData();
-    ~CEditData();
+    EditData();
+    ~EditData();
 
     void setImageData(QList<ImageData> &data) { m_ImageDataList = data; }
     void addImageData(ImageData &data) { m_ImageDataList.append(data); }
@@ -72,11 +72,6 @@ public:
                 continue;
             }
 
-            if (m_ImageDataList[i].nTexObj)
-            {
-                // TODO:
-                //                glDeleteTextures(1, &m_ImageDataList[i].nTexObj);
-            }
             m_ImageDataList.removeAt(i);
             return;
         }

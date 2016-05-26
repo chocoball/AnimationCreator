@@ -12,7 +12,7 @@ class LoupeWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LoupeWindow(CEditData *pEditData, CSettings *pSetting, QWidget *parent = 0);
+    explicit LoupeWindow(EditData *pEditData, CSettings *pSetting, QWidget *parent = 0);
 
     bool keyPress(QKeyEvent *event);
 
@@ -29,7 +29,7 @@ protected:
     void toggleLock(void);
 
 private:
-    CEditData *m_pEditData;
+    EditData *m_pEditData;
     CSettings *m_pSetting;
     QLabel *m_pLabel;
     MainWindow *m_pMainWindow;
