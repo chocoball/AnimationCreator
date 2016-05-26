@@ -21,7 +21,7 @@ class FileTab : public QWidget
 {
     Q_OBJECT
 public:
-    explicit FileTab(CSettings *pSetting, QWidget *parent = 0);
+    explicit FileTab(Settings *pSetting, QWidget *parent = 0);
     ~FileTab();
 
 public slots:
@@ -33,7 +33,7 @@ public slots:
 
 private:
     Ui::OptionFileTab *ui;
-    CSettings *m_pSetting;
+    Settings *m_pSetting;
 };
 
 // アニメーションウィンドウ タブ
@@ -41,7 +41,7 @@ class AnimeWindowTab : public QWidget
 {
     Q_OBJECT
 public:
-    explicit AnimeWindowTab(CSettings *pSetting, AnimeGLWidget *pGlWidget, QWidget *parent = 0);
+    explicit AnimeWindowTab(Settings *pSetting, AnimeGLWidget *pGlWidget, QWidget *parent = 0);
     ~AnimeWindowTab();
 
 public slots:
@@ -60,7 +60,7 @@ public slots:
 
 private:
     Ui::OptionAnimationTab *ui;
-    CSettings *m_pSetting;
+    Settings *m_pSetting;
     AnimeGLWidget *m_pGlWidget;
 };
 
@@ -69,13 +69,13 @@ class ImageWindowTab : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ImageWindowTab(CSettings *pSetting, QWidget *parent = 0);
+    explicit ImageWindowTab(Settings *pSetting, QWidget *parent = 0);
 
 public slots:
     void slot_changeBGColor(QString);
 
 private:
-    CSettings *m_pSetting;
+    Settings *m_pSetting;
 };
 
 // キーボード設定タブ
@@ -83,7 +83,7 @@ class KeyboardTab : public QWidget
 {
     Q_OBJECT
 public:
-    explicit KeyboardTab(CSettings *pSetting, QWidget *parent = 0);
+    explicit KeyboardTab(Settings *pSetting, QWidget *parent = 0);
     ~KeyboardTab();
 
 public slots:
@@ -101,7 +101,7 @@ private:
 
 private:
     Ui::KeyboardTab *ui;
-    CSettings *m_pSetting;
+    Settings *m_pSetting;
     KeyboardModel *m_pKeyModel;
     QModelIndex m_selIndex;
 
@@ -113,7 +113,7 @@ class OptionDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit OptionDialog(CSettings *pSetting, AnimeGLWidget *pGlWidget, QWidget *parent = 0);
+    explicit OptionDialog(Settings *pSetting, AnimeGLWidget *pGlWidget, QWidget *parent = 0);
 
 signals:
 

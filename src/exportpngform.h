@@ -16,7 +16,7 @@ class ExportPNGForm : public QWidget
     Q_OBJECT
 
 public:
-    explicit ExportPNGForm(EditData *pEditData, CSettings *pSetting, QWidget *parent = 0);
+    explicit ExportPNGForm(EditData *pEditData, Settings *pSetting, QWidget *parent = 0);
     ~ExportPNGForm();
 
 signals:
@@ -43,7 +43,7 @@ public slots:
 private:
     Ui::ExportPNGForm *ui;
     EditData *m_pEditData;
-    CSettings *m_pSetting;
+    Settings *m_pSetting;
 };
 
 #endif // EXPORTPNGFORM_H

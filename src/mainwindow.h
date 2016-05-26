@@ -136,7 +136,7 @@ private:
     // ---- 編集データ
 
     // 設定 ----
-    CSettings setting;
+    Settings setting;
     // ---- 設定
 
     // アクション ----

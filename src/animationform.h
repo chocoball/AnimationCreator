@@ -22,7 +22,7 @@ class AnimationForm : public QWidget
 
 public:
     explicit AnimationForm(EditData *pImageData,
-                           CSettings *pSetting,
+                           Settings *pSetting,
                            QWidget *parent = 0);
     ~AnimationForm();
 
@@ -182,7 +182,7 @@ private:
 
     AnimeGLWidget *m_pGlWidget;
     EditData *m_pEditData;
-    CSettings *m_pSetting;
+    Settings *m_pSetting;
     int m_ObjIndex;
 
     QAction *m_pActTreeViewAdd;

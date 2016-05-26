@@ -4,7 +4,7 @@
 
 #define kPathSelectLen 5.0
 
-AnimeGLWidget::AnimeGLWidget(EditData *editData, CSettings *pSetting, QWidget *parent)
+AnimeGLWidget::AnimeGLWidget(EditData *editData, Settings *pSetting, QWidget *parent)
     : QOpenGLWidget(parent)
     , m_pTextureCacheManager(new TextureCacheManager())
 {

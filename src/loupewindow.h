@@ -12,7 +12,7 @@ class LoupeWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LoupeWindow(EditData *pEditData, CSettings *pSetting, QWidget *parent = 0);
+    explicit LoupeWindow(EditData *pEditData, Settings *pSetting, QWidget *parent = 0);
 
     bool keyPress(QKeyEvent *event);
 
@@ -30,7 +30,7 @@ protected:
 
 private:
     EditData *m_pEditData;
-    CSettings *m_pSetting;
+    Settings *m_pSetting;
     QLabel *m_pLabel;
     MainWindow *m_pMainWindow;
     QCheckBox *m_pCheckBox_Cursor, *m_pCheckBox_Center;

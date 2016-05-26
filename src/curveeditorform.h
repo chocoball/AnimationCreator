@@ -18,7 +18,7 @@ class CurveEditorForm : public QWidget
     Q_OBJECT
 
 public:
-    explicit CurveEditorForm(EditData *pEditData, CSettings *pSetting, QWidget *parent = 0);
+    explicit CurveEditorForm(EditData *pEditData, Settings *pSetting, QWidget *parent = 0);
     ~CurveEditorForm();
 
     void setSplitterPos();
@@ -35,7 +35,7 @@ public slots:
 private:
     Ui::CurveEditorForm *ui;
     EditData *m_pEditData;
-    CSettings *m_pSetting;
+    Settings *m_pSetting;
 
     CurveGraphLabel *m_pGraphLabel;
     float m_fMag;

@@ -4,7 +4,7 @@
 #include "ui_animationform.h"
 #include <QStandardItemModel>
 
-AnimationForm::AnimationForm(EditData *pImageData, CSettings *pSetting, QWidget *parent)
+AnimationForm::AnimationForm(EditData *pImageData, Settings *pSetting, QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::AnimationForm)
 {

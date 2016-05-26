@@ -21,7 +21,7 @@ class ImageWindow : public QWidget
     Q_OBJECT
 
 public:
-    explicit ImageWindow(CSettings *p, EditData *pEditImage, AnimationForm *pAnimForm, MainWindow *pMainWindow, QWidget *parent = 0);
+    explicit ImageWindow(Settings *p, EditData *pEditImage, AnimationForm *pAnimForm, MainWindow *pMainWindow, QWidget *parent = 0);
     ~ImageWindow();
 
     void setAnimationForm(AnimationForm *p)
@@ -68,7 +68,7 @@ public slots:
 private:
     Ui::ImageWindow *ui;
 
-    CSettings *m_pSetting;
+    Settings *m_pSetting;
     EditData *m_pEditData;
 
     AnimationForm *m_pAnimationForm;

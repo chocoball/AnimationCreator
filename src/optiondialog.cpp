@@ -1,6 +1,6 @@
 #include "optiondialog.h"
 
-OptionDialog::OptionDialog(CSettings *pSetting, AnimeGLWidget *pGlWidget, QWidget *parent)
+OptionDialog::OptionDialog(Settings *pSetting, AnimeGLWidget *pGlWidget, QWidget *parent)
     : QDialog(parent)
 {
     FileTab *pFileTab = new FileTab(pSetting);
@@ -22,7 +22,7 @@ OptionDialog::OptionDialog(CSettings *pSetting, AnimeGLWidget *pGlWidget, QWidge
 }
 
 // ファイル タブ
-FileTab::FileTab(CSettings *pSetting, QWidget *parent)
+FileTab::FileTab(Settings *pSetting, QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::OptionFileTab)
 {
@@ -76,7 +76,7 @@ void FileTab::slot_changeBackupNum(int num)
 }
 
 // アニメーションウィンドウ タブ
-AnimeWindowTab::AnimeWindowTab(CSettings *pSetting, AnimeGLWidget *pGlWidget, QWidget *parent)
+AnimeWindowTab::AnimeWindowTab(Settings *pSetting, AnimeGLWidget *pGlWidget, QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::OptionAnimationTab)
     , m_pGlWidget(pGlWidget)
@@ -195,7 +195,7 @@ void AnimeWindowTab::slot_changeUseZSort(bool flag)
 }
 
 // イメージウィンドウ タブ
-ImageWindowTab::ImageWindowTab(CSettings *pSetting, QWidget *parent)
+ImageWindowTab::ImageWindowTab(Settings *pSetting, QWidget *parent)
     : QWidget(parent)
 {
     m_pSetting = pSetting;
@@ -229,7 +229,7 @@ void ImageWindowTab::slot_changeBGColor(QString colorName)
 }
 
 // キーボードタブ
-KeyboardTab::KeyboardTab(CSettings *pSetting, QWidget *parent)
+KeyboardTab::KeyboardTab(Settings *pSetting, QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::KeyboardTab)
 {

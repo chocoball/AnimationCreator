@@ -1,7 +1,7 @@
 #include "exportpngform.h"
 #include "ui_exportpngform.h"
 
-ExportPNGForm::ExportPNGForm(EditData *pEditData, CSettings *pSetting, QWidget *parent)
+ExportPNGForm::ExportPNGForm(EditData *pEditData, Settings *pSetting, QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::ExportPNGForm)
 {

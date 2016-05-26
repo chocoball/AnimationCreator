@@ -1,6 +1,6 @@
 #include "setting.h"
 
-void CSettings::read()
+void Settings::read()
 {
     QSettings settings(qApp->applicationDirPath() + "/settnig.ini", QSettings::IniFormat);
     qDebug() << "readRootSetting\n"
@@ -97,7 +97,7 @@ void CSettings::read()
     settings.endGroup();
 }
 
-void CSettings::write()
+void Settings::write()
 {
     QSettings settings(qApp->applicationDirPath() + "/settnig.ini", QSettings::IniFormat);
     qDebug() << "writeRootSetting writable:" << settings.isWritable();

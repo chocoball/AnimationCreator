@@ -4,7 +4,7 @@
 #include "include.h"
 #include <QtGui>
 
-class CSettings
+class Settings
 {
 public:
     void read();

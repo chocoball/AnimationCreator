@@ -7,7 +7,7 @@
 #include <QGraphicsView>
 #include <QPixmap>
 
-ImageWindow::ImageWindow(CSettings *p, EditData *pEditImage, AnimationForm *pAnimForm, MainWindow *pMainWindow, QWidget *parent)
+ImageWindow::ImageWindow(Settings *p, EditData *pEditImage, AnimationForm *pAnimForm, MainWindow *pMainWindow, QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::ImageWindow)
 {
