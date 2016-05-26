@@ -9,7 +9,7 @@ AnimationWindowSplitter::~AnimationWindowSplitter()
 {
 }
 
-void AnimationWindowSplitter::MoveSplitter(int pos, int index)
+void AnimationWindowSplitter::moveSplitter(int pos, int index)
 {
     //	qDebug("MoveSplitter pos:%d index:%d", pos, index) ;
 

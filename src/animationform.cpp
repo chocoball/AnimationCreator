@@ -356,7 +356,7 @@ void AnimationForm::setSplitterPos(int pos, int index)
     {
         return;
     }
-    m_pSplitter->MoveSplitter(pos, index);
+    m_pSplitter->moveSplitter(pos, index);
 }
 
 // オブジェクト新規作成

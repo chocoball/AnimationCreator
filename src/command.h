@@ -1,12 +1,14 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
-#include "editdata.h"
+#include "framedata.h"
 #include <QStandardItemModel>
 #include <QUndoCommand>
 #include <QtGui>
 
 class EditData;
+class ObjectModel;
+class ObjectItem;
 
 class CommandBase : public QUndoCommand
 {

@@ -59,12 +59,12 @@ GLuint AnimeGLWidget::bindTexture(QImage &image)
         pTexture->setMagnificationFilter(QOpenGLTexture::Linear);
     }
     doneCurrent();
-    return m_pTextureCacheManager->Add(pTexture);
+    return m_pTextureCacheManager->add(pTexture);
 }
 void AnimeGLWidget::deleteTexture(GLuint texId)
 {
     makeCurrent();
-    m_pTextureCacheManager->Remove(texId);
+    m_pTextureCacheManager->remove(texId);
     doneCurrent();
 }
 
@@ -154,7 +154,7 @@ void AnimeGLWidget::paintGL()
 
         m_textureShaderProgram.bind();
 
-        QOpenGLTexture *pTex = m_pTextureCacheManager->Get(m_backImageTex);
+        QOpenGLTexture *pTex = m_pTextureCacheManager->get(m_backImageTex);
         if (pTex)
         {
             pTex->bind();
@@ -564,7 +564,7 @@ void AnimeGLWidget::drawFrameData(const FrameData &data, QMatrix4x4 mat, QColor 
     uvF.setTop((float)(Image.height() - uv.top()) / Image.height());
     uvF.setBottom((float)(Image.height() - uv.bottom()) / Image.height());
 
-    QOpenGLTexture *pTex = m_pTextureCacheManager->Get(p->nTexObj);
+    QOpenGLTexture *pTex = m_pTextureCacheManager->get(p->nTexObj);
     if (pTex)
     {
         pTex->bind();

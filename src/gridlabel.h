@@ -25,7 +25,7 @@ public:
     }
     void setCatchable(bool flag) { m_bCatchable = flag; }
 
-    bool IsRectMove(void) { return m_bRectMove; }
+    bool isRectMove(void) { return m_bRectMove; }
 
     void setDrawCenter(bool flag);
 

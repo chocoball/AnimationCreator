@@ -62,7 +62,7 @@ CurveEditorForm::~CurveEditorForm()
 
 void CurveEditorForm::setSplitterPos()
 {
-    m_pSplitter->MoveSplitter(m_pSetting->getCurveSplitterWidth(), m_pSetting->getCurveSplitterWidthIndex());
+    m_pSplitter->moveSplitter(m_pSetting->getCurveSplitterWidth(), m_pSetting->getCurveSplitterWidthIndex());
 }
 
 void CurveEditorForm::resizeEvent(QResizeEvent * /*event*/)

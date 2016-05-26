@@ -12,9 +12,9 @@ public:
     TextureCacheManager();
     virtual ~TextureCacheManager();
 
-    GLuint Add(QOpenGLTexture *pTex);
-    void Remove(GLuint id);
-    QOpenGLTexture *Get(GLuint id);
+    GLuint add(QOpenGLTexture *pTex);
+    void remove(GLuint id);
+    QOpenGLTexture *get(GLuint id);
 
 private:
     GLuint m_currentId;
