@@ -113,10 +113,10 @@ void EditData::cmd_delFrameData(QModelIndex &index, int frame)
 
 // フレームデータ編集コマンド
 void EditData::cmd_editFrameData(QModelIndex index,
-                                  int frame,
-                                  FrameData &data,
-                                  FrameData *pOld,
-                                  QWidget *animeWidget)
+                                 int frame,
+                                 FrameData &data,
+                                 FrameData *pOld,
+                                 QWidget *animeWidget)
 {
     m_pUndoStack->push(new Command_EditFrameData(this, index, frame, data, pOld, animeWidget));
 }

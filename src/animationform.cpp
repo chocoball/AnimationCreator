@@ -1868,7 +1868,6 @@ void AnimationForm::addNewObject(QString str)
 void AnimationForm::addCommandEdit(FrameData data, FrameData *pOld)
 {
     int frame = m_pEditData->getSelectFrame();
-    QList<QWidget *> update;
 
     m_pEditData->cmd_editFrameData(m_pEditData->getSelIndex(), frame, data, pOld, this);
     emit sig_changeSelectLayer(m_pEditData->getSelIndex());
