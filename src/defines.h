@@ -1,6 +1,8 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
+#include <Qt>
+
 #define kExecName "Animation Creator2"
 #define kVersion "2.0.0"
 
