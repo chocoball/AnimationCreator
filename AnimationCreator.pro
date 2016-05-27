@@ -16,7 +16,11 @@ TEMPLATE = app
 SOURCES += \
     src/animationform.cpp \
     src/animationwindowsplitter.cpp \
-    src/anm2d.cpp \
+    src/data/anm2dbase.cpp \
+    src/data/anm2dbin.cpp \
+    src/data/anm2dxml.cpp \
+    src/data/anm2djson.cpp \
+    src/data/anm2dasm.cpp \
     src/application.cpp \
     src/brightlabel.cpp \
     src/datamarkerlabel.cpp \
@@ -49,8 +53,13 @@ SOURCES += \
 HEADERS += \
     src/animationform.h \
     src/animationwindowsplitter.h \
-    src/anm2dtypes.h \
-    src/anm2d.h \
+    src/data/anm2dtypes.h \
+    src/data/anm2d.h \
+    src/data/anm2dbase.h \
+    src/data/anm2dbin.h \
+    src/data/anm2dxml.h \
+    src/data/anm2djson.h \
+    src/data/anm2dasm.h \
     src/application.h \
     src/brightlabel.h \
     src/datamarkerlabel.h \

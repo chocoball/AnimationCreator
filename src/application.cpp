@@ -1,5 +1,5 @@
 #include "application.h"
-#include "anm2d.h"
+#include "data/anm2d.h"
 #include "editdata.h"
 #include "mainwindow.h"
 #include <QDebug>

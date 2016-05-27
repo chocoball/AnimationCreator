@@ -17,5 +17,5 @@ void AnimationWindowSplitter::moveSplitter(int pos, int index)
     {
         return;
     }
-    moveSplitter(pos, index);
+    QSplitter::moveSplitter(pos, index);
 }

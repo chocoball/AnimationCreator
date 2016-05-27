@@ -11,4 +11,11 @@ public:                                             \
 private:                                            \
     type member
 
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+#include <stdint.h>
+#define LP_ADD(p, n) (uint64_t)((uint64_t)((uint64_t *)(p)) + (uint64_t)((uint64_t *)(n)))
+#else
+#define LP_ADD(p, n) (unsigned int)((unsigned int)(p) + (unsigned int)(n))
+#endif
+
 #endif // INCLUDE_H

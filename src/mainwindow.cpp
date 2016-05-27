@@ -1,5 +1,5 @@
 #include "mainwindow.h"
-#include "anm2d.h"
+#include "data/anm2d.h"
 #include "colorpickerform.h"
 #include "imagewindow.h"
 #include "optiondialog.h"
