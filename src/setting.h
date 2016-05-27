@@ -1,7 +1,7 @@
 #ifndef SETTING_H
 #define SETTING_H
 
-#include "include.h"
+#include "defines.h"
 #include <QtGui>
 
 class Settings

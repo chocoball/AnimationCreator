@@ -4,7 +4,7 @@
 #include "animationwindowsplitter.h"
 #include "curvegraphlabel.h"
 #include "editdata.h"
-#include "include.h"
+#include "defines.h"
 #include "setting.h"
 #include <QWidget>
 

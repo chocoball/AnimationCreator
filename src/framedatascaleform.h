@@ -2,7 +2,7 @@
 #define FRAMEDATASCALEFORM_H
 
 #include "editdata.h"
-#include "include.h"
+#include "defines.h"
 #include <QWidget>
 
 namespace Ui

@@ -81,7 +81,6 @@ HEADERS += \
     src/helpbrowser.h \
     src/helpwindow.h \
     src/imagewindow.h \
-    src/include.h \
     src/keyboardmodel.h \
     src/mainwindow.h \
     src/objectitem.h \

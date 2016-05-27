@@ -2,7 +2,7 @@
 #define CURVEGRAPHLABEL_H
 
 #include "editdata.h"
-#include "include.h"
+#include "defines.h"
 #include <QLabel>
 #include <QModelIndex>
 

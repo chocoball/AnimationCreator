@@ -2,7 +2,7 @@
 #define OBJECTITEM_H
 
 #include "framedata.h"
-#include "include.h"
+#include "defines.h"
 #include <QBrush>
 #include <QList>
 #include <QModelIndex>
