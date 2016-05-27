@@ -51,16 +51,9 @@ public:
     QModelIndex getIndex(ObjectItem *root, int row, int *currRow);
 
     void updateIndex();
-
     void flat();
-
     bool isUseImage(int imageNo);
-
-    void copy(ObjectModel *p)
-    {
-        this->m_pRoot->copy(p->m_pRoot);
-        updateIndex();
-    }
+    void copy(ObjectModel *p);
 
 private:
     void updateIndex(ObjectItem *pItem, const QModelIndex &parent, int row);

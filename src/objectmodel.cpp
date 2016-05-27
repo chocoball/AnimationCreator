@@ -391,3 +391,9 @@ bool ObjectModel::isUseImage(int imageNo)
 {
     return m_pRoot->isUseImageRecv(imageNo);
 }
+
+void ObjectModel::copy(ObjectModel *p)
+{
+    this->m_pRoot->copy(p->m_pRoot);
+    updateIndex();
+}
