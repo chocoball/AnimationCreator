@@ -1,5 +1,5 @@
 #include "objectmodel.h"
-#include "editdata.h"
+#include "../editdata.h"
 
 // ---------------------------------------------------------------------------------
 //

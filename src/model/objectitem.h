@@ -1,8 +1,8 @@
 #ifndef OBJECTITEM_H
 #define OBJECTITEM_H
 
-#include "framedata.h"
-#include "defines.h"
+#include "../framedata.h"
+#include "../defines.h"
 #include <QBrush>
 #include <QList>
 #include <QModelIndex>
@@ -69,7 +69,6 @@ public:
     FrameData *getFrameDataFromNextFrame(int frame);
     bool isContain(ObjectItem **ppRet, QPoint &pos, int frame, bool bChild = true, bool bCheckFlag = true);
 
-    QPointF getBezierPos(int frame, bool *pValid);
     bool isUseImageRecv(int imageNo);
 
     bool validate(bool bRecv = true);

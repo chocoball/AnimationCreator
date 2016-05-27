@@ -14,13 +14,15 @@ TEMPLATE = app
 
 
 SOURCES += \
-    src/animationform.cpp \
-    src/animationwindowsplitter.cpp \
+    src/data/anm2dasm.cpp \
     src/data/anm2dbase.cpp \
     src/data/anm2dbin.cpp \
-    src/data/anm2dxml.cpp \
     src/data/anm2djson.cpp \
-    src/data/anm2dasm.cpp \
+    src/data/anm2dxml.cpp \
+    src/model/objectitem.cpp \
+    src/model/objectmodel.cpp \
+    src/animationform.cpp \
+    src/animationwindowsplitter.cpp \
     src/application.cpp \
     src/brightlabel.cpp \
     src/datamarkerlabel.cpp \
@@ -42,8 +44,6 @@ SOURCES += \
     src/keyboardmodel.cpp \
     src/main.cpp \
     src/mainwindow.cpp \
-    src/objectitem.cpp \
-    src/objectmodel.cpp \
     src/objectscaleform.cpp \
     src/optiondialog.cpp \
     src/setting.cpp \
@@ -51,15 +51,17 @@ SOURCES += \
     src/util.cpp
 
 HEADERS += \
-    src/animationform.h \
-    src/animationwindowsplitter.h \
-    src/data/anm2dtypes.h \
     src/data/anm2d.h \
+    src/data/anm2dasm.h \
     src/data/anm2dbase.h \
     src/data/anm2dbin.h \
-    src/data/anm2dxml.h \
     src/data/anm2djson.h \
-    src/data/anm2dasm.h \
+    src/data/anm2dtypes.h \
+    src/data/anm2dxml.h \
+    src/model/objectitem.h \
+    src/model/objectmodel.h \
+    src/animationform.h \
+    src/animationwindowsplitter.h \
     src/application.h \
     src/brightlabel.h \
     src/datamarkerlabel.h \
@@ -83,8 +85,6 @@ HEADERS += \
     src/imagewindow.h \
     src/keyboardmodel.h \
     src/mainwindow.h \
-    src/objectitem.h \
-    src/objectmodel.h \
     src/objectscaleform.h \
     src/optiondialog.h \
     src/setting.h \

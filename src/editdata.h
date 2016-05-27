@@ -2,7 +2,7 @@
 #define EDITDATA_H
 
 #include "rect.h"
-#include "objectmodel.h"
+#include "model/objectmodel.h"
 #include <QImage>
 #include <QList>
 #include <QUndoStack>
