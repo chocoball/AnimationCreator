@@ -25,7 +25,6 @@ private:
     bool m_bFlat;
     ObjectModel *m_pModel;
     QString m_Data;
-    int m_ObjNum, m_ImageNum;
 };
 
 #endif // ANM2DJSON_H

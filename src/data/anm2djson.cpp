@@ -10,8 +10,6 @@ Anm2DJson::Anm2DJson(bool bFlat)
 {
     m_bFlat = bFlat;
     m_pModel = NULL;
-    m_ObjNum = 0;
-    m_ImageNum = 0;
 }
 
 Anm2DJson::~Anm2DJson()
