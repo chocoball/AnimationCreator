@@ -1,8 +1,8 @@
 #ifndef EDITDATA_H
 #define EDITDATA_H
 
-#include "rect.h"
 #include "model/objectmodel.h"
+#include "rect.h"
 #include <QImage>
 #include <QList>
 #include <QUndoStack>
@@ -158,17 +158,11 @@ public:
         m_bExportPNG = false;
     }
 
-    QString getExportPNGDir(void)
-    {
-        return m_strExportPNGDir;
-    }
+    QString getExportPNGDir(void) const { return m_strExportPNGDir; }
 
-    bool isExportPNG(void)
-    {
-        return m_bExportPNG;
-    }
+    bool isExportPNG(void) const { return m_bExportPNG; }
 
-    void getExportPNGRect(int ret[4])
+    void getExportPNGRect(int ret[4]) const
     {
         ret[0] = m_exPngRect[0];
         ret[1] = m_exPngRect[1];
@@ -176,7 +170,7 @@ public:
         ret[3] = m_exPngRect[3];
     }
 
-    void setExportPNGRect(int rect[4])
+    void setExportPNGRect(const int rect[4])
     {
         m_exPngRect[0] = rect[0];
         m_exPngRect[1] = rect[1];
@@ -184,14 +178,8 @@ public:
         m_exPngRect[3] = rect[3];
     }
 
-    int getExportEndFrame(void)
-    {
-        return m_nExportEndFrame;
-    }
-    void setExportEndFrame(int frame)
-    {
-        m_nExportEndFrame = frame;
-    }
+    int getExportEndFrame(void) const { return m_nExportEndFrame; }
+    void setExportEndFrame(int frame) { m_nExportEndFrame = frame; }
     // --------------------------------------
 
     // フレームデータ コピー関連 ------------
@@ -200,14 +188,8 @@ public:
         m_CopyFrameData = data;
         m_bCopyFrameData = true;
     }
-    FrameData getCopyFrameData(void)
-    {
-        return m_CopyFrameData;
-    }
-    bool isCopyData(void)
-    {
-        return m_bCopyFrameData;
-    }
+    FrameData getCopyFrameData(void) const { return m_CopyFrameData; }
+    bool isCopyData(void) const { return m_bCopyFrameData; }
     // --------------------------------------
 
     // レイヤコピー関連 ----------------------
@@ -221,14 +203,8 @@ public:
         m_pCopyLayer->copy(p);
         m_bCopyLayer = true;
     }
-    ObjectItem *getCopyLayer(void)
-    {
-        return m_pCopyLayer;
-    }
-    bool isCopyLayer(void)
-    {
-        return m_bCopyLayer;
-    }
+    ObjectItem *getCopyLayer(void) { return m_pCopyLayer; }
+    bool isCopyLayer(void) const { return m_bCopyLayer; }
     // --------------------------------------
 
     // 全フレームデータコピー関連 -------------------
@@ -268,7 +244,7 @@ public:
     }
 
     QList<QPair<int, FrameData> > &getAllFrameDatas() { return m_copyAllFrames; }
-    int getAllFrameDataObjRow() { return m_copyAllFrameObjRow; }
+    int getAllFrameDataObjRow() const { return m_copyAllFrameObjRow; }
 
     // --------------------------------------
 

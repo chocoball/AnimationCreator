@@ -41,7 +41,7 @@
 class Anm2DXml : public Anm2DBase
 {
 public:
-    Anm2DXml(bool bSaveImage);
+    explicit Anm2DXml(bool bSaveImage);
 
     bool makeFromEditData(EditData &rEditData);
     bool makeFromFile(QDomDocument &xml, EditData &rEditData, bool bAdd = false);

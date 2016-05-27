@@ -10,7 +10,7 @@
 class Anm2DAsm : public Anm2DBase
 {
 public:
-    Anm2DAsm(bool bFlat);
+    explicit Anm2DAsm(bool bFlat);
     ~Anm2DAsm();
 
     bool makeFromEditDataTip(QString qsLabel, ObjectItem *pObj);
@@ -19,7 +19,7 @@ public:
     void makeFromEditData2IncTip(QString qsLabel, ObjectItem *pObj);
     bool makeFromEditData2Inc(EditData &rEditData, QString qsFname);
 
-    QString getData() { return m_Data; }
+    const QString getData() const { return m_Data; }
 
 private:
     void addString(QString str, int tab = 0);

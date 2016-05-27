@@ -17,7 +17,7 @@ public:
     QByteArray &getData() { return m_Data; }
 
 private:
-    bool makeHeader(QByteArray &rData, EditData &rEditData, QList<QByteArray> &objectList, QList<QByteArray> &layerList, QList<QByteArray> &frameList);
+    static bool makeHeader(QByteArray &rData, EditData &rEditData, QList<QByteArray> &objectList, QList<QByteArray> &layerList, QList<QByteArray> &frameList);
     bool makeObject(ObjectItem *pObj, QList<QByteArray> &objList, QList<QByteArray> &layerList, QList<QByteArray> &frameList);
     bool makeLayer(ObjectItem *pLayer, int *pLayerNo, Anm2DObject *pObjData, QList<QByteArray> &layerList, QList<QByteArray> &frameList, int parentNo);
     bool makeImageList(QList<QByteArray> &rData, EditData &rEditData);

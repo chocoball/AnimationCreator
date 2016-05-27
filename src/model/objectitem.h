@@ -1,8 +1,8 @@
 #ifndef OBJECTITEM_H
 #define OBJECTITEM_H
 
-#include "../framedata.h"
 #include "../defines.h"
+#include "../framedata.h"
 #include <QBrush>
 #include <QList>
 #include <QModelIndex>
@@ -47,7 +47,7 @@ public:
     // -----------------------------------------------
     // FRAMEDATA
     // -----------------------------------------------
-    const QList<FrameData> &getFrameData() { return m_frameDatas; }
+    const QList<FrameData> &getFrameData() const { return m_frameDatas; }
     void setFrameDatas(const QList<FrameData> &data) { m_frameDatas = data; }
 
     void addFrameData(const FrameData &data);
@@ -80,10 +80,10 @@ public:
     kAccessor(QModelIndex, m_index, Index);
 
 private:
-    bool isContain(FrameData &displayData, QPoint &pos, const QMatrix4x4 &matDisp);
+    static bool isContain(FrameData &displayData, QPoint &pos, const QMatrix4x4 &matDisp);
 
     void applyFrameDataFromParent();
-    int getParentFrameMax();
+    int getParentFrameMax() const;
     FrameData *getParentFrameDataPtr(int frame);
 
     int getAllChildNum(ObjectItem *root);

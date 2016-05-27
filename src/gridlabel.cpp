@@ -3,6 +3,7 @@
 
 GridLabel::GridLabel(EditData *pEditData, int nTabIndex, QWidget *parent)
     : QLabel(parent)
+    , m_bRectMove(false)
 {
     m_pEditData = pEditData;
     mScale = 1;

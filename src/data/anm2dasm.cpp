@@ -11,6 +11,8 @@ Anm2DAsm::Anm2DAsm(bool bFlat)
 {
     m_bFlat = bFlat;
     m_pModel = NULL;
+    memset(m_bUnused, 0, sizeof(m_bUnused));
+    m_nCnt = 0;
 }
 
 Anm2DAsm::~Anm2DAsm()

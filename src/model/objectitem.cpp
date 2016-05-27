@@ -519,7 +519,7 @@ void ObjectItem::applyFrameDataFromParent()
     m_frameDatas = datas;
 }
 
-int ObjectItem::getParentFrameMax()
+int ObjectItem::getParentFrameMax() const
 {
     int ret = 0;
     ObjectItem *parent = m_pParent;

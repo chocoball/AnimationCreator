@@ -7,6 +7,33 @@
 class Settings
 {
 public:
+    Settings()
+        : m_bSaveImage(false)
+        , m_bUseBackImage(false)
+        , m_bDrawFrame(false)
+        , m_bDrawCenter(false)
+        , m_bFlat(false)
+        , m_bLayerHierarchy(false)
+        , m_bUseDepthTest(false)
+        , m_bUseZSort(false)
+        , m_bBackup(false)
+        , m_bCheckGrid(false)
+        , m_bCheckLinearFilter(false)
+        , m_anmWindowTreeWidth(0)
+        , m_anmWindowTreeWidthIndex(0)
+        , m_anmWindowScreenW(0)
+        , m_anmWindowScreenH(0)
+        , m_anmWindowW(0)
+        , m_anmWindowH(0)
+        , m_curveSplitterWidth(0)
+        , m_curveSplitterWidthIndex(0)
+        , m_frameStart(0)
+        , m_frameEnd(0)
+        , m_backupNum(0)
+    {
+    }
+    virtual ~Settings() {}
+
     void read();
     void write();
 

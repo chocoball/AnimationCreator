@@ -34,14 +34,14 @@ public:
     }
     virtual ~Anm2DBase() {}
 
-    int getErrorNo() { return m_nError; }
+    int getErrorNo() const { return m_nError; }
     void setFilePath(QString &str) { m_filePath = str; }
 
     QString getErrorString();
     // srcからdestへの相対パスを取得
-    QString getRelativePath(QString &src, QString &dest);
+    static QString getRelativePath(QString &src, QString &dest);
     // srcからdestへの相対パスを絶対パスに変換
-    QString getAbsolutePath(QString &src, QString &dest);
+    static QString getAbsolutePath(QString &src, QString &dest);
 
 protected:
     int m_nError;

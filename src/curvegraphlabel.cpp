@@ -5,6 +5,9 @@
 
 CurveGraphLabel::CurveGraphLabel(EditData *pEditData, QWidget *parent)
     : QLabel(parent)
+    , m_currMag(0.0f)
+    , m_dispStepH(0.0f)
+    , m_dataSingleStep(0.0f)
 {
     m_pEditData = pEditData;
     m_currDispType = kDispType_None;

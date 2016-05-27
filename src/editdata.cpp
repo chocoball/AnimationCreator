@@ -4,9 +4,12 @@
 #include <QtGui>
 
 EditData::EditData()
+    : m_pTreeViewRef(NULL)
+    , m_pUndoStack(NULL)
+    , m_nExportEndFrame(0)
+    , m_pCopyLayer(NULL)
+    , m_copyAllFrameObjRow(0)
 {
-    m_pUndoStack = NULL;
-    m_pCopyLayer = NULL;
     initData();
 }
 

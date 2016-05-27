@@ -13,7 +13,7 @@ class ObjectItem;
 class CommandBase : public QUndoCommand
 {
 public:
-    CommandBase(const QString &text)
+    explicit CommandBase(const QString &text)
         : QUndoCommand(text)
     {
     }

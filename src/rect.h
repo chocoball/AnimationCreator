@@ -19,12 +19,12 @@ public:
         m_right = right;
         m_bottom = bottom;
     }
-    float left() { return m_left; }
-    float right() { return m_right; }
-    float top() { return m_top; }
-    float bottom() { return m_bottom; }
-    float width() { return m_right - m_left; }
-    float height() { return m_bottom - m_top; }
+    float left() const { return m_left; }
+    float right() const { return m_right; }
+    float top() const { return m_top; }
+    float bottom() const { return m_bottom; }
+    float width() const { return m_right - m_left; }
+    float height() const { return m_bottom - m_top; }
 
     void setLeft(float val) { m_left = val; }
     void setRight(float val) { m_right = val; }
@@ -56,7 +56,7 @@ public:
         return true;
     }
 
-    bool contains(const QPoint &pos)
+    bool contains(const QPoint &pos) const
     {
         float l, r, t, b;
         if (m_left > m_right)

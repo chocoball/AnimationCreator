@@ -63,13 +63,12 @@ void ImageWindow::dragEnterEvent(QDragEnterEvent *event)
 void ImageWindow::dropEvent(QDropEvent *event)
 {
     QList<QUrl> urls = event->mimeData()->urls();
-    int index = 0;
 
     for (int i = 0; i < urls.size(); i++)
     {
         QString fileName = urls[i].toLocalFile();
 
-        index = getFreeTabIndex();
+        int index = getFreeTabIndex();
 
         EditData::ImageData data;
         QImage image;

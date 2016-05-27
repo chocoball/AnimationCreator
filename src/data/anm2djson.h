@@ -8,13 +8,13 @@
 class Anm2DJson : public Anm2DBase
 {
 public:
-    Anm2DJson(bool bFlat);
+    explicit Anm2DJson(bool bFlat);
     ~Anm2DJson();
 
     bool makeFromEditData(EditData &rEditData);
-    bool makeFromFile(QString &, EditData &) { return false; }
+    static bool makeFromFile(QString &, EditData &) { return false; }
 
-    QString getData() { return m_Data; }
+    QString getData() const { return m_Data; }
 
 private:
     void addString(QString str, int tab = 0);

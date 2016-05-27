@@ -369,6 +369,7 @@ Command_CopyIndex::Command_CopyIndex(EditData *pEditData, int row, ObjectItem *p
     : CommandBase(QObject::trUtf8("レイヤコピー"))
 {
     m_pEditData = pEditData;
+    m_row = 0;
     m_relRow = row;
     m_parentRow = m_pEditData->getObjectModel()->getRow(parent);
 
